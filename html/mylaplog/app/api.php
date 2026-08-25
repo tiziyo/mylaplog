@@ -51,8 +51,14 @@ try {
     jsonResponse(500, ['error' => 'Database connection failed: ' . $e->getMessage()]);
 }
 
-// --- Session-based Auth ---
-session_start();
+// --- Secure Session Configuration ---
+$isHttps = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || (isset($_SERVER['SERVER_PORT']) && $_SERVER['SERVER_PORT'] == 443);
+session_start([
+    'cookie_httponly' => true,
+    'cookie_secure' => $isHttps,
+    'cookie_samesite' => 'Lax',
+    'use_strict_mode' => true,
+]);
 
 // --- Router ---
 $method = $_SERVER['REQUEST_METHOD'];
@@ -67,9 +73,12 @@ function jsonResponse($code, $data) {
     exit;
 }
 
-// Helper: Get JSON Body
 function getBody() {
-    return json_decode(file_get_contents('php://input'), true) ?? [];
+    $raw = file_get_contents('php://input');
+    $json = json_decode($raw, true);
+    if (is_array($json)) return $json;
+    if (!empty($_POST)) return $_POST;
+    return [];
 }
 
 // Helper: Require Auth

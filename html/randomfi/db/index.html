@@ -404,6 +404,17 @@
       color: var(--accent-green);
     }
 
+    .btn-danger {
+      background: rgba(255, 51, 102, 0.15);
+      border-color: var(--accent-red);
+      color: #ff6b81;
+    }
+
+    .btn-danger:hover {
+      background: var(--accent-red);
+      color: #fff;
+    }
+
     /* Data Table Grid */
     .table-container {
       flex: 1;
@@ -565,12 +576,12 @@
       font-family: var(--font-mono);
     }
 
-    /* Cell Modal */
+    /* Modal Overlay & Lock Screen */
     .modal-overlay {
       position: fixed;
       top: 0; left: 0; width: 100vw; height: 100vh;
-      background: rgba(0, 0, 0, 0.75);
-      backdrop-filter: blur(4px);
+      background: rgba(0, 0, 0, 0.82);
+      backdrop-filter: blur(8px);
       z-index: 100;
       display: none;
       align-items: center;
@@ -578,6 +589,7 @@
       padding: 2rem;
     }
     .modal-overlay.active { display: flex; }
+
     .modal-box {
       background: var(--bg-card);
       border: 1px solid var(--border);
@@ -588,6 +600,18 @@
       display: flex;
       flex-direction: column;
       box-shadow: 0 20px 50px rgba(0,0,0,0.8);
+    }
+
+    /* Master Auth Card */
+    .auth-lock-card {
+      background: #111728;
+      border: 1px solid var(--accent-cyan);
+      box-shadow: 0 0 35px var(--accent-cyan-glow);
+      border-radius: 16px;
+      max-width: 440px;
+      width: 100%;
+      padding: 2.25rem 2rem;
+      text-align: center;
     }
   </style>
 </head>
@@ -641,20 +665,27 @@
         <span class="breadcrumb-table" id="top-current-table">-</span>
       </div>
 
-      <nav class="nav-tabs">
-        <button class="nav-tab-btn active" data-tab="data" onclick="switchViewTab('data')">
-          <i data-lucide="table"></i> 데이터 탐색
+      <div style="display:flex; align-items:center; gap:0.75rem;">
+        <nav class="nav-tabs">
+          <button class="nav-tab-btn active" data-tab="data" onclick="switchViewTab('data')">
+            <i data-lucide="table"></i> 데이터 탐색
+          </button>
+          <button class="nav-tab-btn" data-tab="schema" onclick="switchViewTab('schema')">
+            <i data-lucide="columns"></i> 스키마 구조
+          </button>
+          <button class="nav-tab-btn" data-tab="query" onclick="switchViewTab('query')">
+            <i data-lucide="terminal"></i> SQL 콘솔
+          </button>
+          <button class="nav-tab-btn" data-tab="overview" onclick="switchViewTab('overview')">
+            <i data-lucide="pie-chart"></i> DB 요약
+          </button>
+        </nav>
+
+        <!-- Lock / Logout Button -->
+        <button class="btn btn-danger" onclick="handleMasterLogout()" title="세션 종료 및 잠금">
+          <i data-lucide="lock"></i> 잠금
         </button>
-        <button class="nav-tab-btn" data-tab="schema" onclick="switchViewTab('schema')">
-          <i data-lucide="columns"></i> 스키마 구조
-        </button>
-        <button class="nav-tab-btn" data-tab="query" onclick="switchViewTab('query')">
-          <i data-lucide="terminal"></i> SQL 콘솔
-        </button>
-        <button class="nav-tab-btn" data-tab="overview" onclick="switchViewTab('overview')">
-          <i data-lucide="pie-chart"></i> DB 요약
-        </button>
-      </nav>
+      </div>
     </header>
 
     <!-- Content Viewport -->
@@ -867,6 +898,27 @@
     </div>
   </div>
 
+  <!-- Master Auth Lock Modal -->
+  <div class="modal-overlay" id="auth-lock-modal">
+    <div class="auth-lock-card">
+      <div style="width:60px; height:60px; border-radius:50%; background:rgba(0,240,255,0.1); border:2px solid var(--accent-cyan); display:flex; align-items:center; justify-content:center; margin:0 auto 1.25rem; color:var(--accent-cyan);">
+        <i data-lucide="shield-lock" style="width:32px; height:32px;"></i>
+      </div>
+      <h2 style="font-family:var(--font-display); color:#fff; font-size:1.35rem; margin-bottom:0.4rem; letter-spacing:0.5px;">Master Access Lock</h2>
+      <p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:1.5rem;">MariaDB Web Viewer 보안 접근을 위해 마스터 비밀번호를 입력해주세요.</p>
+
+      <form onsubmit="handleMasterLogin(event)">
+        <div style="margin-bottom:1rem; text-align:left;">
+          <input type="password" id="master-password-input" class="select-styled" placeholder="마스터 비밀번호 입력" style="padding:0.75rem 1rem; font-size:0.95rem;" required autofocus>
+        </div>
+        <div id="auth-error-msg" style="color:var(--accent-red); font-size:0.8rem; margin-bottom:1rem; display:none;"></div>
+        <button type="submit" class="btn btn-cyan" style="width:100%; justify-content:center; padding:0.75rem; font-size:0.95rem; font-weight:700;">
+          <i data-lucide="key"></i> 데이터베이스 잠금 해제
+        </button>
+      </form>
+    </div>
+  </div>
+
   <script>
     lucide.createIcons();
 
@@ -894,7 +946,10 @@
       for (const [k, v] of Object.entries(params)) {
         if (v !== undefined && v !== null) url += `&${k}=${encodeURIComponent(v)}`;
       }
-      const opts = { method };
+      const opts = {
+        method,
+        credentials: 'include' // send session cookie
+      };
       if (body) {
         opts.headers = { 'Content-Type': 'application/json' };
         opts.body = JSON.stringify(body);
@@ -902,6 +957,10 @@
       try {
         const res = await fetch(url, opts);
         const data = await res.json();
+        if (res.status === 401 && action !== 'login' && action !== 'auth_status') {
+          openAuthLockModal('세션이 만료되었거나 인증되지 않았습니다.');
+          return null;
+        }
         if (!res.ok) {
           alert('API Error: ' + (data.error || res.statusText));
           return null;
@@ -913,8 +972,68 @@
       }
     }
 
-    // Initialize App
-    async function init() {
+    // Auth Control
+    function openAuthLockModal(msg = '') {
+      const errEl = document.getElementById('auth-error-msg');
+      if (msg) {
+        errEl.innerText = msg;
+        errEl.style.display = 'block';
+      } else {
+        errEl.style.display = 'none';
+      }
+      document.getElementById('auth-lock-modal').classList.add('active');
+      document.getElementById('master-password-input').focus();
+      lucide.createIcons();
+    }
+
+    function closeAuthLockModal() {
+      document.getElementById('auth-lock-modal').classList.remove('active');
+    }
+
+    async function handleMasterLogin(e) {
+      e.preventDefault();
+      const pwd = document.getElementById('master-password-input').value;
+      const errEl = document.getElementById('auth-error-msg');
+
+      try {
+        const res = await fetch(`${API}?action=login`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({ password: pwd })
+        });
+        const data = await res.json();
+        if (res.ok && data.authenticated) {
+          closeAuthLockModal();
+          document.getElementById('master-password-input').value = '';
+          await initApp();
+        } else {
+          errEl.innerText = data.error || '비밀번호가 올바르지 않습니다.';
+          errEl.style.display = 'block';
+        }
+      } catch (err) {
+        errEl.innerText = '인증 요청 실패: ' + err.message;
+        errEl.style.display = 'block';
+      }
+    }
+
+    async function handleMasterLogout() {
+      await apiFetch('logout');
+      openAuthLockModal('로그아웃 되었습니다. 다시 접속하려면 비밀번호를 입력하세요.');
+    }
+
+    // Initialize App after Auth check
+    async function checkAuthAndInit() {
+      const res = await apiFetch('auth_status');
+      if (res && res.authenticated) {
+        closeAuthLockModal();
+        await initApp();
+      } else {
+        openAuthLockModal();
+      }
+    }
+
+    async function initApp() {
       // 1. Server info
       const sInfo = await apiFetch('server_info');
       if (sInfo && sInfo.info) {
@@ -967,12 +1086,10 @@
       const filter = document.getElementById('table-filter').value.toLowerCase();
 
       let totalSize = 0;
-      let count = 0;
 
       currentTables.forEach(t => {
         totalSize += parseInt(t.total_bytes || 0);
         if (filter && !t.name.toLowerCase().includes(filter)) return;
-        count++;
 
         const li = document.createElement('li');
         li.className = `table-list-item ${t.name === currentTable ? 'active' : ''}`;
@@ -1321,7 +1438,6 @@
       currentModalContent = content;
       document.getElementById('cell-modal-title').innerHTML = `<i data-lucide="file-text"></i> ${column} 상세 내용`;
       
-      // Try JSON format
       try {
         const parsed = JSON.parse(content);
         document.getElementById('cell-modal-content').innerText = JSON.stringify(parsed, null, 2);
@@ -1342,8 +1458,8 @@
       alert('내용이 클립보드에 복사되었습니다.');
     }
 
-    // Start App
-    window.addEventListener('DOMContentLoaded', init);
+    // Start App with Auth Check
+    window.addEventListener('DOMContentLoaded', checkAuthAndInit);
   </script>
 </body>
 </html>

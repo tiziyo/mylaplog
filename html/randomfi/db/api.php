@@ -1,6 +1,6 @@
 <?php
 /**
- * MySQL / MariaDB Web Viewer API
+ * MySQL / MariaDB Web Viewer API with Session Authentication & Secure Cookies
  * Endpoint: /db/api.php
  */
 
@@ -14,15 +14,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit;
 }
 
+// --- Secure Session Configuration ---
+$isHttps = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || (isset($_SERVER['SERVER_PORT']) && $_SERVER['SERVER_PORT'] == 443);
+session_start([
+    'cookie_httponly' => true,
+    'cookie_secure' => $isHttps,
+    'cookie_samesite' => 'Lax',
+    'use_strict_mode' => true,
+]);
+
 $DB_HOST = 'localhost';
 $DB_USER = 'admin';
 $DB_PASS = 'StnXoa2w4DO8KE9V';
+
+// Master access password for Web Viewer
+$VIEWER_MASTER_PASS = 'StnXoa2w4DO8KE9V';
 
 function getPDO($dbname = null) {
     global $DB_HOST, $DB_USER, $DB_PASS;
     $dsn = "mysql:host=$DB_HOST;charset=utf8mb4";
     if ($dbname) {
-        // Simple sanitization for db name
         $cleanDb = preg_replace('/[^a-zA-Z0-9_]/', '', $dbname);
         $dsn .= ";dbname=$cleanDb";
     }
@@ -39,12 +50,64 @@ function jsonResponse($code, $data) {
 }
 
 function getBody() {
-    return json_decode(file_get_contents('php://input'), true) ?? [];
+    $raw = file_get_contents('php://input');
+    $json = json_decode($raw, true);
+    if (is_array($json)) return $json;
+    if (!empty($_POST)) return $_POST;
+    return [];
+}
+
+// Helper: Verify Authentication Guard
+function requireDbAuth() {
+    if (empty($_SESSION['db_authenticated']) || $_SESSION['db_authenticated'] !== true) {
+        jsonResponse(401, [
+            'error' => '접근 권한이 없습니다. 마스터 비밀번호로 로그인해주세요.',
+            'authenticated' => false
+        ]);
+    }
 }
 
 $action = $_GET['action'] ?? '';
 
 try {
+    // --- 0. AUTHENTICATION ROUTES ---
+    
+    // Check Auth Status
+    if ($action === 'auth_status') {
+        $isAuth = !empty($_SESSION['db_authenticated']) && $_SESSION['db_authenticated'] === true;
+        jsonResponse(200, ['authenticated' => $isAuth]);
+    }
+
+    // Login Action
+    if ($action === 'login' && $_SERVER['REQUEST_METHOD'] === 'POST') {
+        $body = getBody();
+        $password = $body['password'] ?? '';
+
+        if (!$password) {
+            jsonResponse(400, ['error' => '비밀번호를 입력하세요.']);
+        }
+
+        // Compare password safely
+        if (hash_equals($VIEWER_MASTER_PASS, $password)) {
+            $_SESSION['db_authenticated'] = true;
+            $_SESSION['db_auth_time'] = time();
+            jsonResponse(200, ['message' => '인증 성공', 'authenticated' => true]);
+        } else {
+            jsonResponse(401, ['error' => '비밀번호가 올바르지 않습니다.', 'authenticated' => false]);
+        }
+    }
+
+    // Logout Action
+    if ($action === 'logout') {
+        $_SESSION['db_authenticated'] = false;
+        unset($_SESSION['db_authenticated']);
+        session_destroy();
+        jsonResponse(200, ['message' => '로그아웃 완료', 'authenticated' => false]);
+    }
+
+    // --- GUARD: ALL SUBSEQUENT ACTIONS REQUIRE AUTHENTICATION ---
+    requireDbAuth();
+
     // 1. Server Info & Status
     if ($action === 'server_info') {
         $pdo = getPDO();
@@ -261,7 +324,7 @@ try {
 
         if (!$sql) jsonResponse(400, ['error' => 'SQL query cannot be empty']);
 
-        // Basic read-only safety guard (allow SELECT, SHOW, DESCRIBE, EXPLAIN)
+        // Read-only safety guard (allow SELECT, SHOW, DESCRIBE, EXPLAIN)
         $firstWord = strtoupper(preg_split('/\s+/', $sql)[0] ?? '');
         $allowedCommands = ['SELECT', 'SHOW', 'DESCRIBE', 'DESC', 'EXPLAIN'];
 
