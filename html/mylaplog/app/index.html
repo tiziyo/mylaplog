@@ -1,0 +1,2624 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MyLapLog App - 트랙데이 셋업 & 텔레메트리 로깅 포털</title>
+  <meta name="description" content="레이싱 팀과 드라이버를 위한 차량 셋업, 세션별 공기압/감쇠력 로깅, 랩타임 분석 및 팀 데이터 공유 플랫폼">
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:ital,wght@0,400;0,600;0,700;1,700&family=Noto+Sans+KR:wght@300;400;500;600;700;900&family=Orbitron:wght@600;700;800;900&display=swap" rel="stylesheet">
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- Chart.js for Telemetry & Analytics -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+    :root {
+      --bg-base: #07090e;
+      --bg-sidebar: #0b0e17;
+      --bg-card: rgba(16, 21, 33, 0.85);
+      --bg-card-elevated: #151b2b;
+      --bg-input: rgba(7, 9, 14, 0.8);
+      --accent-red: #ff2a4b;
+      --accent-red-glow: rgba(255, 42, 75, 0.35);
+      --accent-cyan: #00f0ff;
+      --accent-cyan-glow: rgba(0, 240, 255, 0.3);
+      --accent-green: #00ff88;
+      --accent-orange: #ff9100;
+      --text-main: #f0f4fc;
+      --text-muted: #8391a8;
+      --border-subtle: rgba(255, 255, 255, 0.07);
+      --border-focus: rgba(0, 240, 255, 0.5);
+      --font-display: 'Chakra Petch', sans-serif;
+      --font-mono: 'Orbitron', monospace;
+      --font-body: 'Noto Sans KR', sans-serif;
+      --sidebar-width: 260px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-base);
+      color: var(--text-main);
+      font-family: var(--font-body);
+      min-height: 100vh;
+      display: flex;
+      overflow-x: hidden;
+      background-image: 
+        radial-gradient(circle at 10% 20%, rgba(255, 42, 75, 0.05) 0%, transparent 40%),
+        radial-gradient(circle at 90% 80%, rgba(0, 240, 255, 0.04) 0%, transparent 50%),
+        linear-gradient(to bottom, #07090e, #0c101a);
+      background-attachment: fixed;
+    }
+
+    /* Ambient Background Track Grid */
+    .bg-grid-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background-size: 50px 50px;
+      background-image: 
+        linear-gradient(to right, rgba(255, 255, 255, 0.015) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255, 255, 255, 0.015) 1px, transparent 1px);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* Layout: Sidebar + Main Content Area */
+    .app-layout {
+      display: flex;
+      width: 100%;
+      min-height: 100vh;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Sidebar Navigation */
+    .sidebar {
+      width: var(--sidebar-width);
+      background: var(--bg-sidebar);
+      border-right: 1px solid var(--border-subtle);
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      z-index: 50;
+      backdrop-filter: blur(20px);
+    }
+
+    .sidebar-header {
+      padding: 1.5rem 1.25rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .logo-badge {
+      background: linear-gradient(135deg, var(--accent-red), #d61836);
+      padding: 0.25rem 0.55rem;
+      border-radius: 4px;
+      color: #fff;
+      font-family: var(--font-display);
+      font-weight: 900;
+      font-style: italic;
+      font-size: 1.1rem;
+      box-shadow: 0 0 15px var(--accent-red-glow);
+    }
+
+    .logo-text {
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 1.35rem;
+      letter-spacing: 0.5px;
+      color: #fff;
+      font-style: italic;
+    }
+
+    /* Team Switcher in Sidebar */
+    .team-badge-pill {
+      margin: 1rem 1.25rem 0.5rem;
+      background: rgba(0, 240, 255, 0.08);
+      border: 1px solid rgba(0, 240, 255, 0.25);
+      border-radius: 8px;
+      padding: 0.65rem 0.85rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .team-badge-pill:hover {
+      background: rgba(0, 240, 255, 0.15);
+      border-color: var(--accent-cyan);
+    }
+
+    .team-badge-info h6 {
+      font-size: 0.7rem;
+      color: var(--accent-cyan);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      font-family: var(--font-display);
+    }
+
+    .team-badge-info p {
+      font-size: 0.85rem;
+      color: #fff;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 160px;
+    }
+
+    /* Nav Links */
+    .nav-menu {
+      list-style: none;
+      padding: 1rem 0.75rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+      flex: 1;
+    }
+
+    .nav-item a {
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+      padding: 0.75rem 1rem;
+      border-radius: 8px;
+      color: var(--text-muted);
+      text-decoration: none;
+      font-weight: 500;
+      font-size: 0.92rem;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .nav-item a:hover {
+      color: #fff;
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    .nav-item.active a {
+      color: #fff;
+      background: linear-gradient(90deg, rgba(255, 42, 75, 0.15), rgba(255, 42, 75, 0.03));
+      border-left: 3px solid var(--accent-red);
+      font-weight: 600;
+    }
+
+    .nav-item.active a i {
+      color: var(--accent-red);
+    }
+
+    /* Sidebar Footer User Info */
+    .sidebar-footer {
+      padding: 1rem 1.25rem;
+      border-top: 1px solid var(--border-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+    }
+
+    .user-profile-flex {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      cursor: pointer;
+    }
+
+    .user-avatar {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #1e2638, #2a354f);
+      border: 2px solid var(--accent-red);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 0.85rem;
+    }
+
+    .user-details h5 {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #fff;
+      line-height: 1.2;
+    }
+
+    .user-details p {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+
+    /* Main Content */
+    .main-wrapper {
+      margin-left: var(--sidebar-width);
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Top Bar */
+    .topbar {
+      height: 70px;
+      border-bottom: 1px solid var(--border-subtle);
+      background: rgba(7, 9, 14, 0.75);
+      backdrop-filter: blur(15px);
+      padding: 0 1.75rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 40;
+    }
+
+    .page-title h1 {
+      font-family: var(--font-display);
+      font-size: 1.35rem;
+      font-weight: 700;
+      font-style: italic;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .topbar-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+      flex-wrap: wrap;
+    }
+
+    /* Buttons */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      padding: 0.55rem 1.1rem;
+      border-radius: 6px;
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 0.88rem;
+      letter-spacing: 0.4px;
+      text-decoration: none;
+      cursor: pointer;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      border: 1px solid transparent;
+      white-space: nowrap;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent-red), #d61836);
+      color: #fff;
+      box-shadow: 0 4px 15px var(--accent-red-glow);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 25px rgba(255, 42, 75, 0.5);
+      filter: brightness(1.1);
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.05);
+      color: #fff;
+      border-color: rgba(255, 255, 255, 0.15);
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: #fff;
+      transform: translateY(-2px);
+    }
+
+    .btn-cyan {
+      background: rgba(0, 240, 255, 0.1);
+      color: var(--accent-cyan);
+      border-color: rgba(0, 240, 255, 0.3);
+    }
+
+    .btn-cyan:hover {
+      background: var(--accent-cyan);
+      color: #000;
+      box-shadow: 0 0 20px var(--accent-cyan-glow);
+      transform: translateY(-2px);
+    }
+
+    .btn-outline-green {
+      background: rgba(0, 255, 136, 0.1);
+      color: var(--accent-green);
+      border-color: rgba(0, 255, 136, 0.3);
+    }
+
+    .btn-outline-green:hover {
+      background: var(--accent-green);
+      color: #000;
+      box-shadow: 0 0 15px rgba(0, 255, 136, 0.4);
+      transform: translateY(-2px);
+    }
+
+    /* Content Body */
+    .content-body {
+      padding: 2rem;
+      flex: 1;
+      max-width: 1400px;
+      width: 100%;
+      margin: 0 auto;
+    }
+
+    /* Tab Panels */
+    .tab-panel {
+      display: none;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .tab-panel.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Cards */
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 12px;
+      padding: 1.5rem;
+      backdrop-filter: blur(15px);
+      position: relative;
+      overflow: hidden;
+      margin-bottom: 1.5rem;
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.25rem;
+      padding-bottom: 0.85rem;
+      border-bottom: 1px solid var(--border-subtle);
+      flex-wrap: wrap;
+      gap: 0.75rem;
+    }
+
+    .card-title {
+      font-family: var(--font-display);
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    /* Metrics Grid */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1.25rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .stat-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 12px;
+      padding: 1.25rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .stat-card::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, var(--accent-red), transparent);
+    }
+
+    .stat-label {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      font-family: var(--font-display);
+      letter-spacing: 1px;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .stat-val {
+      font-family: var(--font-mono);
+      font-size: 1.9rem;
+      font-weight: 800;
+      color: #fff;
+      margin: 0.4rem 0 0.2rem;
+    }
+
+    .stat-sub {
+      font-size: 0.8rem;
+      color: var(--accent-green);
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+    }
+
+    /* Telemetry Setup Cards (Sessions List) */
+    .session-list-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1.5rem;
+    }
+
+    .session-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 12px;
+      padding: 1.5rem;
+      transition: all 0.25s ease;
+      cursor: pointer;
+    }
+
+    .session-card:hover {
+      border-color: var(--accent-cyan);
+      transform: translateY(-3px);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4), 0 0 20px rgba(0, 240, 255, 0.08);
+    }
+
+    .session-meta-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 1rem;
+    }
+
+    .circuit-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-subtle);
+      padding: 0.3rem 0.7rem;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      color: #fff;
+      font-weight: 600;
+    }
+
+    .session-time-display {
+      text-align: right;
+    }
+
+    .best-lap-num {
+      font-family: var(--font-mono);
+      font-size: 1.7rem;
+      font-weight: 900;
+      color: var(--accent-cyan);
+      text-shadow: 0 0 15px var(--accent-cyan-glow);
+    }
+
+    /* 4-Tire Pressure Visualizer Box */
+    .tire-box-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.5rem;
+      background: rgba(0, 0, 0, 0.35);
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      padding: 0.75rem;
+      margin: 1rem 0;
+    }
+
+    .tire-cell {
+      padding: 0.4rem 0.6rem;
+      background: rgba(255, 255, 255, 0.02);
+      border-radius: 4px;
+      font-size: 0.78rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .tire-cell span.psi {
+      font-family: var(--font-mono);
+      font-weight: 700;
+      color: #fff;
+    }
+
+    /* Garage Vehicles Grid */
+    .garage-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+    }
+
+    .vehicle-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 12px;
+      padding: 1.5rem;
+      position: relative;
+      transition: all 0.3s;
+    }
+
+    .vehicle-card:hover {
+      border-color: var(--accent-red);
+      transform: translateY(-4px);
+    }
+
+    .vehicle-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.75rem;
+    }
+
+    .vehicle-name {
+      font-family: var(--font-display);
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .vehicle-badge-active {
+      background: rgba(0, 255, 136, 0.15);
+      border: 1px solid #00ff88;
+      color: #00ff88;
+      font-size: 0.7rem;
+      padding: 0.2rem 0.5rem;
+      border-radius: 4px;
+      font-family: var(--font-display);
+    }
+
+    .vehicle-specs-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+      margin: 1rem 0;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    .vehicle-specs-list li {
+      display: flex;
+      justify-content: space-between;
+      padding-bottom: 0.3rem;
+      border-bottom: 1px dashed rgba(255, 255, 255, 0.05);
+    }
+
+    .vehicle-specs-list li span.val {
+      color: #fff;
+      font-weight: 500;
+    }
+
+    /* Team Hub Grid */
+    .team-hub-grid {
+      display: grid;
+      grid-template-columns: 1fr 2fr;
+      gap: 1.5rem;
+    }
+
+    .member-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.85rem 0;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .member-meta {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .role-badge {
+      font-size: 0.72rem;
+      padding: 0.2rem 0.55rem;
+      border-radius: 4px;
+      font-family: var(--font-display);
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .role-owner { background: rgba(255, 42, 75, 0.2); color: var(--accent-red); border: 1px solid var(--accent-red); }
+    .role-driver { background: rgba(0, 240, 255, 0.2); color: var(--accent-cyan); border: 1px solid var(--accent-cyan); }
+    .role-mechanic { background: rgba(255, 145, 0, 0.2); color: var(--accent-orange); border: 1px solid var(--accent-orange); }
+
+    /* Forms & Modals */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0, 0, 0, 0.85);
+      backdrop-filter: blur(12px);
+      z-index: 200;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+    }
+
+    .modal-overlay.active {
+      display: flex;
+    }
+
+    .modal-content {
+      background: var(--bg-card-elevated);
+      border: 1px solid var(--border-subtle);
+      border-radius: 16px;
+      max-width: 680px;
+      width: 100%;
+      max-height: 90vh;
+      overflow-y: auto;
+      padding: 2rem;
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.85);
+      position: relative;
+      animation: modalScale 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    @keyframes modalScale {
+      from { transform: scale(0.94); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .modal-close-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 1.5rem;
+      transition: color 0.2s;
+    }
+
+    .modal-close-btn:hover {
+      color: #fff;
+    }
+
+    /* Auth Tab Switcher inside Modal */
+    .auth-tab-buttons {
+      display: flex;
+      gap: 0.5rem;
+      background: rgba(0, 0, 0, 0.4);
+      padding: 0.3rem;
+      border-radius: 8px;
+      margin-bottom: 1.5rem;
+    }
+
+    .auth-tab-btn {
+      flex: 1;
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      padding: 0.6rem;
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 0.95rem;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .auth-tab-btn.active {
+      background: var(--accent-red);
+      color: #fff;
+      box-shadow: 0 0 15px var(--accent-red-glow);
+    }
+
+    .social-auth-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.75rem;
+      margin-top: 1.25rem;
+    }
+
+    .btn-social {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border-subtle);
+      color: #fff;
+      padding: 0.6rem;
+      border-radius: 6px;
+      font-size: 0.82rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.4rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-social:hover {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: #fff;
+    }
+
+    .divider-text {
+      display: flex;
+      align-items: center;
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 0.8rem;
+      margin: 1.25rem 0;
+    }
+
+    .divider-text::before, .divider-text::after {
+      content: '';
+      flex: 1;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .divider-text:not(:empty)::before { margin-right: .75em; }
+    .divider-text:not(:empty)::after { margin-left: .75em; }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1.25rem;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+
+    .form-group.full-width {
+      grid-column: 1 / -1;
+    }
+
+    .form-group label {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .form-control {
+      background: var(--bg-input);
+      border: 1px solid var(--border-subtle);
+      color: #fff;
+      padding: 0.7rem 0.9rem;
+      border-radius: 6px;
+      font-size: 0.92rem;
+      outline: none;
+      transition: border-color 0.2s;
+      font-family: inherit;
+      box-sizing: border-box;
+      width: 100%;
+      min-width: 0;
+    }
+
+    .form-control.compact-input {
+      padding: 0.55rem 0.75rem;
+      font-size: 0.88rem;
+    }
+
+    .form-control:focus {
+      border-color: var(--accent-cyan);
+      box-shadow: 0 0 10px var(--accent-cyan-glow);
+    }
+
+    /* Comparison Table */
+    .compare-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1rem;
+      font-size: 0.9rem;
+    }
+
+    .compare-table th, .compare-table td {
+      padding: 0.85rem 1rem;
+      text-align: left;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .compare-table th {
+      background: rgba(255, 255, 255, 0.02);
+      color: var(--text-muted);
+      font-family: var(--font-display);
+      text-transform: uppercase;
+      font-size: 0.8rem;
+    }
+
+    /* Toast Notification */
+    .toast {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      background: #151d2e;
+      border: 1px solid #00ff88;
+      color: #fff;
+      padding: 1rem 1.5rem;
+      border-radius: 8px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+      z-index: 300;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      transform: translateY(100px);
+      opacity: 0;
+      transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .toast.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    /* Responsive */
+    @media (max-width: 1024px) {
+      .stats-grid { grid-template-columns: repeat(2, 1fr); }
+      .session-list-grid { grid-template-columns: 1fr; }
+      .garage-grid { grid-template-columns: repeat(2, 1fr); }
+      .team-hub-grid { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 768px) {
+      .sidebar { width: 70px; }
+      .sidebar .logo-text, .sidebar .team-badge-pill, .sidebar .nav-item span, .sidebar .user-details { display: none; }
+      .main-wrapper { margin-left: 70px; }
+      .stats-grid { grid-template-columns: 1fr; }
+      .garage-grid { grid-template-columns: 1fr; }
+      .form-grid { grid-template-columns: 1fr; }
+      .topbar { height: auto; padding: 1rem; flex-direction: column; gap: 0.75rem; align-items: flex-start; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="bg-grid-overlay"></div>
+
+  <div class="app-layout">
+    
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <span class="logo-badge">LAP</span>
+        <span class="logo-text">MyLapLog</span>
+      </div>
+
+      <!-- Current Team Badge & Quick Switch -->
+      <div class="team-badge-pill" onclick="switchTab('team')">
+        <div class="team-badge-info">
+          <h6>Active Team</h6>
+          <p id="sidebar-team-name"><i data-lucide="shield"></i> Apex Racing Korea</p>
+        </div>
+        <i data-lucide="chevron-right" style="color:var(--text-muted); width:16px;"></i>
+      </div>
+
+      <!-- Navigation Tabs -->
+      <ul class="nav-menu">
+        <li class="nav-item active" data-tab="dashboard">
+          <a href="#dashboard" onclick="switchTab('dashboard')">
+            <i data-lucide="layout-dashboard"></i>
+            <span>대시보드</span>
+          </a>
+        </li>
+        <li class="nav-item" data-tab="sessions">
+          <a href="#sessions" onclick="switchTab('sessions')">
+            <i data-lucide="clipboard-list"></i>
+            <span>세션 & 셋업 로거</span>
+          </a>
+        </li>
+        <li class="nav-item" data-tab="garage">
+          <a href="#garage" onclick="switchTab('garage')">
+            <i data-lucide="car"></i>
+            <span>차량 개러지</span>
+          </a>
+        </li>
+        <li class="nav-item" data-tab="analytics">
+          <a href="#analytics" onclick="switchTab('analytics')">
+            <i data-lucide="activity"></i>
+            <span>텔레메트리 & 셋업 비교</span>
+          </a>
+        </li>
+        <li class="nav-item" data-tab="team">
+          <a href="#team" onclick="switchTab('team')">
+            <i data-lucide="users"></i>
+            <span>팀 허브 & 데이터 공유</span>
+          </a>
+        </li>
+        <li class="nav-item" data-tab="leaderboard">
+          <a href="#leaderboard" onclick="switchTab('leaderboard')">
+            <i data-lucide="trophy"></i>
+            <span>서킷 랭킹 리더보드</span>
+          </a>
+        </li>
+      </ul>
+
+      <!-- User Info Footer / Auth Trigger -->
+      <div class="sidebar-footer">
+        <div class="user-profile-flex" onclick="handleAuthButtonClick()">
+          <div class="user-avatar" id="sidebar-user-avatar">AK</div>
+          <div class="user-details">
+            <h5 id="sidebar-user-name">Alex Kim</h5>
+            <p id="sidebar-user-role"><i data-lucide="award" style="width:12px; color:var(--accent-red)"></i> PRO-AM Driver</p>
+          </div>
+        </div>
+        <button class="btn btn-secondary" style="padding: 0.35rem 0.5rem; font-size: 0.75rem;" onclick="handleLogout()" title="로그아웃">
+          <i data-lucide="log-out" style="width:14px;"></i>
+        </button>
+      </div>
+    </aside>
+
+    <!-- Main Workspace -->
+    <div class="main-wrapper">
+      
+      <!-- Top Action Bar -->
+      <header class="topbar">
+        <div class="page-title">
+          <h1 id="current-page-title"><i data-lucide="layout-dashboard"></i> 드라이버 대시보드</h1>
+        </div>
+        <div class="topbar-actions">
+          
+          <!-- Team Controls -->
+          <button class="btn btn-outline-green" onclick="openModal('create-team-modal')">
+            <i data-lucide="shield-plus"></i> 팀 등록
+          </button>
+          <button class="btn btn-secondary" onclick="openModal('join-team-modal')">
+            <i data-lucide="user-plus"></i> 팀 가입
+          </button>
+
+          <!-- Vehicle & Session Controls -->
+          <button class="btn btn-secondary" onclick="openModal('vehicle-modal')">
+            <i data-lucide="plus-circle"></i> 머신 등록
+          </button>
+          <button class="btn btn-primary" onclick="openModal('session-modal')">
+            <i data-lucide="zap"></i> 세션 로깅
+          </button>
+
+          <!-- Auth / Profile Button -->
+          <button class="btn btn-cyan" id="topbar-auth-btn" onclick="handleAuthButtonClick()">
+            <i data-lucide="user"></i> 로그인
+          </button>
+        </div>
+      </header>
+
+      <!-- Main Body Container -->
+      <main class="content-body">
+
+        <!-- ================= TAB 1: DASHBOARD ================= -->
+        <div id="tab-dashboard" class="tab-panel active">
+          
+          <!-- Key Metrics -->
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-label">
+                <span>총 주행 세션</span>
+                <i data-lucide="flag" style="color:var(--accent-red)"></i>
+              </div>
+              <div class="stat-val" id="stat-total-sessions">18</div>
+              <div class="stat-sub"><i data-lucide="trending-up"></i> 이번 달 +4 Sessions</div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-label">
+                <span>인제 스피디움 베스트</span>
+                <i data-lucide="timer" style="color:var(--accent-cyan)"></i>
+              </div>
+              <div class="stat-val" id="stat-best-inje">01:52.348</div>
+              <div class="stat-sub"><i data-lucide="arrow-down-right"></i> 이전 기록 대비 -0.42s</div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-label">
+                <span>등록된 개러지 머신</span>
+                <i data-lucide="car" style="color:var(--accent-orange)"></i>
+              </div>
+              <div class="stat-val" id="stat-total-cars">2</div>
+              <div class="stat-sub">주력: Avante N TCR</div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-label">
+                <span>소속 팀 크루</span>
+                <i data-lucide="shield" style="color:var(--accent-green)"></i>
+              </div>
+              <div class="stat-val" id="stat-team-name-card">Apex Racing</div>
+              <div class="stat-sub" id="stat-team-members-count">팀원 6명 활동 중</div>
+            </div>
+          </div>
+
+          <!-- Live Circuit Best Record Banner (Dynamic) -->
+          <div id="dashboard-highlight-container">
+            <!-- Dynamically Populated by renderDashboardHighlight() -->
+          </div>
+
+          <!-- Recent Sessions Grid -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">
+                <i data-lucide="clock"></i> 최근 로깅된 세션 목록
+              </div>
+              <button class="btn btn-cyan" onclick="switchTab('sessions')">전체 세션 보기</button>
+            </div>
+            <div class="session-list-grid" id="dashboard-recent-sessions">
+              <!-- Dynamically Populated -->
+            </div>
+          </div>
+
+        </div>
+
+        <!-- ================= TAB 2: SESSIONS & SETUP LOGGER ================= -->
+        <div id="tab-sessions" class="tab-panel">
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">
+                <i data-lucide="clipboard-list"></i> 트랙데이 세션 & 셋업 로그 히스토리
+              </div>
+              <button class="btn btn-primary" onclick="openModal('session-modal')">
+                <i data-lucide="plus"></i> 세션 로깅 추가
+              </button>
+            </div>
+            
+            <div class="session-list-grid" id="full-sessions-list">
+              <!-- Dynamically Populated -->
+            </div>
+          </div>
+        </div>
+
+        <!-- ================= TAB 3: GARAGE ================= -->
+        <div id="tab-garage" class="tab-panel">
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">
+                <i data-lucide="car"></i> 등록된 개러지 머신 (Vehicles)
+              </div>
+              <button class="btn btn-primary" onclick="openModal('vehicle-modal')">
+                <i data-lucide="plus"></i> 머신 추가
+              </button>
+            </div>
+            <div class="garage-grid" id="garage-vehicles-list">
+              <!-- Dynamically Populated -->
+            </div>
+          </div>
+        </div>
+
+        <!-- ================= TAB 4: TELEMETRY & ANALYTICS ================= -->
+        <div id="tab-analytics" class="tab-panel">
+          
+          <!-- Chart Section: Setup vs Lap Time -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">
+                <i data-lucide="line-chart"></i> 타이어 공기압 및 댐퍼 세팅에 따른 랩타임 변화 추이
+              </div>
+              <span class="circuit-badge">인제 스피디움 (Full 3.908km)</span>
+            </div>
+            <div style="height: 320px; width: 100%;">
+              <canvas id="telemetryChart"></canvas>
+            </div>
+          </div>
+
+          <!-- Teammate Setup Comparison Matrix -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">
+                <i data-lucide="git-compare"></i> 팀원 간 동일 차종/서킷 셋업 비교 (Alex Kim vs David Lee)
+              </div>
+            </div>
+            <table class="compare-table">
+              <thead>
+                <tr>
+                  <th>셋업 항목</th>
+                  <th>Alex Kim (Avante N #77)</th>
+                  <th>David Lee (Avante N #12)</th>
+                  <th>차이 (Delta) & 엔지니어 코멘트</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>베스트 랩타임</strong></td>
+                  <td><span style="color:var(--accent-cyan); font-family:var(--font-mono); font-weight:700;">01:52.348</span></td>
+                  <td><span style="color:var(--text-muted); font-family:var(--font-mono); font-weight:700;">01:53.120</span></td>
+                  <td><span style="color:var(--accent-green)">-0.772s (Alex 우세, S2 코너 진입 속도)</span></td>
+                </tr>
+                <tr>
+                  <td><strong>프론트 타이어 온간 공기압</strong></td>
+                  <td>34.0 PSI</td>
+                  <td>36.5 PSI</td>
+                  <td>David의 공기압이 다소 높아 트레드 중앙부 발열 집중</td>
+                </tr>
+                <tr>
+                  <td><strong>댐퍼 감쇠력 (F/R)</strong></td>
+                  <td>F 12단 / R 8단</td>
+                  <td>F 8단 / R 8단</td>
+                  <td>Alex가 프론트 댐퍼를 단단히 하여 헤어핀 롤 억제</td>
+                </tr>
+                <tr>
+                  <td><strong>프론트 캠버 각도</strong></td>
+                  <td>-3.2°</td>
+                  <td>-2.5°</td>
+                  <td>Alex의 -3.2° 캠버가 1번 및 4번 코너 접지면적 최적화</td>
+                </tr>
+                <tr>
+                  <td><strong>리어 윙 각도</strong></td>
+                  <td>4° (Low Drag)</td>
+                  <td>8° (High Downforce)</td>
+                  <td>직선주로 최고속도 Alex +4km/h 유리</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- ================= TAB 5: TEAM HUB ================= -->
+        <div id="tab-team" class="tab-panel">
+          <div class="team-hub-grid">
+            
+            <!-- Team Info Card -->
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">
+                  <i data-lucide="shield"></i> 소속 팀 프로필
+                </div>
+                <div style="display:flex; gap:0.4rem;">
+                  <button class="btn btn-outline-green" style="padding:0.35rem 0.7rem; font-size:0.75rem;" onclick="openModal('create-team-modal')">
+                    <i data-lucide="plus"></i> 팀 등록
+                  </button>
+                  <button class="btn btn-secondary" style="padding:0.35rem 0.7rem; font-size:0.75rem;" onclick="openModal('join-team-modal')">
+                    팀 가입
+                  </button>
+                </div>
+              </div>
+              <div style="text-align: center; padding: 1rem 0;">
+                <div id="team-logo-display" style="width:70px; height:70px; border-radius:50%; background:linear-gradient(135deg, var(--accent-red), var(--accent-cyan)); margin:0 auto 1rem; display:flex; align-items:center; justify-content:center; font-size:1.8rem; font-weight:900; color:#fff; font-family:var(--font-display);">
+                  ARK
+                </div>
+                <h3 id="team-hub-name" style="font-family:var(--font-display); color:#fff; font-size:1.4rem;">Apex Racing Korea</h3>
+                <p id="team-hub-desc" style="color:var(--text-muted); font-size:0.85rem; margin-top:0.3rem;">트랙데이 & 현대 N 페스티벌 출전 크루</p>
+                
+                <div style="background:rgba(0,0,0,0.4); border:1px dashed var(--border-subtle); border-radius:8px; padding:0.8rem; margin:1.5rem 0; display:flex; justify-content:space-between; align-items:center;">
+                  <span style="font-size:0.8rem; color:var(--text-muted)">팀 초대 코드:</span>
+                  <strong id="team-hub-code" style="font-family:var(--font-mono); color:var(--accent-cyan); letter-spacing:1px;">APEX-KOR-2026</strong>
+                  <button class="btn btn-cyan" style="padding:0.3rem 0.6rem; font-size:0.75rem;" onclick="copyInviteCode()">복사</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Team Members List -->
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">
+                  <i data-lucide="users"></i> 팀 멤버 및 데이터 공유 권한
+                </div>
+                <button class="btn btn-secondary" onclick="openModal('join-team-modal')">
+                  <i data-lucide="user-plus"></i> 새 멤버 추가
+                </button>
+              </div>
+
+              <div class="member-list" id="team-members-container">
+                <!-- Populated via JS -->
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- ================= TAB 6: LEADERBOARD ================= -->
+        <div id="tab-leaderboard" class="tab-panel">
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">
+                <i data-lucide="trophy" style="color:var(--accent-orange)"></i>
+                서킷별 공식 베스트 랩타임 랭킹 리더보드
+              </div>
+              <div style="display:flex; gap:0.5rem;">
+                <button class="btn btn-secondary active">인제 스피디움</button>
+                <button class="btn btn-secondary">영암 KIC</button>
+                <button class="btn btn-secondary">용인 스피드웨이</button>
+              </div>
+            </div>
+
+            <table class="compare-table">
+              <thead>
+                <tr>
+                  <th>순위</th>
+                  <th>드라이버</th>
+                  <th>차종 / 스펙</th>
+                  <th>소속 팀</th>
+                  <th>베스트 랩타임</th>
+                  <th>타이어</th>
+                  <th>세팅 요약</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong style="color:gold; font-size:1.1rem;">#1</strong></td>
+                  <td><strong>Alex Kim</strong></td>
+                  <td>Hyundai Avante N TCR</td>
+                  <td>Apex Racing Korea</td>
+                  <td><strong style="color:var(--accent-cyan); font-family:var(--font-mono)">01:52.348</strong></td>
+                  <td>Sur4G 245/40/18</td>
+                  <td>Cold 28 / Hot 34 PSI, -3.2° 캠버</td>
+                </tr>
+                <tr>
+                  <td><strong style="color:silver; font-size:1.1rem;">#2</strong></td>
+                  <td><strong>David Lee</strong></td>
+                  <td>Hyundai Avante N</td>
+                  <td>Apex Racing Korea</td>
+                  <td><strong style="color:var(--accent-cyan); font-family:var(--font-mono)">01:53.120</strong></td>
+                  <td>V730 245/40/18</td>
+                  <td>Cold 30 / Hot 36 PSI, -2.5° 캠버</td>
+                </tr>
+                <tr>
+                  <td><strong style="color:#cd7f32; font-size:1.1rem;">#3</strong></td>
+                  <td><strong>Minho Choi</strong></td>
+                  <td>BMW M2 Competition</td>
+                  <td>Bimmer Track Club</td>
+                  <td><strong style="color:var(--accent-cyan); font-family:var(--font-mono)">01:53.480</strong></td>
+                  <td>Trofeo R 265/35/19</td>
+                  <td>Cold 27 / Hot 33 PSI, -2.8° 캠버</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </main>
+    </div>
+  </div>
+
+  <!-- ================= MODAL: DRIVER PROFILE INFO ================= -->
+  <div class="modal-overlay" id="profile-modal">
+    <div class="modal-content" style="max-width: 500px;">
+      <div class="modal-header">
+        <h3 style="font-family:var(--font-display); color:#fff; font-size:1.3rem;">
+          <i data-lucide="user-check" style="color:var(--accent-cyan)"></i> 드라이버 프로필 정보
+        </h3>
+        <button class="modal-close-btn" onclick="closeModal('profile-modal')">&times;</button>
+      </div>
+
+      <div style="text-align: center; padding: 1.25rem 0 0.75rem;">
+        <div id="prof-avatar" style="width:75px; height:75px; border-radius:50%; background:linear-gradient(135deg, var(--accent-red), var(--accent-cyan)); margin:0 auto 0.75rem; display:flex; align-items:center; justify-content:center; font-size:1.8rem; font-weight:900; color:#fff; font-family:var(--font-display); border: 2px solid var(--accent-cyan); box-shadow: 0 0 20px var(--accent-cyan-glow);">
+          AK
+        </div>
+        <h3 id="prof-name" style="font-family:var(--font-display); color:#fff; font-size:1.4rem; margin-bottom:0.2rem;">Alex Kim</h3>
+        <p id="prof-email" style="color:var(--text-muted); font-size:0.85rem; font-family:var(--font-mono);">alex.kim@apex-racing.kr</p>
+        <div style="display:inline-block; margin-top:0.6rem; padding:0.25rem 0.75rem; background:rgba(255,42,75,0.15); border:1px solid var(--accent-red); border-radius:20px; font-size:0.8rem; color:#ff6b81; font-weight:700;">
+          <i data-lucide="award" style="width:12px; height:12px; display:inline-block; vertical-align:middle;"></i> <span id="prof-badge-class">PRO-AM Driver</span>
+        </div>
+      </div>
+
+      <!-- Driver Stats Grid -->
+      <div style="display:grid; grid-template-columns: repeat(2, 1fr); gap:0.75rem; margin:1rem 0; background:rgba(0,0,0,0.3); padding:1rem; border-radius:8px; border:1px solid var(--border-subtle);">
+        <div style="display:flex; flex-direction:column; gap:0.2rem;">
+          <span style="font-size:0.75rem; color:var(--text-muted);">KARA 라이선스</span>
+          <strong id="prof-license" style="color:#fff; font-size:0.95rem;">KARA C</strong>
+        </div>
+        <div style="display:flex; flex-direction:column; gap:0.2rem;">
+          <span style="font-size:0.75rem; color:var(--text-muted);">주 출전 클래스</span>
+          <strong id="prof-class" style="color:var(--accent-cyan); font-size:0.95rem;">PRO-AM</strong>
+        </div>
+        <div style="display:flex; flex-direction:column; gap:0.2rem;">
+          <span style="font-size:0.75rem; color:var(--text-muted);">소속 팀</span>
+          <strong id="prof-team" style="color:#fff; font-size:0.95rem;">Apex Racing Korea</strong>
+        </div>
+        <div style="display:flex; flex-direction:column; gap:0.2rem;">
+          <span style="font-size:0.75rem; color:var(--text-muted);">등록된 머신</span>
+          <strong id="prof-cars" style="color:#fff; font-size:0.95rem;">2대</strong>
+        </div>
+        <div style="display:flex; flex-direction:column; gap:0.2rem;">
+          <span style="font-size:0.75rem; color:var(--text-muted);">총 주행 세션</span>
+          <strong id="prof-sessions" style="color:var(--accent-green); font-size:0.95rem;">18 세션</strong>
+        </div>
+        <div style="display:flex; flex-direction:column; gap:0.2rem;">
+          <span style="font-size:0.75rem; color:var(--text-muted);">계정 상태</span>
+          <strong style="color:var(--accent-green); font-size:0.95rem;">인증됨 (Active)</strong>
+        </div>
+      </div>
+
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-top:1.25rem; padding-top:1rem; border-top:1px solid var(--border-subtle);">
+        <button type="button" class="btn btn-secondary" style="background:rgba(255,42,75,0.15); border-color:var(--accent-red); color:#ff6b81;" onclick="closeModal('profile-modal'); handleLogout();">
+          <i data-lucide="log-out"></i> 로그아웃
+        </button>
+        <button type="button" class="btn btn-cyan" onclick="closeModal('profile-modal')">확인</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= MODAL: AUTH (LOGIN & REGISTER) ================= -->
+  <div class="modal-overlay" id="auth-modal">
+    <div class="modal-content" style="max-width: 480px;">
+      <div class="modal-header">
+        <h3 style="font-family:var(--font-display); color:#fff; font-size:1.3rem;">
+          <i data-lucide="shield-check" style="color:var(--accent-cyan)"></i> 드라이버 계정 인증
+        </h3>
+        <button class="modal-close-btn" onclick="closeModal('auth-modal')">&times;</button>
+      </div>
+
+      <!-- Tab Switcher (Login / Register) -->
+      <div class="auth-tab-buttons">
+        <button type="button" class="auth-tab-btn active" id="btn-tab-login" onclick="toggleAuthTab('login')">로그인</button>
+        <button type="button" class="auth-tab-btn" id="btn-tab-register" onclick="toggleAuthTab('register')">회원가입</button>
+      </div>
+
+      <!-- LOGIN FORM -->
+      <form id="login-form" onsubmit="handleLogin(event)">
+        <div class="form-group" style="margin-bottom:1rem;">
+          <label>드라이버 이메일</label>
+          <input type="email" class="form-control" id="login-email" placeholder="driver@mylaplog.com" value="alex.kim@apex-racing.kr" required>
+        </div>
+        <div class="form-group" style="margin-bottom:1.5rem;">
+          <label>비밀번호</label>
+          <input type="password" class="form-control" id="login-password" placeholder="비밀번호를 입력하세요" value="password123!" required>
+        </div>
+        <button type="submit" class="btn btn-primary" style="width:100%; justify-content:center; padding:0.8rem;">
+          <i data-lucide="log-in"></i> 로그인
+        </button>
+      </form>
+
+      <!-- REGISTER FORM (Hidden by default) -->
+      <form id="register-form" style="display:none;" onsubmit="handleRegister(event)">
+        <div class="form-group" style="margin-bottom:1rem;">
+          <label>드라이버명 (닉네임/본명)</label>
+          <input type="text" class="form-control" id="reg-name" placeholder="예: James Park" required>
+        </div>
+        <div class="form-group" style="margin-bottom:1rem;">
+          <label>이메일 주소</label>
+          <input type="email" class="form-control" id="reg-email" placeholder="driver@mylaplog.com" required>
+        </div>
+        <div class="form-group" style="margin-bottom:1rem;">
+          <label>비밀번호</label>
+          <input type="password" class="form-control" id="reg-password" placeholder="8자리 이상 영문/숫자 조합" required>
+        </div>
+        <div class="form-grid" style="margin-bottom:1.5rem;">
+          <div class="form-group">
+            <label>주 출전 클래스</label>
+            <select class="form-control" id="reg-class">
+              <option value="PRO-AM">PRO-AM (타임어택/스프린트)</option>
+              <option value="Clubman">Clubman (트랙데이)</option>
+              <option value="Expert">Expert (N 페스티벌 등)</option>
+              <option value="Rookie">Rookie (초급자)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>라이선스 등급</label>
+            <select class="form-control" id="reg-license">
+              <option value="KARA C">KARA C 이상</option>
+              <option value="KARA D">KARA D / 일반</option>
+              <option value="Circuit License">서킷 라이선스 보유</option>
+            </select>
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary" style="width:100%; justify-content:center; padding:0.8rem;">
+          <i data-lucide="user-plus"></i> 회원가입 완료
+        </button>
+      </form>
+
+      <!-- Social Login Simulation -->
+      <div class="divider-text">또는 간편 로그인</div>
+      <div class="social-auth-grid">
+        <div class="btn-social" onclick="simulateSocialAuth('Google')"><i data-lucide="chrome"></i> Google</div>
+        <div class="btn-social" onclick="simulateSocialAuth('Apple')"><i data-lucide="apple"></i> Apple</div>
+        <div class="btn-social" onclick="simulateSocialAuth('Kakao')"><i data-lucide="message-circle"></i> Kakao</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= MODAL: CREATE TEAM ================= -->
+  <div class="modal-overlay" id="create-team-modal">
+    <div class="modal-content" style="max-width: 540px;">
+      <div class="modal-header">
+        <h3 style="font-family:var(--font-display); color:#fff; font-size:1.3rem;">
+          <i data-lucide="shield-plus" style="color:var(--accent-green)"></i> 새 레이싱 팀/크루 등록
+        </h3>
+        <button class="modal-close-btn" onclick="closeModal('create-team-modal')">&times;</button>
+      </div>
+      <form id="create-team-form" onsubmit="handleCreateTeam(event)">
+        <div class="form-group" style="margin-bottom:1rem;">
+          <label>레이싱 팀명 (Team Name)</label>
+          <input type="text" class="form-control" id="new-team-name" placeholder="예: Monster Garage Racing" required>
+        </div>
+        <div class="form-group" style="margin-bottom:1rem;">
+          <label>주 활동 홈 서킷</label>
+          <select class="form-control" id="new-team-track">
+            <option value="인제 스피디움">인제 스피디움</option>
+            <option value="영암 KIC">영암 KIC F1 서킷</option>
+            <option value="용인 에버랜드 스피드웨이">용인 에버랜드 스피드웨이</option>
+            <option value="태백 레이싱파크">태백 레이싱파크</option>
+          </select>
+        </div>
+        <div class="form-group" style="margin-bottom:1.5rem;">
+          <label>팀 소개 및 슬로건</label>
+          <textarea class="form-control" id="new-team-desc" rows="3" placeholder="예: 주말 트랙데이 공기압 및 텔레메트리 셋업 연구 모임"></textarea>
+        </div>
+        <div style="display:flex; justify-content:flex-end; gap:0.75rem;">
+          <button type="button" class="btn btn-secondary" onclick="closeModal('create-team-modal')">취소</button>
+          <button type="submit" class="btn btn-primary">
+            <i data-lucide="check"></i> 팀 생성 및 등록
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ================= MODAL: JOIN TEAM VIA INVITE CODE ================= -->
+  <div class="modal-overlay" id="join-team-modal">
+    <div class="modal-content" style="max-width: 480px;">
+      <div class="modal-header">
+        <h3 style="font-family:var(--font-display); color:#fff; font-size:1.3rem;">
+          <i data-lucide="key" style="color:var(--accent-cyan)"></i> 팀 초대 코드로 가입
+        </h3>
+        <button class="modal-close-btn" onclick="closeModal('join-team-modal')">&times;</button>
+      </div>
+      <form id="join-team-form" onsubmit="handleJoinTeam(event)">
+        <div class="form-group" style="margin-bottom:1.25rem;">
+          <label>팀 초대 코드 입력</label>
+          <input type="text" class="form-control" id="join-invite-code" placeholder="예: APEX-KOR-2026" style="text-transform:uppercase; font-family:var(--font-mono); letter-spacing:1px;" required>
+        </div>
+        <div class="form-group" style="margin-bottom:1.5rem;">
+          <label>팀 내 활동 역할 선택</label>
+          <select class="form-control" id="join-role">
+            <option value="Driver">드라이버 (Driver) - 세션 및 셋업 공유</option>
+            <option value="Mechanic">미캐닉/엔지니어 (Mechanic) - 셋업 조율</option>
+            <option value="Viewer">서포터/뷰어 (Viewer) - 데이터 열람</option>
+          </select>
+        </div>
+        <div style="display:flex; justify-content:flex-end; gap:0.75rem;">
+          <button type="button" class="btn btn-secondary" onclick="closeModal('join-team-modal')">취소</button>
+          <button type="submit" class="btn btn-cyan">
+            <i data-lucide="user-check"></i> 팀 가입 신청
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ================= MODAL: ADD VEHICLE ================= -->
+  <div class="modal-overlay" id="vehicle-modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 style="font-family:var(--font-display); color:#fff; font-size:1.3rem;">
+          <i data-lucide="car" style="color:var(--accent-red)"></i> 개러지 머신 등록
+        </h3>
+        <button class="modal-close-btn" onclick="closeModal('vehicle-modal')">&times;</button>
+      </div>
+      <form id="vehicle-form" onsubmit="handleSaveVehicle(event)">
+        <div class="form-grid">
+          <div class="form-group">
+            <label>제조사 (Manufacturer)</label>
+            <input type="text" class="form-control" id="veh-make" placeholder="예: Hyundai, Porsche, BMW" required>
+          </div>
+          <div class="form-group">
+            <label>모델명 (Model)</label>
+            <input type="text" class="form-control" id="veh-model" placeholder="예: Avante N, 911 GT3" required>
+          </div>
+          <div class="form-group">
+            <label>연식 (Year)</label>
+            <input type="number" class="form-control" id="veh-year" placeholder="예: 2024" value="2024" required>
+          </div>
+          <div class="form-group">
+            <label>엔진 최고 출력 (마력 hp)</label>
+            <input type="number" class="form-control" id="veh-power" placeholder="예: 280" value="280">
+          </div>
+          <div class="form-group">
+            <label>장착 타이어 모델</label>
+            <input type="text" class="form-control" id="veh-tire" placeholder="예: Sur4G, V730, RE71RS" required>
+          </div>
+          <div class="form-group">
+            <label>타이어 규격 (Front / Rear)</label>
+            <input type="text" class="form-control" id="veh-tire-size" placeholder="예: 245/40R18" value="245/40R18">
+          </div>
+          <div class="form-group full-width">
+            <label>서스펜션 & 하체 튜닝 내역</label>
+            <input type="text" class="form-control" id="veh-suspension" placeholder="예: 일체형 코일오버 (F 10k / R 8k), 캠버 플레이트">
+          </div>
+          <div class="form-group full-width">
+            <label>데이터 공개 범위</label>
+            <select class="form-control" id="veh-visibility">
+              <option value="TEAM">팀원 전체 공유 (Team Shared - 권장)</option>
+              <option value="PUBLIC">전체 공개 (Public)</option>
+              <option value="PRIVATE">나만 보기 (Private)</option>
+            </select>
+          </div>
+        </div>
+        <div style="margin-top: 1.5rem; display:flex; justify-content:flex-end; gap:0.75rem;">
+          <button type="button" class="btn btn-secondary" onclick="closeModal('vehicle-modal')">취소</button>
+          <button type="submit" class="btn btn-primary">개러지에 저장</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ================= MODAL: ADD SESSION & SETUP ================= -->
+  <div class="modal-overlay" id="session-modal">
+    <div class="modal-content" style="max-width: 800px; width: 95%; padding: 1.5rem 1.75rem;">
+      <div class="modal-header" style="margin-bottom: 1rem; padding-bottom: 0.75rem;">
+        <h3 style="font-family:var(--font-display); color:#fff; font-size:1.25rem;">
+          <i data-lucide="zap" style="color:var(--accent-red)"></i> 새 트랙데이 세션 & 셋업 로깅
+        </h3>
+        <button class="modal-close-btn" onclick="closeModal('session-modal')">&times;</button>
+      </div>
+
+      <form id="session-form" onsubmit="handleSaveSession(event)">
+        
+        <!-- 1. 기본 주행 정보 (4열 가로 컴팩트 그리드) -->
+        <div style="display: grid; grid-template-columns: 1.2fr 1.2fr 1fr 1fr; gap: 0.75rem; margin-bottom: 0.85rem;">
+          <div class="form-group">
+            <label style="font-size:0.8rem;">방문 서킷</label>
+            <select class="form-control compact-input" id="sess-track" required></select>
+          </div>
+          <div class="form-group">
+            <label style="font-size:0.8rem;">출전 머신</label>
+            <select class="form-control compact-input" id="sess-vehicle" required></select>
+          </div>
+          <div class="form-group">
+            <label style="font-size:0.8rem;">주행 일자 / 세션</label>
+            <div style="display:flex; gap:0.35rem;">
+              <input type="date" class="form-control compact-input" id="sess-date" style="flex:2;" required>
+              <input type="number" class="form-control compact-input" id="sess-num" value="1" min="1" max="20" style="flex:1; min-width:48px;" placeholder="#" required>
+            </div>
+          </div>
+          <div class="form-group">
+            <label style="font-size:0.8rem; color:var(--accent-cyan); font-weight:700;">베스트 랩 (mm:ss.sss)</label>
+            <input type="text" class="form-control compact-input" id="sess-bestlap" placeholder="01:52.348" required style="font-family:var(--font-mono); color:var(--accent-cyan); font-weight:700;">
+          </div>
+        </div>
+
+        <!-- 2. 세부 셋업 영역 (2개 컬럼: 좌측 타이어 4륜 공기압 / 우측 댐퍼&하체 셋업) -->
+        <div style="display: grid; grid-template-columns: 1.1fr 1fr; gap: 1rem; margin-bottom: 0.85rem; background: rgba(0,0,0,0.3); padding: 0.85rem 1rem; border-radius: 8px; border: 1px solid var(--border-subtle);">
+          
+          <!-- 좌측: 4륜 타이어 온간 공기압 (Hot PSI) -->
+          <div>
+            <div style="display:flex; align-items:center; gap:0.4rem; margin-bottom: 0.5rem; color:var(--accent-cyan); font-family:var(--font-display); font-size:0.85rem; font-weight:700;">
+              <i data-lucide="gauge" style="width:15px; height:15px;"></i> 타이어 온간 공기압 (Hot PSI)
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;">
+              <div class="form-group">
+                <label style="font-size:0.75rem; color:var(--text-muted);">Front Left (FL)</label>
+                <input type="number" step="0.5" class="form-control compact-input" id="sess-psi-fl" value="34.0" required>
+              </div>
+              <div class="form-group">
+                <label style="font-size:0.75rem; color:var(--text-muted);">Front Right (FR)</label>
+                <input type="number" step="0.5" class="form-control compact-input" id="sess-psi-fr" value="34.0" required>
+              </div>
+              <div class="form-group">
+                <label style="font-size:0.75rem; color:var(--text-muted);">Rear Left (RL)</label>
+                <input type="number" step="0.5" class="form-control compact-input" id="sess-psi-rl" value="32.0" required>
+              </div>
+              <div class="form-group">
+                <label style="font-size:0.75rem; color:var(--text-muted);">Rear Right (RR)</label>
+                <input type="number" step="0.5" class="form-control compact-input" id="sess-psi-rr" value="32.0" required>
+              </div>
+            </div>
+          </div>
+
+          <!-- 우측: 서스펜션 댐퍼 & 캠버/얼라인먼트 -->
+          <div>
+            <div style="display:flex; align-items:center; gap:0.4rem; margin-bottom: 0.5rem; color:var(--accent-orange); font-family:var(--font-display); font-size:0.85rem; font-weight:700;">
+              <i data-lucide="sliders" style="width:15px; height:15px;"></i> 감쇠력 & 캠버 셋업
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;">
+              <div class="form-group">
+                <label style="font-size:0.75rem; color:var(--text-muted);">프론트 댐퍼 (F단)</label>
+                <input type="number" class="form-control compact-input" id="sess-damper-f" value="12" placeholder="F단수">
+              </div>
+              <div class="form-group">
+                <label style="font-size:0.75rem; color:var(--text-muted);">리어 댐퍼 (R단)</label>
+                <input type="number" class="form-control compact-input" id="sess-damper-r" value="8" placeholder="R단수">
+              </div>
+              <div class="form-group" style="grid-column: 1 / -1;">
+                <label style="font-size:0.75rem; color:var(--text-muted);">프론트 캠버 각도 (°)</label>
+                <input type="number" step="0.1" class="form-control compact-input" id="sess-camber" value="-3.2" placeholder="예: -3.2">
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- 3. 드라이버 메모 & 피드백 -->
+        <div class="form-group" style="margin-bottom: 1rem;">
+          <label style="font-size:0.8rem;">드라이버 피드백 & 엔지니어링 메모</label>
+          <textarea class="form-control compact-input" id="sess-notes" rows="2" placeholder="예: 3번 코너 탈출 시 트랙션 우수. 후반 랩에서 리어 타이어 슬립 증가." style="resize:none;"></textarea>
+        </div>
+
+        <!-- 4. 하단 액션 버튼 -->
+        <div style="display:flex; justify-content:flex-end; gap:0.75rem; padding-top:0.75rem; border-top:1px solid var(--border-subtle);">
+          <button type="button" class="btn btn-secondary" onclick="closeModal('session-modal')">취소</button>
+          <button type="submit" class="btn btn-primary"><i data-lucide="zap"></i> 세션 로그 저장</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast" id="app-toast">
+    <i data-lucide="check-circle" style="color:var(--accent-green)"></i>
+    <span id="app-toast-text">성공적으로 처리되었습니다.</span>
+  </div>
+
+  <script>
+    // Initialize Icons
+    lucide.createIcons();
+
+    // =============================================
+    // API Configuration & Helper
+    // =============================================
+    const API_BASE = '/api';
+
+    async function api(endpoint, method = 'GET', body = null) {
+      const opts = {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include'   // Send session cookie
+      };
+      if (body) opts.body = JSON.stringify(body);
+
+      try {
+        const res = await fetch(API_BASE + endpoint, opts);
+        const data = await res.json();
+        if (!res.ok) {
+          console.warn(`API ${method} ${endpoint}:`, data.error || res.statusText);
+          return { ok: false, status: res.status, ...data };
+        }
+        return { ok: true, status: res.status, ...data };
+      } catch (err) {
+        console.warn('API fetch error (offline fallback):', err.message);
+        return { ok: false, offline: true };
+      }
+    }
+
+    // =============================================
+    // SAMPLE DEMO DATA (For Logged-out / Guest Mode)
+    // =============================================
+    const GUEST_USER = {
+      id: null,
+      name: '게스트 드라이버',
+      email: 'guest@mylaplog.com',
+      role: '게스트 모드 (체험용)',
+      avatar: 'G',
+      isLoggedIn: false
+    };
+
+    const SAMPLE_GARAGE = [
+      {
+        id: 'sample_v1',
+        make: 'Hyundai',
+        model: 'Avante N (TCR Specs)',
+        year: 2024,
+        power: 280,
+        tire: 'Sur4G (245/40/18)',
+        tire_model: 'Sur4G',
+        suspension: '일체형 코일오버 F 12k / R 8k',
+        visibility: 'TEAM'
+      },
+      {
+        id: 'sample_v2',
+        make: 'Porsche',
+        model: '718 Cayman GT4',
+        year: 2023,
+        power: 420,
+        tire: 'Cup 2 (245/35/20)',
+        tire_model: 'Cup 2',
+        suspension: 'PASM Clubsport 셋업',
+        visibility: 'TEAM'
+      }
+    ];
+
+    const SAMPLE_SESSIONS = [
+      {
+        id: 'sample_s1',
+        track: '인제 스피디움',
+        trackId: 1,
+        vehicle: 'Hyundai Avante N (TCR Specs)',
+        date: '2026-08-24',
+        sessionNum: 3,
+        bestLap: '01:52.348',
+        bestLapMs: 112348,
+        psiFL: 34.0, psiFR: 34.0, psiRL: 32.0, psiRR: 32.0,
+        damperF: 12, damperR: 8,
+        camber: -3.2,
+        notes: '공기압 34psi 맞춘 후 2번/3번 코너 접지 한계 상승. S2 섹터 베스트 기록 달성.'
+      },
+      {
+        id: 'sample_s2',
+        track: '인제 스피디움',
+        trackId: 1,
+        vehicle: 'Hyundai Avante N (TCR Specs)',
+        date: '2026-08-24',
+        sessionNum: 2,
+        bestLap: '01:52.856',
+        bestLapMs: 112856,
+        psiFL: 36.0, psiFR: 36.0, psiRL: 33.5, psiRR: 33.5,
+        damperF: 10, damperR: 8,
+        camber: -3.2,
+        notes: '공기압 다소 과열로 헤어핀 탈출 시 약간의 언더스티어 발생.'
+      },
+      {
+        id: 'sample_s3',
+        track: '영암 KIC',
+        trackId: 2,
+        vehicle: 'Hyundai Avante N (TCR Specs)',
+        date: '2026-08-10',
+        sessionNum: 1,
+        bestLap: '02:24.410',
+        bestLapMs: 144410,
+        psiFL: 33.5, psiFR: 33.5, psiRL: 31.0, psiRR: 31.0,
+        damperF: 14, damperR: 10,
+        camber: -3.5,
+        notes: '고속 코너링 안정성 우수. F1 코스 3섹터에서 만족스러운 롤 억제력.'
+      }
+    ];
+
+    const SAMPLE_TEAM = {
+      id: 'sample_team',
+      name: 'Apex Racing Korea',
+      desc: '트랙데이 & 현대 N 페스티벌 출전 크루 (샘플 데이타)',
+      homeTrack: '인제 스피디움',
+      code: 'APEX-KOR-2026',
+      members: [
+        { name: 'Alex Kim (드라이버)', car: 'Avante N TCR (#77)', role: 'owner', sessions: 18, avatar: 'AK' },
+        { name: 'David Lee', car: 'Avante N (#12)', role: 'driver', sessions: 14, avatar: 'DL' },
+        { name: 'Jin Park', car: 'Chief Mechanic', role: 'mechanic', sessions: 0, avatar: 'JP' }
+      ]
+    };
+
+    // =============================================
+    // Active Application State
+    // =============================================
+    let user = { ...GUEST_USER };
+    let garage = [];
+    let sessions = [];
+    let team = { id: null, name: '소속 팀 없음', desc: '', homeTrack: '', code: '', members: [] };
+    let tracks = [];
+
+    // Helper: format/parse lap time ms
+    function msToLapStr(ms) {
+      if (!ms || ms <= 0) return '--:--.---';
+      const mins = Math.floor(ms / 60000);
+      const secs = ((ms % 60000) / 1000).toFixed(3).padStart(6, '0');
+      return `${String(mins).padStart(2, '0')}:${secs}`;
+    }
+
+    function lapStrToMs(str) {
+      if (!str) return 0;
+      const parts = str.split(':');
+      if (parts.length === 2) {
+        return Math.round(parseFloat(parts[0]) * 60000 + parseFloat(parts[1]) * 1000);
+      }
+      return 0;
+    }
+
+    // =============================================
+    // Tab Switching
+    // =============================================
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+      document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+
+      const targetPanel = document.getElementById(`tab-${tabId}`);
+      if (targetPanel) targetPanel.classList.add('active');
+      const targetNav = document.querySelector(`.nav-item[data-tab="${tabId}"]`);
+      if (targetNav) targetNav.classList.add('active');
+
+      const titles = {
+        dashboard: '<i data-lucide="layout-dashboard"></i> 드라이버 대시보드',
+        sessions: '<i data-lucide="clipboard-list"></i> 세션 & 셋업 로거',
+        garage: '<i data-lucide="car"></i> 개러지 머신 관리',
+        analytics: '<i data-lucide="activity"></i> 텔레메트리 & 셋업 비교 분석',
+        team: '<i data-lucide="users"></i> 팀 허브 & 데이터 공유',
+        leaderboard: '<i data-lucide="trophy"></i> 서킷 랭킹 리더보드'
+      };
+      document.getElementById('current-page-title').innerHTML = titles[tabId] || 'MyLapLog App';
+      lucide.createIcons();
+
+      if (tabId === 'analytics') renderTelemetryChart();
+      if (tabId === 'leaderboard') loadLeaderboard(1);
+    }
+
+    // =============================================
+    // Modal Control & Toast
+    // =============================================
+    function openModal(id) {
+      document.getElementById(id).classList.add('active');
+      if (id === 'session-modal') {
+        populateTrackSelect();
+        populateVehicleSelect();
+        document.getElementById('sess-date').value = new Date().toISOString().split('T')[0];
+      }
+      lucide.createIcons();
+    }
+
+    function closeModal(id) {
+      document.getElementById(id).classList.remove('active');
+    }
+
+    function showToast(msg) {
+      const toast = document.getElementById('app-toast');
+      document.getElementById('app-toast-text').innerText = msg;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 3500);
+    }
+
+    // =============================================
+    // AUTH & PROFILE: Handlers & Modal Control
+    // =============================================
+    function handleAuthButtonClick() {
+      if (user && user.isLoggedIn) {
+        openProfileModal();
+      } else {
+        openModal('auth-modal');
+      }
+    }
+
+    function openProfileModal() {
+      document.getElementById('prof-avatar').innerText = user.avatar || 'DR';
+      document.getElementById('prof-name').innerText = user.name || '드라이버';
+      document.getElementById('prof-email').innerText = user.email || '';
+      document.getElementById('prof-badge-class').innerText = `${user.driver_class || 'PRO-AM'} Driver`;
+      document.getElementById('prof-license').innerText = user.kara_license || 'Circuit License';
+      document.getElementById('prof-class').innerText = user.driver_class || 'PRO-AM';
+      document.getElementById('prof-team').innerText = (team && team.name && team.name !== '소속 팀 없음') ? team.name : '팀 미소속';
+      document.getElementById('prof-cars').innerText = `${garage.length}대`;
+      document.getElementById('prof-sessions').innerText = `${sessions.length} 세션`;
+
+      openModal('profile-modal');
+      lucide.createIcons();
+    }
+
+    function toggleAuthTab(mode) {
+      const loginForm = document.getElementById('login-form');
+      const registerForm = document.getElementById('register-form');
+      document.getElementById('btn-tab-login').classList.toggle('active', mode === 'login');
+      document.getElementById('btn-tab-register').classList.toggle('active', mode === 'register');
+      loginForm.style.display = mode === 'login' ? 'block' : 'none';
+      registerForm.style.display = mode === 'register' ? 'block' : 'none';
+      lucide.createIcons();
+    }
+
+    async function handleLogin(e) {
+      e.preventDefault();
+      const email = document.getElementById('login-email').value;
+      const password = document.getElementById('login-password').value;
+
+      const res = await api('/auth/login', 'POST', { email, password });
+      if (res.ok) {
+        user = { ...res.user, isLoggedIn: true, role: (res.user.driver_class || 'PRO-AM') + ' Driver' };
+        closeModal('auth-modal');
+        showToast(`${user.name} 님, 로그인되었습니다! 🏁`);
+        updateUserUI();
+        await loadUserDataFromAPI();
+      } else {
+        showToast(res.error || '로그인 실패');
+      }
+    }
+
+    async function handleRegister(e) {
+      e.preventDefault();
+      const name = document.getElementById('reg-name').value;
+      const email = document.getElementById('reg-email').value;
+      const password = document.getElementById('reg-password').value;
+      const driverClass = document.getElementById('reg-class').value;
+      const karaLicense = document.getElementById('reg-license').value;
+
+      const res = await api('/auth/register', 'POST', {
+        name, email, password, driver_class: driverClass, kara_license: karaLicense
+      });
+
+      if (res.ok) {
+        user = { ...res.user, isLoggedIn: true, role: driverClass + ' Driver' };
+        closeModal('auth-modal');
+        showToast(`${name} 님, 회원가입이 완료되었습니다! 🏆`);
+        updateUserUI();
+        await loadUserDataFromAPI();
+      } else {
+        showToast(res.error || '회원가입 실패');
+      }
+    }
+
+    function simulateSocialAuth(provider) {
+      user = {
+        id: 'soc_' + Date.now(),
+        name: `${provider} Driver`,
+        email: `${provider.toLowerCase()}@mylaplog.com`,
+        role: 'PRO-AM Driver',
+        avatar: provider.slice(0, 2).toUpperCase(),
+        isLoggedIn: true
+      };
+      closeModal('auth-modal');
+      showToast(`${provider} 계정으로 로그인되었습니다!`);
+      updateUserUI();
+      loadUserDataFromAPI();
+    }
+
+    async function handleLogout() {
+      await api('/auth/logout', 'POST');
+      showToast('로그아웃 되었습니다. 게스트 샘플 데이타가 표시됩니다.');
+      loadGuestSampleData();
+    }
+
+    function updateUserUI() {
+      document.getElementById('sidebar-user-name').innerText = user.name;
+      document.getElementById('sidebar-user-avatar').innerText = user.avatar || 'G';
+      document.getElementById('sidebar-user-role').innerHTML = `<i data-lucide="award" style="width:12px; color:var(--accent-red)"></i> ${user.role || '로그인 필요'}`;
+
+      const topbarAuthBtn = document.getElementById('topbar-auth-btn');
+      if (user.isLoggedIn) {
+        topbarAuthBtn.innerHTML = `<i data-lucide="user-check"></i> ${user.name}`;
+      } else {
+        topbarAuthBtn.innerHTML = `<i data-lucide="user"></i> 로그인`;
+      }
+      lucide.createIcons();
+    }
+
+    // =============================================
+    // DATA LOADING: Guest vs Logged-In User
+    // =============================================
+    function loadGuestSampleData() {
+      user = { ...GUEST_USER };
+      garage = JSON.parse(JSON.stringify(SAMPLE_GARAGE));
+      sessions = JSON.parse(JSON.stringify(SAMPLE_SESSIONS));
+      team = JSON.parse(JSON.stringify(SAMPLE_TEAM));
+      
+      updateUserUI();
+      renderAllViews();
+    }
+
+    async function loadUserDataFromAPI() {
+      garage = [];
+      sessions = [];
+      team = { id: null, name: '소속 팀 없음', desc: '', homeTrack: '', code: '-', members: [] };
+
+      await Promise.all([loadVehicles(), loadSessions(), loadTeamData()]);
+      renderAllViews();
+    }
+
+    function renderAllViews() {
+      renderDashboardMetrics();
+      renderDashboardHighlight();
+      renderSessions();
+      renderGarage();
+      renderTeamUI();
+    }
+
+    // =============================================
+    // DASHBOARD: Dynamic Metrics & Highlight Banner
+    // =============================================
+    function renderDashboardMetrics() {
+      // 1. Total sessions
+      document.getElementById('stat-total-sessions').innerText = sessions.length;
+
+      // 2. Inje best lap
+      const injeSessions = sessions.filter(s => s.track && s.track.includes('인제'));
+      if (injeSessions.length > 0) {
+        // find minimum best lap ms
+        let minLap = injeSessions[0].bestLap;
+        let minMs = injeSessions[0].bestLapMs || lapStrToMs(injeSessions[0].bestLap);
+        injeSessions.forEach(s => {
+          const ms = s.bestLapMs || lapStrToMs(s.bestLap);
+          if (ms > 0 && ms < minMs) {
+            minMs = ms;
+            minLap = s.bestLap;
+          }
+        });
+        document.getElementById('stat-best-inje').innerText = minLap;
+      } else {
+        document.getElementById('stat-best-inje').innerText = '--:--.---';
+      }
+
+      // 3. Garage Cars
+      document.getElementById('stat-total-cars').innerText = garage.length;
+
+      // 4. Team Info
+      document.getElementById('stat-team-name-card').innerText = team.name || '팀 미소속';
+      document.getElementById('stat-team-members-count').innerText = (team.members && team.members.length > 0)
+        ? `팀원 ${team.members.length}명 활동 중`
+        : (user.isLoggedIn ? '팀에 가입해보세요' : '체험용 샘플 팀');
+    }
+
+    function renderDashboardHighlight() {
+      const container = document.getElementById('dashboard-highlight-container');
+      if (!container) return;
+
+      if (sessions.length === 0) {
+        // Empty session highlight state
+        container.innerHTML = `
+          <div class="card" style="background: linear-gradient(135deg, rgba(0, 240, 255, 0.08), rgba(255, 42, 75, 0.05)); border-color: var(--accent-cyan);">
+            <div class="card-header">
+              <div class="card-title">
+                <i data-lucide="info" style="color:var(--accent-cyan)"></i>
+                나만의 첫 번째 트랙데이 세션을 로깅해보세요!
+              </div>
+              <span class="circuit-badge"><i data-lucide="plus-circle"></i> Ready</span>
+            </div>
+            <div style="padding: 1rem 0;">
+              <p style="color:var(--text-muted); font-size:0.9rem; margin-bottom: 1rem;">
+                아직 기록된 트랙 세션이 없습니다. 인제 스피디움, 영암 KIC 등 서킷에서 주행한 랩타임과 공기압/댐퍼 셋업을 저장해보세요.
+              </p>
+              <button class="btn btn-primary" onclick="openModal('session-modal')">
+                <i data-lucide="zap"></i> 지금 세션 로깅하기
+              </button>
+            </div>
+          </div>
+        `;
+        lucide.createIcons();
+        return;
+      }
+
+      // Show latest session highlight
+      const s = sessions[0];
+      const isGuestBadge = !user.isLoggedIn ? '<small style="color:var(--accent-cyan); font-size:0.75rem; margin-left:0.5rem;">[게스트 샘플]</small>' : '';
+      
+      container.innerHTML = `
+        <div class="card" style="background: linear-gradient(135deg, rgba(255, 42, 75, 0.1), rgba(0, 240, 255, 0.05)); border-color: var(--accent-red-glow);">
+          <div class="card-header">
+            <div class="card-title">
+              <i data-lucide="flame" style="color:var(--accent-red)"></i>
+              최근 트랙데이 세션 하이라이트 (${s.track}) ${isGuestBadge}
+            </div>
+            <span class="circuit-badge"><i data-lucide="calendar"></i> ${s.date} 세션 ${s.sessionNum}</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1.5rem;">
+            <div>
+              <p style="color:var(--text-muted); font-size:0.85rem;">Session ${s.sessionNum} · ${s.vehicle} · 마른 노면(Dry)</p>
+              <h2 style="font-family:var(--font-mono); font-size:2.6rem; color:#fff; margin: 0.3rem 0;">
+                ${s.bestLap} <small style="font-size:1rem; color:var(--accent-green);">Best Record</small>
+              </h2>
+              <div style="display:flex; gap:1rem; font-family:var(--font-mono); font-size:0.85rem; color:var(--text-muted);">
+                <span>FL: <strong style="color:#fff">${s.psiFL} PSI</strong></span>
+                <span>FR: <strong style="color:#fff">${s.psiFR} PSI</strong></span>
+                <span>감쇠력: <strong style="color:var(--accent-cyan)">F ${s.damperF || '-'} / R ${s.damperR || '-'}</strong></span>
+              </div>
+            </div>
+            <div style="background: rgba(0,0,0,0.5); padding: 1rem 1.5rem; border-radius: 8px; border: 1px solid var(--border-subtle);">
+              <p style="font-size:0.8rem; color:var(--text-muted); margin-bottom: 0.4rem;">주요 셋업 요약</p>
+              <p style="font-size:0.9rem; color:#fff;">타이어 온간: <strong>FL ${s.psiFL} / FR ${s.psiFR} PSI</strong></p>
+              <p style="font-size:0.9rem; color:#fff;">감쇠력: <strong>F ${s.damperF || '-'} / R ${s.damperR || '-'} Clicks</strong></p>
+              <p style="font-size:0.9rem; color:#fff;">캠버: <strong>${s.camber ? s.camber + '°' : '-'}</strong></p>
+            </div>
+          </div>
+        </div>
+      `;
+      lucide.createIcons();
+    }
+
+    // =============================================
+    // TEAMS: Load / Create / Join / Render
+    // =============================================
+    async function loadTeamData() {
+      const res = await api('/teams');
+      if (res.ok && res.teams && res.teams.length > 0) {
+        const t = res.teams[0];
+        team.id = t.id;
+        team.name = t.name;
+        team.code = t.invite_code;
+        team.desc = t.description || '';
+        team.homeTrack = t.home_track || '';
+
+        const mRes = await api(`/teams/${t.id}/members`);
+        if (mRes.ok && mRes.members) {
+          team.members = mRes.members.map(m => ({
+            name: m.name + (m.id == user.id ? ' (나)' : ''),
+            car: m.car || m.driver_class || '-',
+            role: m.role.toLowerCase(),
+            sessions: m.session_count || 0,
+            avatar: m.avatar || m.name.slice(0, 2).toUpperCase()
+          }));
+        }
+      } else {
+        team = { id: null, name: '소속 팀 없음', desc: '팀을 등록하거나 초대 코드로 가입하세요.', homeTrack: '', code: '-', members: [] };
+      }
+      renderTeamUI();
+    }
+
+    async function handleCreateTeam(e) {
+      e.preventDefault();
+      if (!user.isLoggedIn) {
+        showToast('로그인이 필요한 기능입니다. 먼저 로그인해주세요.');
+        openModal('auth-modal');
+        return;
+      }
+
+      const teamName = document.getElementById('new-team-name').value;
+      const homeTrack = document.getElementById('new-team-track').value;
+      const desc = document.getElementById('new-team-desc').value;
+
+      const res = await api('/teams', 'POST', { name: teamName, home_track: homeTrack, description: desc });
+
+      if (res.ok) {
+        closeModal('create-team-modal');
+        showToast(`'${teamName}' 팀 등록 완료! (코드: ${res.team.invite_code})`);
+        document.getElementById('create-team-form').reset();
+        await loadTeamData();
+      } else {
+        showToast(res.error || '팀 생성 실패');
+      }
+    }
+
+    async function handleJoinTeam(e) {
+      e.preventDefault();
+      if (!user.isLoggedIn) {
+        showToast('로그인이 필요한 기능입니다. 먼저 로그인해주세요.');
+        openModal('auth-modal');
+        return;
+      }
+
+      const code = document.getElementById('join-invite-code').value.toUpperCase();
+      const role = document.getElementById('join-role').value;
+
+      const res = await api('/teams/join', 'POST', { invite_code: code, role: role.toUpperCase() });
+
+      if (res.ok) {
+        showToast(res.message || '팀 가입 완료!');
+        closeModal('join-team-modal');
+        document.getElementById('join-team-form').reset();
+        await loadTeamData();
+      } else {
+        showToast(res.error || '팀 가입 실패');
+      }
+    }
+
+    function copyInviteCode() {
+      if (!team.code || team.code === '-') return;
+      navigator.clipboard.writeText(team.code);
+      showToast(`팀 초대 코드(${team.code})가 복사되었습니다!`);
+    }
+
+    function renderTeamUI() {
+      document.getElementById('sidebar-team-name').innerHTML = `<i data-lucide="shield"></i> ${team.name || '팀 미소속'}`;
+      document.getElementById('stat-team-name-card').innerText = team.name || '팀 미소속';
+      document.getElementById('stat-team-members-count').innerText = (team.members && team.members.length > 0)
+        ? `팀원 ${team.members.length}명 활동 중`
+        : (user.isLoggedIn ? '팀에 가입해보세요' : '체험용 샘플 팀');
+
+      document.getElementById('team-hub-name').innerText = team.name || '소속 팀이 없습니다';
+      document.getElementById('team-hub-desc').innerText = team.desc || (user.isLoggedIn ? '새 팀을 생성하거나 초대 코드로 가입하세요.' : '게스트 체험용 샘플 데이터입니다.');
+      document.getElementById('team-hub-code').innerText = team.code || '-';
+      document.getElementById('team-logo-display').innerText = (team.name && team.name !== '소속 팀 없음' ? team.name : 'LAP').slice(0, 3).toUpperCase();
+
+      const membersContainer = document.getElementById('team-members-container');
+      membersContainer.innerHTML = '';
+
+      if (!team.members || team.members.length === 0) {
+        membersContainer.innerHTML = `
+          <div style="text-align:center; padding:2rem 1rem; color:var(--text-muted);">
+            <i data-lucide="users" style="width:36px; height:36px; margin-bottom:0.5rem; opacity:0.5;"></i>
+            <p style="font-size:0.9rem;">등록된 팀원이 없습니다.</p>
+          </div>
+        `;
+        lucide.createIcons();
+        return;
+      }
+
+      team.members.forEach(m => {
+        const roleClass = m.role === 'chief' ? 'owner' : m.role;
+        const row = document.createElement('div');
+        row.className = 'member-row';
+        row.innerHTML = `
+          <div class="member-meta">
+            <div class="user-avatar" style="border-color:${roleClass === 'owner' ? 'var(--accent-red)' : 'var(--accent-cyan)'}">${m.avatar}</div>
+            <div>
+              <h5 style="color:#fff;">${m.name}</h5>
+              <p style="font-size:0.8rem; color:var(--text-muted);">${m.car} · 주행 ${m.sessions}세션</p>
+            </div>
+          </div>
+          <span class="role-badge role-${roleClass}">${m.role.toUpperCase()}</span>
+        `;
+        membersContainer.appendChild(row);
+      });
+      lucide.createIcons();
+    }
+
+    // =============================================
+    // VEHICLES: Load / Save / Render
+    // =============================================
+    async function loadVehicles() {
+      const res = await api('/vehicles');
+      if (res.ok && res.vehicles) {
+        garage = res.vehicles.map(v => ({
+          id: v.id,
+          make: v.make,
+          model: v.model,
+          year: v.year,
+          power: v.engine_power,
+          tire: v.tire_model + (v.tire_size_front ? ` (${v.tire_size_front})` : ''),
+          tire_model: v.tire_model,
+          suspension: v.suspension_spec || '-',
+          visibility: v.visibility
+        }));
+      } else {
+        garage = [];
+      }
+      renderGarage();
+    }
+
+    async function handleSaveVehicle(e) {
+      e.preventDefault();
+      if (!user.isLoggedIn) {
+        showToast('로그인이 필요한 기능입니다. 먼저 로그인해주세요.');
+        openModal('auth-modal');
+        return;
+      }
+
+      const payload = {
+        make: document.getElementById('veh-make').value,
+        model: document.getElementById('veh-model').value,
+        year: parseInt(document.getElementById('veh-year').value),
+        engine_power: parseInt(document.getElementById('veh-power').value) || 250,
+        tire_model: document.getElementById('veh-tire').value,
+        tire_size_front: document.getElementById('veh-tire-size').value,
+        tire_size_rear: document.getElementById('veh-tire-size').value,
+        suspension_spec: document.getElementById('veh-suspension').value || '기본 서스펜션',
+        visibility: document.getElementById('veh-visibility').value,
+        team_id: team.id || null
+      };
+
+      const res = await api('/vehicles', 'POST', payload);
+      if (res.ok) {
+        showToast('차량이 개러지에 등록되었습니다! (DB 저장 완료)');
+        closeModal('vehicle-modal');
+        document.getElementById('vehicle-form').reset();
+        await loadVehicles();
+        renderDashboardMetrics();
+      } else {
+        showToast(res.error || '차량 등록 실패');
+      }
+    }
+
+    function renderGarage() {
+      const container = document.getElementById('garage-vehicles-list');
+      container.innerHTML = '';
+
+      if (garage.length === 0) {
+        container.innerHTML = `
+          <div style="grid-column: 1 / -1; text-align:center; padding:3rem 1rem; background:rgba(255,255,255,0.02); border-radius:8px; border:1px dashed var(--border-subtle);">
+            <i data-lucide="car" style="width:48px; height:48px; color:var(--text-muted); margin-bottom:1rem; opacity:0.6;"></i>
+            <h4 style="color:#fff; margin-bottom:0.5rem;">등록된 개러지 머신이 없습니다</h4>
+            <p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:1.5rem;">트랙에 출전할 머신을 등록하고 타이어 및 서스펜션 스펙을 관리해보세요.</p>
+            <button class="btn btn-primary" onclick="openModal('vehicle-modal')"><i data-lucide="plus"></i> 머신 등록하기</button>
+          </div>
+        `;
+        document.getElementById('stat-total-cars').innerText = 0;
+        lucide.createIcons();
+        return;
+      }
+
+      garage.forEach(v => {
+        const card = document.createElement('div');
+        card.className = 'vehicle-card';
+        card.innerHTML = `
+          <div class="vehicle-header">
+            <span class="vehicle-name">${v.make} ${v.model}</span>
+            <span class="vehicle-badge-active">${v.visibility}</span>
+          </div>
+          <p style="color:var(--accent-red); font-family:var(--font-mono); font-weight:700; font-size:0.95rem;">${v.power} HP · ${v.year}</p>
+          <ul class="vehicle-specs-list">
+            <li><span>타이어</span> <span class="val">${v.tire || v.tire_model || '-'}</span></li>
+            <li><span>하체 셋업</span> <span class="val">${v.suspension || '-'}</span></li>
+          </ul>
+          <div style="display:flex; justify-content:space-between; margin-top:1rem;">
+            <button class="btn btn-secondary" style="padding:0.4rem 0.8rem; font-size:0.8rem;" onclick="openModal('session-modal')">세션 출전</button>
+            <button class="btn btn-cyan" style="padding:0.4rem 0.8rem; font-size:0.8rem;" onclick="showToast('스펙 수정 모드 준비 중')">스펙 수정</button>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+      document.getElementById('stat-total-cars').innerText = garage.length;
+      lucide.createIcons();
+    }
+
+    function populateVehicleSelect() {
+      const select = document.getElementById('sess-vehicle');
+      select.innerHTML = '';
+      if (garage.length === 0) {
+        const opt = document.createElement('option');
+        opt.value = '';
+        opt.innerText = '등록된 차량 없음 (머신 먼저 등록 필요)';
+        select.appendChild(opt);
+        return;
+      }
+      garage.forEach(v => {
+        const opt = document.createElement('option');
+        opt.value = v.id;
+        opt.dataset.name = `${v.make} ${v.model}`;
+        opt.innerText = `${v.make} ${v.model}`;
+        select.appendChild(opt);
+      });
+    }
+
+    // =============================================
+    // TRACKS: Load from API
+    // =============================================
+    async function loadTracks() {
+      const res = await api('/tracks');
+      if (res.ok && res.tracks) {
+        tracks = res.tracks;
+      } else {
+        tracks = [
+          { id: 1, name: '인제 스피디움', layout_name: 'Full Course', length_meters: 3908 },
+          { id: 2, name: '영암 KIC', layout_name: 'F1 Grand Prix Course', length_meters: 5615 },
+          { id: 3, name: '용인 에버랜드 스피드웨이', layout_name: 'Full Course', length_meters: 4346 },
+          { id: 4, name: '태백 레이싱파크', layout_name: 'Speed Course', length_meters: 2500 }
+        ];
+      }
+    }
+
+    function populateTrackSelect() {
+      const select = document.getElementById('sess-track');
+      select.innerHTML = '';
+      tracks.forEach(t => {
+        const opt = document.createElement('option');
+        opt.value = t.id;
+        opt.dataset.name = t.name;
+        opt.innerText = `${t.name} (${t.layout_name} ${(t.length_meters / 1000).toFixed(3)}km)`;
+        select.appendChild(opt);
+      });
+    }
+
+    // =============================================
+    // SESSIONS: Load / Save / Render
+    // =============================================
+    async function loadSessions() {
+      const res = await api('/sessions');
+      if (res.ok && res.sessions) {
+        sessions = res.sessions.map(s => ({
+          id: s.id,
+          track: s.track_name,
+          trackId: s.track_id,
+          vehicle: s.vehicle_name,
+          vehicleId: s.vehicle_id,
+          date: s.session_date,
+          sessionNum: s.session_number,
+          bestLap: msToLapStr(s.best_lap_ms),
+          bestLapMs: s.best_lap_ms,
+          psiFL: s.hot_psi_fl, psiFR: s.hot_psi_fr, psiRL: s.hot_psi_rl, psiRR: s.hot_psi_rr,
+          damperF: s.damper_front_clicks, damperR: s.damper_rear_clicks,
+          camber: s.camber_fl,
+          notes: s.driver_notes || '',
+          laps: s.laps || []
+        }));
+      } else {
+        sessions = [];
+      }
+      renderSessions();
+    }
+
+    async function handleSaveSession(e) {
+      e.preventDefault();
+      if (!user.isLoggedIn) {
+        showToast('로그인이 필요한 기능입니다. 먼저 로그인해주세요.');
+        openModal('auth-modal');
+        return;
+      }
+
+      const vehicleId = parseInt(document.getElementById('sess-vehicle').value);
+      if (!vehicleId) {
+        showToast('출전 머신을 먼저 등록해주세요.');
+        closeModal('session-modal');
+        openModal('vehicle-modal');
+        return;
+      }
+
+      const trackId = parseInt(document.getElementById('sess-track').value);
+      const bestLapStr = document.getElementById('sess-bestlap').value;
+      const bestLapMs = lapStrToMs(bestLapStr);
+
+      const payload = {
+        track_id: trackId,
+        vehicle_id: vehicleId,
+        team_id: team.id || null,
+        session_date: document.getElementById('sess-date').value,
+        session_number: parseInt(document.getElementById('sess-num').value),
+        best_lap_ms: bestLapMs,
+        weather_condition: 'DRY',
+        visibility: 'TEAM',
+        setup: {
+          hot_psi_fl: parseFloat(document.getElementById('sess-psi-fl').value),
+          hot_psi_fr: parseFloat(document.getElementById('sess-psi-fr').value),
+          hot_psi_rl: parseFloat(document.getElementById('sess-psi-rl').value),
+          hot_psi_rr: parseFloat(document.getElementById('sess-psi-rr').value),
+          damper_front_clicks: parseInt(document.getElementById('sess-damper-f').value),
+          damper_rear_clicks: parseInt(document.getElementById('sess-damper-r').value),
+          camber_fl: parseFloat(document.getElementById('sess-camber').value),
+          camber_fr: parseFloat(document.getElementById('sess-camber').value),
+          driver_notes: document.getElementById('sess-notes').value
+        }
+      };
+
+      const res = await api('/sessions', 'POST', payload);
+      if (res.ok) {
+        showToast('세션 로그가 DB에 저장되었습니다! 🏁');
+        closeModal('session-modal');
+        document.getElementById('session-form').reset();
+        await loadSessions();
+        renderDashboardMetrics();
+        renderDashboardHighlight();
+      } else {
+        showToast(res.error || '세션 저장 실패');
+      }
+    }
+
+    function renderSessions() {
+      const dashContainer = document.getElementById('dashboard-recent-sessions');
+      const fullContainer = document.getElementById('full-sessions-list');
+      dashContainer.innerHTML = '';
+      fullContainer.innerHTML = '';
+
+      if (sessions.length === 0) {
+        const emptyHtml = `
+          <div style="grid-column: 1 / -1; text-align:center; padding:3rem 1rem; background:rgba(255,255,255,0.02); border-radius:8px; border:1px dashed var(--border-subtle);">
+            <i data-lucide="clipboard-list" style="width:48px; height:48px; color:var(--text-muted); margin-bottom:1rem; opacity:0.6;"></i>
+            <h4 style="color:#fff; margin-bottom:0.5rem;">로깅된 트랙 세션이 없습니다</h4>
+            <p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:1.5rem;">서킷 주행 후 타이어 공기압, 감쇠력 세팅과 베스트 랩타임을 기록해보세요.</p>
+            <button class="btn btn-primary" onclick="openModal('session-modal')"><i data-lucide="zap"></i> 세션 로깅 추가</button>
+          </div>
+        `;
+        fullContainer.innerHTML = emptyHtml;
+        dashContainer.innerHTML = emptyHtml;
+        document.getElementById('stat-total-sessions').innerText = 0;
+        lucide.createIcons();
+        return;
+      }
+
+      sessions.forEach((s, idx) => {
+        const html = `
+          <div class="session-card">
+            <div class="session-meta-row">
+              <div>
+                <span class="circuit-badge"><i data-lucide="map-pin"></i> ${s.track}</span>
+                <p style="font-size:0.8rem; color:var(--text-muted); margin-top:0.4rem;">${s.date} · Session ${s.sessionNum} · ${s.vehicle}</p>
+              </div>
+              <div class="session-time-display">
+                <span style="font-size:0.7rem; color:var(--text-muted); text-transform:uppercase;">Best Lap</span>
+                <div class="best-lap-num">${s.bestLap}</div>
+              </div>
+            </div>
+            <div class="tire-box-grid">
+              <div class="tire-cell"><span>FL Hot</span> <span class="psi">${s.psiFL} PSI</span></div>
+              <div class="tire-cell"><span>FR Hot</span> <span class="psi">${s.psiFR} PSI</span></div>
+              <div class="tire-cell"><span>RL Hot</span> <span class="psi">${s.psiRL} PSI</span></div>
+              <div class="tire-cell"><span>RR Hot</span> <span class="psi">${s.psiRR} PSI</span></div>
+            </div>
+            <div style="display:flex; justify-content:space-between; font-size:0.8rem; color:var(--text-muted); margin-top:0.5rem;">
+              <span>감쇠력: F ${s.damperF || '-'}단 / R ${s.damperR || '-'}단</span>
+              <span>캠버: ${s.camber ? s.camber + '°' : '-'}</span>
+            </div>
+            <p style="font-size:0.8rem; color:#a0aec0; margin-top:0.5rem; background:rgba(255,255,255,0.02); padding:0.4rem; border-radius:4px;">
+              💡 <em>${s.notes || '피드백 메모 없음'}</em>
+            </p>
+          </div>
+        `;
+        fullContainer.innerHTML += html;
+        if (idx < 2) dashContainer.innerHTML += html;
+      });
+
+      document.getElementById('stat-total-sessions').innerText = sessions.length;
+      lucide.createIcons();
+    }
+
+    // =============================================
+    // LEADERBOARD (API-backed)
+    // =============================================
+    async function loadLeaderboard(trackId) {
+      const res = await api(`/leaderboard/${trackId}`);
+      const tbody = document.querySelector('#tab-leaderboard .compare-table tbody');
+      if (!tbody) return;
+
+      if (res.ok && res.leaderboard && res.leaderboard.length > 0) {
+        tbody.innerHTML = '';
+        const colors = ['gold', 'silver', '#cd7f32'];
+        res.leaderboard.forEach((r, i) => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td><strong style="color:${colors[i] || 'var(--text-muted)'}; font-size:1.1rem;">#${i + 1}</strong></td>
+            <td><strong>${r.driver_name}</strong></td>
+            <td>${r.vehicle_name}</td>
+            <td>${r.team_name || '-'}</td>
+            <td><strong style="color:var(--accent-cyan); font-family:var(--font-mono)">${msToLapStr(r.best_lap_ms)}</strong></td>
+            <td>${r.tire_model || '-'}</td>
+            <td>Hot ${r.hot_psi_fl || '-'} PSI, ${r.camber_fl || '-'}° 캠버</td>
+          `;
+          tbody.appendChild(tr);
+        });
+      }
+    }
+
+    // =============================================
+    // TELEMETRY CHART (Chart.js)
+    // =============================================
+    let chartInstance = null;
+    function renderTelemetryChart() {
+      const ctx = document.getElementById('telemetryChart');
+      if (!ctx) return;
+      if (chartInstance) chartInstance.destroy();
+
+      let labels, lapData, psiData;
+      const injeSessions = sessions.filter(s => s.track && s.track.includes('인제')).slice(0, 5).reverse();
+      if (injeSessions.length >= 2) {
+        labels = injeSessions.map((s, i) => `세션 ${s.sessionNum} (${s.psiFL} PSI)`);
+        lapData = injeSessions.map(s => s.bestLapMs ? (s.bestLapMs / 1000) : (lapStrToMs(s.bestLap) / 1000));
+        psiData = injeSessions.map(s => s.psiFL);
+      } else {
+        // Sample baseline for preview
+        labels = ['세션 1 (36 PSI)', '세션 2 (35 PSI)', '세션 3 (34 PSI 최적)', '세션 4 (32.5 PSI)', '세션 5 (38 PSI 과열)'];
+        lapData = [113.8, 112.9, 112.3, 112.8, 114.5];
+        psiData = [36, 35, 34, 32.5, 38];
+      }
+
+      chartInstance = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels,
+          datasets: [
+            { label: '베스트 랩타임 (초)', data: lapData, borderColor: '#00f0ff', backgroundColor: 'rgba(0, 240, 255, 0.1)', borderWidth: 3, tension: 0.3, fill: true, yAxisID: 'y' },
+            { label: '프론트 열간 공기압 (PSI)', data: psiData, borderColor: '#ff2a4b', borderDash: [5, 5], borderWidth: 2, pointBackgroundColor: '#ff2a4b', yAxisID: 'y1' }
+          ]
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { labels: { color: '#f0f4fc', font: { family: 'Noto Sans KR' } } } },
+          scales: {
+            x: { grid: { color: 'rgba(255, 255, 255, 0.05)' }, ticks: { color: '#8391a8' } },
+            y: { type: 'linear', position: 'left', grid: { color: 'rgba(255, 255, 255, 0.05)' }, ticks: { color: '#00f0ff', callback: val => `${val}s` } },
+            y1: { type: 'linear', position: 'right', grid: { drawOnChartArea: false }, ticks: { color: '#ff2a4b', callback: val => `${val} PSI` } }
+          }
+        }
+      });
+    }
+
+    // =============================================
+    // INITIALIZATION
+    // =============================================
+    async function initApp() {
+      await loadTracks();
+      const res = await api('/auth/me');
+      if (res.ok && res.user) {
+        // Authenticated Session -> Load only this user's DB records
+        user = { ...res.user, isLoggedIn: true, role: (res.user.driver_class || 'PRO-AM') + ' Driver' };
+        updateUserUI();
+        await loadUserDataFromAPI();
+      } else {
+        // Logged Out (Guest Mode) -> Load rich sample demo data
+        loadGuestSampleData();
+      }
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      initApp();
+    });
+  </script>
+</body>
+</html>

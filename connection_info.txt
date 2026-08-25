@@ -1,0 +1,7 @@
+- Server IP (Host): 15.164.197.156
+- Port: 22
+- Username: admin
+- MySqlPassword: StnXoa2w4DO8KE9V
+- Private Key (.pem): .
+- webdir: /var/www/html/maylaplog
+- dbname: 

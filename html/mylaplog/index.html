@@ -1,0 +1,1392 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MyLapLog - 트랙데이 & 레이싱 랩타임 · 세팅값 정밀 로깅 플랫폼</title>
+  <meta name="description" content="서킷 트랙데이와 레이싱을 위한 완벽한 파트너. 드라이버와 차량 등록, 세션별 타이어·서스펜션 셋팅 및 랩타임 상관관계 정밀 분석 솔루션.">
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:ital,wght@0,400;0,600;0,700;1,700&family=Noto+Sans+KR:wght@300;400;500;700;900&family=Orbitron:wght@600;800;900&display=swap" rel="stylesheet">
+
+  <!-- Lucide Icons (CDN) -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <style>
+    :root {
+      --bg-dark: #090b10;
+      --bg-card: rgba(18, 22, 34, 0.75);
+      --bg-card-hover: rgba(28, 35, 54, 0.85);
+      --accent-red: #ff2a4b;
+      --accent-red-glow: rgba(255, 42, 75, 0.4);
+      --accent-orange: #ff6a00;
+      --accent-cyan: #00f0ff;
+      --accent-cyan-glow: rgba(0, 240, 255, 0.35);
+      --text-main: #f0f4fc;
+      --text-muted: #8b99b5;
+      --border-card: rgba(255, 255, 255, 0.08);
+      --border-accent: rgba(255, 42, 75, 0.3);
+      --font-display: 'Chakra Petch', sans-serif;
+      --font-mono: 'Orbitron', monospace;
+      --font-body: 'Noto Sans KR', sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      font-family: var(--font-body);
+      overflow-x: hidden;
+      line-height: 1.6;
+      background-image: 
+        radial-gradient(circle at 15% 20%, rgba(255, 42, 75, 0.08) 0%, transparent 45%),
+        radial-gradient(circle at 85% 65%, rgba(0, 240, 255, 0.06) 0%, transparent 50%),
+        linear-gradient(to bottom, #090b10 0%, #0d111a 100%);
+      background-attachment: fixed;
+    }
+
+    /* Ambient Track Lines Background */
+    .bg-grid {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background-size: 60px 60px;
+      background-image: 
+        linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* Navigation */
+    header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      z-index: 100;
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      background: rgba(9, 11, 16, 0.75);
+      border-bottom: 1px solid var(--border-card);
+      transition: all 0.3s ease;
+    }
+
+    .nav-container {
+      max-width: 1240px;
+      margin: 0 auto;
+      padding: 1rem 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      text-decoration: none;
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 1.5rem;
+      letter-spacing: 1px;
+      color: #fff;
+      text-transform: uppercase;
+      font-style: italic;
+    }
+
+    .logo-badge {
+      background: linear-gradient(135deg, var(--accent-red), var(--accent-orange));
+      padding: 0.25rem 0.6rem;
+      border-radius: 4px;
+      color: #fff;
+      font-size: 1.1rem;
+      font-weight: 900;
+      box-shadow: 0 0 15px var(--accent-red-glow);
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 2rem;
+      list-style: none;
+    }
+
+    .nav-links a {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 0.95rem;
+      font-weight: 500;
+      transition: color 0.2s, text-shadow 0.2s;
+    }
+
+    .nav-links a:hover {
+      color: #fff;
+      text-shadow: 0 0 8px rgba(255, 255, 255, 0.5);
+    }
+
+    .btn-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: linear-gradient(135deg, var(--accent-red), #d61836);
+      color: #fff;
+      padding: 0.65rem 1.4rem;
+      border-radius: 6px;
+      text-decoration: none;
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 0.95rem;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      box-shadow: 0 4px 20px var(--accent-red-glow);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      cursor: pointer;
+    }
+
+    .btn-cta:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px rgba(255, 42, 75, 0.6);
+      filter: brightness(1.1);
+    }
+
+    .btn-outline {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: rgba(255, 255, 255, 0.05);
+      color: #fff;
+      padding: 0.65rem 1.4rem;
+      border-radius: 6px;
+      text-decoration: none;
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 0.95rem;
+      letter-spacing: 0.5px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      transition: all 0.3s;
+      cursor: pointer;
+    }
+
+    .btn-outline:hover {
+      background: rgba(255, 255, 255, 0.12);
+      border-color: #fff;
+      transform: translateY(-2px);
+    }
+
+    /* Container */
+    .container {
+      max-width: 1240px;
+      margin: 0 auto;
+      padding: 0 1.5rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Hero Section */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      padding: 8rem 0 4rem;
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 3.5rem;
+      align-items: center;
+    }
+
+    .hero-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.35rem 0.9rem;
+      background: rgba(255, 42, 75, 0.12);
+      border: 1px solid var(--border-accent);
+      border-radius: 50px;
+      color: var(--accent-red);
+      font-family: var(--font-display);
+      font-size: 0.85rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 1.5rem;
+      animation: pulseGlow 3s infinite;
+    }
+
+    @keyframes pulseGlow {
+      0%, 100% { box-shadow: 0 0 10px rgba(255, 42, 75, 0.2); }
+      50% { box-shadow: 0 0 20px rgba(255, 42, 75, 0.5); }
+    }
+
+    .hero-title {
+      font-family: var(--font-display);
+      font-size: 3.5rem;
+      line-height: 1.15;
+      font-weight: 700;
+      margin-bottom: 1.5rem;
+      text-transform: uppercase;
+      font-style: italic;
+    }
+
+    .hero-title span.highlight {
+      background: linear-gradient(135deg, #fff 30%, var(--accent-red) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero-desc {
+      color: var(--text-muted);
+      font-size: 1.15rem;
+      line-height: 1.7;
+      margin-bottom: 2.5rem;
+      font-weight: 300;
+    }
+
+    .hero-buttons {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .hero-stats {
+      display: flex;
+      gap: 2.5rem;
+      margin-top: 3.5rem;
+      padding-top: 2rem;
+      border-top: 1px solid var(--border-card);
+    }
+
+    .stat-item h4 {
+      font-family: var(--font-mono);
+      font-size: 2rem;
+      color: #fff;
+      font-weight: 800;
+      display: flex;
+      align-items: baseline;
+      gap: 2px;
+    }
+
+    .stat-item h4 span {
+      color: var(--accent-red);
+      font-size: 1.2rem;
+    }
+
+    .stat-item p {
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      margin-top: 0.25rem;
+    }
+
+    /* Hero Preview Card / Live Dashboard UI */
+    .dashboard-preview {
+      background: var(--bg-card);
+      border: 1px solid var(--border-card);
+      border-radius: 16px;
+      padding: 1.5rem;
+      backdrop-filter: blur(25px);
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), 0 0 30px rgba(0, 240, 255, 0.05);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .dashboard-preview::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--accent-red), var(--accent-cyan));
+    }
+
+    .card-header-flex {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.25rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .driver-badge {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .driver-avatar {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #1e2638, #2a354f);
+      border: 2px solid var(--accent-cyan);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--accent-cyan);
+      font-weight: 700;
+    }
+
+    .driver-info h5 {
+      font-size: 1rem;
+      color: #fff;
+      font-weight: 600;
+    }
+
+    .driver-info p {
+      font-size: 0.8rem;
+      color: var(--accent-cyan);
+      font-family: var(--font-display);
+    }
+
+    .circuit-tag {
+      background: rgba(255, 255, 255, 0.06);
+      padding: 0.35rem 0.75rem;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    /* Lap Time Big Gauge */
+    .laptime-banner {
+      background: rgba(0, 0, 0, 0.4);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 12px;
+      padding: 1.25rem;
+      text-align: center;
+      margin-bottom: 1.25rem;
+      position: relative;
+    }
+
+    .laptime-label {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: var(--accent-red);
+      font-family: var(--font-display);
+      font-weight: 700;
+    }
+
+    .laptime-number {
+      font-family: var(--font-mono);
+      font-size: 2.8rem;
+      font-weight: 900;
+      color: #fff;
+      text-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+      letter-spacing: 1px;
+      margin: 0.2rem 0;
+    }
+
+    .sector-times {
+      display: flex;
+      justify-content: space-around;
+      margin-top: 0.5rem;
+      padding-top: 0.5rem;
+      border-top: 1px dashed rgba(255, 255, 255, 0.1);
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+    }
+
+    .sector-item span.sec-val {
+      color: #00ff88;
+      font-weight: 700;
+    }
+
+    /* Telemetry Tele-meters Grid */
+    .telemetry-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.75rem;
+    }
+
+    .telem-box {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 8px;
+      padding: 0.85rem;
+    }
+
+    .telem-title {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 0.4rem;
+    }
+
+    .telem-value {
+      font-family: var(--font-mono);
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .telem-bar {
+      height: 4px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 2px;
+      margin-top: 0.4rem;
+      overflow: hidden;
+    }
+
+    .telem-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent-cyan), var(--accent-red));
+      border-radius: 2px;
+    }
+
+    /* Section Styling */
+    section {
+      padding: 6rem 0;
+      position: relative;
+    }
+
+    .section-header {
+      text-align: center;
+      max-width: 700px;
+      margin: 0 auto 4rem;
+    }
+
+    .section-subtitle {
+      font-family: var(--font-display);
+      color: var(--accent-red);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      font-size: 0.9rem;
+      margin-bottom: 0.5rem;
+      display: inline-block;
+    }
+
+    .section-title {
+      font-family: var(--font-display);
+      font-size: 2.5rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      font-style: italic;
+      line-height: 1.2;
+      color: #fff;
+    }
+
+    .section-desc {
+      color: var(--text-muted);
+      margin-top: 1rem;
+      font-size: 1.05rem;
+    }
+
+    /* Features Grid */
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2rem;
+    }
+
+    .feature-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-card);
+      border-radius: 14px;
+      padding: 2.2rem 1.8rem;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .feature-card:hover {
+      transform: translateY(-6px);
+      border-color: rgba(255, 42, 75, 0.4);
+      background: var(--bg-card-hover);
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4), 0 0 20px rgba(255, 42, 75, 0.15);
+    }
+
+    .feature-icon-wrapper {
+      width: 56px;
+      height: 56px;
+      border-radius: 12px;
+      background: rgba(255, 42, 75, 0.1);
+      border: 1px solid rgba(255, 42, 75, 0.25);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--accent-red);
+      margin-bottom: 1.5rem;
+      transition: all 0.3s;
+    }
+
+    .feature-card:hover .feature-icon-wrapper {
+      background: var(--accent-red);
+      color: #fff;
+      box-shadow: 0 0 20px var(--accent-red-glow);
+    }
+
+    .feature-card h3 {
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 0.8rem;
+      font-family: var(--font-display);
+    }
+
+    .feature-card p {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      line-height: 1.6;
+    }
+
+    .feature-tags {
+      margin-top: 1.25rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+    }
+
+    .feature-tag-item {
+      font-size: 0.75rem;
+      background: rgba(255, 255, 255, 0.05);
+      padding: 0.2rem 0.5rem;
+      border-radius: 4px;
+      color: #a0aec0;
+    }
+
+    /* Interactive Setup & Lap Time Simulator */
+    .simulator-container {
+      background: linear-gradient(145deg, rgba(18, 22, 34, 0.9), rgba(12, 15, 23, 0.9));
+      border: 1px solid var(--border-card);
+      border-radius: 18px;
+      padding: 3rem;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+    }
+
+    .simulator-grid {
+      display: grid;
+      grid-template-columns: 1.2fr 1fr;
+      gap: 3rem;
+      align-items: center;
+    }
+
+    .sim-controls {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .control-group label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.95rem;
+      font-weight: 500;
+      margin-bottom: 0.5rem;
+      color: #fff;
+    }
+
+    .control-group label span.val {
+      font-family: var(--font-mono);
+      color: var(--accent-cyan);
+      font-weight: 700;
+    }
+
+    .sim-slider {
+      width: 100%;
+      height: 6px;
+      border-radius: 3px;
+      background: rgba(255, 255, 255, 0.1);
+      outline: none;
+      -webkit-appearance: none;
+      appearance: none;
+    }
+
+    .sim-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: var(--accent-red);
+      cursor: pointer;
+      box-shadow: 0 0 10px var(--accent-red);
+      border: 2px solid #fff;
+    }
+
+    .track-select-btn-group {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.75rem;
+    }
+
+    .track-btn {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: var(--text-muted);
+      padding: 0.6rem 0.5rem;
+      border-radius: 6px;
+      font-family: var(--font-display);
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-align: center;
+    }
+
+    .track-btn.active, .track-btn:hover {
+      background: rgba(255, 42, 75, 0.15);
+      border-color: var(--accent-red);
+      color: #fff;
+      font-weight: 700;
+    }
+
+    .sim-result-card {
+      background: rgba(0, 0, 0, 0.5);
+      border: 1px solid var(--border-accent);
+      border-radius: 14px;
+      padding: 2rem;
+      text-align: center;
+      position: relative;
+    }
+
+    .sim-result-title {
+      font-size: 0.85rem;
+      letter-spacing: 2px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      font-family: var(--font-display);
+    }
+
+    .sim-result-time {
+      font-family: var(--font-mono);
+      font-size: 3.2rem;
+      color: var(--accent-cyan);
+      font-weight: 900;
+      margin: 0.5rem 0 1rem;
+      text-shadow: 0 0 25px var(--accent-cyan-glow);
+    }
+
+    .sim-delta-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      background: rgba(0, 255, 136, 0.15);
+      border: 1px solid #00ff88;
+      color: #00ff88;
+      padding: 0.3rem 0.8rem;
+      border-radius: 50px;
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      font-weight: 700;
+    }
+
+    .sim-insights-list {
+      margin-top: 1.5rem;
+      text-align: left;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .sim-insights-list li {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .sim-insights-list li i {
+      color: var(--accent-red);
+    }
+
+    /* Track Showcase Section */
+    .tracks-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1.5rem;
+    }
+
+    .track-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-card);
+      border-radius: 12px;
+      padding: 1.5rem;
+      transition: all 0.3s;
+      position: relative;
+    }
+
+    .track-card:hover {
+      border-color: var(--accent-cyan);
+      transform: translateY(-4px);
+      box-shadow: 0 10px 30px rgba(0, 240, 255, 0.1);
+    }
+
+    .track-name {
+      font-family: var(--font-display);
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .track-spec {
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      margin-top: 0.4rem;
+    }
+
+    .track-record {
+      margin-top: 1rem;
+      padding-top: 0.8rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+      font-family: var(--font-mono);
+      font-size: 0.9rem;
+      color: var(--accent-red);
+      font-weight: 700;
+    }
+
+    /* Pre-register CTA Banner */
+    .cta-banner {
+      background: linear-gradient(135deg, rgba(255, 42, 75, 0.15), rgba(0, 240, 255, 0.1));
+      border: 1px solid rgba(255, 42, 75, 0.3);
+      border-radius: 20px;
+      padding: 4.5rem 2rem;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .cta-banner h2 {
+      font-family: var(--font-display);
+      font-size: 2.8rem;
+      font-weight: 700;
+      font-style: italic;
+      text-transform: uppercase;
+      margin-bottom: 1rem;
+      color: #fff;
+    }
+
+    .cta-form {
+      max-width: 520px;
+      margin: 2rem auto 0;
+      display: flex;
+      gap: 0.6rem;
+    }
+
+    .cta-input {
+      flex: 1;
+      background: rgba(0, 0, 0, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 6px;
+      padding: 0.85rem 1.2rem;
+      color: #fff;
+      font-size: 0.95rem;
+      outline: none;
+      transition: all 0.2s;
+    }
+
+    .cta-input:focus {
+      border-color: var(--accent-red);
+      box-shadow: 0 0 15px var(--accent-red-glow);
+    }
+
+    /* Footer */
+    footer {
+      border-top: 1px solid var(--border-card);
+      padding: 3rem 0;
+      background: #06080c;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+
+    .footer-flex {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1.5rem;
+    }
+
+    .footer-links {
+      display: flex;
+      gap: 1.5rem;
+    }
+
+    .footer-links a {
+      color: var(--text-muted);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    .footer-links a:hover {
+      color: #fff;
+    }
+
+    /* Toast Notification */
+    .toast {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      background: #121824;
+      border: 1px solid #00ff88;
+      color: #fff;
+      padding: 1rem 1.5rem;
+      border-radius: 8px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      transform: translateY(100px);
+      opacity: 0;
+      transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .toast.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    /* Responsive */
+    @media (max-width: 992px) {
+      .hero-grid, .simulator-grid {
+        grid-template-columns: 1fr;
+      }
+      .features-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      .tracks-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      .hero-title {
+        font-size: 2.8rem;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .nav-links {
+        display: none;
+      }
+      .features-grid {
+        grid-template-columns: 1fr;
+      }
+      .tracks-grid {
+        grid-template-columns: 1fr;
+      }
+      .cta-form {
+        flex-direction: column;
+      }
+      .hero-title {
+        font-size: 2.2rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="bg-grid"></div>
+
+  <!-- Header Navigation -->
+  <header>
+    <div class="nav-container">
+      <a href="#" class="logo">
+        <span class="logo-badge">LAP</span> MyLapLog
+      </a>
+      <ul class="nav-links">
+        <li><a href="#features">주요 기능</a></li>
+        <li><a href="#simulator">셋업 시뮬레이터</a></li>
+        <li><a href="#tracks">지원 서킷</a></li>
+        <li><a href="#community">트랙데이 클럽</a></li>
+      </ul>
+      <a href="#preregister" class="btn-cta">
+        <i data-lucide="zap"></i> 사전 등록하기
+      </a>
+    </div>
+  </header>
+
+  <!-- Main Hero Section -->
+  <main>
+    <section class="hero">
+      <div class="container">
+        <div class="hero-grid">
+          
+          <!-- Hero Text -->
+          <div class="hero-content">
+            <div class="hero-tag">
+              <i data-lucide="flame"></i> Motorsport Telemetry & Setup Hub
+            </div>
+            <h1 class="hero-title">
+              모든 랩의 기록,<br>
+              <span class="highlight">모든 셋업의 진화.</span>
+            </h1>
+            <p class="hero-desc">
+              드라이버와 레이스카 등록부터 세션별 타이어 공기압·감쇠력·캠버 셋팅값과 베스트 랩타임의 상관관계 분석까지. 트랙데이 매니아와 프로 드라이버를 위한 올인원 로깅 앱.
+            </p>
+            <div class="hero-buttons">
+              <a href="#preregister" class="btn-cta">
+                <i data-lucide="flag"></i> 드라이버 사전 등록
+              </a>
+              <a href="#simulator" class="btn-outline">
+                <i data-lucide="sliders"></i> 셋업 시뮬레이터 체험
+              </a>
+            </div>
+
+            <div class="hero-stats">
+              <div class="stat-item">
+                <h4>0.001<span>s</span></h4>
+                <p>정밀 랩타임 섹터 로깅</p>
+              </div>
+              <div class="stat-item">
+                <h4>15<span>+</span></h4>
+                <p>세션별 셋업 파라미터</p>
+              </div>
+              <div class="stat-item">
+                <h4>100<span>%</span></h4>
+                <p>국내외 주요 서킷 지원</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Hero UI Mockup Card -->
+          <div class="dashboard-preview">
+            <div class="card-header-flex">
+              <div class="driver-badge">
+                <div class="driver-avatar">#77</div>
+                <div class="driver-info">
+                  <h5>Alex Kim (PRO-AM)</h5>
+                  <p>Hyundai Avante N (TCR Setup)</p>
+                </div>
+              </div>
+              <div class="circuit-tag">
+                <i data-lucide="map-pin"></i> 인제 스피디움 (Full 3.908km)
+              </div>
+            </div>
+
+            <!-- Best Lap Display -->
+            <div class="laptime-banner">
+              <div class="laptime-label">Session 3 · Best Lap Record</div>
+              <div class="laptime-number" id="hero-lap-counter">01:52.348</div>
+              <div class="sector-times">
+                <div class="sector-item">S1: <span class="sec-val">34.821</span></div>
+                <div class="sector-item">S2: <span class="sec-val">42.109</span></div>
+                <div class="sector-item">S3: <span class="sec-val">35.418</span></div>
+              </div>
+            </div>
+
+            <!-- Setup Telemetry Preview -->
+            <div class="telemetry-grid">
+              <div class="telem-box">
+                <div class="telem-title">
+                  <span>타이어 냉간/온간 (FL/FR)</span>
+                  <i data-lucide="gauge"></i>
+                </div>
+                <div class="telem-value">28 / 34 <small style="font-size:0.7rem; color:var(--text-muted)">PSI</small></div>
+                <div class="telem-bar"><div class="telem-fill" style="width: 78%;"></div></div>
+              </div>
+
+              <div class="telem-box">
+                <div class="telem-title">
+                  <span>댐퍼 감쇠력 (F/R)</span>
+                  <i data-lucide="activity"></i>
+                </div>
+                <div class="telem-value">12 / 8 <small style="font-size:0.7rem; color:var(--text-muted)">CLICKS</small></div>
+                <div class="telem-bar"><div class="telem-fill" style="width: 65%;"></div></div>
+              </div>
+
+              <div class="telem-box">
+                <div class="telem-title">
+                  <span>프론트 캠버 각도</span>
+                  <i data-lucide="compass"></i>
+                </div>
+                <div class="telem-value">-3.2°</div>
+                <div class="telem-bar"><div class="telem-fill" style="width: 82%;"></div></div>
+              </div>
+
+              <div class="telem-box">
+                <div class="telem-title">
+                  <span>노면 온도 / 기온</span>
+                  <i data-lucide="sun"></i>
+                </div>
+                <div class="telem-value">42°C / 26°C</div>
+                <div class="telem-bar"><div class="telem-fill" style="width: 55%;"></div></div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- Key Features Section -->
+    <section id="features">
+      <div class="container">
+        <div class="section-header">
+          <span class="section-subtitle">Trackday Innovation</span>
+          <h2 class="section-title">트랙 위 드라이빙을 완성하는 핵심 기능</h2>
+          <p class="section-desc">단순한 스톱워치를 넘어, 자동차 셋업과 드라이빙 로그를 체계적으로 기록하여 랩타임을 줄이는 과학적인 접근법을 제시합니다.</p>
+        </div>
+
+        <div class="features-grid">
+          
+          <!-- Feature 1 -->
+          <div class="feature-card">
+            <div class="feature-icon-wrapper">
+              <i data-lucide="car"></i>
+            </div>
+            <h3>드라이버 & 개러지 머신 등록</h3>
+            <p>다수의 차량 및 스펙(순정, 튜닝 파츠, 타이어 종류, 브레이크 패드)을 개러지에 등록하고 세션별 출전 차량을 유연하게 스위칭합니다.</p>
+            <div class="feature-tags">
+              <span class="feature-tag-item">차량별 프로필</span>
+              <span class="feature-tag-item">부품 수명 관리</span>
+              <span class="feature-tag-item">드라이버 히스토리</span>
+            </div>
+          </div>
+
+          <!-- Feature 2 -->
+          <div class="feature-card">
+            <div class="feature-icon-wrapper">
+              <i data-lucide="sliders"></i>
+            </div>
+            <h3>세션별 정밀 셋업 로깅</h3>
+            <p>세션마다 타이어 공기압(Cold/Hot), 댐퍼 클릭수, 캠버/토우, 스웨이바 강도, 리어 윙 각도까지 빠짐없이 기록하여 최적점을 찾습니다.</p>
+            <div class="feature-tags">
+              <span class="feature-tag-item">공기압 매핑</span>
+              <span class="feature-tag-item">서스펜션 셋업</span>
+              <span class="feature-tag-item">에어로 다이내믹</span>
+            </div>
+          </div>
+
+          <!-- Feature 3 -->
+          <div class="feature-card">
+            <div class="feature-icon-wrapper">
+              <i data-lucide="timer"></i>
+            </div>
+            <h3>랩타임 & 섹터 비교 분석</h3>
+            <p>각 세션의 베스트 랩과 이상적인 최적 랩(Optimal Lap), 섹터별 타임로스를 시각화하여 코너별 브레이킹과 탈출 가속을 피드백합니다.</p>
+            <div class="feature-tags">
+              <span class="feature-tag-item">0.001초 정밀도</span>
+              <span class="feature-tag-item">섹터 델타</span>
+              <span class="feature-tag-item">일관성 지수</span>
+            </div>
+          </div>
+
+          <!-- Feature 4 -->
+          <div class="feature-card">
+            <div class="feature-icon-wrapper">
+              <i data-lucide="cloud-sun"></i>
+            </div>
+            <h3>날씨 및 노면 환경 자동 매칭</h3>
+            <p>기온, 습도, 기압, 노면 온도 및 날씨(Dry/Wet) 데이터를 세션 시간대에 맞춰 자동 연동하여 데이터의 신뢰성을 극대화합니다.</p>
+            <div class="feature-tags">
+              <span class="feature-tag-item">실시간 기상 API</span>
+              <span class="feature-tag-item">트랙 컨디션</span>
+              <span class="feature-tag-item">흡기온도 보정</span>
+            </div>
+          </div>
+
+          <!-- Feature 5 -->
+          <div class="feature-card">
+            <div class="feature-icon-wrapper">
+              <i data-lucide="trending-down"></i>
+            </div>
+            <h3>셋업 vs 랩타임 인사이트</h3>
+            <p>"프론트 감쇠력을 2클릭 올렸을 때 S2 섹터가 0.3초 단축됨"과 같이 직관적인 AI 상관관계 분석 리포트를 제공합니다.</p>
+            <div class="feature-tags">
+              <span class="feature-tag-item">AI 셋업 추천</span>
+              <span class="feature-tag-item">상관도 그래프</span>
+              <span class="feature-tag-item">인사이트 요약</span>
+            </div>
+          </div>
+
+          <!-- Feature 6 -->
+          <div class="feature-card">
+            <div class="feature-icon-wrapper">
+              <i data-lucide="trophy"></i>
+            </div>
+            <h3>트랙데이 리더보드 & 공유</h3>
+            <p>동일 차종 및 클래스 드라이버들과 랩타임 및 셋팅 팁을 공유하고, 팀원들과 함께 실시간 서킷 랭킹을 겨뤄보세요.</p>
+            <div class="feature-tags">
+              <span class="feature-tag-item">클래스별 랭킹</span>
+              <span class="feature-tag-item">셋업 공유 커뮤니티</span>
+              <span class="feature-tag-item">기록 카드 출력</span>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- Interactive Setup & Lap Time Simulator -->
+    <section id="simulator">
+      <div class="container">
+        <div class="section-header">
+          <span class="section-subtitle">Interactive Setup Lab</span>
+          <h2 class="section-title">차량 셋팅 시뮬레이터</h2>
+          <p class="section-desc">트랙과 차량 셋업 파라미터를 조절해보세요. MyLapLog의 알고리즘이 예측 랩타임과 피드백을 실시간 계산합니다.</p>
+        </div>
+
+        <div class="simulator-container">
+          <div class="simulator-grid">
+            
+            <!-- Controls -->
+            <div class="sim-controls">
+              
+              <!-- Track Choice -->
+              <div class="control-group">
+                <label>서킷 선택</label>
+                <div class="track-select-btn-group">
+                  <div class="track-btn active" data-track="inje" onclick="selectTrack('inje', this)">인제 스피디움</div>
+                  <div class="track-btn" data-track="kic" onclick="selectTrack('kic', this)">영암 KIC F1</div>
+                  <div class="track-btn" data-track="everland" onclick="selectTrack('everland', this)">용인 스피드웨이</div>
+                </div>
+              </div>
+
+              <!-- Tire Pressure Slider -->
+              <div class="control-group">
+                <label>
+                  <span>프론트 타이어 온간 공기압 (PSI)</span>
+                  <span class="val" id="tire-val">32 PSI</span>
+                </label>
+                <input type="range" class="sim-slider" min="26" max="40" value="32" id="tire-slider" oninput="updateSim()">
+              </div>
+
+              <!-- Damper Clicks Slider -->
+              <div class="control-group">
+                <label>
+                  <span>서스펜션 댐퍼 감쇠력 (Click)</span>
+                  <span class="val" id="damper-val">12 Clicks</span>
+                </label>
+                <input type="range" class="sim-slider" min="1" max="24" value="12" id="damper-slider" oninput="updateSim()">
+              </div>
+
+              <!-- Camber Slider -->
+              <div class="control-group">
+                <label>
+                  <span>프론트 네거티브 캠버 (°)</span>
+                  <span class="val" id="camber-val">-2.8°</span>
+                </label>
+                <input type="range" class="sim-slider" min="10" max="45" value="28" id="camber-slider" oninput="updateSim()">
+              </div>
+
+            </div>
+
+            <!-- Result -->
+            <div class="sim-result-card">
+              <div class="sim-result-title">예상 베스트 랩타임 (Estimated Lap)</div>
+              <div class="sim-result-time" id="sim-lap-display">01:51.840</div>
+              <div class="sim-delta-badge" id="sim-delta">
+                <i data-lucide="arrow-down-right"></i> 기준 기록 대비 -0.508s
+              </div>
+
+              <div class="sim-insights-list">
+                <li><i data-lucide="check-circle-2"></i> <span id="insight-1">타이어 그립 밸런스 최적 구역 (32 PSI)</span></li>
+                <li><i data-lucide="check-circle-2"></i> <span id="insight-2">중고속 코너 롤 억제 및 안정성 향상</span></li>
+                <li><i data-lucide="check-circle-2"></i> <span id="insight-3">헤어핀 코너 진입 시 오버스티어 제어 용이</span></li>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Track Showcase -->
+    <section id="tracks">
+      <div class="container">
+        <div class="section-header">
+          <span class="section-subtitle">Circuit Database</span>
+          <h2 class="section-title">국내외 주요 서킷 맵 & 텔레메트리 연동</h2>
+          <p class="section-desc">공식 서킷 규격 레이아웃 및 섹터 맵을 완벽 탑재하여 별도 코딩 없이 즉시 세션을 시작할 수 있습니다.</p>
+        </div>
+
+        <div class="tracks-grid">
+          <div class="track-card">
+            <div class="track-name">인제 스피디움 (Inje)</div>
+            <div class="track-spec">Full 코스 · 3.908km · 19코너 · 고저차 40m</div>
+            <div class="track-record">Target: 01:52.xxx</div>
+          </div>
+          <div class="track-card">
+            <div class="track-name">영암 KIC (Korea Int'l)</div>
+            <div class="track-spec">F1 그랑프리 코스 · 5.615km · 18코너</div>
+            <div class="track-record">Target: 02:24.xxx</div>
+          </div>
+          <div class="track-card">
+            <div class="track-name">용인 에버랜드 스피드웨이</div>
+            <div class="track-spec">Full 코스 · 4.346km · 16코너</div>
+            <div class="track-record">Target: 02:08.xxx</div>
+          </div>
+          <div class="track-card">
+            <div class="track-name">태백 레이싱파크</div>
+            <div class="track-spec">스피드 코스 · 2.500km · 6코너</div>
+            <div class="track-record">Target: 01:04.xxx</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Pre-Registration CTA -->
+    <section id="preregister">
+      <div class="container">
+        <div class="cta-banner">
+          <div class="hero-tag" style="background: rgba(0,0,0,0.4); border-color: rgba(255,255,255,0.2); color: #fff;">
+            Early Access Launch
+          </div>
+          <h2>다음 트랙데이에서는 0.1초를 줄여보세요</h2>
+          <p style="color: rgba(255,255,255,0.8); max-width: 600px; margin: 0 auto;">
+            지금 사전 등록하시는 모든 드라이버에게 <strong>MyLapLog Pro 6개월 무료 이용권</strong> 및 맞춤형 셋업 분석 가이드를 제공합니다.
+          </p>
+
+          <form class="cta-form" id="pre-reg-form" onsubmit="handlePreRegister(event)">
+            <input type="email" class="cta-input" id="driver-email" placeholder="드라이버 이메일 주소를 입력하세요" required>
+            <button type="submit" class="btn-cta" style="padding: 0.85rem 1.8rem; font-size: 1rem;">
+              <i data-lucide="send"></i> 사전 등록
+            </button>
+          </form>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer>
+    <div class="container">
+      <div class="footer-flex">
+        <div class="footer-brand">
+          <span style="font-family: var(--font-display); font-weight: 700; color: #fff; font-size: 1.2rem; font-style: italic;">
+            <span style="color:var(--accent-red)">LAP</span> MyLapLog
+          </span>
+          <p style="font-size: 0.8rem; margin-top: 0.25rem;">© 2026 MyLapLog Inc. All rights reserved. Motorsport Engineering & Log Solution.</p>
+        </div>
+        <div class="footer-links">
+          <a href="#">개인정보처리방침</a>
+          <a href="#">이용약관</a>
+          <a href="https://mylaplog.com">mylaplog.com</a>
+          <a href="https://app.mylaplog.com">App Web Portal</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Toast Notification -->
+  <div class="toast" id="toast-msg">
+    <i data-lucide="check-circle" style="color:#00ff88"></i>
+    <span id="toast-text">사전 등록이 성공적으로 완료되었습니다!</span>
+  </div>
+
+  <script>
+    // Initialize Lucide Icons
+    lucide.createIcons();
+
+    // Track Base Times (Seconds)
+    const trackData = {
+      inje: { name: '인제 스피디움', base: 112.5, optimalPsi: 32, optimalDamper: 14, optimalCamber: 3.2 },
+      kic: { name: '영암 KIC F1', base: 146.2, optimalPsi: 31, optimalDamper: 16, optimalCamber: 3.5 },
+      everland: { name: '용인 스피드웨이', base: 130.4, optimalPsi: 33, optimalDamper: 12, optimalCamber: 2.8 }
+    };
+
+    let currentTrack = 'inje';
+
+    function selectTrack(trackKey, el) {
+      document.querySelectorAll('.track-btn').forEach(btn => btn.classList.remove('active'));
+      el.classList.add('active');
+      currentTrack = trackKey;
+      updateSim();
+    }
+
+    function formatLapTime(seconds) {
+      const min = Math.floor(seconds / 60);
+      const sec = Math.floor(seconds % 60);
+      const ms = Math.floor((seconds - Math.floor(seconds)) * 1000);
+      return `${String(min).padStart(2, '0')}:${String(sec).padStart(2, '0')}.${String(ms).padStart(3, '0')}`;
+    }
+
+    function updateSim() {
+      const psi = parseFloat(document.getElementById('tire-slider').value);
+      const damper = parseFloat(document.getElementById('damper-slider').value);
+      const camber = parseFloat(document.getElementById('camber-slider').value) / 10;
+
+      document.getElementById('tire-val').innerText = `${psi} PSI`;
+      document.getElementById('damper-val').innerText = `${damper} Clicks`;
+      document.getElementById('camber-val').innerText = `-${camber.toFixed(1)}°`;
+
+      const t = trackData[currentTrack];
+      
+      // Calculate delta penalty
+      const psiPenalty = Math.pow(Math.abs(psi - t.optimalPsi), 1.4) * 0.12;
+      const damperPenalty = Math.pow(Math.abs(damper - t.optimalDamper), 1.2) * 0.08;
+      const camberPenalty = Math.pow(Math.abs(camber - t.optimalCamber), 1.3) * 0.25;
+
+      const totalDelta = (psiPenalty + damperPenalty + camberPenalty) - 0.85;
+      const finalTime = t.base + totalDelta;
+
+      document.getElementById('sim-lap-display').innerText = formatLapTime(finalTime);
+
+      const deltaBadge = document.getElementById('sim-delta');
+      if (totalDelta <= 0) {
+        deltaBadge.innerHTML = `<i data-lucide="arrow-down-right"></i> 기준 기록 대비 ${totalDelta.toFixed(3)}s 단축`;
+        deltaBadge.style.color = '#00ff88';
+        deltaBadge.style.borderColor = '#00ff88';
+        deltaBadge.style.background = 'rgba(0, 255, 136, 0.15)';
+      } else {
+        deltaBadge.innerHTML = `<i data-lucide="arrow-up-right"></i> 기준 기록 대비 +${totalDelta.toFixed(3)}s 지연`;
+        deltaBadge.style.color = '#ff2a4b';
+        deltaBadge.style.borderColor = '#ff2a4b';
+        deltaBadge.style.background = 'rgba(255, 42, 75, 0.15)';
+      }
+
+      // Update Insights
+      if (Math.abs(psi - t.optimalPsi) <= 1) {
+        document.getElementById('insight-1').innerText = `타이어 접지면 온간 내압 최적화 완료 (${psi} PSI)`;
+      } else if (psi < t.optimalPsi) {
+        document.getElementById('insight-1').innerText = `타이어 공기압 낮음: 숄더 마모 및 코너링 반응 둔화 주의`;
+      } else {
+        document.getElementById('insight-1').innerText = `타이어 공기압 높음: 트레드 중앙부 과열 및 접지면적 감소`;
+      }
+
+      if (damper >= 14) {
+        document.getElementById('insight-2').innerText = `단단한 댐퍼 세팅: 고속 S자 코너 롤 억제 및 반응성 극대화`;
+      } else {
+        document.getElementById('insight-2').innerText = `부드러운 댐퍼 세팅: 범프 노면 추종성 향상, 롤각 증가`;
+      }
+
+      document.getElementById('insight-3').innerText = `캠버 -${camber.toFixed(1)}° 적용: 코너링 G포스 한계점 및 탈출 트랙션 확보`;
+
+      lucide.createIcons();
+    }
+
+    function handlePreRegister(e) {
+      e.preventDefault();
+      const email = document.getElementById('driver-email').value;
+      if (!email) return;
+
+      const toast = document.getElementById('toast-msg');
+      document.getElementById('toast-text').innerText = `${email} 님, 사전 등록이 완료되었습니다! 🏁`;
+      toast.classList.add('show');
+
+      document.getElementById('driver-email').value = '';
+
+      setTimeout(() => {
+        toast.classList.remove('show');
+      }, 4000);
+    }
+
+    // Auto animate Hero Counter
+    let baseHeroTime = 112.348;
+    setInterval(() => {
+      const variance = (Math.random() - 0.5) * 0.04;
+      const t = baseHeroTime + variance;
+      document.getElementById('hero-lap-counter').innerText = formatLapTime(t);
+    }, 3000);
+
+    // Initial Sim update
+    updateSim();
+  </script>
+</body>
+</html>
