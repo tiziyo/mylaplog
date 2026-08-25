@@ -6,6 +6,7 @@
 *.pem
 *.key
 *.ppk
+connection_info.txt
 credentials.log
 application_credentials
 .env
