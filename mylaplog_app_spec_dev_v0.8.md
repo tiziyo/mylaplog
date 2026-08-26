@@ -40,10 +40,12 @@
   - **시각화 엔진**: Chart.js (텔레메트리 셋업-랩타임 상관관계 라인 차트)
   - **아이콘**: Lucide Icons (CDN)
   - **타이포그래피**: Google Fonts (`Chakra Petch`, `Orbitron`, `Noto Sans KR`)
-- **데이터 상태 및 사용자 모드 분리 (Guest Demo vs Authenticated User)**:
-  - **게스트 모드 (로그아웃 상태)**: 서비스 체험을 위한 풍부한 **샘플 데이타**(`SAMPLE_GARAGE`, `SAMPLE_SESSIONS`, `SAMPLE_TEAM`) 자동 로드 및 렌더링
-  - **로그인 모드 (인증 상태)**: 게스트 샘플 데이터를 비우고, MariaDB 백엔드 API(`/api/*`)를 통해 **해당 로그인 유저의 실제 DB 데이터**만 독립적으로 로드 및 관리
-  - **대시보드 메트릭스 & 하이라이트 배너**: 등록된 세션/차량/팀 데이터에 기반하여 실시간 동적 계산 및 Empty State UI 완벽 지원
+- **데이터 스토리지 아키텍처 (Zero LocalStorage, 100% MariaDB Backend)**:
+  - 브라우저의 `localStorage` 또는 `sessionStorage`를 통한 로컬 캐싱을 완전히 배제하고, **모든 데이터(유저 인증, 차량, 세션, 셋업, 팀, 리더보드)는 MariaDB 10.11 REST API를 통해 실시간 생성/조회/수정/삭제**됩니다.
+  - 앱 구동(`initApp`) 시 기존 브라우저 로컬 스토리지를 자동 클리어(`localStorage.clear()`)하여 과거 캐시 잔여물을 차단합니다.
+  - **게스트 모드 (로그아웃 상태)**: 비로그인 사용자의 체험을 위한 읽기 전용 인메모리 샘플 데이터(`SAMPLE_GARAGE`, `SAMPLE_SESSIONS`, `SAMPLE_TEAM`) 표시
+  - **로그인 모드 (인증 상태)**: PHP PDO 세션 인증 기반으로 MariaDB에서 해당 로그인 유저의 레코드만 안전하게 쿼리하여 렌더링
+  - **대시보드 메트릭스 & 하이라이트 배너**: DB에 저장된 실제 세션/차량/팀 데이터에 기반하여 실시간 동적 계산 및 Empty State UI 완벽 지원
 
 ---
 

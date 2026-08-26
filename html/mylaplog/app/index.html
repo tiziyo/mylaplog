@@ -2600,13 +2600,21 @@
     }
 
     // =============================================
-    // INITIALIZATION
+    // INITIALIZATION (Pure MariaDB Backend - No LocalStorage)
     // =============================================
     async function initApp() {
+      // Clear any legacy client-side storage
+      try {
+        localStorage.clear();
+        sessionStorage.clear();
+      } catch (e) {
+        // ignore sandbox errors
+      }
+
       await loadTracks();
       const res = await api('/auth/me');
       if (res.ok && res.user) {
-        // Authenticated Session -> Load only this user's DB records
+        // Authenticated Session -> Load only this user's DB records from MariaDB
         user = { ...res.user, isLoggedIn: true, role: (res.user.driver_class || 'PRO-AM') + ' Driver' };
         updateUserUI();
         await loadUserDataFromAPI();
