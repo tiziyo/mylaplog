@@ -1156,7 +1156,7 @@
                   <td><span style="color:var(--accent-green)">-0.772s (Alex 우세, S2 코너 진입 속도)</span></td>
                 </tr>
                 <tr>
-                  <td><strong>프론트 타이어 온간 공기압</strong></td>
+                  <td><strong>프론트 타이어 열간 공기압</strong></td>
                   <td>34.0 PSI</td>
                   <td>36.5 PSI</td>
                   <td>David의 공기압이 다소 높아 트레드 중앙부 발열 집중</td>
@@ -1601,10 +1601,10 @@
         <!-- 2. 세부 셋업 영역 (2개 컬럼: 좌측 타이어 4륜 공기압 / 우측 댐퍼&하체 셋업) -->
         <div style="display: grid; grid-template-columns: 1.1fr 1fr; gap: 1rem; margin-bottom: 0.85rem; background: rgba(0,0,0,0.3); padding: 0.85rem 1rem; border-radius: 8px; border: 1px solid var(--border-subtle);">
           
-          <!-- 좌측: 4륜 타이어 온간 공기압 (Hot PSI) -->
+          <!-- 좌측: 4륜 타이어 열간 공기압 (Hot PSI) -->
           <div>
             <div style="display:flex; align-items:center; gap:0.4rem; margin-bottom: 0.5rem; color:var(--accent-cyan); font-family:var(--font-display); font-size:0.85rem; font-weight:700;">
-              <i data-lucide="gauge" style="width:15px; height:15px;"></i> 타이어 온간 공기압 (Hot PSI)
+              <i data-lucide="gauge" style="width:15px; height:15px;"></i> 타이어 열간 공기압 (Hot PSI)
             </div>
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;">
               <div class="form-group">
@@ -2105,7 +2105,7 @@
             </div>
             <div style="background: rgba(0,0,0,0.5); padding: 1rem 1.5rem; border-radius: 8px; border: 1px solid var(--border-subtle);">
               <p style="font-size:0.8rem; color:var(--text-muted); margin-bottom: 0.4rem;">주요 셋업 요약</p>
-              <p style="font-size:0.9rem; color:#fff;">타이어 온간: <strong>FL ${s.psiFL} / FR ${s.psiFR} PSI</strong></p>
+              <p style="font-size:0.9rem; color:#fff;">타이어 열간: <strong>FL ${s.psiFL} / FR ${s.psiFR} PSI</strong></p>
               <p style="font-size:0.9rem; color:#fff;">감쇠력: <strong>F ${s.damperF || '-'} / R ${s.damperR || '-'} Clicks</strong></p>
               <p style="font-size:0.9rem; color:#fff;">캠버: <strong>${s.camber ? s.camber + '°' : '-'}</strong></p>
             </div>

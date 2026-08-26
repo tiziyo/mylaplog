@@ -984,7 +984,7 @@
             <div class="telemetry-grid">
               <div class="telem-box">
                 <div class="telem-title">
-                  <span>타이어 냉간/온간 (FL/FR)</span>
+                  <span>타이어 냉간/열간 (FL/FR)</span>
                   <i data-lucide="gauge"></i>
                 </div>
                 <div class="telem-value">28 / 34 <small style="font-size:0.7rem; color:var(--text-muted)">PSI</small></div>
@@ -1151,7 +1151,7 @@
               <!-- Tire Pressure Slider -->
               <div class="control-group">
                 <label>
-                  <span>프론트 타이어 온간 공기압 (PSI)</span>
+                  <span>프론트 타이어 열간 공기압 (PSI)</span>
                   <span class="val" id="tire-val">32 PSI</span>
                 </label>
                 <input type="range" class="sim-slider" min="26" max="40" value="32" id="tire-slider" oninput="updateSim()">
@@ -1343,7 +1343,7 @@
 
       // Update Insights
       if (Math.abs(psi - t.optimalPsi) <= 1) {
-        document.getElementById('insight-1').innerText = `타이어 접지면 온간 내압 최적화 완료 (${psi} PSI)`;
+        document.getElementById('insight-1').innerText = `타이어 접지면 열간 내압 최적화 완료 (${psi} PSI)`;
       } else if (psi < t.optimalPsi) {
         document.getElementById('insight-1').innerText = `타이어 공기압 낮음: 숄더 마모 및 코너링 반응 둔화 주의`;
       } else {
