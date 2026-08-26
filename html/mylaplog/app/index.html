@@ -624,6 +624,37 @@
     }
 
     /* Team Hub Grid */
+    .my-teams-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+
+    .team-card-item {
+      background: rgba(18, 26, 38, 0.7);
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      padding: 1.15rem;
+      transition: all 0.2s ease;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      position: relative;
+    }
+
+    .team-card-item:hover {
+      border-color: rgba(0, 240, 255, 0.4);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+    }
+
+    .team-card-item.active {
+      border-color: var(--accent-cyan);
+      background: rgba(0, 240, 255, 0.05);
+      box-shadow: 0 0 15px rgba(0, 240, 255, 0.15);
+    }
+
     .team-hub-grid {
       display: grid;
       grid-template-columns: 1fr 2fr;
@@ -653,9 +684,11 @@
       text-transform: uppercase;
     }
 
-    .role-owner { background: rgba(255, 42, 75, 0.2); color: var(--accent-red); border: 1px solid var(--accent-red); }
+    .role-owner, .role-chief { background: rgba(255, 42, 75, 0.2); color: var(--accent-red); border: 1px solid var(--accent-red); }
     .role-driver { background: rgba(0, 240, 255, 0.2); color: var(--accent-cyan); border: 1px solid var(--accent-cyan); }
     .role-mechanic { background: rgba(255, 145, 0, 0.2); color: var(--accent-orange); border: 1px solid var(--accent-orange); }
+    .role-manager { background: rgba(153, 102, 255, 0.2); color: #b388ff; border: 1px solid #b388ff; }
+    .role-viewer { background: rgba(255, 255, 255, 0.1); color: var(--text-muted); border: 1px solid var(--border-subtle); }
 
     /* Forms & Modals */
     .modal-overlay {
@@ -1187,18 +1220,13 @@
         <!-- ================= TAB 5: TEAM HUB ================= -->
         <div id="tab-team" class="tab-panel">
           
-          <!-- Team Header & Switcher Bar (Up to 10 Teams) -->
-          <div class="card" style="margin-bottom: 1.25rem;">
-            <div style="padding: 1rem 1.25rem; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
-              <div style="display:flex; align-items:center; gap:0.75rem;">
-                <label style="font-size:0.85rem; color:var(--text-muted); font-weight:600; white-space:nowrap;">
-                  <i data-lucide="shield" style="width:16px; color:var(--accent-red); vertical-align:middle;"></i> 내 소속 팀 (<span id="my-teams-count-badge">0</span>/10):
-                </label>
-                <select class="form-control" id="my-team-switcher" style="width:auto; min-width:220px; padding:0.45rem 0.75rem; font-size:0.88rem;" onchange="handleSwitchActiveTeam(this.value)">
-                  <!-- Populated via JS -->
-                </select>
+          <!-- SECTION 1: ALL MY TEAMS LIST (UP TO 10 TEAMS) -->
+          <div class="card" style="margin-bottom: 1.5rem;">
+            <div class="card-header" style="flex-wrap:wrap; gap:0.75rem;">
+              <div class="card-title">
+                <i data-lucide="shield" style="color:var(--accent-red)"></i>
+                내 소속 팀 전체 목록 (<span id="my-teams-count-badge" style="color:var(--accent-cyan)">0</span> / 10)
               </div>
-
               <div style="display:flex; gap:0.5rem; align-items:center;">
                 <button class="btn btn-outline-green" style="padding:0.45rem 0.85rem; font-size:0.82rem;" onclick="openCreateTeamModal()">
                   <i data-lucide="plus"></i> 새 팀 등록
@@ -1206,47 +1234,54 @@
                 <button class="btn btn-secondary" style="padding:0.45rem 0.85rem; font-size:0.82rem;" onclick="openJoinTeamModal()">
                   <i data-lucide="key"></i> 초대코드로 가입
                 </button>
-                <button class="btn btn-secondary" id="btn-team-action-delete" style="padding:0.45rem 0.85rem; font-size:0.82rem; background:rgba(255,42,75,0.15); border-color:var(--accent-red); color:#ff6b81; display:none;" onclick="handleDeleteOrLeaveTeam()">
-                  <i data-lucide="trash-2"></i> <span id="team-action-btn-text">팀 삭제</span>
-                </button>
               </div>
+            </div>
+
+            <!-- Grid of all joined teams -->
+            <div class="my-teams-grid" id="my-teams-cards-container">
+              <!-- Populated via JS (All Teams Cards) -->
             </div>
           </div>
 
+          <!-- SECTION 2: ACTIVE TEAM DETAIL & MEMBERS -->
           <div class="team-hub-grid">
             
-            <!-- Team Info Card -->
+            <!-- Active Team Info Card -->
             <div class="card">
               <div class="card-header">
                 <div class="card-title">
-                  <i data-lucide="shield"></i> 소속 팀 프로필
+                  <i data-lucide="info"></i> 선택된 팀 상세 정보
                 </div>
                 <span class="role-badge" id="team-my-role-badge">CHIEF</span>
               </div>
-              <div style="text-align: center; padding: 1rem 0;">
+              <div style="text-align: center; padding: 0.5rem 0;">
                 <div id="team-logo-display" style="width:70px; height:70px; border-radius:50%; background:linear-gradient(135deg, var(--accent-red), var(--accent-cyan)); margin:0 auto 1rem; display:flex; align-items:center; justify-content:center; font-size:1.8rem; font-weight:900; color:#fff; font-family:var(--font-display);">
                   ARK
                 </div>
                 <h3 id="team-hub-name" style="font-family:var(--font-display); color:#fff; font-size:1.4rem;">Apex Racing Korea</h3>
                 <p id="team-hub-desc" style="color:var(--text-muted); font-size:0.85rem; margin-top:0.3rem;">트랙데이 & 현대 N 페스티벌 출전 크루</p>
-                <p id="team-hub-hometrack" style="color:var(--accent-cyan); font-size:0.8rem; margin-top:0.3rem; font-family:var(--font-mono);">홈 서킷: 인제 스피디움</p>
+                <p id="team-hub-hometrack" style="color:var(--accent-cyan); font-size:0.82rem; margin-top:0.4rem; font-family:var(--font-mono);">홈 서킷: 인제 스피디움</p>
                 
-                <div style="background:rgba(0,0,0,0.4); border:1px dashed var(--border-subtle); border-radius:8px; padding:0.8rem; margin:1.25rem 0 0.5rem; display:flex; justify-content:space-between; align-items:center;">
-                  <span style="font-size:0.8rem; color:var(--text-muted)">팀 초대 코드:</span>
+                <div style="background:rgba(0,0,0,0.4); border:1px dashed var(--border-subtle); border-radius:8px; padding:0.8rem; margin:1.25rem 0 1rem; display:flex; justify-content:space-between; align-items:center;">
+                  <span style="font-size:0.8rem; color:var(--text-muted)">초대 코드:</span>
                   <strong id="team-hub-code" style="font-family:var(--font-mono); color:var(--accent-cyan); letter-spacing:1px;">APEX-KOR-2026</strong>
                   <button class="btn btn-cyan" style="padding:0.3rem 0.6rem; font-size:0.75rem;" onclick="copyInviteCode()">복사</button>
                 </div>
+
+                <button class="btn btn-secondary" id="btn-team-action-delete" style="width:100%; justify-content:center; padding:0.6rem; font-size:0.85rem; background:rgba(255,42,75,0.12); border-color:var(--accent-red); color:#ff6b81; display:none;" onclick="handleDeleteOrLeaveTeam()">
+                  <i data-lucide="trash-2"></i> <span id="team-action-btn-text">팀 삭제 (해체)</span>
+                </button>
               </div>
             </div>
 
-            <!-- Team Members List -->
+            <!-- Active Team Members List -->
             <div class="card">
               <div class="card-header">
                 <div class="card-title">
-                  <i data-lucide="users"></i> 팀 멤버 및 데이터 공유 권한
+                  <i data-lucide="users"></i> <span id="active-team-members-title">팀 멤버 및 데이터 공유 권한</span>
                 </div>
                 <button class="btn btn-secondary" onclick="openJoinTeamModal()">
-                  <i data-lucide="user-plus"></i> 초대 코드 안내
+                  <i data-lucide="user-plus"></i> 새 멤버 초대
                 </button>
               </div>
 
@@ -2293,25 +2328,32 @@
       }
     }
 
-    async function handleDeleteOrLeaveTeam() {
-      if (!user.isLoggedIn || !team || !team.id) return;
+    async function handleDeleteOrLeaveSpecificTeam(targetTeamId, targetTeamName, isChief) {
+      if (!user.isLoggedIn) return;
       
-      const isOwner = (team.role && (team.role.toUpperCase() === 'CHIEF' || team.role.toUpperCase() === 'OWNER')) || (team.owner_id == user.id);
-      const confirmMsg = isOwner
-        ? `'${team.name}' 팀의 팀장 권한을 가지고 있습니다.\n정말로 팀을 완전히 삭제(해체)하시겠습니까?\n(모든 팀원의 소속 정보가 함께 삭제됩니다)`
-        : `'${team.name}' 팀에서 정말 탈퇴하시겠습니까?`;
+      const confirmMsg = isChief
+        ? `'${targetTeamName}' 팀의 팀장 권한을 가지고 있습니다.\n정말로 팀을 완전히 삭제(해체)하시겠습니까?\n(모든 팀원의 소속 정보가 함께 삭제됩니다)`
+        : `'${targetTeamName}' 팀에서 정말 탈퇴하시겠습니까?`;
 
       if (!confirm(confirmMsg)) return;
 
-      const res = await api(`/teams/${team.id}`, 'DELETE');
+      const res = await api(`/teams/${targetTeamId}`, 'DELETE');
       if (res.ok) {
-        showToast(res.message || (isOwner ? '팀이 삭제되었습니다.' : '팀에서 탈퇴했습니다.'));
-        activeTeamId = null;
+        showToast(res.message || (isChief ? '팀이 삭제되었습니다.' : '팀에서 탈퇴했습니다.'));
+        if (activeTeamId == targetTeamId) {
+          activeTeamId = null;
+        }
         await loadTeamData();
         renderDashboardMetrics();
       } else {
         showToast(res.error || '처리 실패');
       }
+    }
+
+    async function handleDeleteOrLeaveTeam() {
+      if (!user.isLoggedIn || !team || !team.id) return;
+      const isChief = (team.role && (team.role.toUpperCase() === 'CHIEF' || team.role.toUpperCase() === 'OWNER')) || (team.owner_id == user.id);
+      await handleDeleteOrLeaveSpecificTeam(team.id, team.name, isChief);
     }
 
     function copyInviteCode() {
@@ -2321,37 +2363,97 @@
     }
 
     function renderTeamUI() {
-      // 1. Sidebar & Dashboard Stats
-      document.getElementById('sidebar-team-name').innerHTML = `<i data-lucide="shield"></i> ${team.name || '팀 미소속'}`;
-      document.getElementById('stat-team-name-card').innerText = team.name || '팀 미소속';
-      document.getElementById('stat-team-members-count').innerText = (team.members && team.members.length > 0)
-        ? `소속 팀원 ${team.members.length}명 활동 중`
-        : (user.isLoggedIn ? (userTeams.length > 0 ? '팀원 0명' : '팀에 가입해보세요 (최대 10개)') : '체험용 샘플 팀');
-
-      // 2. Multi-team switcher dropdown
-      const switcher = document.getElementById('my-team-switcher');
+      // 1. Update count badge & Profile Modal team summary
       const countBadge = document.getElementById('my-teams-count-badge');
       if (countBadge) countBadge.innerText = userTeams.length;
 
-      if (switcher) {
-        switcher.innerHTML = '';
-        if (userTeams.length === 0) {
-          const opt = document.createElement('option');
-          opt.value = '';
-          opt.innerText = '소속된 팀 없음';
-          switcher.appendChild(opt);
+      const profTeamEl = document.getElementById('prof-team');
+      if (profTeamEl) {
+        profTeamEl.innerText = userTeams.length > 0 
+          ? userTeams.map(t => `${t.name} (${t.role || 'DRIVER'})`).join(', ') 
+          : '소속 팀 없음';
+      }
+
+      // 2. Sidebar & Dashboard Stats
+      document.getElementById('sidebar-team-name').innerHTML = `<i data-lucide="shield"></i> ${team.name || '팀 미소속'}`;
+      document.getElementById('stat-team-name-card').innerText = userTeams.length > 0 
+        ? `${userTeams[0].name}${userTeams.length > 1 ? ` 외 ${userTeams.length - 1}개 팀` : ''}` 
+        : '팀 미소속';
+      document.getElementById('stat-team-members-count').innerText = (userTeams.length > 0)
+        ? `총 ${userTeams.length}개 팀 소속 중 (최대 10개)`
+        : (user.isLoggedIn ? '팀에 가입해보세요 (최대 10개)' : '체험용 샘플 팀');
+
+      // 3. Render ALL My Teams Cards Grid (Section 1)
+      const allTeamsGrid = document.getElementById('my-teams-cards-container');
+      if (allTeamsGrid) {
+        allTeamsGrid.innerHTML = '';
+        if (!userTeams || userTeams.length === 0) {
+          allTeamsGrid.innerHTML = `
+            <div style="grid-column: 1 / -1; text-align:center; padding: 2.5rem 1rem; color:var(--text-muted); background:rgba(0,0,0,0.2); border-radius:8px; border:1px dashed var(--border-subtle);">
+              <i data-lucide="shield-off" style="width:40px; height:40px; margin-bottom:0.75rem; opacity:0.5; color:var(--text-muted);"></i>
+              <h4 style="color:#fff; font-size:1.1rem; margin-bottom:0.4rem;">소속된 레이싱 팀이 없습니다</h4>
+              <p style="font-size:0.85rem; margin-bottom:1.25rem;">새로운 팀을 창단하거나 팀 초대 코드를 입력하여 팀에 합류하세요. (최대 10개까지 소속 가능)</p>
+              <div style="display:flex; justify-content:center; gap:0.5rem;">
+                <button class="btn btn-outline-green" style="font-size:0.85rem;" onclick="openCreateTeamModal()">
+                  <i data-lucide="plus"></i> 새 팀 등록
+                </button>
+                <button class="btn btn-secondary" style="font-size:0.85rem;" onclick="openJoinTeamModal()">
+                  <i data-lucide="key"></i> 초대코드로 가입
+                </button>
+              </div>
+            </div>
+          `;
         } else {
           userTeams.forEach(t => {
-            const opt = document.createElement('option');
-            opt.value = t.id;
-            opt.innerText = `${t.name} (${t.role || 'DRIVER'})`;
-            if (t.id == activeTeamId) opt.selected = true;
-            switcher.appendChild(opt);
+            const isCurrentActive = (t.id == activeTeamId);
+            const roleClass = (t.role || 'DRIVER').toLowerCase();
+            const isChief = (t.role === 'CHIEF' || t.role === 'chief' || t.role === 'owner' || t.owner_id == user.id);
+            const escapedName = (t.name || '').replace(/'/g, "\\'");
+
+            const card = document.createElement('div');
+            card.className = `team-card-item ${isCurrentActive ? 'active' : ''}`;
+            card.innerHTML = `
+              <div>
+                <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:0.75rem;">
+                  <div style="display:flex; align-items:center; gap:0.65rem;">
+                    <div style="width:38px; height:38px; border-radius:50%; background:linear-gradient(135deg, var(--accent-red), var(--accent-cyan)); display:flex; align-items:center; justify-content:center; font-weight:900; font-size:0.95rem; color:#fff; font-family:var(--font-display);">
+                      ${(t.name || 'LAP').slice(0, 3).toUpperCase()}
+                    </div>
+                    <div>
+                      <h4 style="color:#fff; font-size:1.05rem; font-family:var(--font-display); line-height:1.2;">${t.name}</h4>
+                      <span style="font-size:0.75rem; color:var(--accent-cyan); font-family:var(--font-mono);">${t.home_track || '인제 스피디움'}</span>
+                    </div>
+                  </div>
+                  <span class="role-badge role-${roleClass === 'chief' ? 'owner' : roleClass}">${(t.role || 'DRIVER').toUpperCase()}</span>
+                </div>
+                
+                <p style="font-size:0.8rem; color:var(--text-muted); margin-bottom:0.85rem; min-height:2.2em; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;">
+                  ${t.description || '등록된 팀 소개글이 없습니다.'}
+                </p>
+
+                <div style="background:rgba(0,0,0,0.35); padding:0.45rem 0.65rem; border-radius:6px; font-size:0.78rem; color:var(--text-muted); display:flex; justify-content:space-between; align-items:center; margin-bottom:0.85rem; border:1px solid rgba(255,255,255,0.05);">
+                  <span>초대코드: <strong style="color:#fff; font-family:var(--font-mono); letter-spacing:0.5px;">${t.invite_code}</strong></span>
+                  <button type="button" class="btn btn-cyan" style="padding:0.2rem 0.5rem; font-size:0.7rem;" onclick="navigator.clipboard.writeText('${t.invite_code}'); showToast('초대코드 복사 완료!');">복사</button>
+                </div>
+              </div>
+
+              <div style="display:flex; gap:0.4rem; justify-content:space-between; align-items:center; padding-top:0.65rem; border-top:1px solid rgba(255,255,255,0.08);">
+                <button type="button" class="btn ${isCurrentActive ? 'btn-cyan' : 'btn-secondary'}" style="flex:1; justify-content:center; padding:0.4rem 0.65rem; font-size:0.8rem;" onclick="handleSwitchActiveTeam(${t.id})">
+                  <i data-lucide="${isCurrentActive ? 'check-circle' : 'eye'}"></i> ${isCurrentActive ? '선택됨 (조회 중)' : '팀 선택 & 세부조회'}
+                </button>
+                ${user.isLoggedIn ? `
+                  <button type="button" class="btn btn-secondary" style="padding:0.4rem 0.6rem; font-size:0.78rem; background:rgba(255,42,75,0.12); border-color:rgba(255,42,75,0.35); color:#ff6b81;" onclick="handleDeleteOrLeaveSpecificTeam(${t.id}, '${escapedName}', ${isChief})" title="${isChief ? '팀 삭제(해체)' : '팀 탈퇴'}">
+                    <i data-lucide="trash-2" style="width:14px; height:14px;"></i>
+                  </button>
+                ` : ''}
+              </div>
+            `;
+            allTeamsGrid.appendChild(card);
           });
         }
       }
 
-      // 3. Delete/Leave button display & text
+      // 4. Delete/Leave button for active team
       const deleteBtn = document.getElementById('btn-team-action-delete');
       const deleteBtnText = document.getElementById('team-action-btn-text');
       const roleBadge = document.getElementById('team-my-role-badge');
@@ -2359,9 +2461,9 @@
       if (deleteBtn && deleteBtnText) {
         if (user.isLoggedIn && team && team.id) {
           deleteBtn.style.display = 'inline-flex';
-          const isOwner = (team.role && (team.role.toUpperCase() === 'CHIEF' || team.role.toUpperCase() === 'OWNER')) || (team.owner_id == user.id);
-          deleteBtnText.innerText = isOwner ? '팀 삭제 (해체)' : '팀 탈퇴';
-          deleteBtn.title = isOwner ? '팀 전체를 영구 삭제합니다' : '이 팀에서 탈퇴합니다';
+          const isChief = (team.role && (team.role.toUpperCase() === 'CHIEF' || team.role.toUpperCase() === 'OWNER')) || (team.owner_id == user.id);
+          deleteBtnText.innerText = isChief ? '팀 삭제 (해체)' : '팀 탈퇴';
+          deleteBtn.title = isChief ? '팀 전체를 영구 삭제합니다' : '이 팀에서 탈퇴합니다';
         } else {
           deleteBtn.style.display = 'none';
         }
@@ -2371,9 +2473,9 @@
         roleBadge.innerText = team.role ? team.role.toUpperCase() : 'MEMBER';
       }
 
-      // 4. Team Hub Profile Card
+      // 5. Active Team Profile Detail
       document.getElementById('team-hub-name').innerText = team.name || '소속 팀이 없습니다';
-      document.getElementById('team-hub-desc').innerText = team.desc || (user.isLoggedIn ? '새 팀을 생성하거나 초대 코드로 가입하세요. (최대 10개까지 소속 가능)' : '게스트 체험용 샘플 데이터입니다.');
+      document.getElementById('team-hub-desc').innerText = team.desc || (user.isLoggedIn ? '상단 목록에서 팀을 선택하거나 새 팀을 생성하세요.' : '게스트 체험용 샘플 데이터입니다.');
       document.getElementById('team-hub-code').innerText = team.code || '-';
       document.getElementById('team-logo-display').innerText = (team.name && team.name !== '소속 팀 없음' ? team.name : 'LAP').slice(0, 3).toUpperCase();
       
@@ -2382,8 +2484,13 @@
         homeTrackEl.innerText = team.homeTrack ? `홈 서킷: ${team.homeTrack}` : '';
       }
 
-      // 5. Team Members List
+      // 6. Active Team Members List
       const membersContainer = document.getElementById('team-members-container');
+      const membersTitle = document.getElementById('active-team-members-title');
+      if (membersTitle) {
+        membersTitle.innerText = team.name ? `'${team.name}' 팀원 및 권한` : '팀 멤버 및 데이터 공유 권한';
+      }
+
       membersContainer.innerHTML = '';
 
       if (!team.members || team.members.length === 0) {

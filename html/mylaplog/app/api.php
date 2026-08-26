@@ -183,7 +183,8 @@ if ($method === 'POST' && $uri === '/auth/logout') {
 if ($method === 'GET' && $uri === '/teams') {
     $userId = requireAuth();
     $stmt = $pdo->prepare('
-        SELECT t.*, tm.role 
+        SELECT t.*, tm.role,
+               (SELECT COUNT(*) FROM team_members tm2 WHERE tm2.team_id = t.id) as member_count
         FROM teams t 
         JOIN team_members tm ON tm.team_id = t.id 
         WHERE tm.user_id = ?
