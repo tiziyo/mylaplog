@@ -78,10 +78,8 @@ sudo mariadb
 - **로컬 랜딩 소스 경로**: `html/mylaplog/index.html`
 - **가상 호스트 SSL 설정**:
   - `/etc/apache2/sites-available/randomfi.com-le-ssl.conf`
-- **MySQL / MariaDB 웹 뷰어 앱 경로**: 
-  - `https://mylaplog.com/db/` (`/var/www/html/mylaplog/db/index.html`)
-  - `https://randomfi.com/db/` (`/var/www/html/randomfi/db/index.html`)
-- **로컬 DB 뷰어 소스 경로**: `html/mylaplog/db/`, `html/randomfi/db/`
+- **MySQL / MariaDB 웹 뷰어 앱 경로**: `https://mylaplog.com/db/` (`/var/www/html/mylaplog/db/index.html`)
+- **로컬 DB 뷰어 소스 경로**: `html/mylaplog/db/index.html`, `html/mylaplog/db/api.php`
 - **phpMyAdmin 설정**: `/etc/phpmyadmin/config-db.php`
 
 
