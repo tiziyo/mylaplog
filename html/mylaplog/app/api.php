@@ -196,6 +196,14 @@ if ($method === 'GET' && $uri === '/teams') {
 // POST /teams
 if ($method === 'POST' && $uri === '/teams') {
     $userId = requireAuth();
+    
+    // Check 10-team limit per user
+    $stmt = $pdo->prepare('SELECT COUNT(*) FROM team_members WHERE user_id = ?');
+    $stmt->execute([$userId]);
+    if ((int)$stmt->fetchColumn() >= 10) {
+        jsonResponse(400, ['error' => '팀은 최대 10개까지만 생성하거나 가입할 수 있습니다.']);
+    }
+
     $body = getBody();
     $name = trim($body['name'] ?? '');
     $homeTrack = $body['home_track'] ?? '인제 스피디움';
@@ -230,6 +238,14 @@ if ($method === 'POST' && $uri === '/teams') {
 // POST /teams/join
 if ($method === 'POST' && $uri === '/teams/join') {
     $userId = requireAuth();
+
+    // Check 10-team limit per user
+    $stmt = $pdo->prepare('SELECT COUNT(*) FROM team_members WHERE user_id = ?');
+    $stmt->execute([$userId]);
+    if ((int)$stmt->fetchColumn() >= 10) {
+        jsonResponse(400, ['error' => '팀은 최대 10개까지만 생성하거나 가입할 수 있습니다.']);
+    }
+
     $body = getBody();
     $code = strtoupper(trim($body['invite_code'] ?? ''));
     $role = $body['role'] ?? 'DRIVER';
@@ -258,6 +274,51 @@ if ($method === 'POST' && $uri === '/teams/join') {
     $stmt->execute([$team['id'], $userId, $role, $canEdit]);
 
     jsonResponse(200, ['message' => "{$team['name']} 팀에 가입되었습니다.", 'team' => $team]);
+}
+
+// DELETE /teams/:id (팀 삭제 또는 탈퇴)
+if ($method === 'DELETE' && preg_match('#^/teams/(\d+)$#', $uri, $m)) {
+    $userId = requireAuth();
+    $teamId = (int)$m[1];
+
+    // Check membership & role
+    $stmt = $pdo->prepare('SELECT tm.role, t.owner_id, t.name FROM team_members tm JOIN teams t ON t.id = tm.team_id WHERE tm.team_id = ? AND tm.user_id = ?');
+    $stmt->execute([$teamId, $userId]);
+    $membership = $stmt->fetch();
+
+    if (!$membership) {
+        jsonResponse(404, ['error' => '소속된 팀을 찾을 수 없습니다.']);
+    }
+
+    $isOwner = ($membership['owner_id'] == $userId || $membership['role'] === 'CHIEF');
+
+    $pdo->beginTransaction();
+    try {
+        if ($isOwner) {
+            // 팀장/소유자: 팀 전체 해체 및 삭제
+            $stmt = $pdo->prepare('DELETE FROM team_members WHERE team_id = ?');
+            $stmt->execute([$teamId]);
+
+            $stmt = $pdo->prepare('UPDATE track_sessions SET team_id = NULL WHERE team_id = ?');
+            $stmt->execute([$teamId]);
+
+            $stmt = $pdo->prepare('DELETE FROM teams WHERE id = ?');
+            $stmt->execute([$teamId]);
+
+            $pdo->commit();
+            jsonResponse(200, ['message' => "'{$membership['name']}' 팀이 성공적으로 삭제(해체)되었습니다.", 'action' => 'deleted']);
+        } else {
+            // 일반 멤버: 팀 탈퇴
+            $stmt = $pdo->prepare('DELETE FROM team_members WHERE team_id = ? AND user_id = ?');
+            $stmt->execute([$teamId, $userId]);
+
+            $pdo->commit();
+            jsonResponse(200, ['message' => "'{$membership['name']}' 팀에서 탈퇴했습니다.", 'action' => 'left']);
+        }
+    } catch (Exception $e) {
+        $pdo->rollBack();
+        jsonResponse(500, ['error' => '팀 삭제/탈퇴 처리 실패: ' . $e->getMessage()]);
+    }
 }
 
 // GET /teams/:id/members

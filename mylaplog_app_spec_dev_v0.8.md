@@ -275,9 +275,10 @@ erDiagram
 | `POST` | `/api/auth/register` | 회원가입 | ❌ |
 | `GET` | `/api/auth/me` | 현재 로그인 유저 조회 | ❌ |
 | `POST` | `/api/auth/logout` | 로그아웃 | ❌ |
-| `GET` | `/api/teams` | 내 팀 목록 | ✅ |
-| `POST` | `/api/teams` | 새 팀 생성 | ✅ |
-| `POST` | `/api/teams/join` | 초대코드로 팀 가입 | ✅ |
+| `GET` | `/api/teams` | 내 소속 팀 목록 (최대 10개) | ✅ |
+| `POST` | `/api/teams` | 새 팀 생성 (최대 10개 제한) | ✅ |
+| `POST` | `/api/teams/join` | 초대코드로 팀 가입 (최대 10개 제한) | ✅ |
+| `DELETE` | `/api/teams/:id` | 팀 삭제(팀장) 또는 팀 탈퇴(멤버) | ✅ |
 | `GET` | `/api/teams/:id/members` | 팀원 목록 | ✅ |
 | `GET` | `/api/vehicles` | 내 차량 목록 | ✅ |
 | `POST` | `/api/vehicles` | 차량 등록 | ✅ |
