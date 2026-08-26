@@ -78,8 +78,19 @@ try {
         jsonResponse(200, ['authenticated' => $isAuth]);
     }
 
-    // Login Action
+    // Login Action with Rate Limiting & Brute-force Protection
     if ($action === 'login' && $_SERVER['REQUEST_METHOD'] === 'POST') {
+        $now = time();
+        $lockUntil = $_SESSION['db_login_lock_until'] ?? 0;
+        
+        if ($now < $lockUntil) {
+            $remaining = $lockUntil - $now;
+            jsonResponse(429, [
+                'error' => "비밀번호 5회 연속 오류로 인해 계정이 일시 잠겼습니다. {$remaining}초 후 다시 시도하세요.",
+                'authenticated' => false
+            ]);
+        }
+
         $body = getBody();
         $password = $body['password'] ?? '';
 
@@ -90,10 +101,27 @@ try {
         // Compare password safely
         if (hash_equals($VIEWER_MASTER_PASS, $password)) {
             $_SESSION['db_authenticated'] = true;
-            $_SESSION['db_auth_time'] = time();
+            $_SESSION['db_auth_time'] = $now;
+            $_SESSION['db_fail_count'] = 0;
+            unset($_SESSION['db_login_lock_until']);
             jsonResponse(200, ['message' => '인증 성공', 'authenticated' => true]);
         } else {
-            jsonResponse(401, ['error' => '비밀번호가 올바르지 않습니다.', 'authenticated' => false]);
+            $fails = ($_SESSION['db_fail_count'] ?? 0) + 1;
+            $_SESSION['db_fail_count'] = $fails;
+            
+            if ($fails >= 5) {
+                $_SESSION['db_login_lock_until'] = $now + 300; // 5 minutes lock
+                jsonResponse(429, [
+                    'error' => '비밀번호 5회 연속 오류로 인해 5분간 로그인이 잠겼습니다.',
+                    'authenticated' => false
+                ]);
+            }
+
+            $left = 5 - $fails;
+            jsonResponse(401, [
+                'error' => "비밀번호가 올바르지 않습니다. (남은 시도 횟수: {$left}회)",
+                'authenticated' => false
+            ]);
         }
     }
 
@@ -332,6 +360,22 @@ try {
             jsonResponse(403, [
                 'error' => "보안상 안전을 위해 조회용 쿼리(SELECT, SHOW, DESCRIBE, EXPLAIN)만 실행할 수 있습니다."
             ]);
+        }
+
+        // Deep Inspection: Block file write/read exploits & DoS attack functions
+        $dangerousPatterns = [
+            '/\bINTO\s+(OUTFILE|DUMPFILE)\b/i',
+            '/\bLOAD_FILE\s*\(/i',
+            '/\bLOAD\s+DATA\b/i',
+            '/\bBENCHMARK\s*\(/i',
+            '/\bSLEEP\s*\(/i'
+        ];
+        foreach ($dangerousPatterns as $pattern) {
+            if (preg_match($pattern, $sql)) {
+                jsonResponse(403, [
+                    'error' => "보안 정책 위반: 파일 생성/조작(INTO OUTFILE, LOAD_FILE 등) 및 위험 함수가 포함된 쿼리는 실행할 수 없습니다."
+                ]);
+            }
         }
 
         $pdo = getPDO($db ?: null);
