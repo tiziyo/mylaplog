@@ -1,0 +1,1470 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MariaDB / MySQL Web Viewer - RandomFi</title>
+  
+  <!-- Modern Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@300;400;500;600;700&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
+  
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <style>
+    :root {
+      --bg-base: #0a0d14;
+      --bg-sidebar: #0f1422;
+      --bg-card: #141b2d;
+      --bg-card-hover: #1b243b;
+      --bg-input: #0c101c;
+      --border: rgba(255, 255, 255, 0.08);
+      --border-focus: #00f0ff;
+      --text-main: #f0f4fc;
+      --text-muted: #7e8da6;
+      --text-dim: #505d75;
+      
+      --accent-cyan: #00f0ff;
+      --accent-cyan-glow: rgba(0, 240, 255, 0.25);
+      --accent-purple: #8b5cf6;
+      --accent-green: #00ff88;
+      --accent-orange: #ffaa00;
+      --accent-red: #ff3366;
+
+      --font-main: 'Inter', -apple-system, sans-serif;
+      --font-mono: 'Fira Code', monospace;
+      --font-display: 'Orbitron', sans-serif;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background-color: var(--bg-base);
+      color: var(--text-main);
+      font-family: var(--font-main);
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+    }
+
+    /* Layout */
+    .app-sidebar {
+      width: 290px;
+      min-width: 290px;
+      background: var(--bg-sidebar);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      user-select: none;
+    }
+
+    .app-main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      overflow: hidden;
+      background: var(--bg-base);
+    }
+
+    /* Sidebar Header */
+    .sidebar-header {
+      padding: 1.25rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .logo-badge {
+      background: linear-gradient(135deg, #00f0ff, #8b5cf6);
+      color: #000;
+      font-family: var(--font-display);
+      font-weight: 900;
+      font-size: 0.85rem;
+      padding: 0.35rem 0.6rem;
+      border-radius: 6px;
+      letter-spacing: 1px;
+    }
+
+    .logo-title {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .logo-sub {
+      font-size: 0.7rem;
+      color: var(--accent-cyan);
+      font-family: var(--font-mono);
+    }
+
+    /* DB Selector */
+    .db-selector-box {
+      padding: 1rem 1.25rem 0.5rem;
+    }
+
+    .db-selector-box label {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 0.4rem;
+      display: block;
+    }
+
+    .select-styled {
+      width: 100%;
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      color: #fff;
+      padding: 0.6rem 0.75rem;
+      border-radius: 6px;
+      font-size: 0.9rem;
+      outline: none;
+      cursor: pointer;
+      font-family: inherit;
+      transition: border-color 0.2s;
+    }
+
+    .select-styled:focus {
+      border-color: var(--accent-cyan);
+      box-shadow: 0 0 10px var(--accent-cyan-glow);
+    }
+
+    /* Table Search in Sidebar */
+    .table-search-box {
+      padding: 0.5rem 1.25rem;
+      position: relative;
+    }
+
+    .table-search-input {
+      width: 100%;
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      color: #fff;
+      padding: 0.45rem 0.75rem 0.45rem 2rem;
+      border-radius: 6px;
+      font-size: 0.82rem;
+      outline: none;
+    }
+
+    .table-search-input:focus {
+      border-color: var(--accent-cyan);
+    }
+
+    .table-search-icon {
+      position: absolute;
+      left: 1.8rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-dim);
+      width: 14px;
+      height: 14px;
+    }
+
+    /* Table List */
+    .table-list {
+      flex: 1;
+      overflow-y: auto;
+      padding: 0.5rem 0.75rem;
+      list-style: none;
+    }
+
+    .table-list-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.55rem 0.75rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-bottom: 2px;
+      transition: all 0.15s;
+    }
+
+    .table-list-item:hover {
+      background: rgba(255, 255, 255, 0.04);
+      color: var(--text-main);
+    }
+
+    .table-list-item.active {
+      background: rgba(0, 240, 255, 0.12);
+      color: var(--accent-cyan);
+      font-weight: 600;
+      border-left: 3px solid var(--accent-cyan);
+    }
+
+    .table-item-name {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .table-badge-rows {
+      font-size: 0.7rem;
+      background: rgba(255, 255, 255, 0.06);
+      padding: 0.15rem 0.4rem;
+      border-radius: 4px;
+      font-family: var(--font-mono);
+      color: var(--text-dim);
+    }
+
+    .table-list-item.active .table-badge-rows {
+      background: rgba(0, 240, 255, 0.2);
+      color: var(--accent-cyan);
+    }
+
+    /* Sidebar Footer */
+    .sidebar-footer {
+      padding: 0.85rem 1.25rem;
+      border-top: 1px solid var(--border);
+      background: rgba(0, 0, 0, 0.2);
+      font-size: 0.75rem;
+      color: var(--text-dim);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    /* Topbar */
+    .topbar {
+      height: 60px;
+      min-height: 60px;
+      background: var(--bg-sidebar);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 1.5rem;
+    }
+
+    .breadcrumb {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.95rem;
+      font-family: var(--font-mono);
+    }
+
+    .breadcrumb-db {
+      color: var(--text-muted);
+    }
+
+    .breadcrumb-table {
+      color: var(--accent-cyan);
+      font-weight: 600;
+    }
+
+    /* Nav Tabs */
+    .nav-tabs {
+      display: flex;
+      gap: 0.35rem;
+      background: var(--bg-input);
+      padding: 0.25rem;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+    }
+
+    .nav-tab-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      padding: 0.45rem 0.9rem;
+      border-radius: 6px;
+      font-size: 0.82rem;
+      font-weight: 500;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      transition: all 0.2s;
+      font-family: inherit;
+    }
+
+    .nav-tab-btn:hover {
+      color: #fff;
+    }
+
+    .nav-tab-btn.active {
+      background: var(--bg-card-hover);
+      color: var(--accent-cyan);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+    }
+
+    /* Main Content Area */
+    .content-viewport {
+      flex: 1;
+      overflow-y: auto;
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    .tab-panel {
+      display: none;
+      flex-direction: column;
+      height: 100%;
+      gap: 1.25rem;
+    }
+
+    .tab-panel.active {
+      display: flex;
+    }
+
+    /* Card Components */
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .card-header {
+      padding: 1rem 1.25rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(255, 255, 255, 0.01);
+    }
+
+    .card-title {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .card-body {
+      padding: 1.25rem;
+    }
+
+    /* Toolbar inside Card */
+    .toolbar-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      padding: 0.75rem 1.25rem;
+      background: rgba(0, 0, 0, 0.2);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .btn {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border);
+      color: #fff;
+      padding: 0.45rem 0.85rem;
+      border-radius: 6px;
+      font-size: 0.82rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      transition: all 0.2s;
+      font-family: inherit;
+    }
+
+    .btn:hover {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .btn-cyan {
+      background: rgba(0, 240, 255, 0.15);
+      border-color: var(--accent-cyan);
+      color: var(--accent-cyan);
+    }
+
+    .btn-cyan:hover {
+      background: var(--accent-cyan);
+      color: #000;
+      box-shadow: 0 0 15px var(--accent-cyan-glow);
+    }
+
+    .btn-green {
+      background: rgba(0, 255, 136, 0.15);
+      border-color: var(--accent-green);
+      color: var(--accent-green);
+    }
+
+    .btn-danger {
+      background: rgba(255, 51, 102, 0.15);
+      border-color: var(--accent-red);
+      color: #ff6b81;
+    }
+
+    .btn-danger:hover {
+      background: var(--accent-red);
+      color: #fff;
+    }
+
+    /* Data Table Grid */
+    .table-container {
+      flex: 1;
+      overflow: auto;
+      max-height: calc(100vh - 240px);
+    }
+
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.84rem;
+      text-align: left;
+    }
+
+    .data-table th, .data-table td {
+      padding: 0.65rem 0.9rem;
+      border-bottom: 1px solid var(--border);
+      border-right: 1px solid rgba(255, 255, 255, 0.03);
+      white-space: nowrap;
+      max-width: 320px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .data-table th {
+      background: #111726;
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .data-table th:hover {
+      color: var(--accent-cyan);
+      background: #161e31;
+    }
+
+    .data-table tbody tr:hover {
+      background: rgba(0, 240, 255, 0.03);
+    }
+
+    .cell-null {
+      color: var(--text-dim);
+      font-style: italic;
+    }
+
+    .cell-number {
+      font-family: var(--font-mono);
+      color: var(--accent-orange);
+    }
+
+    .cell-key {
+      color: var(--accent-green);
+      font-weight: 600;
+      font-family: var(--font-mono);
+    }
+
+    /* Pagination */
+    .pagination-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.75rem 1.25rem;
+      background: rgba(0, 0, 0, 0.3);
+      border-top: 1px solid var(--border);
+      font-size: 0.82rem;
+      color: var(--text-muted);
+    }
+
+    /* SQL Editor */
+    .sql-editor-container {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .sql-textarea {
+      width: 100%;
+      height: 140px;
+      background: #080c14;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: #00f0ff;
+      font-family: var(--font-mono);
+      font-size: 0.95rem;
+      padding: 1rem;
+      outline: none;
+      resize: vertical;
+      line-height: 1.5;
+    }
+
+    .sql-textarea:focus {
+      border-color: var(--accent-cyan);
+      box-shadow: 0 0 15px var(--accent-cyan-glow);
+    }
+
+    /* Schema Badges */
+    .badge-pk {
+      background: rgba(0, 255, 136, 0.15);
+      color: var(--accent-green);
+      border: 1px solid var(--accent-green);
+      font-size: 0.7rem;
+      padding: 0.1rem 0.35rem;
+      border-radius: 3px;
+      font-family: var(--font-mono);
+    }
+
+    .badge-fk {
+      background: rgba(139, 92, 246, 0.15);
+      color: var(--accent-purple);
+      border: 1px solid var(--accent-purple);
+      font-size: 0.7rem;
+      padding: 0.1rem 0.35rem;
+      border-radius: 3px;
+      font-family: var(--font-mono);
+    }
+
+    .badge-idx {
+      background: rgba(255, 170, 0, 0.15);
+      color: var(--accent-orange);
+      border: 1px solid var(--accent-orange);
+      font-size: 0.7rem;
+      padding: 0.1rem 0.35rem;
+      border-radius: 3px;
+      font-family: var(--font-mono);
+    }
+
+    /* Stats Grid */
+    .stats-cards-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .stat-mini-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1rem;
+    }
+
+    .stat-mini-label {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-bottom: 0.3rem;
+    }
+
+    .stat-mini-val {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: #fff;
+      font-family: var(--font-mono);
+    }
+
+    /* Modal Overlay & Lock Screen */
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0; width: 100vw; height: 100vh;
+      background: rgba(0, 0, 0, 0.82);
+      backdrop-filter: blur(8px);
+      z-index: 100;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+    }
+    .modal-overlay.active { display: flex; }
+
+    .modal-box {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      max-width: 650px;
+      width: 100%;
+      max-height: 80vh;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.8);
+    }
+
+    /* Master Auth Card */
+    .auth-lock-card {
+      background: #111728;
+      border: 1px solid var(--accent-cyan);
+      box-shadow: 0 0 35px var(--accent-cyan-glow);
+      border-radius: 16px;
+      max-width: 440px;
+      width: 100%;
+      padding: 2.25rem 2rem;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sidebar -->
+  <aside class="app-sidebar">
+    <div class="sidebar-header">
+      <span class="logo-badge">DB</span>
+      <div>
+        <div class="logo-title"><i data-lucide="database"></i> MySQL Viewer</div>
+        <div class="logo-sub" id="server-version-badge">MariaDB 10.11</div>
+      </div>
+    </div>
+
+    <!-- Database Selector -->
+    <div class="db-selector-box">
+      <label><i data-lucide="server" style="width:12px; vertical-align:middle;"></i> Database 선택</label>
+      <select class="select-styled" id="db-select" onchange="onDatabaseChange()">
+        <option value="">데이터베이스 로딩 중...</option>
+      </select>
+    </div>
+
+    <!-- Table Search Filter -->
+    <div class="table-search-box">
+      <i data-lucide="search" class="table-search-icon"></i>
+      <input type="text" class="table-search-input" id="table-filter" placeholder="테이블 필터링..." oninput="filterTableList()">
+    </div>
+
+    <!-- Table List -->
+    <ul class="table-list" id="sidebar-table-list">
+      <!-- Populated via JS -->
+    </ul>
+
+    <!-- Sidebar Footer -->
+    <div class="sidebar-footer">
+      <span id="stat-sidebar-tables">0 Tables</span>
+      <span id="stat-sidebar-size">0 KB</span>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="app-main">
+    
+    <!-- Topbar -->
+    <header class="topbar">
+      <div class="breadcrumb">
+        <i data-lucide="folder" style="color:var(--text-muted); width:16px;"></i>
+        <span class="breadcrumb-db" id="top-current-db">-</span>
+        <span style="color:var(--text-dim);">/</span>
+        <span class="breadcrumb-table" id="top-current-table">-</span>
+      </div>
+
+      <div style="display:flex; align-items:center; gap:0.75rem;">
+        <nav class="nav-tabs">
+          <button class="nav-tab-btn active" data-tab="data" onclick="switchViewTab('data')">
+            <i data-lucide="table"></i> 데이터 탐색
+          </button>
+          <button class="nav-tab-btn" data-tab="schema" onclick="switchViewTab('schema')">
+            <i data-lucide="columns"></i> 스키마 구조
+          </button>
+          <button class="nav-tab-btn" data-tab="query" onclick="switchViewTab('query')">
+            <i data-lucide="terminal"></i> SQL 콘솔
+          </button>
+          <button class="nav-tab-btn" data-tab="overview" onclick="switchViewTab('overview')">
+            <i data-lucide="pie-chart"></i> DB 요약
+          </button>
+        </nav>
+
+        <!-- Lock / Logout Button -->
+        <button class="btn btn-danger" onclick="handleMasterLogout()" title="세션 종료 및 잠금">
+          <i data-lucide="lock"></i> 잠금
+        </button>
+      </div>
+    </header>
+
+    <!-- Content Viewport -->
+    <div class="content-viewport">
+
+      <!-- ================= TAB 1: DATA BROWSER ================= -->
+      <div class="tab-panel active" id="tab-data">
+        <div class="card" style="flex:1;">
+          <div class="toolbar-row">
+            <div style="display:flex; align-items:center; gap:0.5rem;">
+              <input type="text" class="table-search-input" id="data-search-input" placeholder="이 테이블에서 검색..." style="width:220px;" onkeydown="if(event.key==='Enter') loadTableData(1)">
+              <button class="btn btn-cyan" onclick="loadTableData(1)"><i data-lucide="search"></i> 검색</button>
+              <button class="btn" onclick="document.getElementById('data-search-input').value=''; loadTableData(1)"><i data-lucide="rotate-ccw"></i> 초기화</button>
+            </div>
+            <div style="display:flex; align-items:center; gap:0.5rem;">
+              <select class="select-styled" id="page-limit-select" style="width:100px; padding:0.4rem;" onchange="loadTableData(1)">
+                <option value="25">25개 보기</option>
+                <option value="50" selected>50개 보기</option>
+                <option value="100">100개 보기</option>
+              </select>
+              <button class="btn" onclick="exportDataToCSV()"><i data-lucide="download"></i> CSV 내보내기</button>
+            </div>
+          </div>
+
+          <div class="table-container" id="data-table-container">
+            <table class="data-table" id="main-data-table">
+              <thead></thead>
+              <tbody></tbody>
+            </table>
+          </div>
+
+          <div class="pagination-bar" id="data-pagination-bar">
+            <span id="data-page-info">0 - 0 of 0 records</span>
+            <div style="display:flex; gap:0.35rem;">
+              <button class="btn" id="btn-prev-page" onclick="changePage(-1)"><i data-lucide="chevron-left"></i> 이전</button>
+              <button class="btn" id="btn-next-page" onclick="changePage(1)">다음 <i data-lucide="chevron-right"></i></button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ================= TAB 2: SCHEMA & STRUCTURE ================= -->
+      <div class="tab-panel" id="tab-schema">
+        <!-- Columns Structure -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title"><i data-lucide="columns" style="color:var(--accent-cyan)"></i> 컬럼 구조 (Columns)</div>
+            <span class="badge-pk" id="schema-col-count">0 Columns</span>
+          </div>
+          <div class="table-container">
+            <table class="data-table" id="schema-columns-table">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>컬럼명 (Field)</th>
+                  <th>데이터 타입 (Type)</th>
+                  <th>Null</th>
+                  <th>Key</th>
+                  <th>기본값 (Default)</th>
+                  <th>Extra</th>
+                  <th>설명 (Comment)</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Indexes & Foreign Keys -->
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:1.25rem;">
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title"><i data-lucide="key" style="color:var(--accent-orange)"></i> 인덱스 (Indexes)</div>
+            </div>
+            <div class="table-container">
+              <table class="data-table" id="schema-indexes-table">
+                <thead>
+                  <tr>
+                    <th>인덱스명</th>
+                    <th>타입</th>
+                    <th>포함 컬럼</th>
+                    <th>카디널리티</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title"><i data-lucide="link" style="color:var(--accent-purple)"></i> 외래키 (Foreign Keys)</div>
+            </div>
+            <div class="table-container">
+              <table class="data-table" id="schema-fk-table">
+                <thead>
+                  <tr>
+                    <th>제약조건명</th>
+                    <th>컬럼</th>
+                    <th>참조 테이블 / 컬럼</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- CREATE TABLE SQL -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title"><i data-lucide="code" style="color:var(--accent-green)"></i> CREATE TABLE DDL</div>
+            <button class="btn" onclick="copyCreateSQL()"><i data-lucide="copy"></i> SQL 복사</button>
+          </div>
+          <pre id="schema-ddl-code" style="padding:1.25rem; font-family:var(--font-mono); font-size:0.85rem; color:#00f0ff; background:#080c14; overflow-x:auto; line-height:1.4;"></pre>
+        </div>
+      </div>
+
+      <!-- ================= TAB 3: SQL CONSOLE ================= -->
+      <div class="tab-panel" id="tab-query">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title"><i data-lucide="terminal" style="color:var(--accent-cyan)"></i> SQL 쿼리 실행기 (SELECT / SHOW / EXPLAIN)</div>
+            <div style="display:flex; gap:0.5rem;">
+              <button class="btn" onclick="insertSampleQuery('select')">기본 SELECT 템플릿</button>
+              <button class="btn" onclick="insertSampleQuery('show')">SHOW TABLES</button>
+              <button class="btn btn-green" onclick="executeSQLQuery()"><i data-lucide="play"></i> 쿼리 실행 (Ctrl+Enter)</button>
+            </div>
+          </div>
+          <div class="card-body" style="padding:1rem;">
+            <textarea class="sql-textarea" id="sql-query-input" placeholder="SELECT * FROM table_name LIMIT 50;"></textarea>
+          </div>
+        </div>
+
+        <!-- Query Result -->
+        <div class="card" style="flex:1;">
+          <div class="toolbar-row">
+            <div class="card-title" id="query-result-summary"><i data-lucide="list"></i> 쿼리 결과</div>
+            <span style="font-size:0.75rem; color:var(--text-muted); font-family:var(--font-mono);" id="query-time-badge">0.00 ms</span>
+          </div>
+          <div class="table-container" id="query-table-container">
+            <table class="data-table" id="query-result-table">
+              <thead></thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ================= TAB 4: DATABASE OVERVIEW ================= -->
+      <div class="tab-panel" id="tab-overview">
+        <div class="stats-cards-grid">
+          <div class="stat-mini-card">
+            <div class="stat-mini-label">총 테이블 수</div>
+            <div class="stat-mini-val" id="ov-total-tables" style="color:var(--accent-cyan)">0</div>
+          </div>
+          <div class="stat-mini-card">
+            <div class="stat-mini-label">총 레코드 수 (Approx)</div>
+            <div class="stat-mini-val" id="ov-total-rows" style="color:var(--accent-green)">0</div>
+          </div>
+          <div class="stat-mini-card">
+            <div class="stat-mini-label">데이터 총 용량</div>
+            <div class="stat-mini-val" id="ov-total-size" style="color:var(--accent-orange)">0 KB</div>
+          </div>
+          <div class="stat-mini-card">
+            <div class="stat-mini-label">기본 문자셋 / 콜레이션</div>
+            <div class="stat-mini-val" id="ov-db-charset" style="font-size:1.05rem;">utf8mb4</div>
+          </div>
+        </div>
+
+        <div class="card" style="flex:1;">
+          <div class="card-header">
+            <div class="card-title"><i data-lucide="grid"></i> 데이터베이스 내 전체 테이블 목록</div>
+          </div>
+          <div class="table-container">
+            <table class="data-table" id="overview-tables-grid">
+              <thead>
+                <tr>
+                  <th>테이블명</th>
+                  <th>엔진</th>
+                  <th>레코드 수 (Rows)</th>
+                  <th>데이터 크기</th>
+                  <th>인덱스 크기</th>
+                  <th>총 용량</th>
+                  <th>생성 일시</th>
+                  <th>코멘트</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Cell Detail Modal -->
+  <div class="modal-overlay" id="cell-modal">
+    <div class="modal-box">
+      <div class="card-header">
+        <div class="card-title" id="cell-modal-title"><i data-lucide="file-text"></i> 셀 상세 내용</div>
+        <button class="btn" onclick="closeCellModal()">&times;</button>
+      </div>
+      <pre id="cell-modal-content" style="padding:1.25rem; overflow:auto; font-family:var(--font-mono); font-size:0.85rem; color:#fff; line-height:1.4;"></pre>
+      <div style="padding:0.75rem 1.25rem; border-top:1px solid var(--border); display:flex; justify-content:flex-end; gap:0.5rem;">
+        <button class="btn btn-cyan" onclick="copyCellContent()"><i data-lucide="copy"></i> 내용 복사</button>
+        <button class="btn" onclick="closeCellModal()">닫기</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Master Auth Lock Modal -->
+  <div class="modal-overlay" id="auth-lock-modal">
+    <div class="auth-lock-card">
+      <div style="width:60px; height:60px; border-radius:50%; background:rgba(0,240,255,0.1); border:2px solid var(--accent-cyan); display:flex; align-items:center; justify-content:center; margin:0 auto 1.25rem; color:var(--accent-cyan);">
+        <i data-lucide="shield-lock" style="width:32px; height:32px;"></i>
+      </div>
+      <h2 style="font-family:var(--font-display); color:#fff; font-size:1.35rem; margin-bottom:0.4rem; letter-spacing:0.5px;">Master Access Lock</h2>
+      <p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:1.25rem;">MariaDB Web Viewer 보안 접근을 위해 마스터 비밀번호를 입력해주세요.</p>
+
+      <div style="background: rgba(0,240,255,0.06); border: 1px dashed var(--accent-cyan); padding: 0.6rem 0.8rem; border-radius: 6px; font-size: 0.78rem; color: var(--accent-cyan); margin-bottom: 1.25rem; text-align: left;">
+        <i data-lucide="info" style="width:14px; height:14px; vertical-align:middle;"></i>
+        기본 패스워드: <code style="font-family:var(--font-mono); font-weight:700; color:#fff; background:rgba(0,0,0,0.4); padding:2px 5px; border-radius:3px;">StnXoa2w4DO8KE9V</code>
+      </div>
+
+      <form onsubmit="handleMasterLogin(event)">
+        <div style="margin-bottom:1rem; text-align:left;">
+          <input type="password" id="master-password-input" class="select-styled" placeholder="마스터 비밀번호 입력" value="StnXoa2w4DO8KE9V" style="padding:0.75rem 1rem; font-size:0.95rem;" required autofocus>
+        </div>
+        <div id="auth-error-msg" style="color:var(--accent-red); font-size:0.8rem; margin-bottom:1rem; display:none;"></div>
+        <button type="submit" class="btn btn-cyan" style="width:100%; justify-content:center; padding:0.75rem; font-size:0.95rem; font-weight:700;">
+          <i data-lucide="key"></i> 데이터베이스 잠금 해제
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    lucide.createIcons();
+
+    const API = '/db/api.php';
+    let currentDb = '';
+    let currentTable = '';
+    let allDatabases = [];
+    let currentTables = [];
+    let currentPage = 1;
+    let currentSort = { col: '', dir: 'ASC' };
+    let activeTab = 'data';
+    let lastFetchedData = [];
+    let currentDdl = '';
+
+    function formatBytes(bytes) {
+      if (!bytes || bytes === 0) return '0 B';
+      const k = 1024;
+      const sizes = ['B', 'KB', 'MB', 'GB'];
+      const i = Math.floor(Math.log(bytes) / Math.log(k));
+      return (bytes / Math.pow(k, i)).toFixed(2) + ' ' + sizes[i];
+    }
+
+    async function apiFetch(action, params = {}, method = 'GET', body = null) {
+      let url = `${API}?action=${action}`;
+      for (const [k, v] of Object.entries(params)) {
+        if (v !== undefined && v !== null) url += `&${k}=${encodeURIComponent(v)}`;
+      }
+      const opts = {
+        method,
+        credentials: 'include' // send session cookie
+      };
+      if (body) {
+        opts.headers = { 'Content-Type': 'application/json' };
+        opts.body = JSON.stringify(body);
+      }
+      try {
+        const res = await fetch(url, opts);
+        const data = await res.json();
+        if (res.status === 401 && action !== 'login' && action !== 'auth_status') {
+          openAuthLockModal('세션이 만료되었거나 인증되지 않았습니다.');
+          return null;
+        }
+        if (!res.ok) {
+          alert('API Error: ' + (data.error || res.statusText));
+          return null;
+        }
+        return data;
+      } catch (err) {
+        alert('Network/Server Error: ' + err.message);
+        return null;
+      }
+    }
+
+    // Auth Control
+    function openAuthLockModal(msg = '') {
+      const errEl = document.getElementById('auth-error-msg');
+      if (msg) {
+        errEl.innerText = msg;
+        errEl.style.display = 'block';
+      } else {
+        errEl.style.display = 'none';
+      }
+      document.getElementById('auth-lock-modal').classList.add('active');
+      document.getElementById('master-password-input').focus();
+      lucide.createIcons();
+    }
+
+    function closeAuthLockModal() {
+      document.getElementById('auth-lock-modal').classList.remove('active');
+    }
+
+    async function handleMasterLogin(e) {
+      e.preventDefault();
+      const pwd = document.getElementById('master-password-input').value;
+      const errEl = document.getElementById('auth-error-msg');
+
+      try {
+        const res = await fetch(`${API}?action=login`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({ password: pwd })
+        });
+        const data = await res.json();
+        if (res.ok && data.authenticated) {
+          closeAuthLockModal();
+          document.getElementById('master-password-input').value = '';
+          await initApp();
+        } else {
+          errEl.innerText = data.error || '비밀번호가 올바르지 않습니다.';
+          errEl.style.display = 'block';
+        }
+      } catch (err) {
+        errEl.innerText = '인증 요청 실패: ' + err.message;
+        errEl.style.display = 'block';
+      }
+    }
+
+    async function handleMasterLogout() {
+      await apiFetch('logout');
+      openAuthLockModal('로그아웃 되었습니다. 다시 접속하려면 비밀번호를 입력하세요.');
+    }
+
+    // Initialize App after Auth check
+    async function checkAuthAndInit() {
+      const res = await apiFetch('auth_status');
+      if (res && res.authenticated) {
+        closeAuthLockModal();
+        await initApp();
+      } else {
+        openAuthLockModal();
+      }
+    }
+
+    async function initApp() {
+      // 1. Server info
+      const sInfo = await apiFetch('server_info');
+      if (sInfo && sInfo.info) {
+        document.getElementById('server-version-badge').innerText = `${sInfo.info.version}`;
+      }
+
+      // 2. Load DBs
+      const dbs = await apiFetch('databases');
+      if (dbs && dbs.databases) {
+        allDatabases = dbs.databases;
+        const select = document.getElementById('db-select');
+        select.innerHTML = '';
+        allDatabases.forEach(d => {
+          const opt = document.createElement('option');
+          opt.value = d.name;
+          opt.innerText = `${d.name} (${d.table_count} tables, ${formatBytes(d.size_bytes)})`;
+          select.appendChild(opt);
+        });
+
+        // Set default DB (mylaplog or first)
+        const mylap = allDatabases.find(d => d.name === 'mylaplog');
+        currentDb = mylap ? 'mylaplog' : (allDatabases[0] ? allDatabases[0].name : '');
+        select.value = currentDb;
+        await onDatabaseChange();
+      }
+    }
+
+    async function onDatabaseChange() {
+      currentDb = document.getElementById('db-select').value;
+      document.getElementById('top-current-db').innerText = currentDb;
+      
+      const res = await apiFetch('tables', { db: currentDb });
+      if (res && res.tables) {
+        currentTables = res.tables;
+        renderSidebarTables();
+        renderOverviewTab();
+
+        if (currentTables.length > 0) {
+          selectTable(currentTables[0].name);
+        } else {
+          currentTable = '';
+          document.getElementById('top-current-table').innerText = 'No Tables';
+        }
+      }
+    }
+
+    function renderSidebarTables() {
+      const list = document.getElementById('sidebar-table-list');
+      list.innerHTML = '';
+      const filter = document.getElementById('table-filter').value.toLowerCase();
+
+      let totalSize = 0;
+
+      currentTables.forEach(t => {
+        totalSize += parseInt(t.total_bytes || 0);
+        if (filter && !t.name.toLowerCase().includes(filter)) return;
+
+        const li = document.createElement('li');
+        li.className = `table-list-item ${t.name === currentTable ? 'active' : ''}`;
+        li.onclick = () => selectTable(t.name);
+        li.innerHTML = `
+          <span class="table-item-name"><i data-lucide="table" style="width:14px;"></i> ${t.name}</span>
+          <span class="table-badge-rows">${t.row_count || 0}</span>
+        `;
+        list.appendChild(li);
+      });
+
+      document.getElementById('stat-sidebar-tables').innerText = `${currentTables.length} Tables`;
+      document.getElementById('stat-sidebar-size').innerText = formatBytes(totalSize);
+      lucide.createIcons();
+    }
+
+    function filterTableList() {
+      renderSidebarTables();
+    }
+
+    async function selectTable(tableName) {
+      currentTable = tableName;
+      document.getElementById('top-current-table').innerText = currentTable;
+      renderSidebarTables();
+
+      if (activeTab === 'data') {
+        await loadTableData(1);
+      } else if (activeTab === 'schema') {
+        await loadTableSchema();
+      }
+    }
+
+    function switchViewTab(tab) {
+      activeTab = tab;
+      document.querySelectorAll('.nav-tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.toggle('active', p.id === `tab-${tab}`));
+
+      if (tab === 'data') loadTableData(currentPage);
+      if (tab === 'schema') loadTableSchema();
+      if (tab === 'query') {
+        if (!document.getElementById('sql-query-input').value) {
+          document.getElementById('sql-query-input').value = `SELECT * FROM \`${currentTable || 'users'}\` LIMIT 50;`;
+        }
+      }
+      if (tab === 'overview') renderOverviewTab();
+    }
+
+    // =============================================
+    // 1. DATA BROWSER
+    // =============================================
+    async function loadTableData(page = 1) {
+      if (!currentDb || !currentTable) return;
+      currentPage = page;
+      const limit = document.getElementById('page-limit-select').value;
+      const search = document.getElementById('data-search-input').value;
+
+      const res = await apiFetch('data', {
+        db: currentDb,
+        table: currentTable,
+        page,
+        limit,
+        sort: currentSort.col,
+        dir: currentSort.dir,
+        search
+      });
+
+      if (!res) return;
+      lastFetchedData = res.rows || [];
+
+      // Render Header
+      const thead = document.querySelector('#main-data-table thead');
+      thead.innerHTML = '';
+      const htr = document.createElement('tr');
+      
+      res.columns.forEach(col => {
+        const th = document.createElement('th');
+        let icon = '';
+        if (currentSort.col === col) {
+          icon = currentSort.dir === 'ASC' ? ' ▲' : ' ▼';
+        }
+        th.innerHTML = `${col}<span style="color:var(--accent-cyan)">${icon}</span>`;
+        th.onclick = () => {
+          if (currentSort.col === col) {
+            currentSort.dir = currentSort.dir === 'ASC' ? 'DESC' : 'ASC';
+          } else {
+            currentSort.col = col;
+            currentSort.dir = 'ASC';
+          }
+          loadTableData(1);
+        };
+        htr.appendChild(th);
+      });
+      thead.appendChild(htr);
+
+      // Render Rows
+      const tbody = document.querySelector('#main-data-table tbody');
+      tbody.innerHTML = '';
+
+      if (res.rows.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="${res.columns.length || 1}" style="text-align:center; padding:2rem; color:var(--text-muted);">표시할 데이터가 없습니다.</td></tr>`;
+      } else {
+        res.rows.forEach(row => {
+          const rtr = document.createElement('tr');
+          res.columns.forEach(col => {
+            const td = document.createElement('td');
+            const val = row[col];
+            if (val === null) {
+              td.innerHTML = `<span class="cell-null">NULL</span>`;
+            } else if (typeof val === 'number' || (!isNaN(val) && val !== '')) {
+              td.className = 'cell-number';
+              td.innerText = val;
+            } else {
+              td.innerText = val;
+              if (String(val).length > 30) {
+                td.style.cursor = 'pointer';
+                td.title = '클릭하여 전체 보기';
+                td.onclick = () => openCellModal(col, val);
+              }
+            }
+            rtr.appendChild(td);
+          });
+          tbody.appendChild(rtr);
+        });
+      }
+
+      // Pagination
+      const p = res.pagination;
+      const start = p.total_rows === 0 ? 0 : (p.page - 1) * p.limit + 1;
+      const end = Math.min(p.page * p.limit, p.total_rows);
+      document.getElementById('data-page-info').innerText = `${start} - ${end} of ${p.total_rows} records (Page ${p.page}/${p.total_pages || 1})`;
+      document.getElementById('btn-prev-page').disabled = (p.page <= 1);
+      document.getElementById('btn-next-page').disabled = (p.page >= p.total_pages);
+    }
+
+    function changePage(delta) {
+      loadTableData(currentPage + delta);
+    }
+
+    function exportDataToCSV() {
+      if (lastFetchedData.length === 0) return alert('내보낼 데이터가 없습니다.');
+      const cols = Object.keys(lastFetchedData[0]);
+      let csv = cols.join(',') + '\n';
+      lastFetchedData.forEach(r => {
+        const row = cols.map(c => `"${String(r[c] ?? '').replace(/"/g, '""')}"`);
+        csv += row.join(',') + '\n';
+      });
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${currentDb}_${currentTable}_data.csv`;
+      a.click();
+    }
+
+    // =============================================
+    // 2. SCHEMA & STRUCTURE
+    // =============================================
+    async function loadTableSchema() {
+      if (!currentDb || !currentTable) return;
+      const res = await apiFetch('schema', { db: currentDb, table: currentTable });
+      if (!res) return;
+
+      // Columns
+      const colTbody = document.querySelector('#schema-columns-table tbody');
+      colTbody.innerHTML = '';
+      document.getElementById('schema-col-count').innerText = `${res.columns.length} Columns`;
+
+      res.columns.forEach((c, idx) => {
+        let keyBadge = '';
+        if (c.key_type === 'PRI') keyBadge = '<span class="badge-pk">PRIMARY</span>';
+        else if (c.key_type === 'UNI') keyBadge = '<span class="badge-idx">UNIQUE</span>';
+        else if (c.key_type === 'MUL') keyBadge = '<span class="badge-fk">INDEX / FK</span>';
+
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td style="color:var(--text-dim); font-family:var(--font-mono);">${idx + 1}</td>
+          <td><strong style="color:#fff;">${c.name}</strong></td>
+          <td style="color:var(--accent-cyan); font-family:var(--font-mono);">${c.type}</td>
+          <td>${c.is_nullable === 'YES' ? '<span style="color:var(--accent-orange)">YES</span>' : 'NO'}</td>
+          <td>${keyBadge}</td>
+          <td style="font-family:var(--font-mono); color:var(--text-muted);">${c.default_value ?? '<span class="cell-null">NULL</span>'}</td>
+          <td style="color:var(--accent-purple); font-size:0.78rem;">${c.extra || '-'}</td>
+          <td style="color:var(--text-dim);">${c.comment || '-'}</td>
+        `;
+        colTbody.appendChild(tr);
+      });
+
+      // Indexes
+      const idxTbody = document.querySelector('#schema-indexes-table tbody');
+      idxTbody.innerHTML = '';
+      if (res.indexes.length === 0) {
+        idxTbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:var(--text-muted);">인덱스 없음</td></tr>`;
+      } else {
+        res.indexes.forEach(i => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td><strong>${i.name}</strong></td>
+            <td><span class="${i.is_primary ? 'badge-pk' : (i.is_unique ? 'badge-idx' : 'badge-fk')}">${i.type}</span></td>
+            <td style="font-family:var(--font-mono); color:var(--accent-cyan);">${i.columns.join(', ')}</td>
+            <td class="cell-number">${i.cardinality ?? '-'}</td>
+          `;
+          idxTbody.appendChild(tr);
+        });
+      }
+
+      // Foreign Keys
+      const fkTbody = document.querySelector('#schema-fk-table tbody');
+      fkTbody.innerHTML = '';
+      if (res.foreign_keys.length === 0) {
+        fkTbody.innerHTML = `<tr><td colspan="3" style="text-align:center; color:var(--text-muted);">외래키(FK) 관계 없음</td></tr>`;
+      } else {
+        res.foreign_keys.forEach(fk => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td><strong style="color:var(--accent-purple)">${fk.constraint_name}</strong></td>
+            <td>${fk.column_name}</td>
+            <td style="color:var(--accent-cyan); font-family:var(--font-mono);">➔ ${fk.ref_table}.${fk.ref_column}</td>
+          `;
+          fkTbody.appendChild(tr);
+        });
+      }
+
+      // DDL
+      currentDdl = res.create_sql || '';
+      document.getElementById('schema-ddl-code').innerText = currentDdl;
+    }
+
+    function copyCreateSQL() {
+      if (!currentDdl) return;
+      navigator.clipboard.writeText(currentDdl);
+      alert('CREATE TABLE DDL이 클립보드에 복사되었습니다.');
+    }
+
+    // =============================================
+    // 3. SQL CONSOLE
+    // =============================================
+    async function executeSQLQuery() {
+      const sql = document.getElementById('sql-query-input').value.trim();
+      if (!sql) return alert('SQL 쿼리를 입력하세요.');
+
+      const res = await apiFetch('query', {}, 'POST', { db: currentDb, sql });
+      if (!res) return;
+
+      document.getElementById('query-time-badge').innerText = `${res.execution_time_ms} ms (${res.row_count} rows)`;
+      document.getElementById('query-result-summary').innerHTML = `<i data-lucide="check-circle" style="color:var(--accent-green)"></i> 쿼리 성공: ${res.row_count}개 행 반환`;
+
+      const thead = document.querySelector('#query-result-table thead');
+      const tbody = document.querySelector('#query-result-table tbody');
+      thead.innerHTML = '';
+      tbody.innerHTML = '';
+
+      if (res.columns.length === 0) {
+        tbody.innerHTML = `<tr><td style="padding:1.5rem; text-align:center; color:var(--text-muted);">결과 컬럼 없음</td></tr>`;
+        lucide.createIcons();
+        return;
+      }
+
+      const htr = document.createElement('tr');
+      res.columns.forEach(c => {
+        const th = document.createElement('th');
+        th.innerText = c;
+        htr.appendChild(th);
+      });
+      thead.appendChild(htr);
+
+      res.rows.forEach(r => {
+        const rtr = document.createElement('tr');
+        res.columns.forEach(c => {
+          const td = document.createElement('td');
+          const val = r[c];
+          td.innerText = (val === null ? 'NULL' : val);
+          if (val === null) td.className = 'cell-null';
+          rtr.appendChild(td);
+        });
+        tbody.appendChild(rtr);
+      });
+
+      lucide.createIcons();
+    }
+
+    function insertSampleQuery(type) {
+      const area = document.getElementById('sql-query-input');
+      if (type === 'select') {
+        area.value = `SELECT * FROM \`${currentTable || 'users'}\` ORDER BY 1 DESC LIMIT 20;`;
+      } else if (type === 'show') {
+        area.value = `SHOW FULL TABLES;`;
+      }
+    }
+
+    // Key shortcut Ctrl+Enter for query
+    document.addEventListener('keydown', (e) => {
+      if (e.ctrlKey && e.key === 'Enter') {
+        if (activeTab === 'query') executeSQLQuery();
+      }
+    });
+
+    // =============================================
+    // 4. OVERVIEW TAB
+    // =============================================
+    function renderOverviewTab() {
+      let totalRows = 0;
+      let totalSize = 0;
+      currentTables.forEach(t => {
+        totalRows += parseInt(t.row_count || 0);
+        totalSize += parseInt(t.total_bytes || 0);
+      });
+
+      document.getElementById('ov-total-tables').innerText = currentTables.length;
+      document.getElementById('ov-total-rows').innerText = totalRows.toLocaleString();
+      document.getElementById('ov-total-size').innerText = formatBytes(totalSize);
+
+      const dbObj = allDatabases.find(d => d.name === currentDb);
+      if (dbObj) {
+        document.getElementById('ov-db-charset').innerText = `${dbObj.charset} (${dbObj.collation})`;
+      }
+
+      const tbody = document.querySelector('#overview-tables-grid tbody');
+      tbody.innerHTML = '';
+      currentTables.forEach(t => {
+        const tr = document.createElement('tr');
+        tr.style.cursor = 'pointer';
+        tr.onclick = () => {
+          selectTable(t.name);
+          switchViewTab('data');
+        };
+        tr.innerHTML = `
+          <td><strong style="color:var(--accent-cyan);"><i data-lucide="table" style="width:13px; vertical-align:middle;"></i> ${t.name}</strong></td>
+          <td><span style="color:var(--accent-purple); font-family:var(--font-mono);">${t.engine || '-'}</span></td>
+          <td class="cell-number">${parseInt(t.row_count || 0).toLocaleString()}</td>
+          <td style="font-family:var(--font-mono);">${formatBytes(t.data_bytes)}</td>
+          <td style="font-family:var(--font-mono);">${formatBytes(t.index_bytes)}</td>
+          <td style="font-family:var(--font-mono); font-weight:700; color:#fff;">${formatBytes(t.total_bytes)}</td>
+          <td style="color:var(--text-dim); font-size:0.78rem;">${t.created_at || '-'}</td>
+          <td style="color:var(--text-muted);">${t.comment || '-'}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+      lucide.createIcons();
+    }
+
+    // =============================================
+    // CELL DETAIL MODAL
+    // =============================================
+    let currentModalContent = '';
+    function openCellModal(column, content) {
+      currentModalContent = content;
+      document.getElementById('cell-modal-title').innerHTML = `<i data-lucide="file-text"></i> ${column} 상세 내용`;
+      
+      try {
+        const parsed = JSON.parse(content);
+        document.getElementById('cell-modal-content').innerText = JSON.stringify(parsed, null, 2);
+      } catch {
+        document.getElementById('cell-modal-content').innerText = content;
+      }
+
+      document.getElementById('cell-modal').classList.add('active');
+      lucide.createIcons();
+    }
+
+    function closeCellModal() {
+      document.getElementById('cell-modal').classList.remove('active');
+    }
+
+    function copyCellContent() {
+      navigator.clipboard.writeText(currentModalContent);
+      alert('내용이 클립보드에 복사되었습니다.');
+    }
+
+    // Start App with Auth Check
+    window.addEventListener('DOMContentLoaded', checkAuthAndInit);
+  </script>
+</body>
+</html>
