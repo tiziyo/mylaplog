@@ -905,11 +905,16 @@
         <i data-lucide="shield-lock" style="width:32px; height:32px;"></i>
       </div>
       <h2 style="font-family:var(--font-display); color:#fff; font-size:1.35rem; margin-bottom:0.4rem; letter-spacing:0.5px;">Master Access Lock</h2>
-      <p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:1.5rem;">MariaDB Web Viewer 보안 접근을 위해 마스터 비밀번호를 입력해주세요.</p>
+      <p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:1.25rem;">MariaDB Web Viewer 보안 접근을 위해 마스터 비밀번호를 입력해주세요.</p>
+
+      <div style="background: rgba(0,240,255,0.06); border: 1px dashed var(--accent-cyan); padding: 0.6rem 0.8rem; border-radius: 6px; font-size: 0.78rem; color: var(--accent-cyan); margin-bottom: 1.25rem; text-align: left;">
+        <i data-lucide="info" style="width:14px; height:14px; vertical-align:middle;"></i>
+        기본 패스워드: <code style="font-family:var(--font-mono); font-weight:700; color:#fff; background:rgba(0,0,0,0.4); padding:2px 5px; border-radius:3px;">StnXoa2w4DO8KE9V</code>
+      </div>
 
       <form onsubmit="handleMasterLogin(event)">
         <div style="margin-bottom:1rem; text-align:left;">
-          <input type="password" id="master-password-input" class="select-styled" placeholder="마스터 비밀번호 입력" style="padding:0.75rem 1rem; font-size:0.95rem;" required autofocus>
+          <input type="password" id="master-password-input" class="select-styled" placeholder="마스터 비밀번호 입력" value="StnXoa2w4DO8KE9V" style="padding:0.75rem 1rem; font-size:0.95rem;" required autofocus>
         </div>
         <div id="auth-error-msg" style="color:var(--accent-red); font-size:0.8rem; margin-bottom:1rem; display:none;"></div>
         <button type="submit" class="btn btn-cyan" style="width:100%; justify-content:center; padding:0.75rem; font-size:0.95rem; font-weight:700;">
