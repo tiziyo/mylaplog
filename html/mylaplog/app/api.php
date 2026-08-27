@@ -508,6 +508,12 @@ if ($method === 'POST' && $uri === '/sessions') {
     $userId = requireAuth();
     $body = getBody();
 
+    $bestLapMs = (int)($body['best_lap_ms'] ?? 0);
+    $laps = $body['laps'] ?? [];
+    if ($bestLapMs <= 0 && !empty($laps)) {
+        $bestLapMs = (int)($laps[0]['lap_time_ms'] ?? 0);
+    }
+
     $pdo->beginTransaction();
     try {
         // Insert track session
@@ -523,7 +529,7 @@ if ($method === 'POST' && $uri === '/sessions') {
             $body['track_temp'] ?? 40.0,
             $body['weather_condition'] ?? 'DRY',
             $body['visibility'] ?? 'TEAM',
-            $body['best_lap_ms'] ?? 0
+            $bestLapMs
         ]);
         $sessionId = $pdo->lastInsertId();
 
@@ -545,20 +551,25 @@ if ($method === 'POST' && $uri === '/sessions') {
             ]);
         }
 
-        // Insert lap times if provided
-        $laps = $body['laps'] ?? [];
+        // Insert lap times (ensure at least best lap record exists)
+        if (empty($laps) && $bestLapMs > 0) {
+            $laps = [
+                ['lap_number' => 1, 'lap_time_ms' => $bestLapMs, 'is_valid' => 1, 'is_best' => 1]
+            ];
+        }
+
         if (!empty($laps)) {
             $stmt = $pdo->prepare('INSERT INTO lap_times (session_id, lap_number, lap_time_ms, sector1_ms, sector2_ms, sector3_ms, is_valid, is_best) VALUES (?,?,?,?,?,?,?,?)');
             foreach ($laps as $lap) {
                 $stmt->execute([
                     $sessionId,
-                    $lap['lap_number'],
+                    $lap['lap_number'] ?? 1,
                     $lap['lap_time_ms'],
                     $lap['sector1_ms'] ?? null,
                     $lap['sector2_ms'] ?? null,
                     $lap['sector3_ms'] ?? null,
                     $lap['is_valid'] ?? 1,
-                    $lap['is_best'] ?? 0
+                    $lap['is_best'] ?? 1
                 ]);
             }
         }
@@ -584,6 +595,12 @@ if (($method === 'PUT' || $method === 'POST') && preg_match('#^/sessions/(\d+)$#
         jsonResponse(404, ['error' => '수정할 세션을 찾을 수 없거나 권한이 없습니다.']);
     }
 
+    $bestLapMs = (int)($body['best_lap_ms'] ?? 0);
+    $laps = $body['laps'] ?? [];
+    if ($bestLapMs <= 0 && !empty($laps)) {
+        $bestLapMs = (int)($laps[0]['lap_time_ms'] ?? 0);
+    }
+
     $pdo->beginTransaction();
     try {
         // Update track_sessions
@@ -603,7 +620,7 @@ if (($method === 'PUT' || $method === 'POST') && preg_match('#^/sessions/(\d+)$#
             $body['track_temp'] ?? 40.0,
             $body['weather_condition'] ?? 'DRY',
             $body['visibility'] ?? 'TEAM',
-            $body['best_lap_ms'] ?? 0,
+            $bestLapMs,
             $body['team_id'] ?? null,
             $sessionId,
             $userId
@@ -642,7 +659,6 @@ if (($method === 'PUT' || $method === 'POST') && preg_match('#^/sessions/(\d+)$#
             }
         }
 
-        // Update lap times if provided
         $laps = $body['laps'] ?? [];
         if (!empty($laps)) {
             $pdo->prepare('DELETE FROM lap_times WHERE session_id = ?')->execute([$sessionId]);

@@ -1775,6 +1775,54 @@
     }
 
     // =============================================
+    // LAP TIME FORMATTING & PARSING HELPERS
+    // =============================================
+    function lapStrToMs(str) {
+      if (!str) return 0;
+      if (typeof str === 'number') return Math.round(str);
+      str = String(str).trim();
+      if (!str) return 0;
+
+      // Handle format: "mm:ss.sss" or "m:s.s" or "mm:ss:sss"
+      if (str.includes(':')) {
+        const parts = str.split(':');
+        if (parts.length === 2) {
+          const min = parseInt(parts[0], 10) || 0;
+          const sec = parseFloat(parts[1]) || 0;
+          return Math.round((min * 60 + sec) * 1000);
+        } else if (parts.length === 3) {
+          const min = parseInt(parts[0], 10) || 0;
+          const sec = parseInt(parts[1], 10) || 0;
+          const ms = parseInt(parts[2], 10) || 0;
+          return (min * 60 + sec) * 1000 + ms;
+        }
+      }
+
+      // Handle pure seconds (e.g. "112.348") or millisecond integer
+      const num = parseFloat(str);
+      if (!isNaN(num)) {
+        if (num > 10000) return Math.round(num); // already in ms
+        return Math.round(num * 1000); // in seconds
+      }
+
+      return 0;
+    }
+
+    function msToLapStr(ms) {
+      if (!ms || isNaN(ms) || ms <= 0) return '00:00.000';
+      const totalMs = Math.round(ms);
+      const totalSec = Math.floor(totalMs / 1000);
+      const min = Math.floor(totalSec / 60);
+      const sec = totalSec % 60;
+      const remMs = totalMs % 1000;
+
+      const minStr = String(min).padStart(2, '0');
+      const secStr = String(sec).padStart(2, '0');
+      const msStr = String(remMs).padStart(3, '0');
+      return `${minStr}:${secStr}.${msStr}`;
+    }
+
+    // =============================================
     // SAMPLE DEMO DATA (For Logged-out / Guest Mode)
     // =============================================
     const GUEST_USER = {
@@ -2967,16 +3015,19 @@
         weather_condition: 'DRY',
         visibility: 'TEAM',
         setup: {
-          hot_psi_fl: parseFloat(document.getElementById('sess-psi-fl').value),
-          hot_psi_fr: parseFloat(document.getElementById('sess-psi-fr').value),
-          hot_psi_rl: parseFloat(document.getElementById('sess-psi-rl').value),
-          hot_psi_rr: parseFloat(document.getElementById('sess-psi-rr').value),
+          hot_psi_fl: parseFloat(document.getElementById('sess-psi-fl').value) || 34.0,
+          hot_psi_fr: parseFloat(document.getElementById('sess-psi-fr').value) || 34.0,
+          hot_psi_rl: parseFloat(document.getElementById('sess-psi-rl').value) || 32.0,
+          hot_psi_rr: parseFloat(document.getElementById('sess-psi-rr').value) || 32.0,
           damper_front_clicks: parseInt(document.getElementById('sess-damper-f').value) || 12,
           damper_rear_clicks: parseInt(document.getElementById('sess-damper-r').value) || 8,
           camber_fl: parseFloat(document.getElementById('sess-camber').value) || -3.2,
           camber_fr: parseFloat(document.getElementById('sess-camber').value) || -3.2,
           driver_notes: document.getElementById('sess-notes').value.trim()
-        }
+        },
+        laps: bestLapMs > 0 ? [
+          { lap_number: 1, lap_time_ms: bestLapMs, is_valid: 1, is_best: 1 }
+        ] : []
       };
 
       const endpoint = isEdit ? `/sessions/${editId}` : '/sessions';
