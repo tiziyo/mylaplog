@@ -1035,7 +1035,7 @@
           </button>
 
           <!-- Vehicle & Session Controls -->
-          <button class="btn btn-secondary" onclick="openModal('vehicle-modal')">
+          <button class="btn btn-secondary" onclick="openAddVehicleModal()">
             <i data-lucide="plus-circle"></i> 머신 등록
           </button>
           <button class="btn btn-primary" onclick="openModal('session-modal')">
@@ -1139,7 +1139,7 @@
               <div class="card-title">
                 <i data-lucide="car"></i> 등록된 개러지 머신 (Vehicles)
               </div>
-              <button class="btn btn-primary" onclick="openModal('vehicle-modal')">
+              <button class="btn btn-primary" onclick="openAddVehicleModal()">
                 <i data-lucide="plus"></i> 머신 추가
               </button>
             </div>
@@ -1563,16 +1563,17 @@
     </div>
   </div>
 
-  <!-- ================= MODAL: ADD VEHICLE ================= -->
+  <!-- ================= MODAL: ADD / EDIT VEHICLE ================= -->
   <div class="modal-overlay" id="vehicle-modal">
     <div class="modal-content">
       <div class="modal-header">
         <h3 style="font-family:var(--font-display); color:#fff; font-size:1.3rem;">
-          <i data-lucide="car" style="color:var(--accent-red)"></i> 개러지 머신 등록
+          <i data-lucide="car" style="color:var(--accent-red)"></i> <span id="vehicle-modal-title">개러지 머신 등록</span>
         </h3>
         <button class="modal-close-btn" onclick="closeModal('vehicle-modal')">&times;</button>
       </div>
       <form id="vehicle-form" onsubmit="handleSaveVehicle(event)">
+        <input type="hidden" id="edit-vehicle-id" value="">
         <div class="form-grid">
           <div class="form-group">
             <label>제조사 (Manufacturer)</label>
@@ -1613,7 +1614,9 @@
         </div>
         <div style="margin-top: 1.5rem; display:flex; justify-content:flex-end; gap:0.75rem;">
           <button type="button" class="btn btn-secondary" onclick="closeModal('vehicle-modal')">취소</button>
-          <button type="submit" class="btn btn-primary">개러지에 저장</button>
+          <button type="submit" class="btn btn-primary" id="vehicle-modal-submit-btn">
+            <i data-lucide="check"></i> <span id="vehicle-modal-submit-text">개러지에 저장</span>
+          </button>
         </div>
       </form>
     </div>
@@ -2524,8 +2527,51 @@
     }
 
     // =============================================
-    // VEHICLES: Load / Save / Render
+    // VEHICLES: Load / Add / Edit / Delete / Render
     // =============================================
+    function openAddVehicleModal() {
+      if (!user.isLoggedIn) {
+        showToast('로그인이 필요한 기능입니다. 먼저 로그인해주세요.');
+        openModal('auth-modal');
+        return;
+      }
+      document.getElementById('vehicle-form').reset();
+      document.getElementById('edit-vehicle-id').value = '';
+      document.getElementById('veh-year').value = 2024;
+      document.getElementById('veh-power').value = 280;
+      document.getElementById('veh-tire-size').value = '245/40R18';
+      document.getElementById('vehicle-modal-title').innerText = '개러지 머신 등록';
+      document.getElementById('vehicle-modal-submit-text').innerText = '개러지에 저장';
+      openModal('vehicle-modal');
+    }
+
+    function openEditVehicleModal(vehicleId) {
+      if (!user.isLoggedIn) {
+        showToast('로그인이 필요한 기능입니다. 먼저 로그인해주세요.');
+        openModal('auth-modal');
+        return;
+      }
+      const v = garage.find(item => item.id == vehicleId);
+      if (!v) {
+        showToast('차량 정보를 찾을 수 없습니다.');
+        return;
+      }
+
+      document.getElementById('edit-vehicle-id').value = v.id;
+      document.getElementById('veh-make').value = v.make || '';
+      document.getElementById('veh-model').value = v.model || '';
+      document.getElementById('veh-year').value = v.year || 2024;
+      document.getElementById('veh-power').value = v.power || 250;
+      document.getElementById('veh-tire').value = v.tire_model || '';
+      document.getElementById('veh-tire-size').value = v.tire_size_front || v.tire_size || '245/40R18';
+      document.getElementById('veh-suspension').value = (v.suspension && v.suspension !== '-') ? v.suspension : '';
+      document.getElementById('veh-visibility').value = v.visibility || 'TEAM';
+
+      document.getElementById('vehicle-modal-title').innerText = `${v.make} ${v.model} 스펙 정보 수정`;
+      document.getElementById('vehicle-modal-submit-text').innerText = '수정 내용 저장';
+      openModal('vehicle-modal');
+    }
+
     async function loadVehicles() {
       const res = await api('/vehicles');
       if (res.ok && res.vehicles) {
@@ -2537,6 +2583,9 @@
           power: v.engine_power,
           tire: v.tire_model + (v.tire_size_front ? ` (${v.tire_size_front})` : ''),
           tire_model: v.tire_model,
+          tire_size_front: v.tire_size_front,
+          tire_size_rear: v.tire_size_rear,
+          tire_size: v.tire_size_front,
           suspension: v.suspension_spec || '-',
           visibility: v.visibility
         }));
@@ -2554,28 +2603,49 @@
         return;
       }
 
+      const editId = document.getElementById('edit-vehicle-id').value;
+      const isEdit = !!editId;
+
       const payload = {
-        make: document.getElementById('veh-make').value,
-        model: document.getElementById('veh-model').value,
-        year: parseInt(document.getElementById('veh-year').value),
+        make: document.getElementById('veh-make').value.trim(),
+        model: document.getElementById('veh-model').value.trim(),
+        year: parseInt(document.getElementById('veh-year').value) || 2024,
         engine_power: parseInt(document.getElementById('veh-power').value) || 250,
-        tire_model: document.getElementById('veh-tire').value,
-        tire_size_front: document.getElementById('veh-tire-size').value,
-        tire_size_rear: document.getElementById('veh-tire-size').value,
-        suspension_spec: document.getElementById('veh-suspension').value || '기본 서스펜션',
+        tire_model: document.getElementById('veh-tire').value.trim(),
+        tire_size_front: document.getElementById('veh-tire-size').value.trim(),
+        tire_size_rear: document.getElementById('veh-tire-size').value.trim(),
+        suspension_spec: document.getElementById('veh-suspension').value.trim() || '기본 서스펜션',
         visibility: document.getElementById('veh-visibility').value,
         team_id: team.id || null
       };
 
-      const res = await api('/vehicles', 'POST', payload);
+      const endpoint = isEdit ? `/vehicles/${editId}` : '/vehicles';
+      const method = isEdit ? 'PUT' : 'POST';
+
+      const res = await api(endpoint, method, payload);
       if (res.ok) {
-        showToast('차량이 개러지에 등록되었습니다! (DB 저장 완료)');
+        showToast(isEdit ? '머신 스펙 정보가 성공적으로 수정되었습니다!' : '새 차량이 개러지에 등록되었습니다!');
         closeModal('vehicle-modal');
         document.getElementById('vehicle-form').reset();
+        document.getElementById('edit-vehicle-id').value = '';
         await loadVehicles();
         renderDashboardMetrics();
       } else {
-        showToast(res.error || '차량 등록 실패');
+        showToast(res.error || (isEdit ? '차량 정보 수정 실패' : '차량 등록 실패'));
+      }
+    }
+
+    async function handleDeleteVehicle(vehicleId, vehicleName) {
+      if (!user.isLoggedIn) return;
+      if (!confirm(`'${vehicleName}' 머신을 개러지에서 삭제하시겠습니까?`)) return;
+
+      const res = await api(`/vehicles/${vehicleId}`, 'DELETE');
+      if (res.ok) {
+        showToast(`'${vehicleName}' 머신이 삭제되었습니다.`);
+        await loadVehicles();
+        renderDashboardMetrics();
+      } else {
+        showToast(res.error || '차량 삭제 실패');
       }
     }
 
@@ -2589,7 +2659,7 @@
             <i data-lucide="car" style="width:48px; height:48px; color:var(--text-muted); margin-bottom:1rem; opacity:0.6;"></i>
             <h4 style="color:#fff; margin-bottom:0.5rem;">등록된 개러지 머신이 없습니다</h4>
             <p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:1.5rem;">트랙에 출전할 머신을 등록하고 타이어 및 서스펜션 스펙을 관리해보세요.</p>
-            <button class="btn btn-primary" onclick="openModal('vehicle-modal')"><i data-lucide="plus"></i> 머신 등록하기</button>
+            <button class="btn btn-primary" onclick="openAddVehicleModal()"><i data-lucide="plus"></i> 머신 등록하기</button>
           </div>
         `;
         document.getElementById('stat-total-cars').innerText = 0;
@@ -2600,19 +2670,31 @@
       garage.forEach(v => {
         const card = document.createElement('div');
         card.className = 'vehicle-card';
+        const fullName = `${v.make} ${v.model}`;
+        const escapedName = fullName.replace(/'/g, "\\'");
+
         card.innerHTML = `
           <div class="vehicle-header">
-            <span class="vehicle-name">${v.make} ${v.model}</span>
+            <span class="vehicle-name">${fullName}</span>
             <span class="vehicle-badge-active">${v.visibility}</span>
           </div>
-          <p style="color:var(--accent-red); font-family:var(--font-mono); font-weight:700; font-size:0.95rem;">${v.power} HP · ${v.year}</p>
+          <p style="color:var(--accent-red); font-family:var(--font-mono); font-weight:700; font-size:0.95rem; margin-bottom:0.75rem;">${v.power} HP · ${v.year}년식</p>
           <ul class="vehicle-specs-list">
-            <li><span>타이어</span> <span class="val">${v.tire || v.tire_model || '-'}</span></li>
+            <li><span>장착 타이어</span> <span class="val">${v.tire || v.tire_model || '-'}</span></li>
             <li><span>하체 셋업</span> <span class="val">${v.suspension || '-'}</span></li>
           </ul>
-          <div style="display:flex; justify-content:space-between; margin-top:1rem;">
-            <button class="btn btn-secondary" style="padding:0.4rem 0.8rem; font-size:0.8rem;" onclick="openModal('session-modal')">세션 출전</button>
-            <button class="btn btn-cyan" style="padding:0.4rem 0.8rem; font-size:0.8rem;" onclick="showToast('스펙 수정 모드 준비 중')">스펙 수정</button>
+          <div style="display:flex; gap:0.4rem; justify-content:space-between; align-items:center; margin-top:1rem; padding-top:0.75rem; border-top:1px solid rgba(255,255,255,0.06);">
+            <button class="btn btn-cyan" style="flex:1; justify-content:center; padding:0.4rem 0.65rem; font-size:0.8rem;" onclick="openEditVehicleModal(${v.id})">
+              <i data-lucide="edit-3"></i> 스펙 수정
+            </button>
+            <button class="btn btn-secondary" style="padding:0.4rem 0.65rem; font-size:0.8rem;" onclick="openModal('session-modal')" title="이 머신으로 세션 작성">
+              <i data-lucide="zap"></i> 출전
+            </button>
+            ${user.isLoggedIn ? `
+              <button class="btn btn-secondary" style="padding:0.4rem 0.6rem; font-size:0.8rem; background:rgba(255,42,75,0.12); border-color:rgba(255,42,75,0.35); color:#ff6b81;" onclick="handleDeleteVehicle(${v.id}, '${escapedName}')" title="머신 삭제">
+                <i data-lucide="trash-2" style="width:14px; height:14px;"></i>
+              </button>
+            ` : ''}
           </div>
         `;
         container.appendChild(card);

@@ -374,6 +374,42 @@ if ($method === 'POST' && $uri === '/vehicles') {
     jsonResponse(201, ['message' => '차량 등록 완료', 'vehicle_id' => (int)$pdo->lastInsertId()]);
 }
 
+// PUT /vehicles/:id (차량 정보 수정)
+if (($method === 'PUT' || $method === 'POST') && preg_match('#^/vehicles/(\d+)$#', $uri, $m)) {
+    $userId = requireAuth();
+    $vehicleId = (int)$m[1];
+    $body = getBody();
+
+    // Check ownership
+    $check = $pdo->prepare('SELECT id FROM vehicles WHERE id = ? AND user_id = ?');
+    $check->execute([$vehicleId, $userId]);
+    if (!$check->fetch()) {
+        jsonResponse(404, ['error' => '수정할 차량을 찾을 수 없거나 권한이 없습니다.']);
+    }
+
+    $stmt = $pdo->prepare('
+        UPDATE vehicles 
+        SET make = ?, model = ?, year = ?, engine_power = ?, tire_model = ?, 
+            tire_size_front = ?, tire_size_rear = ?, suspension_spec = ?, visibility = ?
+        WHERE id = ? AND user_id = ?
+    ');
+    $stmt->execute([
+        $body['make'] ?? '',
+        $body['model'] ?? '',
+        $body['year'] ?? 2024,
+        $body['engine_power'] ?? 250,
+        $body['tire_model'] ?? '',
+        $body['tire_size_front'] ?? '245/40R18',
+        $body['tire_size_rear'] ?? '245/40R18',
+        $body['suspension_spec'] ?? '',
+        $body['visibility'] ?? 'TEAM',
+        $vehicleId,
+        $userId
+    ]);
+
+    jsonResponse(200, ['message' => '머신 정보가 성공적으로 수정되었습니다.', 'vehicle_id' => $vehicleId]);
+}
+
 // DELETE /vehicles/:id
 if ($method === 'DELETE' && preg_match('#^/vehicles/(\d+)$#', $uri, $m)) {
     $userId = requireAuth();
