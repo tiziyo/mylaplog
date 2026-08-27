@@ -487,6 +487,7 @@ if ($method === 'GET' && $uri === '/sessions') {
     $userId = requireAuth();
     $stmt = $pdo->prepare('
         SELECT ts.*, t.name as track_name, CONCAT(v.make, " ", v.model) as vehicle_name,
+               t2.name as team_name,
                vs.cold_psi_fl, vs.cold_psi_fr, vs.cold_psi_rl, vs.cold_psi_rr,
                vs.hot_psi_fl, vs.hot_psi_fr, vs.hot_psi_rl, vs.hot_psi_rr,
                vs.damper_front_clicks, vs.damper_rear_clicks,
@@ -498,6 +499,7 @@ if ($method === 'GET' && $uri === '/sessions') {
         FROM track_sessions ts
         JOIN tracks t ON t.id = ts.track_id
         JOIN vehicles v ON v.id = ts.vehicle_id
+        LEFT JOIN teams t2 ON t2.id = COALESCE(ts.team_id, v.team_id)
         LEFT JOIN vehicle_setups vs ON vs.session_id = ts.id
         WHERE ts.user_id = ?
         ORDER BY ts.session_date DESC, ts.session_number DESC
