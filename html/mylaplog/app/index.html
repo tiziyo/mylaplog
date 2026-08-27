@@ -1038,7 +1038,7 @@
           <button class="btn btn-secondary" onclick="openAddVehicleModal()">
             <i data-lucide="plus-circle"></i> 머신 등록
           </button>
-          <button class="btn btn-primary" onclick="openModal('session-modal')">
+          <button class="btn btn-primary" onclick="openAddSessionModal()">
             <i data-lucide="zap"></i> 세션 로깅
           </button>
 
@@ -1121,7 +1121,7 @@
               <div class="card-title">
                 <i data-lucide="clipboard-list"></i> 트랙데이 세션 & 셋업 로그 히스토리
               </div>
-              <button class="btn btn-primary" onclick="openModal('session-modal')">
+              <button class="btn btn-primary" onclick="openAddSessionModal()">
                 <i data-lucide="plus"></i> 세션 로깅 추가
               </button>
             </div>
@@ -1622,17 +1622,18 @@
     </div>
   </div>
 
-  <!-- ================= MODAL: ADD SESSION & SETUP ================= -->
+  <!-- ================= MODAL: ADD / EDIT SESSION & SETUP ================= -->
   <div class="modal-overlay" id="session-modal">
     <div class="modal-content" style="max-width: 800px; width: 95%; padding: 1.5rem 1.75rem;">
       <div class="modal-header" style="margin-bottom: 1rem; padding-bottom: 0.75rem;">
         <h3 style="font-family:var(--font-display); color:#fff; font-size:1.25rem;">
-          <i data-lucide="zap" style="color:var(--accent-red)"></i> 새 트랙데이 세션 & 셋업 로깅
+          <i data-lucide="zap" style="color:var(--accent-red)"></i> <span id="session-modal-title">새 트랙데이 세션 & 셋업 로깅</span>
         </h3>
         <button class="modal-close-btn" onclick="closeModal('session-modal')">&times;</button>
       </div>
 
       <form id="session-form" onsubmit="handleSaveSession(event)">
+        <input type="hidden" id="edit-session-id" value="">
         
         <!-- 1. 기본 주행 정보 (4열 가로 컴팩트 그리드) -->
         <div style="display: grid; grid-template-columns: 1.2fr 1.2fr 1fr 1fr; gap: 0.75rem; margin-bottom: 0.85rem;">
@@ -1717,7 +1718,9 @@
         <!-- 4. 하단 액션 버튼 -->
         <div style="display:flex; justify-content:flex-end; gap:0.75rem; padding-top:0.75rem; border-top:1px solid var(--border-subtle);">
           <button type="button" class="btn btn-secondary" onclick="closeModal('session-modal')">취소</button>
-          <button type="submit" class="btn btn-primary"><i data-lucide="zap"></i> 세션 로그 저장</button>
+          <button type="submit" class="btn btn-primary" id="session-modal-submit-btn">
+            <i data-lucide="zap"></i> <span id="session-modal-submit-text">세션 로그 저장</span>
+          </button>
         </div>
       </form>
     </div>
@@ -2687,7 +2690,7 @@
             <button class="btn btn-cyan" style="flex:1; justify-content:center; padding:0.4rem 0.65rem; font-size:0.8rem;" onclick="openEditVehicleModal(${v.id})">
               <i data-lucide="edit-3"></i> 스펙 수정
             </button>
-            <button class="btn btn-secondary" style="padding:0.4rem 0.65rem; font-size:0.8rem;" onclick="openModal('session-modal')" title="이 머신으로 세션 작성">
+            <button class="btn btn-secondary" style="padding:0.4rem 0.65rem; font-size:0.8rem;" onclick="openAddSessionModal(${v.id})" title="이 머신으로 세션 작성">
               <i data-lucide="zap"></i> 출전
             </button>
             ${user.isLoggedIn ? `
@@ -2752,8 +2755,80 @@
     }
 
     // =============================================
-    // SESSIONS: Load / Save / Render
+    // SESSIONS: Load / Add / Edit / Delete / Render
     // =============================================
+    function openAddSessionModal(preSelectedVehicleId = null) {
+      if (!user.isLoggedIn) {
+        showToast('로그인이 필요한 기능입니다. 먼저 로그인해주세요.');
+        openModal('auth-modal');
+        return;
+      }
+      if (garage.length === 0) {
+        showToast('세션을 로깅하려면 먼저 개러지에 차량을 등록해야 합니다.');
+        openAddVehicleModal();
+        return;
+      }
+
+      document.getElementById('session-form').reset();
+      document.getElementById('edit-session-id').value = '';
+      document.getElementById('sess-date').value = new Date().toISOString().split('T')[0];
+      document.getElementById('sess-num').value = 1;
+      document.getElementById('sess-bestlap').value = '01:52.348';
+      document.getElementById('sess-psi-fl').value = 34.0;
+      document.getElementById('sess-psi-fr').value = 34.0;
+      document.getElementById('sess-psi-rl').value = 32.0;
+      document.getElementById('sess-psi-rr').value = 32.0;
+      document.getElementById('sess-damper-f').value = 12;
+      document.getElementById('sess-damper-r').value = 8;
+      document.getElementById('sess-camber').value = -3.2;
+
+      populateVehicleSelect();
+      populateTrackSelect();
+
+      if (preSelectedVehicleId) {
+        document.getElementById('sess-vehicle').value = preSelectedVehicleId;
+      }
+
+      document.getElementById('session-modal-title').innerText = '새 트랙데이 세션 & 셋업 로깅';
+      document.getElementById('session-modal-submit-text').innerText = '세션 로그 저장';
+      openModal('session-modal');
+    }
+
+    function openEditSessionModal(sessionId) {
+      if (!user.isLoggedIn) {
+        showToast('로그인이 필요한 기능입니다. 먼저 로그인해주세요.');
+        openModal('auth-modal');
+        return;
+      }
+      const s = sessions.find(item => item.id == sessionId);
+      if (!s) {
+        showToast('세션 정보를 찾을 수 없습니다.');
+        return;
+      }
+
+      populateVehicleSelect();
+      populateTrackSelect();
+
+      document.getElementById('edit-session-id').value = s.id;
+      if (s.trackId) document.getElementById('sess-track').value = s.trackId;
+      if (s.vehicleId) document.getElementById('sess-vehicle').value = s.vehicleId;
+      document.getElementById('sess-date').value = s.date || '';
+      document.getElementById('sess-num').value = s.sessionNum || 1;
+      document.getElementById('sess-bestlap').value = s.bestLap || '01:52.000';
+      document.getElementById('sess-psi-fl').value = s.psiFL || 34.0;
+      document.getElementById('sess-psi-fr').value = s.psiFR || 34.0;
+      document.getElementById('sess-psi-rl').value = s.psiRL || 32.0;
+      document.getElementById('sess-psi-rr').value = s.psiRR || 32.0;
+      document.getElementById('sess-damper-f').value = s.damperF || 12;
+      document.getElementById('sess-damper-r').value = s.damperR || 8;
+      document.getElementById('sess-camber').value = s.camber !== undefined && s.camber !== null ? s.camber : -3.2;
+      document.getElementById('sess-notes').value = s.notes || '';
+
+      document.getElementById('session-modal-title').innerText = `${s.track} 세션 #${s.sessionNum} & 셋업 수정`;
+      document.getElementById('session-modal-submit-text').innerText = '수정 내용 저장';
+      openModal('session-modal');
+    }
+
     async function loadSessions() {
       const res = await api('/sessions');
       if (res.ok && res.sessions) {
@@ -2791,9 +2866,12 @@
       if (!vehicleId) {
         showToast('출전 머신을 먼저 등록해주세요.');
         closeModal('session-modal');
-        openModal('vehicle-modal');
+        openAddVehicleModal();
         return;
       }
+
+      const editId = document.getElementById('edit-session-id').value;
+      const isEdit = !!editId;
 
       const trackId = parseInt(document.getElementById('sess-track').value);
       const bestLapStr = document.getElementById('sess-bestlap').value;
@@ -2804,7 +2882,7 @@
         vehicle_id: vehicleId,
         team_id: team.id || null,
         session_date: document.getElementById('sess-date').value,
-        session_number: parseInt(document.getElementById('sess-num').value),
+        session_number: parseInt(document.getElementById('sess-num').value) || 1,
         best_lap_ms: bestLapMs,
         weather_condition: 'DRY',
         visibility: 'TEAM',
@@ -2813,24 +2891,43 @@
           hot_psi_fr: parseFloat(document.getElementById('sess-psi-fr').value),
           hot_psi_rl: parseFloat(document.getElementById('sess-psi-rl').value),
           hot_psi_rr: parseFloat(document.getElementById('sess-psi-rr').value),
-          damper_front_clicks: parseInt(document.getElementById('sess-damper-f').value),
-          damper_rear_clicks: parseInt(document.getElementById('sess-damper-r').value),
-          camber_fl: parseFloat(document.getElementById('sess-camber').value),
-          camber_fr: parseFloat(document.getElementById('sess-camber').value),
-          driver_notes: document.getElementById('sess-notes').value
+          damper_front_clicks: parseInt(document.getElementById('sess-damper-f').value) || 12,
+          damper_rear_clicks: parseInt(document.getElementById('sess-damper-r').value) || 8,
+          camber_fl: parseFloat(document.getElementById('sess-camber').value) || -3.2,
+          camber_fr: parseFloat(document.getElementById('sess-camber').value) || -3.2,
+          driver_notes: document.getElementById('sess-notes').value.trim()
         }
       };
 
-      const res = await api('/sessions', 'POST', payload);
+      const endpoint = isEdit ? `/sessions/${editId}` : '/sessions';
+      const method = isEdit ? 'PUT' : 'POST';
+
+      const res = await api(endpoint, method, payload);
       if (res.ok) {
-        showToast('세션 로그가 DB에 저장되었습니다! 🏁');
+        showToast(isEdit ? '세션 및 셋업 정보가 성공적으로 수정되었습니다! 🏁' : '세션 로그가 DB에 저장되었습니다! 🏁');
         closeModal('session-modal');
         document.getElementById('session-form').reset();
+        document.getElementById('edit-session-id').value = '';
         await loadSessions();
         renderDashboardMetrics();
         renderDashboardHighlight();
       } else {
-        showToast(res.error || '세션 저장 실패');
+        showToast(res.error || (isEdit ? '세션 수정 실패' : '세션 저장 실패'));
+      }
+    }
+
+    async function handleDeleteSession(sessionId, sessionLabel) {
+      if (!user.isLoggedIn) return;
+      if (!confirm(`'${sessionLabel}' 세션 로그를 삭제하시겠습니까?`)) return;
+
+      const res = await api(`/sessions/${sessionId}`, 'DELETE');
+      if (res.ok) {
+        showToast(`'${sessionLabel}' 세션이 삭제되었습니다.`);
+        await loadSessions();
+        renderDashboardMetrics();
+        renderDashboardHighlight();
+      } else {
+        showToast(res.error || '세션 삭제 실패');
       }
     }
 
@@ -2846,7 +2943,7 @@
             <i data-lucide="clipboard-list" style="width:48px; height:48px; color:var(--text-muted); margin-bottom:1rem; opacity:0.6;"></i>
             <h4 style="color:#fff; margin-bottom:0.5rem;">로깅된 트랙 세션이 없습니다</h4>
             <p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:1.5rem;">서킷 주행 후 타이어 공기압, 감쇠력 세팅과 베스트 랩타임을 기록해보세요.</p>
-            <button class="btn btn-primary" onclick="openModal('session-modal')"><i data-lucide="zap"></i> 세션 로깅 추가</button>
+            <button class="btn btn-primary" onclick="openAddSessionModal()"><i data-lucide="zap"></i> 세션 로깅 추가</button>
           </div>
         `;
         fullContainer.innerHTML = emptyHtml;
@@ -2857,35 +2954,51 @@
       }
 
       sessions.forEach((s, idx) => {
-        const html = `
-          <div class="session-card">
-            <div class="session-meta-row">
-              <div>
-                <span class="circuit-badge"><i data-lucide="map-pin"></i> ${s.track}</span>
-                <p style="font-size:0.8rem; color:var(--text-muted); margin-top:0.4rem;">${s.date} · Session ${s.sessionNum} · ${s.vehicle}</p>
-              </div>
-              <div class="session-time-display">
-                <span style="font-size:0.7rem; color:var(--text-muted); text-transform:uppercase;">Best Lap</span>
-                <div class="best-lap-num">${s.bestLap}</div>
-              </div>
+        const sessionLabel = `${s.track} #${s.sessionNum} (${s.date})`;
+        const escapedLabel = sessionLabel.replace(/'/g, "\\'");
+
+        const card = document.createElement('div');
+        card.className = 'session-card';
+        card.innerHTML = `
+          <div class="session-meta-row">
+            <div>
+              <span class="circuit-badge"><i data-lucide="map-pin"></i> ${s.track}</span>
+              <p style="font-size:0.8rem; color:var(--text-muted); margin-top:0.4rem;">${s.date} · Session ${s.sessionNum} · ${s.vehicle}</p>
             </div>
-            <div class="tire-box-grid">
-              <div class="tire-cell"><span>FL Hot</span> <span class="psi">${s.psiFL} PSI</span></div>
-              <div class="tire-cell"><span>FR Hot</span> <span class="psi">${s.psiFR} PSI</span></div>
-              <div class="tire-cell"><span>RL Hot</span> <span class="psi">${s.psiRL} PSI</span></div>
-              <div class="tire-cell"><span>RR Hot</span> <span class="psi">${s.psiRR} PSI</span></div>
+            <div class="session-time-display">
+              <span style="font-size:0.7rem; color:var(--text-muted); text-transform:uppercase;">Best Lap</span>
+              <div class="best-lap-num">${s.bestLap}</div>
             </div>
-            <div style="display:flex; justify-content:space-between; font-size:0.8rem; color:var(--text-muted); margin-top:0.5rem;">
-              <span>감쇠력: F ${s.damperF || '-'}단 / R ${s.damperR || '-'}단</span>
-              <span>캠버: ${s.camber ? s.camber + '°' : '-'}</span>
-            </div>
-            <p style="font-size:0.8rem; color:#a0aec0; margin-top:0.5rem; background:rgba(255,255,255,0.02); padding:0.4rem; border-radius:4px;">
-              💡 <em>${s.notes || '피드백 메모 없음'}</em>
-            </p>
+          </div>
+          <div class="tire-box-grid">
+            <div class="tire-cell"><span>FL Hot</span> <span class="psi">${s.psiFL} PSI</span></div>
+            <div class="tire-cell"><span>FR Hot</span> <span class="psi">${s.psiFR} PSI</span></div>
+            <div class="tire-cell"><span>RL Hot</span> <span class="psi">${s.psiRL} PSI</span></div>
+            <div class="tire-cell"><span>RR Hot</span> <span class="psi">${s.psiRR} PSI</span></div>
+          </div>
+          <div style="display:flex; justify-content:space-between; font-size:0.8rem; color:var(--text-muted); margin-top:0.5rem;">
+            <span>감쇠력: F ${s.damperF || '-'}단 / R ${s.damperR || '-'}단</span>
+            <span>캠버: ${s.camber ? s.camber + '°' : '-'}</span>
+          </div>
+          <p style="font-size:0.8rem; color:#a0aec0; margin-top:0.5rem; background:rgba(255,255,255,0.02); padding:0.4rem; border-radius:4px;">
+            💡 <em>${s.notes || '피드백 메모 없음'}</em>
+          </p>
+          <div style="display:flex; gap:0.4rem; justify-content:space-between; align-items:center; margin-top:0.75rem; padding-top:0.6rem; border-top:1px solid rgba(255,255,255,0.06);">
+            <button class="btn btn-cyan" style="flex:1; justify-content:center; padding:0.35rem 0.6rem; font-size:0.78rem;" onclick="openEditSessionModal(${s.id})">
+              <i data-lucide="edit-3"></i> 셋업 & 랩타임 수정
+            </button>
+            ${user.isLoggedIn ? `
+              <button class="btn btn-secondary" style="padding:0.35rem 0.55rem; font-size:0.78rem; background:rgba(255,42,75,0.12); border-color:rgba(255,42,75,0.35); color:#ff6b81;" onclick="handleDeleteSession(${s.id}, '${escapedLabel}')" title="세션 삭제">
+                <i data-lucide="trash-2" style="width:13px; height:13px;"></i>
+              </button>
+            ` : ''}
           </div>
         `;
-        fullContainer.innerHTML += html;
-        if (idx < 2) dashContainer.innerHTML += html;
+
+        fullContainer.appendChild(card);
+        if (idx < 2) {
+          dashContainer.appendChild(card.cloneNode(true));
+        }
       });
 
       document.getElementById('stat-total-sessions').innerText = sessions.length;

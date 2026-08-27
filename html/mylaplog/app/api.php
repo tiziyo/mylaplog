@@ -529,6 +529,125 @@ if ($method === 'POST' && $uri === '/sessions') {
     }
 }
 
+// PUT /sessions/:id (세션 및 셋업 수정)
+if (($method === 'PUT' || $method === 'POST') && preg_match('#^/sessions/(\d+)$#', $uri, $m)) {
+    $userId = requireAuth();
+    $sessionId = (int)$m[1];
+    $body = getBody();
+
+    // Check ownership
+    $check = $pdo->prepare('SELECT id FROM track_sessions WHERE id = ? AND user_id = ?');
+    $check->execute([$sessionId, $userId]);
+    if (!$check->fetch()) {
+        jsonResponse(404, ['error' => '수정할 세션을 찾을 수 없거나 권한이 없습니다.']);
+    }
+
+    $pdo->beginTransaction();
+    try {
+        // Update track_sessions
+        $stmt = $pdo->prepare('
+            UPDATE track_sessions 
+            SET vehicle_id = ?, track_id = ?, session_date = ?, session_number = ?, 
+                air_temp = ?, track_temp = ?, weather_condition = ?, visibility = ?, 
+                best_lap_ms = ?, team_id = ?
+            WHERE id = ? AND user_id = ?
+        ');
+        $stmt->execute([
+            $body['vehicle_id'],
+            $body['track_id'],
+            $body['session_date'],
+            $body['session_number'] ?? 1,
+            $body['air_temp'] ?? 25.0,
+            $body['track_temp'] ?? 40.0,
+            $body['weather_condition'] ?? 'DRY',
+            $body['visibility'] ?? 'TEAM',
+            $body['best_lap_ms'] ?? 0,
+            $body['team_id'] ?? null,
+            $sessionId,
+            $userId
+        ]);
+
+        // Update or insert vehicle_setups
+        $setup = $body['setup'] ?? [];
+        if (!empty($setup)) {
+            $setupCheck = $pdo->prepare('SELECT id FROM vehicle_setups WHERE session_id = ?');
+            $setupCheck->execute([$sessionId]);
+            if ($setupCheck->fetch()) {
+                $stmt = $pdo->prepare('
+                    UPDATE vehicle_setups 
+                    SET hot_psi_fl = ?, hot_psi_fr = ?, hot_psi_rl = ?, hot_psi_rr = ?,
+                        damper_front_clicks = ?, damper_rear_clicks = ?,
+                        camber_fl = ?, camber_fr = ?, camber_rl = ?, camber_rr = ?,
+                        driver_notes = ?
+                    WHERE session_id = ?
+                ');
+                $stmt->execute([
+                    $setup['hot_psi_fl'] ?? 34.0, $setup['hot_psi_fr'] ?? 34.0, $setup['hot_psi_rl'] ?? 32.0, $setup['hot_psi_rr'] ?? 32.0,
+                    $setup['damper_front_clicks'] ?? 12, $setup['damper_rear_clicks'] ?? 8,
+                    $setup['camber_fl'] ?? -3.2, $setup['camber_fr'] ?? -3.2, $setup['camber_rl'] ?? -2.0, $setup['camber_rr'] ?? -2.0,
+                    $setup['driver_notes'] ?? '',
+                    $sessionId
+                ]);
+            } else {
+                $stmt = $pdo->prepare('INSERT INTO vehicle_setups (session_id, hot_psi_fl, hot_psi_fr, hot_psi_rl, hot_psi_rr, damper_front_clicks, damper_rear_clicks, camber_fl, camber_fr, camber_rl, camber_rr, driver_notes) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)');
+                $stmt->execute([
+                    $sessionId,
+                    $setup['hot_psi_fl'] ?? 34.0, $setup['hot_psi_fr'] ?? 34.0, $setup['hot_psi_rl'] ?? 32.0, $setup['hot_psi_rr'] ?? 32.0,
+                    $setup['damper_front_clicks'] ?? 12, $setup['damper_rear_clicks'] ?? 8,
+                    $setup['camber_fl'] ?? -3.2, $setup['camber_fr'] ?? -3.2, $setup['camber_rl'] ?? -2.0, $setup['camber_rr'] ?? -2.0,
+                    $setup['driver_notes'] ?? ''
+                ]);
+            }
+        }
+
+        // Update lap times if provided
+        $laps = $body['laps'] ?? [];
+        if (!empty($laps)) {
+            $pdo->prepare('DELETE FROM lap_times WHERE session_id = ?')->execute([$sessionId]);
+            $stmt = $pdo->prepare('INSERT INTO lap_times (session_id, lap_number, lap_time_ms, is_valid, is_best) VALUES (?,?,?,?,?)');
+            foreach ($laps as $lap) {
+                $stmt->execute([
+                    $sessionId,
+                    $lap['lap_number'],
+                    $lap['lap_time_ms'],
+                    $lap['is_valid'] ?? 1,
+                    $lap['is_best'] ?? 0
+                ]);
+            }
+        }
+
+        $pdo->commit();
+        jsonResponse(200, ['message' => '세션 및 셋업 정보가 성공적으로 수정되었습니다.', 'session_id' => $sessionId]);
+    } catch (Exception $e) {
+        $pdo->rollBack();
+        jsonResponse(500, ['error' => '세션 수정 실패: ' . $e->getMessage()]);
+    }
+}
+
+// DELETE /sessions/:id
+if ($method === 'DELETE' && preg_match('#^/sessions/(\d+)$#', $uri, $m)) {
+    $userId = requireAuth();
+    $sessionId = (int)$m[1];
+
+    $check = $pdo->prepare('SELECT id FROM track_sessions WHERE id = ? AND user_id = ?');
+    $check->execute([$sessionId, $userId]);
+    if (!$check->fetch()) {
+        jsonResponse(404, ['error' => '삭제할 세션을 찾을 수 없거나 권한이 없습니다.']);
+    }
+
+    $pdo->beginTransaction();
+    try {
+        $pdo->prepare('DELETE FROM lap_times WHERE session_id = ?')->execute([$sessionId]);
+        $pdo->prepare('DELETE FROM vehicle_setups WHERE session_id = ?')->execute([$sessionId]);
+        $pdo->prepare('DELETE FROM track_sessions WHERE id = ? AND user_id = ?')->execute([$sessionId, $userId]);
+        $pdo->commit();
+        jsonResponse(200, ['message' => '세션 및 관련 셋업 데이터가 삭제되었습니다.']);
+    } catch (Exception $e) {
+        $pdo->rollBack();
+        jsonResponse(500, ['error' => '세션 삭제 실패: ' . $e->getMessage()]);
+    }
+}
+
 // GET /sessions/:id
 if ($method === 'GET' && preg_match('#^/sessions/(\d+)$#', $uri, $m)) {
     requireAuth();
