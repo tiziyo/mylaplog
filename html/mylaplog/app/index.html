@@ -1641,8 +1641,8 @@
 
   <!-- ================= MODAL: ADD / EDIT SESSION & SETUP ================= -->
   <div class="modal-overlay" id="session-modal">
-    <div class="modal-content" style="max-width: 800px; width: 95%; padding: 1.5rem 1.75rem;">
-      <div class="modal-header" style="margin-bottom: 1rem; padding-bottom: 0.75rem;">
+    <div class="modal-content" style="max-width: 880px; width: 95%; max-height: 92vh; padding: 1.5rem 1.75rem;">
+      <div class="modal-header" style="margin-bottom: 0.85rem; padding-bottom: 0.65rem;">
         <h3 style="font-family:var(--font-display); color:#fff; font-size:1.25rem;">
           <i data-lucide="zap" style="color:var(--accent-red)"></i> <span id="session-modal-title">새 트랙데이 세션 & 셋업 로깅</span>
         </h3>
@@ -1652,88 +1652,203 @@
       <form id="session-form" onsubmit="handleSaveSession(event)">
         <input type="hidden" id="edit-session-id" value="">
         
-        <!-- 1. 기본 주행 정보 (4열 가로 컴팩트 그리드) -->
-        <div style="display: grid; grid-template-columns: 1.2fr 1.2fr 1fr 1fr; gap: 0.75rem; margin-bottom: 0.85rem;">
+        <!-- 1. 기본 주행 & 기상 정보 -->
+        <div style="display: grid; grid-template-columns: 1.2fr 1.2fr 1fr 1fr 1fr; gap: 0.65rem; margin-bottom: 0.85rem;">
           <div class="form-group">
-            <label style="font-size:0.8rem;">방문 서킷</label>
+            <label style="font-size:0.78rem;">방문 서킷</label>
             <select class="form-control compact-input" id="sess-track" required></select>
           </div>
           <div class="form-group">
-            <label style="font-size:0.8rem;">출전 머신</label>
+            <label style="font-size:0.78rem;">출전 머신</label>
             <select class="form-control compact-input" id="sess-vehicle" required></select>
           </div>
           <div class="form-group">
-            <label style="font-size:0.8rem;">주행 일자 / 세션</label>
-            <div style="display:flex; gap:0.35rem;">
+            <label style="font-size:0.78rem;">주행 일자 / 세션</label>
+            <div style="display:flex; gap:0.25rem;">
               <input type="date" class="form-control compact-input" id="sess-date" style="flex:2;" required>
-              <input type="number" class="form-control compact-input" id="sess-num" value="1" min="1" max="20" style="flex:1; min-width:48px;" placeholder="#" required>
+              <input type="number" class="form-control compact-input" id="sess-num" value="1" min="1" max="20" style="flex:1; min-width:44px;" placeholder="#" required>
             </div>
           </div>
           <div class="form-group">
-            <label style="font-size:0.8rem; color:var(--accent-cyan); font-weight:700;">베스트 랩 (mm:ss.sss)</label>
+            <label style="font-size:0.78rem; color:var(--accent-cyan); font-weight:700;">베스트 랩 (mm:ss.sss)</label>
             <input type="text" class="form-control compact-input" id="sess-bestlap" placeholder="01:52.348" required style="font-family:var(--font-mono); color:var(--accent-cyan); font-weight:700;">
+          </div>
+          <div class="form-group">
+            <label style="font-size:0.78rem;">기온 / 노면온도</label>
+            <div style="display:flex; gap:0.25rem;">
+              <input type="number" step="0.5" class="form-control compact-input" id="sess-air-temp" value="25.0" placeholder="기온°C" title="기온 (°C)">
+              <input type="number" step="0.5" class="form-control compact-input" id="sess-track-temp" value="40.0" placeholder="노면°C" title="노면온도 (°C)">
+            </div>
           </div>
         </div>
 
-        <!-- 2. 세부 셋업 영역 (2개 컬럼: 좌측 타이어 4륜 공기압 / 우측 댐퍼&하체 셋업) -->
-        <div style="display: grid; grid-template-columns: 1.1fr 1fr; gap: 1rem; margin-bottom: 0.85rem; background: rgba(0,0,0,0.3); padding: 0.85rem 1rem; border-radius: 8px; border: 1px solid var(--border-subtle);">
+        <!-- 2. 타이어 공기압 (열간 Hot PSI & 냉간 Cold PSI 4륜 그리드) -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 0.75rem; background: rgba(0,0,0,0.3); padding: 0.75rem 0.85rem; border-radius: 8px; border: 1px solid var(--border-subtle);">
           
-          <!-- 좌측: 4륜 타이어 열간 공기압 (Hot PSI) -->
+          <!-- 타이어 열간 공기압 (Hot PSI) -->
           <div>
-            <div style="display:flex; align-items:center; gap:0.4rem; margin-bottom: 0.5rem; color:var(--accent-cyan); font-family:var(--font-display); font-size:0.85rem; font-weight:700;">
-              <i data-lucide="gauge" style="width:15px; height:15px;"></i> 타이어 열간 공기압 (Hot PSI)
+            <div style="display:flex; align-items:center; gap:0.4rem; margin-bottom: 0.4rem; color:var(--accent-cyan); font-family:var(--font-display); font-size:0.82rem; font-weight:700;">
+              <i data-lucide="gauge" style="width:14px; height:14px;"></i> 4륜 타이어 열간 공기압 (Hot PSI)
             </div>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;">
+            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.4rem;">
               <div class="form-group">
-                <label style="font-size:0.75rem; color:var(--text-muted);">Front Left (FL)</label>
+                <label style="font-size:0.72rem; color:var(--text-muted);">FL Hot</label>
                 <input type="number" step="0.5" class="form-control compact-input" id="sess-psi-fl" value="34.0" required>
               </div>
               <div class="form-group">
-                <label style="font-size:0.75rem; color:var(--text-muted);">Front Right (FR)</label>
+                <label style="font-size:0.72rem; color:var(--text-muted);">FR Hot</label>
                 <input type="number" step="0.5" class="form-control compact-input" id="sess-psi-fr" value="34.0" required>
               </div>
               <div class="form-group">
-                <label style="font-size:0.75rem; color:var(--text-muted);">Rear Left (RL)</label>
+                <label style="font-size:0.72rem; color:var(--text-muted);">RL Hot</label>
                 <input type="number" step="0.5" class="form-control compact-input" id="sess-psi-rl" value="32.0" required>
               </div>
               <div class="form-group">
-                <label style="font-size:0.75rem; color:var(--text-muted);">Rear Right (RR)</label>
+                <label style="font-size:0.72rem; color:var(--text-muted);">RR Hot</label>
                 <input type="number" step="0.5" class="form-control compact-input" id="sess-psi-rr" value="32.0" required>
               </div>
             </div>
           </div>
 
-          <!-- 우측: 서스펜션 댐퍼 & 캠버/얼라인먼트 -->
+          <!-- 타이어 냉간 공기압 (Cold PSI) -->
           <div>
-            <div style="display:flex; align-items:center; gap:0.4rem; margin-bottom: 0.5rem; color:var(--accent-orange); font-family:var(--font-display); font-size:0.85rem; font-weight:700;">
-              <i data-lucide="sliders" style="width:15px; height:15px;"></i> 감쇠력 & 캠버 셋업
+            <div style="display:flex; align-items:center; gap:0.4rem; margin-bottom: 0.4rem; color:#8391a8; font-family:var(--font-display); font-size:0.82rem; font-weight:700;">
+              <i data-lucide="thermometer-snowflake" style="width:14px; height:14px;"></i> 4륜 타이어 냉간 공기압 (Cold PSI)
             </div>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;">
+            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.4rem;">
               <div class="form-group">
-                <label style="font-size:0.75rem; color:var(--text-muted);">프론트 댐퍼 (F단)</label>
-                <input type="number" class="form-control compact-input" id="sess-damper-f" value="12" placeholder="F단수">
+                <label style="font-size:0.72rem; color:var(--text-muted);">FL Cold</label>
+                <input type="number" step="0.5" class="form-control compact-input" id="sess-cold-fl" value="28.0">
               </div>
               <div class="form-group">
-                <label style="font-size:0.75rem; color:var(--text-muted);">리어 댐퍼 (R단)</label>
-                <input type="number" class="form-control compact-input" id="sess-damper-r" value="8" placeholder="R단수">
+                <label style="font-size:0.72rem; color:var(--text-muted);">FR Cold</label>
+                <input type="number" step="0.5" class="form-control compact-input" id="sess-cold-fr" value="28.0">
               </div>
-              <div class="form-group" style="grid-column: 1 / -1;">
-                <label style="font-size:0.75rem; color:var(--text-muted);">프론트 캠버 각도 (°)</label>
-                <input type="number" step="0.1" class="form-control compact-input" id="sess-camber" value="-3.2" placeholder="예: -3.2">
+              <div class="form-group">
+                <label style="font-size:0.72rem; color:var(--text-muted);">RL Cold</label>
+                <input type="number" step="0.5" class="form-control compact-input" id="sess-cold-rl" value="28.0">
+              </div>
+              <div class="form-group">
+                <label style="font-size:0.72rem; color:var(--text-muted);">RR Cold</label>
+                <input type="number" step="0.5" class="form-control compact-input" id="sess-cold-rr" value="28.0">
               </div>
             </div>
           </div>
 
         </div>
 
-        <!-- 3. 드라이버 메모 & 피드백 -->
-        <div class="form-group" style="margin-bottom: 1rem;">
-          <label style="font-size:0.8rem;">드라이버 피드백 & 엔지니어링 메모</label>
-          <textarea class="form-control compact-input" id="sess-notes" rows="2" placeholder="예: 3번 코너 탈출 시 트랙션 우수. 후반 랩에서 리어 타이어 슬립 증가." style="resize:none;"></textarea>
+        <!-- 3. 4륜 휠 얼라인먼트 (캠버 & 토우 4륜 각각 등록 + 전륜 캐스터) -->
+        <div style="background: rgba(0,0,0,0.3); padding: 0.75rem 0.85rem; border-radius: 8px; border: 1px solid var(--border-subtle); margin-bottom: 0.75rem;">
+          
+          <div style="display: grid; grid-template-columns: 1.4fr 1.4fr 1fr; gap: 0.75rem;">
+            
+            <!-- 4륜 캠버 각도 (Camber °) -->
+            <div>
+              <div style="display:flex; align-items:center; gap:0.4rem; margin-bottom: 0.4rem; color:var(--accent-orange); font-family:var(--font-display); font-size:0.82rem; font-weight:700;">
+                <i data-lucide="compass" style="width:14px; height:14px;"></i> 4륜 캠버 각도 (°도)
+              </div>
+              <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.35rem;">
+                <div class="form-group">
+                  <label style="font-size:0.7rem; color:var(--text-muted);">FL Camber</label>
+                  <input type="number" step="0.1" class="form-control compact-input" id="sess-camber-fl" value="-3.2">
+                </div>
+                <div class="form-group">
+                  <label style="font-size:0.7rem; color:var(--text-muted);">FR Camber</label>
+                  <input type="number" step="0.1" class="form-control compact-input" id="sess-camber-fr" value="-3.2">
+                </div>
+                <div class="form-group">
+                  <label style="font-size:0.7rem; color:var(--text-muted);">RL Camber</label>
+                  <input type="number" step="0.1" class="form-control compact-input" id="sess-camber-rl" value="-2.0">
+                </div>
+                <div class="form-group">
+                  <label style="font-size:0.7rem; color:var(--text-muted);">RR Camber</label>
+                  <input type="number" step="0.1" class="form-control compact-input" id="sess-camber-rr" value="-2.0">
+                </div>
+              </div>
+            </div>
+
+            <!-- 4륜 토우 (Toe mm/°) -->
+            <div>
+              <div style="display:flex; align-items:center; gap:0.4rem; margin-bottom: 0.4rem; color:#b388ff; font-family:var(--font-display); font-size:0.82rem; font-weight:700;">
+                <i data-lucide="move-horizontal" style="width:14px; height:14px;"></i> 4륜 토우 수치 (Toe)
+              </div>
+              <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.35rem;">
+                <div class="form-group">
+                  <label style="font-size:0.7rem; color:var(--text-muted);">FL Toe</label>
+                  <input type="number" step="0.1" class="form-control compact-input" id="sess-toe-fl" value="0.0">
+                </div>
+                <div class="form-group">
+                  <label style="font-size:0.7rem; color:var(--text-muted);">FR Toe</label>
+                  <input type="number" step="0.1" class="form-control compact-input" id="sess-toe-fr" value="0.0">
+                </div>
+                <div class="form-group">
+                  <label style="font-size:0.7rem; color:var(--text-muted);">RL Toe</label>
+                  <input type="number" step="0.1" class="form-control compact-input" id="sess-toe-rl" value="1.0">
+                </div>
+                <div class="form-group">
+                  <label style="font-size:0.7rem; color:var(--text-muted);">RR Toe</label>
+                  <input type="number" step="0.1" class="form-control compact-input" id="sess-toe-rr" value="1.0">
+                </div>
+              </div>
+            </div>
+
+            <!-- 전륜 캐스터 (Caster °) -->
+            <div>
+              <div style="display:flex; align-items:center; gap:0.4rem; margin-bottom: 0.4rem; color:#00ff88; font-family:var(--font-display); font-size:0.82rem; font-weight:700;">
+                <i data-lucide="crosshair" style="width:14px; height:14px;"></i> 전륜 캐스터 (°)
+              </div>
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.35rem;">
+                <div class="form-group">
+                  <label style="font-size:0.7rem; color:var(--text-muted);">FL Caster</label>
+                  <input type="number" step="0.1" class="form-control compact-input" id="sess-caster-fl" value="6.5">
+                </div>
+                <div class="form-group">
+                  <label style="font-size:0.7rem; color:var(--text-muted);">FR Caster</label>
+                  <input type="number" step="0.1" class="form-control compact-input" id="sess-caster-fr" value="6.5">
+                </div>
+              </div>
+            </div>
+
+          </div>
+
         </div>
 
-        <!-- 4. 하단 액션 버튼 -->
-        <div style="display:flex; justify-content:flex-end; gap:0.75rem; padding-top:0.75rem; border-top:1px solid var(--border-subtle);">
+        <!-- 4. 서스펜션 댐퍼 & 에어로 & 연료량 & 날씨 -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr 1fr; gap: 0.65rem; margin-bottom: 0.75rem; background: rgba(0,0,0,0.3); padding: 0.75rem 0.85rem; border-radius: 8px; border: 1px solid var(--border-subtle);">
+          <div class="form-group">
+            <label style="font-size:0.75rem; color:var(--text-muted);">프론트 댐퍼 (F단)</label>
+            <input type="number" class="form-control compact-input" id="sess-damper-f" value="12" placeholder="F단수">
+          </div>
+          <div class="form-group">
+            <label style="font-size:0.75rem; color:var(--text-muted);">리어 댐퍼 (R단)</label>
+            <input type="number" class="form-control compact-input" id="sess-damper-r" value="8" placeholder="R단수">
+          </div>
+          <div class="form-group">
+            <label style="font-size:0.75rem; color:var(--text-muted);">리어 윙 각도 (°)</label>
+            <input type="number" step="0.5" class="form-control compact-input" id="sess-wing" value="4.0" placeholder="윙 각도">
+          </div>
+          <div class="form-group">
+            <label style="font-size:0.75rem; color:var(--text-muted);">연료 탑재량 (L)</label>
+            <input type="number" step="1" class="form-control compact-input" id="sess-fuel" value="30" placeholder="연료(L)">
+          </div>
+          <div class="form-group">
+            <label style="font-size:0.75rem; color:var(--text-muted);">트랙 날씨 (Condition)</label>
+            <select class="form-control compact-input" id="sess-weather">
+              <option value="DRY">DRY (맑음 / 마른 노면)</option>
+              <option value="DAMP">DAMP (약간 젖음)</option>
+              <option value="WET">WET (우천 / 젖은 노면)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- 5. 드라이버 메모 & 피드백 -->
+        <div class="form-group" style="margin-bottom: 0.85rem;">
+          <label style="font-size:0.78rem;">드라이버 피드백 & 엔지니어링 메모</label>
+          <textarea class="form-control compact-input" id="sess-notes" rows="2" placeholder="예: 3번 코너 탈출 시 트랙션 우수. 댐퍼 리어 8단에서 헤어핀 오버스티어 제어 양호." style="resize:none;"></textarea>
+        </div>
+
+        <!-- 6. 하단 액션 버튼 -->
+        <div style="display:flex; justify-content:flex-end; gap:0.75rem; padding-top:0.6rem; border-top:1px solid var(--border-subtle);">
           <button type="button" class="btn btn-secondary" onclick="closeModal('session-modal')">취소</button>
           <button type="submit" class="btn btn-primary" id="session-modal-submit-btn">
             <i data-lucide="zap"></i> <span id="session-modal-submit-text">세션 로그 저장</span>
@@ -2943,13 +3058,38 @@
       document.getElementById('sess-date').value = new Date().toISOString().split('T')[0];
       document.getElementById('sess-num').value = 1;
       document.getElementById('sess-bestlap').value = '01:52.348';
+      document.getElementById('sess-air-temp').value = 25.0;
+      document.getElementById('sess-track-temp').value = 40.0;
+      document.getElementById('sess-weather').value = 'DRY';
+
       document.getElementById('sess-psi-fl').value = 34.0;
       document.getElementById('sess-psi-fr').value = 34.0;
       document.getElementById('sess-psi-rl').value = 32.0;
       document.getElementById('sess-psi-rr').value = 32.0;
+
+      document.getElementById('sess-cold-fl').value = 28.0;
+      document.getElementById('sess-cold-fr').value = 28.0;
+      document.getElementById('sess-cold-rl').value = 28.0;
+      document.getElementById('sess-cold-rr').value = 28.0;
+
+      document.getElementById('sess-camber-fl').value = -3.2;
+      document.getElementById('sess-camber-fr').value = -3.2;
+      document.getElementById('sess-camber-rl').value = -2.0;
+      document.getElementById('sess-camber-rr').value = -2.0;
+
+      document.getElementById('sess-toe-fl').value = 0.0;
+      document.getElementById('sess-toe-fr').value = 0.0;
+      document.getElementById('sess-toe-rl').value = 1.0;
+      document.getElementById('sess-toe-rr').value = 1.0;
+
+      document.getElementById('sess-caster-fl').value = 6.5;
+      document.getElementById('sess-caster-fr').value = 6.5;
+
       document.getElementById('sess-damper-f').value = 12;
       document.getElementById('sess-damper-r').value = 8;
-      document.getElementById('sess-camber').value = -3.2;
+      document.getElementById('sess-wing').value = 4.0;
+      document.getElementById('sess-fuel').value = 30;
+      document.getElementById('sess-notes').value = '';
 
       populateVehicleSelect();
       populateTrackSelect();
@@ -2984,13 +3124,37 @@
       document.getElementById('sess-date').value = s.date || '';
       document.getElementById('sess-num').value = s.sessionNum || 1;
       document.getElementById('sess-bestlap').value = s.bestLap || '01:52.000';
-      document.getElementById('sess-psi-fl').value = s.psiFL || 34.0;
-      document.getElementById('sess-psi-fr').value = s.psiFR || 34.0;
-      document.getElementById('sess-psi-rl').value = s.psiRL || 32.0;
-      document.getElementById('sess-psi-rr').value = s.psiRR || 32.0;
-      document.getElementById('sess-damper-f').value = s.damperF || 12;
-      document.getElementById('sess-damper-r').value = s.damperR || 8;
-      document.getElementById('sess-camber').value = s.camber !== undefined && s.camber !== null ? s.camber : -3.2;
+      document.getElementById('sess-air-temp').value = s.airTemp !== undefined && s.airTemp !== null ? s.airTemp : 25.0;
+      document.getElementById('sess-track-temp').value = s.trackTemp !== undefined && s.trackTemp !== null ? s.trackTemp : 40.0;
+      document.getElementById('sess-weather').value = s.weather || 'DRY';
+
+      document.getElementById('sess-psi-fl').value = s.psiFL !== undefined ? s.psiFL : 34.0;
+      document.getElementById('sess-psi-fr').value = s.psiFR !== undefined ? s.psiFR : 34.0;
+      document.getElementById('sess-psi-rl').value = s.psiRL !== undefined ? s.psiRL : 32.0;
+      document.getElementById('sess-psi-rr').value = s.psiRR !== undefined ? s.psiRR : 32.0;
+
+      document.getElementById('sess-cold-fl').value = s.coldFL !== undefined ? s.coldFL : 28.0;
+      document.getElementById('sess-cold-fr').value = s.coldFR !== undefined ? s.coldFR : 28.0;
+      document.getElementById('sess-cold-rl').value = s.coldRL !== undefined ? s.coldRL : 28.0;
+      document.getElementById('sess-cold-rr').value = s.coldRR !== undefined ? s.coldRR : 28.0;
+
+      document.getElementById('sess-camber-fl').value = s.camberFL !== undefined ? s.camberFL : -3.2;
+      document.getElementById('sess-camber-fr').value = s.camberFR !== undefined ? s.camberFR : -3.2;
+      document.getElementById('sess-camber-rl').value = s.camberRL !== undefined ? s.camberRL : -2.0;
+      document.getElementById('sess-camber-rr').value = s.camberRR !== undefined ? s.camberRR : -2.0;
+
+      document.getElementById('sess-toe-fl').value = s.toeFL !== undefined ? s.toeFL : 0.0;
+      document.getElementById('sess-toe-fr').value = s.toeFR !== undefined ? s.toeFR : 0.0;
+      document.getElementById('sess-toe-rl').value = s.toeRL !== undefined ? s.toeRL : 1.0;
+      document.getElementById('sess-toe-rr').value = s.toeRR !== undefined ? s.toeRR : 1.0;
+
+      document.getElementById('sess-caster-fl').value = s.casterFL !== undefined ? s.casterFL : 6.5;
+      document.getElementById('sess-caster-fr').value = s.casterFR !== undefined ? s.casterFR : 6.5;
+
+      document.getElementById('sess-damper-f').value = s.damperF !== undefined ? s.damperF : 12;
+      document.getElementById('sess-damper-r').value = s.damperR !== undefined ? s.damperR : 8;
+      document.getElementById('sess-wing').value = s.wing !== undefined ? s.wing : 4.0;
+      document.getElementById('sess-fuel').value = s.fuel !== undefined ? s.fuel : 30;
       document.getElementById('sess-notes').value = s.notes || '';
 
       document.getElementById('session-modal-title').innerText = `${s.track} 세션 #${s.sessionNum} & 셋업 수정`;
@@ -3011,9 +3175,19 @@
           sessionNum: s.session_number,
           bestLap: msToLapStr(s.best_lap_ms),
           bestLapMs: s.best_lap_ms,
+          airTemp: s.air_temp,
+          trackTemp: s.track_temp,
+          weather: s.weather_condition,
+          visibility: s.visibility,
           psiFL: s.hot_psi_fl, psiFR: s.hot_psi_fr, psiRL: s.hot_psi_rl, psiRR: s.hot_psi_rr,
-          damperF: s.damper_front_clicks, damperR: s.damper_rear_clicks,
+          coldFL: s.cold_psi_fl, coldFR: s.cold_psi_fr, coldRL: s.cold_psi_rl, coldRR: s.cold_psi_rr,
+          camberFL: s.camber_fl, camberFR: s.camber_fr, camberRL: s.camber_rl, camberRR: s.camber_rr,
           camber: s.camber_fl,
+          toeFL: s.toe_fl, toeFR: s.toe_fr, toeRL: s.toe_rl, toeRR: s.toe_rr,
+          casterFL: s.caster_fl, casterFR: s.caster_fr,
+          damperF: s.damper_front_clicks, damperR: s.damper_rear_clicks,
+          wing: s.wing_angle_deg,
+          fuel: s.fuel_liters,
           notes: s.driver_notes || '',
           laps: s.laps || []
         }));
@@ -3053,17 +3227,33 @@
         session_date: document.getElementById('sess-date').value,
         session_number: parseInt(document.getElementById('sess-num').value) || 1,
         best_lap_ms: bestLapMs,
-        weather_condition: 'DRY',
+        air_temp: parseFloat(document.getElementById('sess-air-temp').value) || 25.0,
+        track_temp: parseFloat(document.getElementById('sess-track-temp').value) || 40.0,
+        weather_condition: document.getElementById('sess-weather').value || 'DRY',
         visibility: 'TEAM',
         setup: {
           hot_psi_fl: parseFloat(document.getElementById('sess-psi-fl').value) || 34.0,
           hot_psi_fr: parseFloat(document.getElementById('sess-psi-fr').value) || 34.0,
           hot_psi_rl: parseFloat(document.getElementById('sess-psi-rl').value) || 32.0,
           hot_psi_rr: parseFloat(document.getElementById('sess-psi-rr').value) || 32.0,
+          cold_psi_fl: parseFloat(document.getElementById('sess-cold-fl').value) || 28.0,
+          cold_psi_fr: parseFloat(document.getElementById('sess-cold-fr').value) || 28.0,
+          cold_psi_rl: parseFloat(document.getElementById('sess-cold-rl').value) || 28.0,
+          cold_psi_rr: parseFloat(document.getElementById('sess-cold-rr').value) || 28.0,
+          camber_fl: parseFloat(document.getElementById('sess-camber-fl').value) || -3.2,
+          camber_fr: parseFloat(document.getElementById('sess-camber-fr').value) || -3.2,
+          camber_rl: parseFloat(document.getElementById('sess-camber-rl').value) || -2.0,
+          camber_rr: parseFloat(document.getElementById('sess-camber-rr').value) || -2.0,
+          toe_fl: parseFloat(document.getElementById('sess-toe-fl').value) || 0.0,
+          toe_fr: parseFloat(document.getElementById('sess-toe-fr').value) || 0.0,
+          toe_rl: parseFloat(document.getElementById('sess-toe-rl').value) || 1.0,
+          toe_rr: parseFloat(document.getElementById('sess-toe-rr').value) || 1.0,
+          caster_fl: parseFloat(document.getElementById('sess-caster-fl').value) || 6.5,
+          caster_fr: parseFloat(document.getElementById('sess-caster-fr').value) || 6.5,
           damper_front_clicks: parseInt(document.getElementById('sess-damper-f').value) || 12,
           damper_rear_clicks: parseInt(document.getElementById('sess-damper-r').value) || 8,
-          camber_fl: parseFloat(document.getElementById('sess-camber').value) || -3.2,
-          camber_fr: parseFloat(document.getElementById('sess-camber').value) || -3.2,
+          wing_angle_deg: parseFloat(document.getElementById('sess-wing').value) || 4.0,
+          fuel_liters: parseFloat(document.getElementById('sess-fuel').value) || 30.0,
           driver_notes: document.getElementById('sess-notes').value.trim()
         },
         laps: bestLapMs > 0 ? [
@@ -3142,19 +3332,27 @@
               <div class="best-lap-num">${s.bestLap}</div>
             </div>
           </div>
+          <!-- 4륜 타이어 열간 PSI 그리드 -->
           <div class="tire-box-grid">
-            <div class="tire-cell"><span>FL Hot</span> <span class="psi">${s.psiFL} PSI</span></div>
-            <div class="tire-cell"><span>FR Hot</span> <span class="psi">${s.psiFR} PSI</span></div>
-            <div class="tire-cell"><span>RL Hot</span> <span class="psi">${s.psiRL} PSI</span></div>
-            <div class="tire-cell"><span>RR Hot</span> <span class="psi">${s.psiRR} PSI</span></div>
+            <div class="tire-cell"><span>FL Hot</span> <span class="psi">${s.psiFL || 34} PSI</span></div>
+            <div class="tire-cell"><span>FR Hot</span> <span class="psi">${s.psiFR || 34} PSI</span></div>
+            <div class="tire-cell"><span>RL Hot</span> <span class="psi">${s.psiRL || 32} PSI</span></div>
+            <div class="tire-cell"><span>RR Hot</span> <span class="psi">${s.psiRR || 32} PSI</span></div>
           </div>
-          <div style="display:flex; justify-content:space-between; font-size:0.8rem; color:var(--text-muted); margin-top:0.5rem;">
-            <span>감쇠력: F ${s.damperF || '-'}단 / R ${s.damperR || '-'}단</span>
-            <span>캠버: ${s.camber ? s.camber + '°' : '-'}</span>
+
+          <!-- 4륜 캠버 & 댐퍼 & 토우 & 에어로/연료 상세 셋업 정보 -->
+          <div style="display:grid; grid-template-columns: 1fr 1fr; gap:0.35rem 0.6rem; font-size:0.75rem; color:var(--text-muted); margin-top:0.6rem; background:rgba(0,0,0,0.25); padding:0.5rem 0.65rem; border-radius:6px; border:1px solid rgba(255,255,255,0.03);">
+            <div><span style="color:#8892b0;">캠버(F/R):</span> <span style="color:#fff; font-family:var(--font-mono);">${s.camberFL || '-3.2'}° / ${s.camberRL || '-2.0'}°</span></div>
+            <div><span style="color:#8892b0;">감쇠력(F/R):</span> <span style="color:#fff; font-family:var(--font-mono);">F ${s.damperF || '12'}단 / R ${s.damperR || '8'}단</span></div>
+            <div><span style="color:#8892b0;">토우(F/R):</span> <span style="color:#fff; font-family:var(--font-mono);">${s.toeFL || '0.0'} / ${s.toeRL || '1.0'}</span></div>
+            <div><span style="color:#8892b0;">에어로/연료:</span> <span style="color:#fff; font-family:var(--font-mono);">Wing ${s.wing || '4.0'}° · ${s.fuel || '30'}L</span></div>
           </div>
-          <p style="font-size:0.8rem; color:#a0aec0; margin-top:0.5rem; background:rgba(255,255,255,0.02); padding:0.4rem; border-radius:4px;">
-            💡 <em>${s.notes || '피드백 메모 없음'}</em>
-          </p>
+
+          ${s.notes ? `
+            <p style="font-size:0.78rem; color:#a0aec0; margin-top:0.5rem; background:rgba(255,255,255,0.02); padding:0.45rem; border-radius:4px; line-height:1.4;">
+              <i data-lucide="message-square" style="width:11px; height:11px; vertical-align:middle; color:var(--accent-cyan);"></i> ${s.notes}
+            </p>
+          ` : ''}
           <div style="display:flex; gap:0.4rem; justify-content:space-between; align-items:center; margin-top:0.75rem; padding-top:0.6rem; border-top:1px solid rgba(255,255,255,0.06);">
             <button class="btn btn-cyan" style="flex:1; justify-content:center; padding:0.35rem 0.6rem; font-size:0.78rem;" onclick="openEditSessionModal(${s.id})">
               <i data-lucide="edit-3"></i> 셋업 & 랩타임 수정

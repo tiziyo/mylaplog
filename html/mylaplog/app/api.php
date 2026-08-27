@@ -487,9 +487,13 @@ if ($method === 'GET' && $uri === '/sessions') {
     $userId = requireAuth();
     $stmt = $pdo->prepare('
         SELECT ts.*, t.name as track_name, CONCAT(v.make, " ", v.model) as vehicle_name,
+               vs.cold_psi_fl, vs.cold_psi_fr, vs.cold_psi_rl, vs.cold_psi_rr,
                vs.hot_psi_fl, vs.hot_psi_fr, vs.hot_psi_rl, vs.hot_psi_rr,
                vs.damper_front_clicks, vs.damper_rear_clicks,
                vs.camber_fl, vs.camber_fr, vs.camber_rl, vs.camber_rr,
+               vs.toe_fl, vs.toe_fr, vs.toe_rl, vs.toe_rr,
+               vs.caster_fl, vs.caster_fr,
+               vs.wing_angle_deg, vs.fuel_liters,
                vs.driver_notes
         FROM track_sessions ts
         JOIN tracks t ON t.id = ts.track_id
@@ -544,7 +548,19 @@ if ($method === 'POST' && $uri === '/sessions') {
         // Insert vehicle setup
         $setup = $body['setup'] ?? [];
         if (!empty($setup)) {
-            $stmt = $pdo->prepare('INSERT INTO vehicle_setups (session_id, cold_psi_fl, cold_psi_fr, cold_psi_rl, cold_psi_rr, hot_psi_fl, hot_psi_fr, hot_psi_rl, hot_psi_rr, damper_front_clicks, damper_rear_clicks, camber_fl, camber_fr, camber_rl, camber_rr, toe_fl, toe_fr, toe_rl, toe_rr, caster_fl, caster_fr, wing_angle_deg, fuel_liters, driver_notes) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)');
+            $stmt = $pdo->prepare('
+                INSERT INTO vehicle_setups (
+                    session_id,
+                    cold_psi_fl, cold_psi_fr, cold_psi_rl, cold_psi_rr,
+                    hot_psi_fl, hot_psi_fr, hot_psi_rl, hot_psi_rr,
+                    damper_front_clicks, damper_rear_clicks,
+                    camber_fl, camber_fr, camber_rl, camber_rr,
+                    toe_fl, toe_fr, toe_rl, toe_rr,
+                    caster_fl, caster_fr,
+                    wing_angle_deg, fuel_liters,
+                    driver_notes
+                ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+            ');
             $stmt->execute([
                 $sessionId,
                 $setup['cold_psi_fl'] ?? 28.0, $setup['cold_psi_fr'] ?? 28.0, $setup['cold_psi_rl'] ?? 28.0, $setup['cold_psi_rr'] ?? 28.0,
@@ -642,42 +658,74 @@ if (($method === 'PUT' || $method === 'POST') && preg_match('#^/sessions/(\d+)$#
             if ($setupCheck->fetch()) {
                 $stmt = $pdo->prepare('
                     UPDATE vehicle_setups 
-                    SET hot_psi_fl = ?, hot_psi_fr = ?, hot_psi_rl = ?, hot_psi_rr = ?,
+                    SET cold_psi_fl = ?, cold_psi_fr = ?, cold_psi_rl = ?, cold_psi_rr = ?,
+                        hot_psi_fl = ?, hot_psi_fr = ?, hot_psi_rl = ?, hot_psi_rr = ?,
                         damper_front_clicks = ?, damper_rear_clicks = ?,
                         camber_fl = ?, camber_fr = ?, camber_rl = ?, camber_rr = ?,
+                        toe_fl = ?, toe_fr = ?, toe_rl = ?, toe_rr = ?,
+                        caster_fl = ?, caster_fr = ?,
+                        wing_angle_deg = ?, fuel_liters = ?,
                         driver_notes = ?
                     WHERE session_id = ?
                 ');
                 $stmt->execute([
+                    $setup['cold_psi_fl'] ?? 28.0, $setup['cold_psi_fr'] ?? 28.0, $setup['cold_psi_rl'] ?? 28.0, $setup['cold_psi_rr'] ?? 28.0,
                     $setup['hot_psi_fl'] ?? 34.0, $setup['hot_psi_fr'] ?? 34.0, $setup['hot_psi_rl'] ?? 32.0, $setup['hot_psi_rr'] ?? 32.0,
                     $setup['damper_front_clicks'] ?? 12, $setup['damper_rear_clicks'] ?? 8,
                     $setup['camber_fl'] ?? -3.2, $setup['camber_fr'] ?? -3.2, $setup['camber_rl'] ?? -2.0, $setup['camber_rr'] ?? -2.0,
+                    $setup['toe_fl'] ?? 0, $setup['toe_fr'] ?? 0, $setup['toe_rl'] ?? 1.0, $setup['toe_rr'] ?? 1.0,
+                    $setup['caster_fl'] ?? 6.5, $setup['caster_fr'] ?? 6.5,
+                    $setup['wing_angle_deg'] ?? 4.0,
+                    $setup['fuel_liters'] ?? 30.0,
                     $setup['driver_notes'] ?? '',
                     $sessionId
                 ]);
             } else {
-                $stmt = $pdo->prepare('INSERT INTO vehicle_setups (session_id, hot_psi_fl, hot_psi_fr, hot_psi_rl, hot_psi_rr, damper_front_clicks, damper_rear_clicks, camber_fl, camber_fr, camber_rl, camber_rr, driver_notes) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)');
+                $stmt = $pdo->prepare('
+                    INSERT INTO vehicle_setups (
+                        session_id,
+                        cold_psi_fl, cold_psi_fr, cold_psi_rl, cold_psi_rr,
+                        hot_psi_fl, hot_psi_fr, hot_psi_rl, hot_psi_rr,
+                        damper_front_clicks, damper_rear_clicks,
+                        camber_fl, camber_fr, camber_rl, camber_rr,
+                        toe_fl, toe_fr, toe_rl, toe_rr,
+                        caster_fl, caster_fr,
+                        wing_angle_deg, fuel_liters,
+                        driver_notes
+                    ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+                ');
                 $stmt->execute([
                     $sessionId,
+                    $setup['cold_psi_fl'] ?? 28.0, $setup['cold_psi_fr'] ?? 28.0, $setup['cold_psi_rl'] ?? 28.0, $setup['cold_psi_rr'] ?? 28.0,
                     $setup['hot_psi_fl'] ?? 34.0, $setup['hot_psi_fr'] ?? 34.0, $setup['hot_psi_rl'] ?? 32.0, $setup['hot_psi_rr'] ?? 32.0,
                     $setup['damper_front_clicks'] ?? 12, $setup['damper_rear_clicks'] ?? 8,
                     $setup['camber_fl'] ?? -3.2, $setup['camber_fr'] ?? -3.2, $setup['camber_rl'] ?? -2.0, $setup['camber_rr'] ?? -2.0,
+                    $setup['toe_fl'] ?? 0, $setup['toe_fr'] ?? 0, $setup['toe_rl'] ?? 1.0, $setup['toe_rr'] ?? 1.0,
+                    $setup['caster_fl'] ?? 6.5, $setup['caster_fr'] ?? 6.5,
+                    $setup['wing_angle_deg'] ?? 4.0,
+                    $setup['fuel_liters'] ?? 30.0,
                     $setup['driver_notes'] ?? ''
                 ]);
             }
         }
 
-        $laps = $body['laps'] ?? [];
+        // Update lap times
+        if (empty($laps) && $bestLapMs > 0) {
+            $laps = [
+                ['lap_number' => 1, 'lap_time_ms' => $bestLapMs, 'is_valid' => 1, 'is_best' => 1]
+            ];
+        }
+
         if (!empty($laps)) {
             $pdo->prepare('DELETE FROM lap_times WHERE session_id = ?')->execute([$sessionId]);
             $stmt = $pdo->prepare('INSERT INTO lap_times (session_id, lap_number, lap_time_ms, is_valid, is_best) VALUES (?,?,?,?,?)');
             foreach ($laps as $lap) {
                 $stmt->execute([
                     $sessionId,
-                    $lap['lap_number'],
+                    $lap['lap_number'] ?? 1,
                     $lap['lap_time_ms'],
                     $lap['is_valid'] ?? 1,
-                    $lap['is_best'] ?? 0
+                    $lap['is_best'] ?? 1
                 ]);
             }
         }
