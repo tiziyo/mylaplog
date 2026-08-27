@@ -502,7 +502,7 @@ if ($method === 'GET' && $uri === '/sessions') {
         LEFT JOIN teams t2 ON t2.id = COALESCE(ts.team_id, v.team_id)
         LEFT JOIN vehicle_setups vs ON vs.session_id = ts.id
         WHERE ts.user_id = ?
-        ORDER BY ts.session_date DESC, ts.session_number DESC
+        ORDER BY ts.created_at DESC, ts.id DESC
     ');
     $stmt->execute([$userId]);
     $sessions = $stmt->fetchAll();
