@@ -1081,8 +1081,8 @@
                 <span>등록된 개러지 머신</span>
                 <i data-lucide="car" style="color:var(--accent-orange)"></i>
               </div>
-              <div class="stat-val" id="stat-total-cars">2</div>
-              <div class="stat-sub">주력: Avante N TCR</div>
+              <div class="stat-val" id="stat-total-cars">0</div>
+              <div class="stat-sub" id="stat-garage-ownership-sub">개인소유(0), 팀소유(0)</div>
             </div>
 
             <div class="stat-card">
@@ -2270,6 +2270,12 @@
 
       // 3. Garage Cars
       document.getElementById('stat-total-cars').innerText = garage.length;
+      const personalCars = garage.filter(v => !v.teamId && !v.team_id && (!v.team_name || v.team_name === '')).length;
+      const teamCars = garage.filter(v => (v.teamId || v.team_id || (v.team_name && v.team_name !== ''))).length;
+      const garageSub = document.getElementById('stat-garage-ownership-sub');
+      if (garageSub) {
+        garageSub.innerText = `개인소유(${personalCars}), 팀소유(${teamCars})`;
+      }
 
       // 4. Team Info
       document.getElementById('stat-team-name-card').innerText = team.name || '팀 미소속';
