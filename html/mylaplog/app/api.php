@@ -277,6 +277,48 @@ if ($method === 'POST' && $uri === '/teams/join') {
     jsonResponse(200, ['message' => "{$team['name']} 팀에 가입되었습니다.", 'team' => $team]);
 }
 
+// PUT /teams/:id (팀 정보 수정 - 팀장 전용)
+if (($method === 'PUT' || $method === 'POST') && preg_match('#^/teams/(\d+)$#', $uri, $m)) {
+    $userId = requireAuth();
+    $teamId = (int)$m[1];
+    $body = getBody();
+
+    // Check membership & role (Must be CHIEF / OWNER)
+    $stmt = $pdo->prepare('SELECT tm.role, t.owner_id, t.name FROM team_members tm JOIN teams t ON t.id = tm.team_id WHERE tm.team_id = ? AND tm.user_id = ?');
+    $stmt->execute([$teamId, $userId]);
+    $membership = $stmt->fetch();
+
+    if (!$membership) {
+        jsonResponse(404, ['error' => '소속된 팀을 찾을 수 없습니다.']);
+    }
+
+    $isOwner = ($membership['owner_id'] == $userId || $membership['role'] === 'CHIEF' || $membership['role'] === 'OWNER');
+    if (!$isOwner) {
+        jsonResponse(403, ['error' => '팀장(Chief) 권한을 가진 멤버만 팀 정보를 수정할 수 있습니다.']);
+    }
+
+    $name = trim($body['name'] ?? '');
+    $homeTrack = $body['home_track'] ?? '인제 스피디움';
+    $desc = $body['description'] ?? '';
+
+    if (!$name) {
+        jsonResponse(400, ['error' => '팀명을 입력하세요.']);
+    }
+
+    $stmt = $pdo->prepare('UPDATE teams SET name = ?, home_track = ?, description = ? WHERE id = ?');
+    $stmt->execute([$name, $homeTrack, $desc, $teamId]);
+
+    jsonResponse(200, [
+        'message' => "'{$name}' 팀 정보가 성공적으로 수정되었습니다.",
+        'team' => [
+            'id' => $teamId,
+            'name' => $name,
+            'home_track' => $homeTrack,
+            'description' => $desc
+        ]
+    ]);
+}
+
 // DELETE /teams/:id (팀 삭제 또는 탈퇴)
 if ($method === 'DELETE' && preg_match('#^/teams/(\d+)$#', $uri, $m)) {
     $userId = requireAuth();

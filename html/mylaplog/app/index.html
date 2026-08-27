@@ -1266,11 +1266,14 @@
                   <span style="font-size:0.8rem; color:var(--text-muted)">초대 코드:</span>
                   <strong id="team-hub-code" style="font-family:var(--font-mono); color:var(--accent-cyan); letter-spacing:1px;">APEX-KOR-2026</strong>
                   <button class="btn btn-cyan" style="padding:0.3rem 0.6rem; font-size:0.75rem;" onclick="copyInviteCode()">복사</button>
+                <div style="display:flex; gap:0.5rem; margin-top:1rem;">
+                  <button class="btn btn-cyan" id="btn-team-action-edit" style="flex:1; justify-content:center; padding:0.6rem; font-size:0.85rem; display:none;" onclick="openEditTeamModal(team.id)">
+                    <i data-lucide="edit-3"></i> 팀 정보 수정
+                  </button>
+                  <button class="btn btn-secondary" id="btn-team-action-delete" style="flex:1; justify-content:center; padding:0.6rem; font-size:0.85rem; background:rgba(255,42,75,0.12); border-color:var(--accent-red); color:#ff6b81; display:none;" onclick="handleDeleteOrLeaveTeam()">
+                    <i data-lucide="trash-2"></i> <span id="team-action-btn-text">팀 삭제 (해체)</span>
+                  </button>
                 </div>
-
-                <button class="btn btn-secondary" id="btn-team-action-delete" style="width:100%; justify-content:center; padding:0.6rem; font-size:0.85rem; background:rgba(255,42,75,0.12); border-color:var(--accent-red); color:#ff6b81; display:none;" onclick="handleDeleteOrLeaveTeam()">
-                  <i data-lucide="trash-2"></i> <span id="team-action-btn-text">팀 삭제 (해체)</span>
-                </button>
               </div>
             </div>
 
@@ -1494,16 +1497,17 @@
     </div>
   </div>
 
-  <!-- ================= MODAL: CREATE TEAM ================= -->
+  <!-- ================= MODAL: CREATE / EDIT TEAM ================= -->
   <div class="modal-overlay" id="create-team-modal">
     <div class="modal-content" style="max-width: 540px;">
       <div class="modal-header">
         <h3 style="font-family:var(--font-display); color:#fff; font-size:1.3rem;">
-          <i data-lucide="shield-plus" style="color:var(--accent-green)"></i> 새 레이싱 팀/크루 등록
+          <i data-lucide="shield-plus" style="color:var(--accent-green)"></i> <span id="team-modal-title">새 레이싱 팀/크루 등록</span>
         </h3>
         <button class="modal-close-btn" onclick="closeModal('create-team-modal')">&times;</button>
       </div>
-      <form id="create-team-form" onsubmit="handleCreateTeam(event)">
+      <form id="create-team-form" onsubmit="handleSaveTeam(event)">
+        <input type="hidden" id="edit-team-id" value="">
         <div class="form-group" style="margin-bottom:1rem;">
           <label>레이싱 팀명 (Team Name)</label>
           <input type="text" class="form-control" id="new-team-name" placeholder="예: Monster Garage Racing" required>
@@ -1523,8 +1527,8 @@
         </div>
         <div style="display:flex; justify-content:flex-end; gap:0.75rem;">
           <button type="button" class="btn btn-secondary" onclick="closeModal('create-team-modal')">취소</button>
-          <button type="submit" class="btn btn-primary">
-            <i data-lucide="check"></i> 팀 생성 및 등록
+          <button type="submit" class="btn btn-primary" id="team-modal-submit-btn">
+            <i data-lucide="check"></i> <span id="team-modal-submit-text">팀 생성 및 등록</span>
           </button>
         </div>
       </form>
@@ -2195,6 +2199,52 @@
       openModal('create-team-modal');
     }
 
+    // =============================================
+    // TEAMS: Load / Switch / Create / Edit / Join / Delete / Render
+    // =============================================
+    function openCreateTeamModal() {
+      if (!user.isLoggedIn) {
+        showToast('로그인이 필요한 기능입니다. 먼저 로그인해주세요.');
+        openModal('auth-modal');
+        return;
+      }
+      if (userTeams.length >= 10) {
+        showToast('팀은 최대 10개까지만 생성하거나 가입할 수 있습니다. (현재 10개 소속)');
+        return;
+      }
+      document.getElementById('create-team-form').reset();
+      document.getElementById('edit-team-id').value = '';
+      document.getElementById('team-modal-title').innerText = '새 레이싱 팀/크루 등록';
+      document.getElementById('team-modal-submit-text').innerText = '팀 생성 및 등록';
+      openModal('create-team-modal');
+    }
+
+    function openEditTeamModal(teamId) {
+      if (!user.isLoggedIn) {
+        showToast('로그인이 필요한 기능입니다. 먼저 로그인해주세요.');
+        openModal('auth-modal');
+        return;
+      }
+      const t = userTeams.find(item => item.id == teamId);
+      if (!t) {
+        showToast('팀 정보를 찾을 수 없습니다.');
+        return;
+      }
+      const isChief = (t.role && (t.role.toUpperCase() === 'CHIEF' || t.role.toUpperCase() === 'OWNER')) || (t.owner_id == user.id);
+      if (!isChief) {
+        showToast('팀장(Chief) 권한을 가진 멤버만 팀 정보를 수정할 수 있습니다.');
+        return;
+      }
+
+      document.getElementById('edit-team-id').value = t.id;
+      document.getElementById('new-team-name').value = t.name || '';
+      document.getElementById('new-team-track').value = t.home_track || '인제 스피디움';
+      document.getElementById('new-team-desc').value = t.description || '';
+      document.getElementById('team-modal-title').innerText = `${t.name} 팀 정보 수정`;
+      document.getElementById('team-modal-submit-text').innerText = '수정 내용 저장';
+      openModal('create-team-modal');
+    }
+
     function openJoinTeamModal() {
       if (!user.isLoggedIn) {
         showToast('로그인이 필요한 기능입니다. 먼저 로그인해주세요.');
@@ -2275,33 +2325,42 @@
       renderDashboardMetrics();
     }
 
-    async function handleCreateTeam(e) {
+    async function handleSaveTeam(e) {
       e.preventDefault();
       if (!user.isLoggedIn) {
         showToast('로그인이 필요한 기능입니다. 먼저 로그인해주세요.');
         openModal('auth-modal');
         return;
       }
-      if (userTeams.length >= 10) {
+
+      const editId = document.getElementById('edit-team-id').value;
+      const isEdit = !!editId;
+
+      if (!isEdit && userTeams.length >= 10) {
         showToast('팀은 최대 10개까지만 생성하거나 가입할 수 있습니다.');
         closeModal('create-team-modal');
         return;
       }
 
-      const teamName = document.getElementById('new-team-name').value;
+      const teamName = document.getElementById('new-team-name').value.trim();
       const homeTrack = document.getElementById('new-team-track').value;
-      const desc = document.getElementById('new-team-desc').value;
+      const desc = document.getElementById('new-team-desc').value.trim();
 
-      const res = await api('/teams', 'POST', { name: teamName, home_track: homeTrack, description: desc });
+      const payload = { name: teamName, home_track: homeTrack, description: desc };
+      const endpoint = isEdit ? `/teams/${editId}` : '/teams';
+      const method = isEdit ? 'PUT' : 'POST';
+
+      const res = await api(endpoint, method, payload);
 
       if (res.ok) {
         closeModal('create-team-modal');
-        showToast(`'${teamName}' 팀 등록 완료! (코드: ${res.team.invite_code})`);
+        showToast(isEdit ? `'${teamName}' 팀 정보가 성공적으로 수정되었습니다!` : `'${teamName}' 팀 등록 완료! (코드: ${res.team.invite_code})`);
         document.getElementById('create-team-form').reset();
-        await loadTeamData(res.team.id);
+        document.getElementById('edit-team-id').value = '';
+        await loadTeamData(isEdit ? editId : (res.team ? res.team.id : null));
         renderDashboardMetrics();
       } else {
-        showToast(res.error || '팀 생성 실패');
+        showToast(res.error || (isEdit ? '팀 정보 수정 실패' : '팀 생성 실패'));
       }
     }
 
@@ -2445,8 +2504,13 @@
 
               <div style="display:flex; gap:0.4rem; justify-content:space-between; align-items:center; padding-top:0.65rem; border-top:1px solid rgba(255,255,255,0.08);">
                 <button type="button" class="btn ${isCurrentActive ? 'btn-cyan' : 'btn-secondary'}" style="flex:1; justify-content:center; padding:0.4rem 0.65rem; font-size:0.8rem;" onclick="handleSwitchActiveTeam(${t.id})">
-                  <i data-lucide="${isCurrentActive ? 'check-circle' : 'eye'}"></i> ${isCurrentActive ? '선택됨 (조회 중)' : '팀 선택 & 세부조회'}
+                  <i data-lucide="${isCurrentActive ? 'check-circle' : 'eye'}"></i> ${isCurrentActive ? '선택됨 (조회 중)' : '선택 & 조회'}
                 </button>
+                ${(user.isLoggedIn && isChief) ? `
+                  <button type="button" class="btn btn-secondary" style="padding:0.4rem 0.6rem; font-size:0.78rem; color:var(--accent-cyan); border-color:rgba(0,240,255,0.3);" onclick="openEditTeamModal(${t.id})" title="팀 정보 수정 (팀장 전용)">
+                    <i data-lucide="edit-3" style="width:14px; height:14px;"></i>
+                  </button>
+                ` : ''}
                 ${user.isLoggedIn ? `
                   <button type="button" class="btn btn-secondary" style="padding:0.4rem 0.6rem; font-size:0.78rem; background:rgba(255,42,75,0.12); border-color:rgba(255,42,75,0.35); color:#ff6b81;" onclick="handleDeleteOrLeaveSpecificTeam(${t.id}, '${escapedName}', ${isChief})" title="${isChief ? '팀 삭제(해체)' : '팀 탈퇴'}">
                     <i data-lucide="trash-2" style="width:14px; height:14px;"></i>
@@ -2459,27 +2523,7 @@
         }
       }
 
-      // 4. Delete/Leave button for active team
-      const deleteBtn = document.getElementById('btn-team-action-delete');
-      const deleteBtnText = document.getElementById('team-action-btn-text');
-      const roleBadge = document.getElementById('team-my-role-badge');
-      
-      if (deleteBtn && deleteBtnText) {
-        if (user.isLoggedIn && team && team.id) {
-          deleteBtn.style.display = 'inline-flex';
-          const isChief = (team.role && (team.role.toUpperCase() === 'CHIEF' || team.role.toUpperCase() === 'OWNER')) || (team.owner_id == user.id);
-          deleteBtnText.innerText = isChief ? '팀 삭제 (해체)' : '팀 탈퇴';
-          deleteBtn.title = isChief ? '팀 전체를 영구 삭제합니다' : '이 팀에서 탈퇴합니다';
-        } else {
-          deleteBtn.style.display = 'none';
-        }
-      }
-
-      if (roleBadge) {
-        roleBadge.innerText = team.role ? team.role.toUpperCase() : 'MEMBER';
-      }
-
-      // 5. Active Team Profile Detail
+      // 4. Active Team Profile Detail
       document.getElementById('team-hub-name').innerText = team.name || '소속 팀이 없습니다';
       document.getElementById('team-hub-desc').innerText = team.desc || (user.isLoggedIn ? '상단 목록에서 팀을 선택하거나 새 팀을 생성하세요.' : '게스트 체험용 샘플 데이터입니다.');
       document.getElementById('team-hub-code').innerText = team.code || '-';
@@ -2488,6 +2532,35 @@
       const homeTrackEl = document.getElementById('team-hub-hometrack');
       if (homeTrackEl) {
         homeTrackEl.innerText = team.homeTrack ? `홈 서킷: ${team.homeTrack}` : '';
+      }
+
+      const roleBadge = document.getElementById('team-my-role-badge');
+      if (roleBadge) {
+        roleBadge.innerText = team.role ? team.role.toUpperCase() : 'MEMBER';
+      }
+
+      // Active Team Action Buttons (Edit & Delete)
+      const isChiefActive = (team.role && (team.role.toUpperCase() === 'CHIEF' || team.role.toUpperCase() === 'OWNER')) || (team.owner_id == user.id);
+      const editActiveBtn = document.getElementById('btn-team-action-edit');
+      const deleteBtn = document.getElementById('btn-team-action-delete');
+      const deleteBtnText = document.getElementById('team-action-btn-text');
+      
+      if (deleteBtn && deleteBtnText) {
+        if (user.isLoggedIn && team && team.id) {
+          deleteBtn.style.display = 'inline-flex';
+          deleteBtnText.innerText = isChiefActive ? '팀 삭제 (해체)' : '팀 탈퇴';
+          deleteBtn.title = isChiefActive ? '팀 전체를 영구 삭제합니다' : '이 팀에서 탈퇴합니다';
+        } else {
+          deleteBtn.style.display = 'none';
+        }
+      }
+
+      if (editActiveBtn) {
+        if (user.isLoggedIn && team && team.id && isChiefActive) {
+          editActiveBtn.style.display = 'inline-flex';
+        } else {
+          editActiveBtn.style.display = 'none';
+        }
       }
 
       // 6. Active Team Members List
