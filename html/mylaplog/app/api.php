@@ -793,9 +793,10 @@ if ($method === 'GET' && preg_match('#^/sessions/(\d+)$#', $uri, $m)) {
 
 // GET /leaderboard/:trackId
 if ($method === 'GET' && preg_match('#^/leaderboard/(\d+)$#', $uri, $m)) {
-    $trackId = $m[1];
+    $trackId = (int)$m[1];
     $stmt = $pdo->prepare('
-        SELECT u.name as driver_name, u.avatar,
+        SELECT ts.id as session_id,
+               u.name as driver_name, u.avatar,
                CONCAT(v.make, " ", v.model) as vehicle_name, v.tire_model,
                t2.name as team_name,
                ts.best_lap_ms, ts.session_date,
@@ -803,8 +804,7 @@ if ($method === 'GET' && preg_match('#^/leaderboard/(\d+)$#', $uri, $m)) {
         FROM track_sessions ts
         JOIN users u ON u.id = ts.user_id
         JOIN vehicles v ON v.id = ts.vehicle_id
-        LEFT JOIN team_members tm ON tm.user_id = u.id
-        LEFT JOIN teams t2 ON t2.id = tm.team_id
+        LEFT JOIN teams t2 ON t2.id = COALESCE(ts.team_id, v.team_id)
         LEFT JOIN vehicle_setups vs ON vs.session_id = ts.id
         WHERE ts.track_id = ? AND ts.best_lap_ms > 0
         ORDER BY ts.best_lap_ms ASC
