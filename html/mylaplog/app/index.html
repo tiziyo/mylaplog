@@ -1072,8 +1072,8 @@
                 <span>인제 스피디움 베스트</span>
                 <i data-lucide="timer" style="color:var(--accent-cyan)"></i>
               </div>
-              <div class="stat-val" id="stat-best-inje">01:52.348</div>
-              <div class="stat-sub"><i data-lucide="arrow-down-right"></i> 이전 기록 대비 -0.42s</div>
+              <div class="stat-val" id="stat-best-inje">--:--.---</div>
+              <div class="stat-sub" id="stat-best-inje-delta"><i data-lucide="arrow-down-right"></i> 기록 없음</div>
             </div>
 
             <div class="stat-card">
@@ -2250,22 +2250,62 @@
       // 1. Total sessions
       document.getElementById('stat-total-sessions').innerText = sessions.length;
 
-      // 2. Inje best lap
+      // 2. Inje best lap & Delta vs Runner-up (Same circuit, same driver, same vehicle model)
       const injeSessions = sessions.filter(s => s.track && s.track.includes('인제'));
+      const injeValElem = document.getElementById('stat-best-inje');
+      const injeDeltaElem = document.getElementById('stat-best-inje-delta');
+
       if (injeSessions.length > 0) {
-        // find minimum best lap ms
-        let minLap = injeSessions[0].bestLap;
+        // 1) Find the best session (minimum best lap ms)
+        let bestInjeSession = injeSessions[0];
         let minMs = injeSessions[0].bestLapMs || lapStrToMs(injeSessions[0].bestLap);
+
         injeSessions.forEach(s => {
           const ms = s.bestLapMs || lapStrToMs(s.bestLap);
           if (ms > 0 && ms < minMs) {
             minMs = ms;
-            minLap = s.bestLap;
+            bestInjeSession = s;
           }
         });
-        document.getElementById('stat-best-inje').innerText = minLap;
+
+        if (injeValElem) injeValElem.innerText = bestInjeSession.bestLap;
+
+        // 2) Find the runner-up (차순위) session with the SAME vehicle model
+        const targetVehicleId = bestInjeSession.vehicleId;
+        const targetVehicleName = bestInjeSession.vehicle;
+
+        const sameCarInjeSessions = injeSessions.filter(s => {
+          const isSameCar = targetVehicleId ? (s.vehicleId == targetVehicleId) : (s.vehicle === targetVehicleName);
+          return isSameCar && s.id != bestInjeSession.id;
+        });
+
+        if (sameCarInjeSessions.length > 0) {
+          let runnerUpMs = Infinity;
+          sameCarInjeSessions.forEach(s => {
+            const ms = s.bestLapMs || lapStrToMs(s.bestLap);
+            if (ms > 0 && ms < runnerUpMs) {
+              runnerUpMs = ms;
+            }
+          });
+
+          if (runnerUpMs < Infinity && runnerUpMs >= minMs) {
+            const diffSec = ((runnerUpMs - minMs) / 1000).toFixed(3);
+            if (injeDeltaElem) {
+              injeDeltaElem.innerHTML = `<i data-lucide="arrow-down-right"></i> 차순위 대비 -${diffSec}s`;
+            }
+          } else if (injeDeltaElem) {
+            injeDeltaElem.innerHTML = `<i data-lucide="award"></i> 베스트 랩 달성`;
+          }
+        } else {
+          if (injeDeltaElem) {
+            injeDeltaElem.innerHTML = `<i data-lucide="check-circle"></i> 단독 기록 (차순위 없음)`;
+          }
+        }
       } else {
-        document.getElementById('stat-best-inje').innerText = '--:--.---';
+        if (injeValElem) injeValElem.innerText = '--:--.---';
+        if (injeDeltaElem) {
+          injeDeltaElem.innerHTML = `<i data-lucide="clock"></i> 세션 기록 없음`;
+        }
       }
 
       // 3. Garage Cars
