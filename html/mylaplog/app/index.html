@@ -2307,36 +2307,54 @@
         return;
       }
 
-      // Show latest session highlight
-      const s = sessions[0];
+      // Find the absolute fastest (best lap) session among all sessions
+      let bestSession = sessions[0];
+      let minMs = Infinity;
+      sessions.forEach(sess => {
+        const ms = sess.bestLapMs || lapStrToMs(sess.bestLap);
+        if (ms > 0 && ms < minMs) {
+          minMs = ms;
+          bestSession = sess;
+        }
+      });
+      const s = bestSession;
       const isGuestBadge = !user.isLoggedIn ? '<small style="color:var(--accent-cyan); font-size:0.75rem; margin-left:0.5rem;">[게스트 샘플]</small>' : '';
       
       container.innerHTML = `
-        <div class="card" style="background: linear-gradient(135deg, rgba(255, 42, 75, 0.1), rgba(0, 240, 255, 0.05)); border-color: var(--accent-red-glow);">
+        <div class="card" style="background: linear-gradient(135deg, rgba(255, 42, 75, 0.12), rgba(0, 240, 255, 0.06)); border-color: rgba(255, 215, 0, 0.4); box-shadow: 0 4px 20px rgba(0,0,0,0.3);">
           <div class="card-header">
             <div class="card-title">
-              <i data-lucide="flame" style="color:var(--accent-red)"></i>
-              최근 트랙데이 세션 하이라이트 (${s.track}) ${isGuestBadge}
+              <i data-lucide="trophy" style="color:#ffd700"></i>
+              베스트 트랙데이 세션 하이라이트 (${s.track}) ${isGuestBadge}
             </div>
-            <span class="circuit-badge"><i data-lucide="calendar"></i> ${s.date} 세션 ${s.sessionNum}</span>
+            <div style="display:flex; align-items:center; gap:0.5rem;">
+              <span class="circuit-badge" style="background:rgba(255,215,0,0.15); border-color:#ffd700; color:#ffd700;"><i data-lucide="award"></i> Best Record</span>
+              <span class="circuit-badge"><i data-lucide="calendar"></i> ${s.date} 세션 #${s.sessionNum}</span>
+            </div>
           </div>
           <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1.5rem;">
             <div>
-              <p style="color:var(--text-muted); font-size:0.85rem;">Session ${s.sessionNum} · ${s.vehicle} · 마른 노면(Dry)</p>
+              <p style="color:var(--text-muted); font-size:0.85rem; display:flex; align-items:center; gap:0.4rem; flex-wrap:wrap;">
+                <span>Session #${s.sessionNum} · ${s.vehicle}</span>
+                <span style="color:${s.teamName ? 'var(--accent-cyan)' : 'var(--text-muted)'}; background:rgba(255,255,255,0.04); border:1px solid ${s.teamName ? 'rgba(0,240,255,0.3)' : 'rgba(255,255,255,0.08)'}; padding:0.1rem 0.4rem; border-radius:4px; font-size:0.75rem;">
+                  ${s.teamName || '개인 소유 (미소속)'}
+                </span>
+                <span>· ${s.weather || 'DRY'}</span>
+              </p>
               <h2 style="font-family:var(--font-mono); font-size:2.6rem; color:#fff; margin: 0.3rem 0;">
-                ${s.bestLap} <small style="font-size:1rem; color:var(--accent-green);">Best Record</small>
+                ${s.bestLap} <small style="font-size:1rem; color:var(--accent-cyan); font-family:var(--font-display); font-weight:700;">Fastest Lap</small>
               </h2>
-              <div style="display:flex; gap:1rem; font-family:var(--font-mono); font-size:0.85rem; color:var(--text-muted);">
-                <span>FL: <strong style="color:#fff">${s.psiFL} PSI</strong></span>
-                <span>FR: <strong style="color:#fff">${s.psiFR} PSI</strong></span>
-                <span>감쇠력: <strong style="color:var(--accent-cyan)">F ${s.damperF || '-'} / R ${s.damperR || '-'}</strong></span>
+              <div style="display:flex; gap:1rem; font-family:var(--font-mono); font-size:0.85rem; color:var(--text-muted); flex-wrap:wrap;">
+                <span>FL/FR Hot: <strong style="color:#fff">${s.psiFL || 34}/${s.psiFR || 34} PSI</strong></span>
+                <span>RL/RR Hot: <strong style="color:#fff">${s.psiRL || 32}/${s.psiRR || 32} PSI</strong></span>
+                <span>감쇠력: <strong style="color:var(--accent-cyan)">F ${s.damperF || '12'} / R ${s.damperR || '8'}단</strong></span>
               </div>
             </div>
-            <div style="background: rgba(0,0,0,0.5); padding: 1rem 1.5rem; border-radius: 8px; border: 1px solid var(--border-subtle);">
-              <p style="font-size:0.8rem; color:var(--text-muted); margin-bottom: 0.4rem;">주요 셋업 요약</p>
-              <p style="font-size:0.9rem; color:#fff;">타이어 열간: <strong>FL ${s.psiFL} / FR ${s.psiFR} PSI</strong></p>
-              <p style="font-size:0.9rem; color:#fff;">감쇠력: <strong>F ${s.damperF || '-'} / R ${s.damperR || '-'} Clicks</strong></p>
-              <p style="font-size:0.9rem; color:#fff;">캠버: <strong>${s.camber ? s.camber + '°' : '-'}</strong></p>
+            <div style="background: rgba(0,0,0,0.45); padding: 1rem 1.4rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.06); min-width:240px;">
+              <p style="font-size:0.78rem; color:var(--text-muted); margin-bottom: 0.4rem; font-weight:700; text-transform:uppercase; letter-spacing:0.5px;">베스트 랩 당시 머신 셋업</p>
+              <p style="font-size:0.85rem; color:#fff; margin-bottom:0.25rem;">타이어 열간: <strong style="color:var(--accent-cyan);">FL ${s.psiFL || 34} / FR ${s.psiFR || 34} PSI</strong></p>
+              <p style="font-size:0.85rem; color:#fff; margin-bottom:0.25rem;">캠버(F/R): <strong style="color:#fff;">${s.camberFL || s.camber || '-3.2'}° / ${s.camberRL || '-2.0'}°</strong></p>
+              <p style="font-size:0.85rem; color:#fff;">감쇠력(F/R): <strong style="color:var(--accent-orange);">F ${s.damperF || '12'}단 / R ${s.damperR || '8'}단</strong></p>
             </div>
           </div>
         </div>
