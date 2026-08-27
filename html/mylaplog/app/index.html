@@ -1615,6 +1615,12 @@
             <input type="text" class="form-control" id="veh-suspension" placeholder="예: 일체형 코일오버 (F 10k / R 8k), 캠버 플레이트">
           </div>
           <div class="form-group full-width">
+            <label>소속 레이싱 팀 (선택 사항)</label>
+            <select class="form-control" id="veh-team">
+              <option value="">개인 소유 (소속 팀 없음)</option>
+            </select>
+          </div>
+          <div class="form-group full-width">
             <label>데이터 공개 범위</label>
             <select class="form-control" id="veh-visibility">
               <option value="TEAM">팀원 전체 공유 (Team Shared - 권장)</option>
@@ -2660,6 +2666,26 @@
     // =============================================
     // VEHICLES: Load / Add / Edit / Delete / Render
     // =============================================
+    function populateVehicleTeamSelect(selectedTeamId = null) {
+      const select = document.getElementById('veh-team');
+      if (!select) return;
+      select.innerHTML = '<option value="">개인 소유 (소속 팀 없음)</option>';
+      if (userTeams && userTeams.length > 0) {
+        userTeams.forEach(t => {
+          const opt = document.createElement('option');
+          opt.value = t.id;
+          opt.innerText = `${t.name} (${t.role || 'DRIVER'})`;
+          if (selectedTeamId && t.id == selectedTeamId) {
+            opt.selected = true;
+          }
+          select.appendChild(opt);
+        });
+      }
+      if (!selectedTeamId && activeTeamId) {
+        select.value = activeTeamId;
+      }
+    }
+
     function openAddVehicleModal() {
       if (!user.isLoggedIn) {
         showToast('로그인이 필요한 기능입니다. 먼저 로그인해주세요.');
@@ -2673,6 +2699,8 @@
       document.getElementById('veh-tire-size').value = '245/40R18';
       document.getElementById('vehicle-modal-title').innerText = '개러지 머신 등록';
       document.getElementById('vehicle-modal-submit-text').innerText = '개러지에 저장';
+      
+      populateVehicleTeamSelect(activeTeamId);
       openModal('vehicle-modal');
     }
 
@@ -2698,6 +2726,8 @@
       document.getElementById('veh-suspension').value = (v.suspension && v.suspension !== '-') ? v.suspension : '';
       document.getElementById('veh-visibility').value = v.visibility || 'TEAM';
 
+      populateVehicleTeamSelect(v.team_id || v.teamId);
+
       document.getElementById('vehicle-modal-title').innerText = `${v.make} ${v.model} 스펙 정보 수정`;
       document.getElementById('vehicle-modal-submit-text').innerText = '수정 내용 저장';
       openModal('vehicle-modal');
@@ -2718,7 +2748,10 @@
           tire_size_rear: v.tire_size_rear,
           tire_size: v.tire_size_front,
           suspension: v.suspension_spec || '-',
-          visibility: v.visibility
+          visibility: v.visibility,
+          teamId: v.team_id,
+          team_id: v.team_id,
+          teamName: v.team_name || (v.team_id ? '소속 팀' : null)
         }));
       } else {
         garage = [];
@@ -2736,6 +2769,7 @@
 
       const editId = document.getElementById('edit-vehicle-id').value;
       const isEdit = !!editId;
+      const teamIdVal = document.getElementById('veh-team').value;
 
       const payload = {
         make: document.getElementById('veh-make').value.trim(),
@@ -2747,7 +2781,7 @@
         tire_size_rear: document.getElementById('veh-tire-size').value.trim(),
         suspension_spec: document.getElementById('veh-suspension').value.trim() || '기본 서스펜션',
         visibility: document.getElementById('veh-visibility').value,
-        team_id: team.id || null
+        team_id: teamIdVal ? parseInt(teamIdVal) : null
       };
 
       const endpoint = isEdit ? `/vehicles/${editId}` : '/vehicles';
@@ -2809,8 +2843,15 @@
             <span class="vehicle-name">${fullName}</span>
             <span class="vehicle-badge-active">${v.visibility}</span>
           </div>
-          <p style="color:var(--accent-red); font-family:var(--font-mono); font-weight:700; font-size:0.95rem; margin-bottom:0.75rem;">${v.power} HP · ${v.year}년식</p>
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
+            <p style="color:var(--accent-red); font-family:var(--font-mono); font-weight:700; font-size:0.95rem; margin:0;">${v.power} HP · ${v.year}년식</p>
+            <span style="font-size:0.75rem; color:${v.teamName ? 'var(--accent-cyan)' : 'var(--text-muted)'}; background:rgba(255,255,255,0.04); border:1px solid ${v.teamName ? 'rgba(0,240,255,0.3)' : 'rgba(255,255,255,0.08)'}; padding:0.15rem 0.5rem; border-radius:4px; font-family:var(--font-display); display:inline-flex; align-items:center; gap:0.3rem;">
+              <i data-lucide="${v.teamName ? 'shield' : 'user'}" style="width:11px; height:11px;"></i>
+              ${v.teamName || '개인 소유'}
+            </span>
+          </div>
           <ul class="vehicle-specs-list">
+            <li><span>소속 팀</span> <span class="val" style="color:${v.teamName ? 'var(--accent-cyan)' : 'var(--text-muted)'};">${v.teamName || '개인 소유 (미소속)'}</span></li>
             <li><span>장착 타이어</span> <span class="val">${v.tire || v.tire_model || '-'}</span></li>
             <li><span>하체 셋업</span> <span class="val">${v.suspension || '-'}</span></li>
           </ul>

@@ -388,7 +388,13 @@ if ($method === 'GET' && preg_match('#^/teams/(\d+)/members$#', $uri, $m)) {
 // GET /vehicles
 if ($method === 'GET' && $uri === '/vehicles') {
     $userId = requireAuth();
-    $stmt = $pdo->prepare('SELECT * FROM vehicles WHERE user_id = ? ORDER BY is_active DESC, created_at DESC');
+    $stmt = $pdo->prepare('
+        SELECT v.*, t.name as team_name, t.home_track as team_home_track
+        FROM vehicles v
+        LEFT JOIN teams t ON t.id = v.team_id
+        WHERE v.user_id = ?
+        ORDER BY v.is_active DESC, v.created_at DESC
+    ');
     $stmt->execute([$userId]);
     jsonResponse(200, ['vehicles' => $stmt->fetchAll()]);
 }
@@ -432,7 +438,8 @@ if (($method === 'PUT' || $method === 'POST') && preg_match('#^/vehicles/(\d+)$#
     $stmt = $pdo->prepare('
         UPDATE vehicles 
         SET make = ?, model = ?, year = ?, engine_power = ?, tire_model = ?, 
-            tire_size_front = ?, tire_size_rear = ?, suspension_spec = ?, visibility = ?
+            tire_size_front = ?, tire_size_rear = ?, suspension_spec = ?, visibility = ?,
+            team_id = ?
         WHERE id = ? AND user_id = ?
     ');
     $stmt->execute([
@@ -445,6 +452,7 @@ if (($method === 'PUT' || $method === 'POST') && preg_match('#^/vehicles/(\d+)$#
         $body['tire_size_rear'] ?? '245/40R18',
         $body['suspension_spec'] ?? '',
         $body['visibility'] ?? 'TEAM',
+        $body['team_id'] ?? null,
         $vehicleId,
         $userId
     ]);
