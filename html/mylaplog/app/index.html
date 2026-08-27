@@ -1306,60 +1306,39 @@
         <!-- ================= TAB 6: LEADERBOARD ================= -->
         <div id="tab-leaderboard" class="tab-panel">
           <div class="card">
-            <div class="card-header">
-              <div class="card-title">
-                <i data-lucide="trophy" style="color:var(--accent-orange)"></i>
-                서킷별 공식 베스트 랩타임 랭킹 리더보드
+            <div class="card-header" style="flex-wrap:wrap; gap:1rem;">
+              <div>
+                <div class="card-title">
+                  <i data-lucide="trophy" style="color:var(--accent-orange)"></i>
+                  서킷별 공식 베스트 랩타임 랭킹 리더보드
+                </div>
+                <p id="leaderboard-track-subtitle" style="font-size:0.8rem; color:var(--text-muted); margin-top:0.25rem;">
+                  서킷을 선택하여 드라이버별 베스트 랩타임 및 머신 셋업 순위를 확인하세요.
+                </p>
               </div>
-              <div style="display:flex; gap:0.5rem;">
-                <button class="btn btn-secondary active">인제 스피디움</button>
-                <button class="btn btn-secondary">영암 KIC</button>
-                <button class="btn btn-secondary">용인 스피드웨이</button>
+              <div id="leaderboard-track-buttons" style="display:flex; gap:0.4rem; flex-wrap:wrap;">
+                <!-- Populated via renderLeaderboardTrackButtons() -->
               </div>
             </div>
 
-            <table class="compare-table">
-              <thead>
-                <tr>
-                  <th>순위</th>
-                  <th>드라이버</th>
-                  <th>차종 / 스펙</th>
-                  <th>소속 팀</th>
-                  <th>베스트 랩타임</th>
-                  <th>타이어</th>
-                  <th>세팅 요약</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td><strong style="color:gold; font-size:1.1rem;">#1</strong></td>
-                  <td><strong>Alex Kim</strong></td>
-                  <td>Hyundai Avante N TCR</td>
-                  <td>Apex Racing Korea</td>
-                  <td><strong style="color:var(--accent-cyan); font-family:var(--font-mono)">01:52.348</strong></td>
-                  <td>Sur4G 245/40/18</td>
-                  <td>Cold 28 / Hot 34 PSI, -3.2° 캠버</td>
-                </tr>
-                <tr>
-                  <td><strong style="color:silver; font-size:1.1rem;">#2</strong></td>
-                  <td><strong>David Lee</strong></td>
-                  <td>Hyundai Avante N</td>
-                  <td>Apex Racing Korea</td>
-                  <td><strong style="color:var(--accent-cyan); font-family:var(--font-mono)">01:53.120</strong></td>
-                  <td>V730 245/40/18</td>
-                  <td>Cold 30 / Hot 36 PSI, -2.5° 캠버</td>
-                </tr>
-                <tr>
-                  <td><strong style="color:#cd7f32; font-size:1.1rem;">#3</strong></td>
-                  <td><strong>Minho Choi</strong></td>
-                  <td>BMW M2 Competition</td>
-                  <td>Bimmer Track Club</td>
-                  <td><strong style="color:var(--accent-cyan); font-family:var(--font-mono)">01:53.480</strong></td>
-                  <td>Trofeo R 265/35/19</td>
-                  <td>Cold 27 / Hot 33 PSI, -2.8° 캠버</td>
-                </tr>
-              </tbody>
-            </table>
+            <div style="overflow-x:auto;">
+              <table class="compare-table">
+                <thead>
+                  <tr>
+                    <th style="width:75px;">순위</th>
+                    <th>드라이버</th>
+                    <th>출전 머신</th>
+                    <th>소속 팀</th>
+                    <th>베스트 랩타임</th>
+                    <th>장착 타이어</th>
+                    <th>주요 셋업 사양</th>
+                  </tr>
+                </thead>
+                <tbody id="leaderboard-tbody">
+                  <!-- Populated via loadLeaderboard() -->
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
 
@@ -2096,7 +2075,7 @@
       lucide.createIcons();
 
       if (tabId === 'analytics') renderTelemetryChart();
-      if (tabId === 'leaderboard') loadLeaderboard(1);
+      if (tabId === 'leaderboard') selectLeaderboardTrack(activeLeaderboardTrackId || 1);
     }
 
     // =============================================
@@ -3414,40 +3393,110 @@
     }
 
     // =============================================
-    // LEADERBOARD (API-backed)
+    // LEADERBOARD (API-backed with Circuit Tabs)
     // =============================================
-    async function loadLeaderboard(trackId) {
-      const res = await api(`/leaderboard/${trackId}`);
-      const tbody = document.querySelector('#tab-leaderboard .compare-table tbody');
+    let activeLeaderboardTrackId = 1;
+
+    function renderLeaderboardTrackButtons() {
+      const container = document.getElementById('leaderboard-track-buttons');
+      if (!container) return;
+
+      const trackList = (tracks && tracks.length > 0) ? tracks : [
+        { id: 1, name: '인제 스피디움', layout_name: 'Full Course', length_meters: 3908 },
+        { id: 2, name: '영암 KIC', layout_name: 'F1 Grand Prix Course', length_meters: 5615 },
+        { id: 3, name: '용인 에버랜드 스피드웨이', layout_name: 'Full Course', length_meters: 4346 },
+        { id: 4, name: '태백 레이싱파크', layout_name: 'Speed Course', length_meters: 2500 }
+      ];
+
+      container.innerHTML = '';
+      trackList.forEach(t => {
+        const btn = document.createElement('button');
+        const isActive = t.id == activeLeaderboardTrackId;
+        btn.className = `btn ${isActive ? 'btn-cyan active' : 'btn-secondary'}`;
+        btn.style.padding = '0.45rem 0.85rem';
+        btn.style.fontSize = '0.82rem';
+        btn.style.fontWeight = isActive ? '700' : '500';
+        btn.innerHTML = `<i data-lucide="map-pin" style="width:13px; height:13px;"></i> ${t.name}`;
+        btn.onclick = () => selectLeaderboardTrack(t.id);
+        container.appendChild(btn);
+      });
+      lucide.createIcons();
+    }
+
+    async function selectLeaderboardTrack(trackId) {
+      activeLeaderboardTrackId = trackId;
+      renderLeaderboardTrackButtons();
+
+      const curTrack = tracks.find(t => t.id == trackId);
+      const subtitle = document.getElementById('leaderboard-track-subtitle');
+      if (subtitle && curTrack) {
+        const lenStr = curTrack.length_meters ? `${(curTrack.length_meters / 1000).toFixed(3)}km` : '';
+        subtitle.innerHTML = `<strong>${curTrack.name}</strong> (${curTrack.layout_name || 'Full Course'} ${lenStr}) 공식 베스트 랩타임 랭킹 순위표`;
+      }
+
+      await loadLeaderboard(trackId);
+    }
+
+    async function loadLeaderboard(trackId = 1) {
+      activeLeaderboardTrackId = trackId;
+      renderLeaderboardTrackButtons();
+
+      const tbody = document.getElementById('leaderboard-tbody') || document.querySelector('#tab-leaderboard .compare-table tbody');
       if (!tbody) return;
 
+      tbody.innerHTML = `
+        <tr>
+          <td colspan="7" style="text-align:center; padding:2rem 1rem; color:var(--text-muted);">
+            <i data-lucide="loader" class="animate-spin" style="width:24px; height:24px; margin-bottom:0.5rem; opacity:0.6;"></i>
+            <p>서킷 랭킹 데이터를 불러오는 중입니다...</p>
+          </td>
+        </tr>
+      `;
+      lucide.createIcons();
+
+      const res = await api(`/leaderboard/${trackId}`);
       tbody.innerHTML = '';
+
       if (res.ok && res.leaderboard && res.leaderboard.length > 0) {
-        const colors = ['gold', 'silver', '#cd7f32'];
+        const medals = ['🥇 #1', '🥈 #2', '🥉 #3'];
+        const colors = ['#ffd700', '#c0c0c0', '#cd7f32'];
+
         res.leaderboard.forEach((r, i) => {
+          const rankDisplay = i < 3 ? medals[i] : `#${i + 1}`;
+          const rankColor = i < 3 ? colors[i] : 'var(--text-muted)';
           const tr = document.createElement('tr');
           tr.innerHTML = `
-            <td><strong style="color:${colors[i] || 'var(--text-muted)'}; font-size:1.1rem;">#${i + 1}</strong></td>
-            <td><strong>${r.driver_name}</strong></td>
-            <td>${r.vehicle_name}</td>
-            <td>${r.team_name || '-'}</td>
-            <td><strong style="color:var(--accent-cyan); font-family:var(--font-mono)">${msToLapStr(r.best_lap_ms)}</strong></td>
-            <td>${r.tire_model || '-'}</td>
-            <td>Hot ${r.hot_psi_fl || '-'} PSI, ${r.camber_fl || '-'}° 캠버</td>
+            <td><strong style="color:${rankColor}; font-size:1.05rem; font-family:var(--font-mono);">${rankDisplay}</strong></td>
+            <td>
+              <div style="display:flex; align-items:center; gap:0.5rem;">
+                <div class="user-avatar" style="width:26px; height:26px; font-size:0.75rem; border-color:${rankColor}">${r.avatar || (r.driver_name ? r.driver_name.slice(0, 2).toUpperCase() : 'DR')}</div>
+                <strong>${r.driver_name}</strong>
+              </div>
+            </td>
+            <td><span style="color:#fff;">${r.vehicle_name}</span></td>
+            <td>
+              <span style="font-size:0.75rem; color:${r.team_name ? 'var(--accent-cyan)' : 'var(--text-muted)'}; background:rgba(255,255,255,0.03); border:1px solid ${r.team_name ? 'rgba(0,240,255,0.25)' : 'rgba(255,255,255,0.06)'}; padding:0.15rem 0.45rem; border-radius:4px;">
+                ${r.team_name || '개인 소유 (미소속)'}
+              </span>
+            </td>
+            <td><strong style="color:var(--accent-cyan); font-family:var(--font-mono); font-size:1.05rem;">${msToLapStr(r.best_lap_ms)}</strong></td>
+            <td><span style="color:#cbd5e1;">${r.tire_model || '-'}</span></td>
+            <td><span style="font-size:0.8rem; color:#94a3b8;">Hot ${r.hot_psi_fl || '-'} PSI · ${r.camber_fl !== null && r.camber_fl !== undefined ? r.camber_fl + '°' : '-'} · F ${r.damper_front_clicks || '-'}단</span></td>
           `;
           tbody.appendChild(tr);
         });
       } else {
         tbody.innerHTML = `
           <tr>
-            <td colspan="7" style="text-align:center; padding:2.5rem 1rem; color:var(--text-muted);">
-              <i data-lucide="award" style="width:32px; height:32px; margin-bottom:0.5rem; opacity:0.5;"></i>
-              <p>해당 서킷에 등록된 랩타임 랭킹 데이터가 없습니다.</p>
+            <td colspan="7" style="text-align:center; padding:3rem 1rem; color:var(--text-muted);">
+              <i data-lucide="award" style="width:40px; height:40px; margin-bottom:0.5rem; opacity:0.4;"></i>
+              <h5 style="color:#fff; margin-bottom:0.3rem;">등록된 랩타임 랭킹이 없습니다</h5>
+              <p style="font-size:0.85rem;">해당 서킷에서 세션을 기록하고 첫 번째 리더보드 랭커가 되어보세요!</p>
             </td>
           </tr>
         `;
-        lucide.createIcons();
       }
+      lucide.createIcons();
     }
 
     // =============================================
