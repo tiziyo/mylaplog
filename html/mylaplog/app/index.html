@@ -1063,8 +1063,8 @@
                 <span>총 주행 세션</span>
                 <i data-lucide="flag" style="color:var(--accent-red)"></i>
               </div>
-              <div class="stat-val" id="stat-total-sessions">18</div>
-              <div class="stat-sub"><i data-lucide="trending-up"></i> 이번 달 +4 Sessions</div>
+              <div class="stat-val" id="stat-total-sessions">0</div>
+              <div class="stat-sub" id="stat-total-sessions-sub"><i data-lucide="calendar"></i> 최근 주행 일자 : 기록 없음</div>
             </div>
 
             <div class="stat-card">
@@ -2247,8 +2247,31 @@
     // DASHBOARD: Dynamic Metrics & Highlight Banner
     // =============================================
     function renderDashboardMetrics() {
-      // 1. Total sessions
+      // 1. Total sessions & Latest session date
       document.getElementById('stat-total-sessions').innerText = sessions.length;
+      const totalSubElem = document.getElementById('stat-total-sessions-sub');
+      if (totalSubElem) {
+        if (sessions.length > 0) {
+          let latestDateStr = sessions[0].date;
+          sessions.forEach(s => {
+            if (s.date && s.date > latestDateStr) {
+              latestDateStr = s.date;
+            }
+          });
+
+          if (latestDateStr && latestDateStr.includes('-')) {
+            const parts = latestDateStr.split('-');
+            const yy = parts[0].slice(-2);
+            const mm = parseInt(parts[1], 10);
+            const dd = parseInt(parts[2], 10);
+            totalSubElem.innerHTML = `<i data-lucide="calendar"></i> 최근 주행 일자 : ${yy}년 ${mm}월 ${dd}일`;
+          } else {
+            totalSubElem.innerHTML = `<i data-lucide="calendar"></i> 최근 주행 일자 : ${latestDateStr || '기록 없음'}`;
+          }
+        } else {
+          totalSubElem.innerHTML = `<i data-lucide="calendar"></i> 최근 주행 일자 : 기록 없음`;
+        }
+      }
 
       // 2. Inje best lap & Delta vs Runner-up (Same circuit, same driver, same vehicle model)
       const injeSessions = sessions.filter(s => s.track && s.track.includes('인제'));
