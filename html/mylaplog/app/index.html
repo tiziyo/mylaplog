@@ -657,8 +657,9 @@
 
     .team-hub-grid {
       display: grid;
-      grid-template-columns: 1fr 2fr;
+      grid-template-columns: minmax(340px, 400px) 1fr;
       gap: 1.5rem;
+      align-items: stretch;
     }
 
     .member-row {
@@ -1247,30 +1248,36 @@
           <div class="team-hub-grid">
             
             <!-- Active Team Info Card -->
-            <div class="card">
-              <div class="card-header">
-                <div class="card-title">
-                  <i data-lucide="info"></i> 선택된 팀 상세 정보
+            <div class="card" style="display: flex; flex-direction: column; justify-content: space-between;">
+              <div>
+                <div class="card-header">
+                  <div class="card-title">
+                    <i data-lucide="info"></i> 선택된 팀 상세 정보
+                  </div>
+                  <span class="role-badge" id="team-my-role-badge">CHIEF</span>
                 </div>
-                <span class="role-badge" id="team-my-role-badge">CHIEF</span>
+                <div style="text-align: center; padding: 0.75rem 0.5rem 0.5rem;">
+                  <div id="team-logo-display" style="width:72px; height:72px; border-radius:50%; background:linear-gradient(135deg, var(--accent-red), var(--accent-cyan)); margin:0 auto 1rem; display:flex; align-items:center; justify-content:center; font-size:1.75rem; font-weight:900; color:#fff; font-family:var(--font-display); box-shadow: 0 4px 16px rgba(0, 240, 255, 0.2);">
+                    ARK
+                  </div>
+                  <h3 id="team-hub-name" style="font-family:var(--font-display); color:#fff; font-size:1.35rem; letter-spacing:0.5px;">Apex Racing Korea</h3>
+                  <p id="team-hub-desc" style="color:var(--text-muted); font-size:0.85rem; margin-top:0.35rem; line-height:1.4;">트랙데이 & 현대 N 페스티벌 출전 크루</p>
+                  <p id="team-hub-hometrack" style="color:var(--accent-cyan); font-size:0.82rem; margin-top:0.45rem; font-family:var(--font-mono); font-weight:600;">홈 서킷: 인제 스피디움</p>
+                </div>
               </div>
-              <div style="text-align: center; padding: 0.5rem 0;">
-                <div id="team-logo-display" style="width:70px; height:70px; border-radius:50%; background:linear-gradient(135deg, var(--accent-red), var(--accent-cyan)); margin:0 auto 1rem; display:flex; align-items:center; justify-content:center; font-size:1.8rem; font-weight:900; color:#fff; font-family:var(--font-display);">
-                  ARK
-                </div>
-                <h3 id="team-hub-name" style="font-family:var(--font-display); color:#fff; font-size:1.4rem;">Apex Racing Korea</h3>
-                <p id="team-hub-desc" style="color:var(--text-muted); font-size:0.85rem; margin-top:0.3rem;">트랙데이 & 현대 N 페스티벌 출전 크루</p>
-                <p id="team-hub-hometrack" style="color:var(--accent-cyan); font-size:0.82rem; margin-top:0.4rem; font-family:var(--font-mono);">홈 서킷: 인제 스피디움</p>
-                
-                <div style="background:rgba(0,0,0,0.4); border:1px dashed var(--border-subtle); border-radius:8px; padding:0.8rem; margin:1.25rem 0 1rem; display:flex; justify-content:space-between; align-items:center;">
+
+              <div>
+                <div style="background:rgba(0,0,0,0.35); border:1px dashed var(--border-subtle); border-radius:8px; padding:0.75rem 0.9rem; margin:1.25rem 0 0.85rem; display:flex; justify-content:space-between; align-items:center;">
                   <span style="font-size:0.8rem; color:var(--text-muted)">초대 코드:</span>
-                  <strong id="team-hub-code" style="font-family:var(--font-mono); color:var(--accent-cyan); letter-spacing:1px;">APEX-KOR-2026</strong>
-                  <button class="btn btn-cyan" style="padding:0.3rem 0.6rem; font-size:0.75rem;" onclick="copyInviteCode()">복사</button>
-                <div style="display:flex; gap:0.5rem; margin-top:1rem;">
-                  <button class="btn btn-cyan" id="btn-team-action-edit" style="flex:1; justify-content:center; padding:0.6rem; font-size:0.85rem; display:none;" onclick="openEditTeamModal(team.id)">
+                  <strong id="team-hub-code" style="font-family:var(--font-mono); color:var(--accent-cyan); letter-spacing:1px; font-size:0.95rem;">APEX-KOR-2026</strong>
+                  <button class="btn btn-cyan" style="padding:0.25rem 0.6rem; font-size:0.75rem;" onclick="copyInviteCode()">복사</button>
+                </div>
+
+                <div style="display:flex; gap:0.5rem; margin-top:0.75rem;">
+                  <button class="btn btn-cyan" id="btn-team-action-edit" style="flex:1; justify-content:center; padding:0.55rem 0.75rem; font-size:0.82rem; display:none;" onclick="openEditTeamModal(team.id)">
                     <i data-lucide="edit-3"></i> 팀 정보 수정
                   </button>
-                  <button class="btn btn-secondary" id="btn-team-action-delete" style="flex:1; justify-content:center; padding:0.6rem; font-size:0.85rem; background:rgba(255,42,75,0.12); border-color:var(--accent-red); color:#ff6b81; display:none;" onclick="handleDeleteOrLeaveTeam()">
+                  <button class="btn btn-secondary" id="btn-team-action-delete" style="flex:1; justify-content:center; padding:0.55rem 0.75rem; font-size:0.82rem; background:rgba(255,42,75,0.12); border-color:var(--accent-red); color:#ff6b81; display:none;" onclick="handleDeleteOrLeaveTeam()">
                     <i data-lucide="trash-2"></i> <span id="team-action-btn-text">팀 삭제 (해체)</span>
                   </button>
                 </div>
