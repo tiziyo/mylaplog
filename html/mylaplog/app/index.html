@@ -1966,9 +1966,9 @@
         model: '911 GT3 (992)',
         year: 2023,
         power: 510,
-        teamId: null,
-        team_id: null,
-        teamName: null,
+        teamId: 202,
+        team_id: 202,
+        teamName: 'Midnight Track Club',
         tire: 'Michelin Pilot Sport Cup 2 R',
         tire_model: 'Cup 2 R',
         tire_size_front: '255/35R20',
@@ -1979,22 +1979,42 @@
       }
     ];
 
-    const SAMPLE_TEAM = {
-      id: 201,
-      name: 'Apex Racing Korea',
-      desc: '트랙데이 & 현대 N 페스티벌 출전 크루 (게스트 체험용)',
-      home_track: '인제 스피디움',
-      homeTrack: '인제 스피디움',
-      code: 'APEX-KOR-2026',
-      invite_code: 'APEX-KOR-2026',
-      role: 'OWNER',
-      owner_id: 'guest_user',
-      members: [
-        { id: 'guest_user', name: 'Alex Kim (나)', car: 'Avante N TCR (#77)', role: 'owner', sessions: 18, avatar: 'AK' },
-        { id: 2, name: 'David Lee', car: 'Avante N (#12)', role: 'driver', sessions: 14, avatar: 'DL' },
-        { id: 3, name: 'Jin Park (Chief Mechanic)', car: 'Chief Mechanic', role: 'mechanic', sessions: 0, avatar: 'JP' }
-      ]
-    };
+    const SAMPLE_TEAMS = [
+      {
+        id: 201,
+        name: 'Apex Racing Korea',
+        desc: '트랙데이 & 현대 N 페스티벌 출전 크루 (게스트 체험용 메인 팀)',
+        home_track: '인제 스피디움',
+        homeTrack: '인제 스피디움',
+        code: 'APEX-KOR-2026',
+        invite_code: 'APEX-KOR-2026',
+        role: 'OWNER',
+        owner_id: 'guest_user',
+        members: [
+          { id: 'guest_user', name: 'Alex Kim (나)', car: 'Avante N TCR (#77)', role: 'owner', sessions: 18, avatar: 'AK' },
+          { id: 2, name: 'David Lee', car: 'Avante N (#12)', role: 'driver', sessions: 14, avatar: 'DL' },
+          { id: 3, name: 'Jin Park (Chief Mechanic)', car: 'Chief Mechanic', role: 'mechanic', sessions: 0, avatar: 'JP' }
+        ]
+      },
+      {
+        id: 202,
+        name: 'Midnight Track Club',
+        desc: '심야 서킷 와인딩 & 영암 F1 코스 타임어택 크루 (게스트 소속 팀 2)',
+        home_track: '영암 KIC',
+        homeTrack: '영암 KIC',
+        code: 'MDNT-KIC-7700',
+        invite_code: 'MDNT-KIC-7700',
+        role: 'DRIVER',
+        owner_id: 99,
+        members: [
+          { id: 99, name: 'Taehoon Kang (팀장)', car: 'Porsche 911 GT3 RS', role: 'owner', sessions: 32, avatar: 'TK' },
+          { id: 'guest_user', name: 'Alex Kim (나)', car: 'Porsche 911 GT3 (#99)', role: 'driver', sessions: 8, avatar: 'AK' },
+          { id: 104, name: 'Minho Choi', car: 'BMW M2 Competition', role: 'driver', sessions: 19, avatar: 'MC' }
+        ]
+      }
+    ];
+
+    const SAMPLE_TEAM = SAMPLE_TEAMS[0];
 
     const SAMPLE_SESSIONS = [
       {
@@ -2302,9 +2322,9 @@
       user = { ...GUEST_USER };
       garage = JSON.parse(JSON.stringify(SAMPLE_GARAGE));
       sessions = JSON.parse(JSON.stringify(SAMPLE_SESSIONS));
-      userTeams = [JSON.parse(JSON.stringify(SAMPLE_TEAM))];
-      activeTeamId = SAMPLE_TEAM.id;
-      team = JSON.parse(JSON.stringify(SAMPLE_TEAM));
+      userTeams = JSON.parse(JSON.stringify(SAMPLE_TEAMS));
+      activeTeamId = SAMPLE_TEAMS[0].id;
+      team = JSON.parse(JSON.stringify(SAMPLE_TEAMS[0]));
       
       updateUserUI();
       renderAllViews();
