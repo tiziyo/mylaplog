@@ -1932,94 +1932,176 @@
     // SAMPLE DEMO DATA (For Logged-out / Guest Mode)
     // =============================================
     const GUEST_USER = {
-      id: null,
-      name: '게스트 드라이버',
+      id: 'guest_user',
+      name: 'Alex Kim (게스트)',
       email: 'guest@mylaplog.com',
-      role: '게스트 모드 (체험용)',
-      avatar: 'G',
+      role: 'PRO-AM Driver',
+      avatar: 'AK',
+      kara_license: 'KARA B License',
+      driver_class: 'PRO-AM',
       isLoggedIn: false
     };
 
     const SAMPLE_GARAGE = [
       {
-        id: 'sample_v1',
+        id: 101,
         make: 'Hyundai',
         model: 'Avante N (TCR Specs)',
         year: 2024,
-        power: 280,
-        tire: 'Sur4G (245/40/18)',
-        tire_model: 'Sur4G',
-        suspension: '일체형 코일오버 F 12k / R 8k',
+        power: 350,
+        teamId: 201,
+        team_id: 201,
+        teamName: 'Apex Racing Korea',
+        tire: 'SUR4G (245/40R18)',
+        tire_model: 'SUR4G',
+        tire_size_front: '245/40R18',
+        tire_size_rear: '245/40R18',
+        suspension: 'KW Competition 3-Way 코일오버 (F 12k / R 8k)',
+        suspension_spec: 'KW Competition 3-Way (F 12k / R 8k)',
         visibility: 'TEAM'
       },
       {
-        id: 'sample_v2',
+        id: 102,
         make: 'Porsche',
-        model: '718 Cayman GT4',
+        model: '911 GT3 (992)',
         year: 2023,
-        power: 420,
-        tire: 'Cup 2 (245/35/20)',
-        tire_model: 'Cup 2',
-        suspension: 'PASM Clubsport 셋업',
-        visibility: 'TEAM'
-      }
-    ];
-
-    const SAMPLE_SESSIONS = [
-      {
-        id: 'sample_s1',
-        track: '인제 스피디움',
-        trackId: 1,
-        vehicle: 'Hyundai Avante N (TCR Specs)',
-        date: '2026-08-24',
-        sessionNum: 3,
-        bestLap: '01:52.348',
-        bestLapMs: 112348,
-        psiFL: 34.0, psiFR: 34.0, psiRL: 32.0, psiRR: 32.0,
-        damperF: 12, damperR: 8,
-        camber: -3.2,
-        notes: '공기압 34psi 맞춘 후 2번/3번 코너 접지 한계 상승. S2 섹터 베스트 기록 달성.'
-      },
-      {
-        id: 'sample_s2',
-        track: '인제 스피디움',
-        trackId: 1,
-        vehicle: 'Hyundai Avante N (TCR Specs)',
-        date: '2026-08-24',
-        sessionNum: 2,
-        bestLap: '01:52.856',
-        bestLapMs: 112856,
-        psiFL: 36.0, psiFR: 36.0, psiRL: 33.5, psiRR: 33.5,
-        damperF: 10, damperR: 8,
-        camber: -3.2,
-        notes: '공기압 다소 과열로 헤어핀 탈출 시 약간의 언더스티어 발생.'
-      },
-      {
-        id: 'sample_s3',
-        track: '영암 KIC',
-        trackId: 2,
-        vehicle: 'Hyundai Avante N (TCR Specs)',
-        date: '2026-08-10',
-        sessionNum: 1,
-        bestLap: '02:24.410',
-        bestLapMs: 144410,
-        psiFL: 33.5, psiFR: 33.5, psiRL: 31.0, psiRR: 31.0,
-        damperF: 14, damperR: 10,
-        camber: -3.5,
-        notes: '고속 코너링 안정성 우수. F1 코스 3섹터에서 만족스러운 롤 억제력.'
+        power: 510,
+        teamId: null,
+        team_id: null,
+        teamName: null,
+        tire: 'Michelin Pilot Sport Cup 2 R',
+        tire_model: 'Cup 2 R',
+        tire_size_front: '255/35R20',
+        tire_size_rear: '315/30R21',
+        suspension: 'PASM Clubsport 셋업 (-3.5° 캠버)',
+        suspension_spec: 'PASM Clubsport (-3.5° 캠버)',
+        visibility: 'PUBLIC'
       }
     ];
 
     const SAMPLE_TEAM = {
-      id: 'sample_team',
+      id: 201,
       name: 'Apex Racing Korea',
-      desc: '트랙데이 & 현대 N 페스티벌 출전 크루 (샘플 데이타)',
+      desc: '트랙데이 & 현대 N 페스티벌 출전 크루 (게스트 체험용)',
+      home_track: '인제 스피디움',
       homeTrack: '인제 스피디움',
       code: 'APEX-KOR-2026',
+      invite_code: 'APEX-KOR-2026',
+      role: 'OWNER',
+      owner_id: 'guest_user',
       members: [
-        { name: 'Alex Kim (드라이버)', car: 'Avante N TCR (#77)', role: 'owner', sessions: 18, avatar: 'AK' },
-        { name: 'David Lee', car: 'Avante N (#12)', role: 'driver', sessions: 14, avatar: 'DL' },
-        { name: 'Jin Park', car: 'Chief Mechanic', role: 'mechanic', sessions: 0, avatar: 'JP' }
+        { id: 'guest_user', name: 'Alex Kim (나)', car: 'Avante N TCR (#77)', role: 'owner', sessions: 18, avatar: 'AK' },
+        { id: 2, name: 'David Lee', car: 'Avante N (#12)', role: 'driver', sessions: 14, avatar: 'DL' },
+        { id: 3, name: 'Jin Park (Chief Mechanic)', car: 'Chief Mechanic', role: 'mechanic', sessions: 0, avatar: 'JP' }
+      ]
+    };
+
+    const SAMPLE_SESSIONS = [
+      {
+        id: 301,
+        track: '인제 스피디움',
+        trackId: 1,
+        vehicle: 'Hyundai Avante N (TCR Specs)',
+        vehicleId: 101,
+        teamId: 201,
+        team_id: 201,
+        teamName: 'Apex Racing Korea',
+        date: '2026-08-27',
+        sessionNum: 3,
+        bestLap: '01:52.348',
+        bestLapMs: 112348,
+        airTemp: 24.5,
+        trackTemp: 38.0,
+        weather: 'DRY',
+        visibility: 'TEAM',
+        psiFL: 34.0, psiFR: 34.0, psiRL: 32.0, psiRR: 32.0,
+        coldFL: 28.0, coldFR: 28.0, coldRL: 28.0, coldRR: 28.0,
+        camberFL: -3.2, camberFR: -3.2, camberRL: -2.0, camberRR: -2.0,
+        camber: -3.2,
+        toeFL: 0.0, toeFR: 0.0, toeRL: 1.0, toeRR: 1.0,
+        casterFL: 6.5, casterFR: 6.5,
+        damperF: 12, damperR: 8,
+        wing: 4.0,
+        fuel: 30,
+        notes: '공기압 34psi 최적 도달 후 2번/3번 코너 접지 한계 상승. S2 섹터 베스트 기록 달성.',
+        laps: [{ lap_number: 1, lap_time_ms: 112348, is_best: 1 }]
+      },
+      {
+        id: 302,
+        track: '인제 스피디움',
+        trackId: 1,
+        vehicle: 'Hyundai Avante N (TCR Specs)',
+        vehicleId: 101,
+        teamId: 201,
+        team_id: 201,
+        teamName: 'Apex Racing Korea',
+        date: '2026-08-24',
+        sessionNum: 2,
+        bestLap: '01:52.856',
+        bestLapMs: 112856,
+        airTemp: 26.0,
+        trackTemp: 42.0,
+        weather: 'DRY',
+        visibility: 'TEAM',
+        psiFL: 36.0, psiFR: 36.0, psiRL: 33.5, psiRR: 33.5,
+        coldFL: 28.0, coldFR: 28.0, coldRL: 28.0, coldRR: 28.0,
+        camberFL: -3.2, camberFR: -3.2, camberRL: -2.0, camberRR: -2.0,
+        camber: -3.2,
+        toeFL: 0.0, toeFR: 0.0, toeRL: 1.0, toeRR: 1.0,
+        casterFL: 6.5, casterFR: 6.5,
+        damperF: 10, damperR: 8,
+        wing: 4.0,
+        fuel: 25,
+        notes: '타이어 열간 과열로 헤어핀 탈출 시 약간의 언더스티어 발생. 감쇠력 프론트 12단으로 상향 필요.',
+        laps: [{ lap_number: 1, lap_time_ms: 112856, is_best: 1 }]
+      },
+      {
+        id: 303,
+        track: '영암 KIC',
+        trackId: 2,
+        vehicle: 'Porsche 911 GT3 (992)',
+        vehicleId: 102,
+        teamId: null,
+        team_id: null,
+        teamName: null,
+        date: '2026-08-10',
+        sessionNum: 1,
+        bestLap: '02:24.410',
+        bestLapMs: 144410,
+        airTemp: 28.0,
+        trackTemp: 46.0,
+        weather: 'DRY',
+        visibility: 'PUBLIC',
+        psiFL: 33.5, psiFR: 33.5, psiRL: 31.0, psiRR: 31.0,
+        coldFL: 26.0, coldFR: 26.0, coldRL: 28.0, coldRR: 28.0,
+        camberFL: -3.5, camberFR: -3.5, camberRL: -2.5, camberRR: -2.5,
+        camber: -3.5,
+        toeFL: 0.0, toeFR: 0.0, toeRL: 1.5, toeRR: 1.5,
+        casterFL: 7.0, casterFR: 7.0,
+        damperF: 14, damperR: 10,
+        wing: 6.0,
+        fuel: 40,
+        notes: '고속 코너링 안정성 우수. F1 코스 3섹터에서 만족스러운 다운포스와 롤 억제력 달성.',
+        laps: [{ lap_number: 1, lap_time_ms: 144410, is_best: 1 }]
+      }
+    ];
+
+    const SAMPLE_LEADERBOARD = {
+      1: [
+        { rank: 1, driver_name: 'Alex Kim', vehicle_name: 'Hyundai Avante N TCR', team_name: 'Apex Racing Korea', best_lap_ms: 112348, tire_model: 'Sur4G 245/40/18', hot_psi_fl: 34.0, camber_fl: -3.2, damper_front_clicks: 12, avatar: 'AK' },
+        { rank: 2, driver_name: 'David Lee', vehicle_name: 'Hyundai Avante N', team_name: 'Apex Racing Korea', best_lap_ms: 113120, tire_model: 'V730 245/40/18', hot_psi_fl: 36.0, camber_fl: -2.5, damper_front_clicks: 10, avatar: 'DL' },
+        { rank: 3, driver_name: 'Minho Choi', vehicle_name: 'BMW M2 Competition', team_name: 'Bimmer Track Club', best_lap_ms: 113480, tire_model: 'Trofeo R 265/35/19', hot_psi_fl: 33.0, camber_fl: -2.8, damper_front_clicks: 14, avatar: 'MC' },
+        { rank: 4, driver_name: 'Sungjin Park', vehicle_name: 'Toyota GR86', team_name: 'Boxer Spirit', best_lap_ms: 115200, tire_model: 'RE-71RS 225/45/17', hot_psi_fl: 32.0, camber_fl: -3.0, damper_front_clicks: 8, avatar: 'SP' }
+      ],
+      2: [
+        { rank: 1, driver_name: 'Alex Kim', vehicle_name: 'Porsche 911 GT3', team_name: '개인 소유', best_lap_ms: 144410, tire_model: 'Cup 2 R 255/35/20', hot_psi_fl: 33.5, camber_fl: -3.5, damper_front_clicks: 14, avatar: 'AK' },
+        { rank: 2, driver_name: 'Junho Jung', vehicle_name: 'AMG GT R', team_name: 'AMG Korea', best_lap_ms: 145250, tire_model: 'Cup 2 275/35/19', hot_psi_fl: 34.0, camber_fl: -3.0, damper_front_clicks: 12, avatar: 'JJ' }
+      ],
+      3: [
+        { rank: 1, driver_name: 'Donghyun Kim', vehicle_name: 'Porsche 718 Cayman GT4', team_name: 'Apex Racing Korea', best_lap_ms: 128900, tire_model: 'Cup 2 245/35/20', hot_psi_fl: 32.5, camber_fl: -3.2, damper_front_clicks: 10, avatar: 'DK' }
+      ],
+      4: [
+        { rank: 1, driver_name: 'Alex Kim', vehicle_name: 'Hyundai Avante N TCR', team_name: 'Apex Racing Korea', best_lap_ms: 61850, tire_model: 'Sur4G 245/40/18', hot_psi_fl: 34.0, camber_fl: -3.2, damper_front_clicks: 12, avatar: 'AK' }
       ]
     };
 
@@ -2450,12 +2532,10 @@
     // =============================================
     // TEAMS: Load / Switch / Create / Edit / Join / Delete / Render
     // =============================================
+    // =============================================
+    // TEAMS: Load / Switch / Create / Edit / Join / Delete / Render
+    // =============================================
     function openCreateTeamModal() {
-      if (!user.isLoggedIn) {
-        showToast('로그인이 필요한 기능입니다. 먼저 로그인해주세요.');
-        openModal('auth-modal');
-        return;
-      }
       if (userTeams.length >= 10) {
         showToast('팀은 최대 10개까지만 생성하거나 가입할 수 있습니다. (현재 10개 소속)');
         return;
@@ -2463,54 +2543,55 @@
       document.getElementById('create-team-form').reset();
       document.getElementById('edit-team-id').value = '';
       document.getElementById('team-modal-title').innerText = '새 레이싱 팀/크루 등록';
-      document.getElementById('team-modal-submit-text').innerText = '팀 생성 및 등록';
+      document.getElementById('team-modal-submit-text').innerText = user.isLoggedIn ? '팀 생성 및 등록' : '팀 생성 [게스트 메모리]';
       openModal('create-team-modal');
     }
 
     function openEditTeamModal(teamId) {
-      if (!user.isLoggedIn) {
-        showToast('로그인이 필요한 기능입니다. 먼저 로그인해주세요.');
-        openModal('auth-modal');
-        return;
-      }
       const t = userTeams.find(item => item.id == teamId);
       if (!t) {
         showToast('팀 정보를 찾을 수 없습니다.');
         return;
       }
-      const isChief = (t.role && (t.role.toUpperCase() === 'CHIEF' || t.role.toUpperCase() === 'OWNER')) || (t.owner_id == user.id);
-      if (!isChief) {
-        showToast('팀장(Chief) 권한을 가진 멤버만 팀 정보를 수정할 수 있습니다.');
-        return;
+      if (user.isLoggedIn) {
+        const isChief = (t.role && (t.role.toUpperCase() === 'CHIEF' || t.role.toUpperCase() === 'OWNER')) || (t.owner_id == user.id);
+        if (!isChief) {
+          showToast('팀장(Chief) 권한을 가진 멤버만 팀 정보를 수정할 수 있습니다.');
+          return;
+        }
       }
 
       document.getElementById('edit-team-id').value = t.id;
       document.getElementById('new-team-name').value = t.name || '';
-      document.getElementById('new-team-track').value = t.home_track || '인제 스피디움';
-      document.getElementById('new-team-desc').value = t.description || '';
+      document.getElementById('new-team-track').value = t.home_track || t.homeTrack || '인제 스피디움';
+      document.getElementById('new-team-desc').value = t.description || t.desc || '';
       document.getElementById('team-modal-title').innerText = `${t.name} 팀 정보 수정`;
-      document.getElementById('team-modal-submit-text').innerText = '수정 내용 저장';
+      document.getElementById('team-modal-submit-text').innerText = user.isLoggedIn ? '수정 내용 저장' : '수정 내용 저장 [게스트]';
       openModal('create-team-modal');
     }
 
     function openJoinTeamModal() {
-      if (!user.isLoggedIn) {
-        showToast('로그인이 필요한 기능입니다. 먼저 로그인해주세요.');
-        openModal('auth-modal');
-        return;
-      }
       if (userTeams.length >= 10) {
         showToast('팀은 최대 10개까지만 생성하거나 가입할 수 있습니다. (현재 10개 소속)');
         return;
       }
+      document.getElementById('join-team-form').reset();
       openModal('join-team-modal');
     }
 
     async function loadTeamData(preferredTeamId = null) {
       if (!user.isLoggedIn) {
-        userTeams = [SAMPLE_TEAM];
-        activeTeamId = SAMPLE_TEAM.id;
-        team = JSON.parse(JSON.stringify(SAMPLE_TEAM));
+        if (!userTeams || userTeams.length === 0) {
+          userTeams = [JSON.parse(JSON.stringify(SAMPLE_TEAM))];
+        }
+        if (!activeTeamId && userTeams.length > 0) {
+          activeTeamId = userTeams[0].id;
+        }
+        const activeT = userTeams.find(t => t.id == activeTeamId) || userTeams[0];
+        if (activeT) {
+          team = JSON.parse(JSON.stringify(activeT));
+          team.members = activeT.members || SAMPLE_TEAM.members;
+        }
         renderTeamUI();
         return;
       }
@@ -2564,6 +2645,171 @@
         team = { id: null, name: '소속 팀 없음', desc: '팀을 등록하거나 초대 코드로 가입하세요.', homeTrack: '', code: '-', members: [], role: 'NONE' };
       }
       renderTeamUI();
+    }
+
+    async function switchActiveTeam(teamId) {
+      activeTeamId = teamId;
+      if (!user.isLoggedIn) {
+        const found = userTeams.find(t => t.id == teamId);
+        if (found) {
+          team = JSON.parse(JSON.stringify(found));
+          team.members = found.members || SAMPLE_TEAM.members;
+          showToast(`'${found.name}' 팀으로 작업 환경이 전환되었습니다. [게스트 메모리]`);
+          renderTeamUI();
+          renderDashboardMetrics();
+        }
+        return;
+      }
+      await loadTeamData(teamId);
+      showToast(`'${team.name}' 팀으로 작업 환경이 전환되었습니다.`);
+      renderDashboardMetrics();
+    }
+
+    async function handleCreateTeam(e) {
+      e.preventDefault();
+      const editId = document.getElementById('edit-team-id').value;
+      const isEdit = !!editId;
+
+      const name = document.getElementById('new-team-name').value.trim();
+      const home_track = document.getElementById('new-team-track').value;
+      const description = document.getElementById('new-team-desc').value.trim();
+
+      // Guest Mode Memory Handling
+      if (!user.isLoggedIn) {
+        if (isEdit) {
+          const idx = userTeams.findIndex(t => t.id == editId);
+          if (idx !== -1) {
+            userTeams[idx] = { ...userTeams[idx], name, home_track, homeTrack: home_track, description, desc: description };
+            if (activeTeamId == editId) {
+              team = { ...team, name, home_track, homeTrack: home_track, description, desc: description };
+            }
+            showToast('팀 정보가 성공적으로 수정되었습니다! [게스트 메모리]');
+          }
+        } else {
+          const newTeamId = Date.now();
+          const inviteCode = 'TEAM-' + Math.random().toString(36).substring(2, 8).toUpperCase();
+          const newTeamObj = {
+            id: newTeamId,
+            name,
+            home_track,
+            homeTrack: home_track,
+            description,
+            desc: description,
+            invite_code: inviteCode,
+            code: inviteCode,
+            role: 'OWNER',
+            owner_id: 'guest_user',
+            members: [
+              { id: 'guest_user', name: 'Alex Kim (나)', car: 'Avante N TCR (#77)', role: 'owner', sessions: 18, avatar: 'AK' }
+            ]
+          };
+          userTeams.push(newTeamObj);
+          activeTeamId = newTeamId;
+          team = JSON.parse(JSON.stringify(newTeamObj));
+          showToast(`'${name}' 팀이 성공적으로 창단되었습니다! [게스트 메모리]`);
+        }
+        closeModal('create-team-modal');
+        document.getElementById('create-team-form').reset();
+        document.getElementById('edit-team-id').value = '';
+        renderTeamUI();
+        renderDashboardMetrics();
+        return;
+      }
+
+      const endpoint = isEdit ? `/teams/${editId}` : '/teams';
+      const method = isEdit ? 'PUT' : 'POST';
+
+      const res = await api(endpoint, method, { name, home_track, description });
+      if (res.ok) {
+        showToast(isEdit ? '팀 정보가 수정되었습니다.' : `'${name}' 팀이 성공적으로 생성되었습니다!`);
+        closeModal('create-team-modal');
+        document.getElementById('create-team-form').reset();
+        document.getElementById('edit-team-id').value = '';
+        await loadTeamData(isEdit ? editId : res.team_id);
+        renderDashboardMetrics();
+      } else {
+        showToast(res.error || (isEdit ? '팀 정보 수정 실패' : '팀 생성 실패'));
+      }
+    }
+
+    async function handleJoinTeam(e) {
+      e.preventDefault();
+      const code = document.getElementById('join-team-code').value.trim();
+      if (!code) return;
+
+      // Guest Mode Memory Handling
+      if (!user.isLoggedIn) {
+        const fakeTeamId = Date.now();
+        const joinedTeam = {
+          id: fakeTeamId,
+          name: '신규 가입 레이싱 팀 (' + code.slice(0, 4) + ')',
+          home_track: '인제 스피디움',
+          homeTrack: '인제 스피디움',
+          description: '초대 코드(' + code + ')를 통해 가입한 팀',
+          desc: '초대 코드를 통해 가입한 팀',
+          invite_code: code,
+          code: code,
+          role: 'DRIVER',
+          owner_id: 'sample_owner',
+          members: [
+            { id: 'owner_1', name: 'Team Chief', car: 'BMW M4 GT4', role: 'owner', sessions: 25, avatar: 'TC' },
+            { id: 'guest_user', name: 'Alex Kim (나)', car: 'Avante N TCR (#77)', role: 'driver', sessions: 18, avatar: 'AK' }
+          ]
+        };
+        userTeams.push(joinedTeam);
+        activeTeamId = fakeTeamId;
+        team = JSON.parse(JSON.stringify(joinedTeam));
+        closeModal('join-team-modal');
+        document.getElementById('join-team-form').reset();
+        showToast(`'${joinedTeam.name}' 팀에 성공적으로 가입되었습니다! [게스트 메모리]`);
+        renderTeamUI();
+        renderDashboardMetrics();
+        return;
+      }
+
+      const res = await api('/teams/join', 'POST', { invite_code: code });
+      if (res.ok) {
+        showToast(res.message || '팀에 성공적으로 가입되었습니다! 🏁');
+        closeModal('join-team-modal');
+        document.getElementById('join-team-form').reset();
+        await loadTeamData(res.team_id);
+        renderDashboardMetrics();
+      } else {
+        showToast(res.error || '팀 가입 실패');
+      }
+    }
+
+    async function handleDeleteOrLeaveSpecificTeam(targetTeamId, targetTeamName, isChief) {
+      const confirmMsg = isChief
+        ? `'${targetTeamName}' 팀의 팀장 권한을 가지고 있습니다.\n정말로 팀을 완전히 삭제(해체)하시겠습니까?\n(모든 팀원의 소속 정보가 함께 삭제됩니다)`
+        : `'${targetTeamName}' 팀에서 정말 탈퇴하시겠습니까?`;
+
+      if (!confirm(confirmMsg)) return;
+
+      // Guest Mode Memory Handling
+      if (!user.isLoggedIn) {
+        userTeams = userTeams.filter(t => t.id != targetTeamId);
+        if (activeTeamId == targetTeamId) {
+          activeTeamId = userTeams.length > 0 ? userTeams[0].id : null;
+          team = userTeams.length > 0 ? JSON.parse(JSON.stringify(userTeams[0])) : { id: null, name: '소속 팀 없음', desc: '', homeTrack: '', code: '-', members: [], role: 'NONE' };
+        }
+        showToast(isChief ? `'${targetTeamName}' 팀이 삭제되었습니다. [게스트 메모리]` : `'${targetTeamName}' 팀에서 탈퇴했습니다. [게스트 메모리]`);
+        renderTeamUI();
+        renderDashboardMetrics();
+        return;
+      }
+
+      const res = await api(`/teams/${targetTeamId}`, 'DELETE');
+      if (res.ok) {
+        showToast(res.message || (isChief ? '팀이 삭제되었습니다.' : '팀에서 탈퇴했습니다.'));
+        if (activeTeamId == targetTeamId) {
+          activeTeamId = null;
+        }
+        await loadTeamData();
+        renderDashboardMetrics();
+      } else {
+        showToast(res.error || '처리 실패');
+      }
     }
 
     async function handleSwitchActiveTeam(teamId) {
@@ -3143,11 +3389,6 @@
     }
 
     function openAddSessionModal(preSelectedVehicleId = null) {
-      if (!user.isLoggedIn) {
-        showToast('로그인이 필요한 기능입니다. 먼저 로그인해주세요.');
-        openModal('auth-modal');
-        return;
-      }
       if (garage.length === 0) {
         showToast('세션을 로깅하려면 먼저 개러지에 차량을 등록해야 합니다.');
         openAddVehicleModal();
@@ -3201,16 +3442,11 @@
       }
 
       document.getElementById('session-modal-title').innerText = '새 트랙데이 세션 & 셋업 로깅';
-      document.getElementById('session-modal-submit-text').innerText = '세션 로그 저장';
+      document.getElementById('session-modal-submit-text').innerText = user.isLoggedIn ? '세션 로그 저장' : '세션 로그 저장 [게스트 메모리]';
       openModal('session-modal');
     }
 
     function openEditSessionModal(sessionId) {
-      if (!user.isLoggedIn) {
-        showToast('로그인이 필요한 기능입니다. 먼저 로그인해주세요.');
-        openModal('auth-modal');
-        return;
-      }
       const s = sessions.find(item => item.id == sessionId);
       if (!s) {
         showToast('세션 정보를 찾을 수 없습니다.');
@@ -3261,11 +3497,19 @@
       document.getElementById('sess-notes').value = s.notes || '';
 
       document.getElementById('session-modal-title').innerText = `${s.track} 세션 #${s.sessionNum} & 셋업 수정`;
-      document.getElementById('session-modal-submit-text').innerText = '수정 내용 저장';
+      document.getElementById('session-modal-submit-text').innerText = user.isLoggedIn ? '수정 내용 저장' : '수정 내용 저장 [게스트]';
       openModal('session-modal');
     }
 
     async function loadSessions() {
+      if (!user.isLoggedIn) {
+        if (!sessions || sessions.length === 0) {
+          sessions = JSON.parse(JSON.stringify(SAMPLE_SESSIONS));
+        }
+        renderSessions();
+        return;
+      }
+
       const res = await api('/sessions');
       if (res.ok && res.sessions) {
         sessions = res.sessions.map(s => ({
@@ -3368,12 +3612,91 @@
         ] : []
       };
 
+      // Guest Mode Memory Handling
+      if (!user.isLoggedIn) {
+        const matchedVehicle = garage.find(v => v.id == vehicleId);
+        const matchedTrack = tracks.find(t => t.id == trackId) || { name: '인제 스피디움' };
+        const matchedTeam = payload.team_id ? userTeams.find(t => t.id == payload.team_id) : null;
+
+        if (isEdit) {
+          const idx = sessions.findIndex(s => s.id == editId);
+          if (idx !== -1) {
+            sessions[idx] = {
+              ...sessions[idx],
+              track: matchedTrack.name,
+              trackId: trackId,
+              vehicle: matchedVehicle ? `${matchedVehicle.make} ${matchedVehicle.model}` : '머신',
+              vehicleId: vehicleId,
+              teamId: payload.team_id,
+              team_id: payload.team_id,
+              teamName: matchedTeam ? matchedTeam.name : (matchedVehicle?.teamName || null),
+              date: payload.session_date,
+              sessionNum: payload.session_number,
+              bestLap: msToLapStr(bestLapMs),
+              bestLapMs: bestLapMs,
+              airTemp: payload.air_temp,
+              trackTemp: payload.track_temp,
+              weather: payload.weather_condition,
+              psiFL: payload.setup.hot_psi_fl, psiFR: payload.setup.hot_psi_fr, psiRL: payload.setup.hot_psi_rl, psiRR: payload.setup.hot_psi_rr,
+              coldFL: payload.setup.cold_psi_fl, coldFR: payload.setup.cold_psi_fr, coldRL: payload.setup.cold_psi_rl, coldRR: payload.setup.cold_psi_rr,
+              camberFL: payload.setup.camber_fl, camberFR: payload.setup.camber_fr, camberRL: payload.setup.camber_rl, camberRR: payload.setup.camber_rr,
+              camber: payload.setup.camber_fl,
+              toeFL: payload.setup.toe_fl, toeFR: payload.setup.toe_fr, toeRL: payload.setup.toe_rl, toeRR: payload.setup.toe_rr,
+              casterFL: payload.setup.caster_fl, casterFR: payload.setup.caster_fr,
+              damperF: payload.setup.damper_front_clicks, damperR: payload.setup.damper_rear_clicks,
+              wing: payload.setup.wing_angle_deg,
+              fuel: payload.setup.fuel_liters,
+              notes: payload.setup.driver_notes
+            };
+            showToast('세션 및 4륜 셋업 정보가 성공적으로 수정되었습니다! 🏁 [게스트 메모리]');
+          }
+        } else {
+          const newSessId = Date.now();
+          const newSess = {
+            id: newSessId,
+            track: matchedTrack.name,
+            trackId: trackId,
+            vehicle: matchedVehicle ? `${matchedVehicle.make} ${matchedVehicle.model}` : '머신',
+            vehicleId: vehicleId,
+            teamId: payload.team_id,
+            team_id: payload.team_id,
+            teamName: matchedTeam ? matchedTeam.name : (matchedVehicle?.teamName || null),
+            date: payload.session_date,
+            sessionNum: payload.session_number,
+            bestLap: msToLapStr(bestLapMs),
+            bestLapMs: bestLapMs,
+            airTemp: payload.air_temp,
+            trackTemp: payload.track_temp,
+            weather: payload.weather_condition,
+            psiFL: payload.setup.hot_psi_fl, psiFR: payload.setup.hot_psi_fr, psiRL: payload.setup.hot_psi_rl, psiRR: payload.setup.hot_psi_rr,
+            coldFL: payload.setup.cold_psi_fl, coldFR: payload.setup.cold_psi_fr, coldRL: payload.setup.cold_psi_rl, coldRR: payload.setup.cold_psi_rr,
+            camberFL: payload.setup.camber_fl, camberFR: payload.setup.camber_fr, camberRL: payload.setup.camber_rl, camberRR: payload.setup.camber_rr,
+            camber: payload.setup.camber_fl,
+            toeFL: payload.setup.toe_fl, toeFR: payload.setup.toe_fr, toeRL: payload.setup.toe_rl, toeRR: payload.setup.toe_rr,
+            casterFL: payload.setup.caster_fl, casterFR: payload.setup.caster_fr,
+            damperF: payload.setup.damper_front_clicks, damperR: payload.setup.damper_rear_clicks,
+            wing: payload.setup.wing_angle_deg,
+            fuel: payload.setup.fuel_liters,
+            notes: payload.setup.driver_notes
+          };
+          sessions.unshift(newSess);
+          showToast('세션 및 4륜 상세 셋업이 등록되었습니다! 🏁 [게스트 메모리]');
+        }
+        closeModal('session-modal');
+        document.getElementById('session-form').reset();
+        document.getElementById('edit-session-id').value = '';
+        renderSessions();
+        renderDashboardMetrics();
+        renderDashboardHighlight();
+        return;
+      }
+
       const endpoint = isEdit ? `/sessions/${editId}` : '/sessions';
       const method = isEdit ? 'PUT' : 'POST';
 
       const res = await api(endpoint, method, payload);
       if (res.ok) {
-        showToast(isEdit ? '세션 및 셋업 정보가 성공적으로 수정되었습니다! 🏁' : '세션 로그가 DB에 저장되었습니다! 🏁');
+        showToast(isEdit ? '세션 및 4륜 셋업 정보가 성공적으로 수정되었습니다! 🏁' : '세션 및 4륜 상세 셋업이 DB에 저장되었습니다! 🏁');
         closeModal('session-modal');
         document.getElementById('session-form').reset();
         document.getElementById('edit-session-id').value = '';
@@ -3386,8 +3709,17 @@
     }
 
     async function handleDeleteSession(sessionId, sessionLabel) {
-      if (!user.isLoggedIn) return;
       if (!confirm(`'${sessionLabel}' 세션 로그를 삭제하시겠습니까?`)) return;
+
+      // Guest Mode Memory Handling
+      if (!user.isLoggedIn) {
+        sessions = sessions.filter(s => s.id != sessionId);
+        showToast(`'${sessionLabel}' 세션이 삭제되었습니다. [게스트 메모리]`);
+        renderSessions();
+        renderDashboardMetrics();
+        renderDashboardHighlight();
+        return;
+      }
 
       const res = await api(`/sessions/${sessionId}`, 'DELETE');
       if (res.ok) {
@@ -3411,7 +3743,7 @@
           <div style="grid-column: 1 / -1; text-align:center; padding:3rem 1rem; background:rgba(255,255,255,0.02); border-radius:8px; border:1px dashed var(--border-subtle);">
             <i data-lucide="clipboard-list" style="width:48px; height:48px; color:var(--text-muted); margin-bottom:1rem; opacity:0.6;"></i>
             <h4 style="color:#fff; margin-bottom:0.5rem;">로깅된 트랙 세션이 없습니다</h4>
-            <p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:1.5rem;">서킷 주행 후 타이어 공기압, 감쇠력 세팅과 베스트 랩타임을 기록해보세요.</p>
+            <p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:1.5rem;">서킷 주행 후 4륜 공기압, 감쇠력 세팅과 베스트 랩타임을 기록해보세요.</p>
             <button class="btn btn-primary" onclick="openAddSessionModal()"><i data-lucide="zap"></i> 세션 로깅 추가</button>
           </div>
         `;
@@ -3470,11 +3802,9 @@
             <button class="btn btn-cyan" style="flex:1; justify-content:center; padding:0.35rem 0.6rem; font-size:0.78rem;" onclick="openEditSessionModal(${s.id})">
               <i data-lucide="edit-3"></i> 셋업 & 랩타임 수정
             </button>
-            ${user.isLoggedIn ? `
-              <button class="btn btn-secondary" style="padding:0.35rem 0.55rem; font-size:0.78rem; background:rgba(255,42,75,0.12); border-color:rgba(255,42,75,0.35); color:#ff6b81;" onclick="handleDeleteSession(${s.id}, '${escapedLabel}')" title="세션 삭제">
-                <i data-lucide="trash-2" style="width:13px; height:13px;"></i>
-              </button>
-            ` : ''}
+            <button class="btn btn-secondary" style="padding:0.35rem 0.55rem; font-size:0.78rem; background:rgba(255,42,75,0.12); border-color:rgba(255,42,75,0.35); color:#ff6b81;" onclick="handleDeleteSession(${s.id}, '${escapedLabel}')" title="세션 삭제">
+              <i data-lucide="trash-2" style="width:13px; height:13px;"></i>
+            </button>
           </div>
         `;
 
@@ -3489,7 +3819,7 @@
     }
 
     // =============================================
-    // LEADERBOARD (API-backed with Circuit Tabs)
+    // LEADERBOARD (API-backed with Circuit Tabs & Guest Sample)
     // =============================================
     let activeLeaderboardTrackId = 1;
 
@@ -3550,14 +3880,24 @@
       `;
       lucide.createIcons();
 
+      let leaderboardData = [];
+
+      // Try API first
       const res = await api(`/leaderboard/${trackId}`);
+      if (res.ok && res.leaderboard && res.leaderboard.length > 0) {
+        leaderboardData = res.leaderboard;
+      } else if (!user.isLoggedIn && SAMPLE_LEADERBOARD[trackId]) {
+        // Guest mode sample fallback
+        leaderboardData = SAMPLE_LEADERBOARD[trackId];
+      }
+
       tbody.innerHTML = '';
 
-      if (res.ok && res.leaderboard && res.leaderboard.length > 0) {
+      if (leaderboardData.length > 0) {
         const medals = ['🥇 #1', '🥈 #2', '🥉 #3'];
         const colors = ['#ffd700', '#c0c0c0', '#cd7f32'];
 
-        res.leaderboard.forEach((r, i) => {
+        leaderboardData.forEach((r, i) => {
           const rankDisplay = i < 3 ? medals[i] : `#${i + 1}`;
           const rankColor = i < 3 ? colors[i] : 'var(--text-muted)';
           const tr = document.createElement('tr');
