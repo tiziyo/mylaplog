@@ -2302,6 +2302,8 @@
       user = { ...GUEST_USER };
       garage = JSON.parse(JSON.stringify(SAMPLE_GARAGE));
       sessions = JSON.parse(JSON.stringify(SAMPLE_SESSIONS));
+      userTeams = [JSON.parse(JSON.stringify(SAMPLE_TEAM))];
+      activeTeamId = SAMPLE_TEAM.id;
       team = JSON.parse(JSON.stringify(SAMPLE_TEAM));
       
       updateUserUI();
