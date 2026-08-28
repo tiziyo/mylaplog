@@ -2989,14 +2989,23 @@
 
     async function handleDeleteVehicle(vehicleId, vehicleName) {
       if (!user.isLoggedIn) return;
+
+      // Check if there are related track sessions registered with this vehicle
+      const relatedSessions = sessions.filter(s => s.vehicleId == vehicleId || s.vehicle_id == vehicleId);
+      if (relatedSessions.length > 0) {
+        alert(`⚠️ '${vehicleName}' 머신으로 등록된 트랙데이 주행 세션 로그가 ${relatedSessions.length}건 존재합니다.\n\n[세션 & 셋업 로거] 탭에서 관련 세션 로그들을 먼저 삭제해야 머신을 삭제할 수 있습니다.`);
+        return;
+      }
+
       if (!confirm(`'${vehicleName}' 머신을 개러지에서 삭제하시겠습니까?`)) return;
 
       const res = await api(`/vehicles/${vehicleId}`, 'DELETE');
       if (res.ok) {
-        showToast(`'${vehicleName}' 머신이 삭제되었습니다.`);
+        showToast(`'${vehicleName}' 머신이 성공적으로 삭제되었습니다.`);
         await loadVehicles();
         renderDashboardMetrics();
       } else {
+        alert(res.error || '차량 삭제에 실패했습니다.');
         showToast(res.error || '차량 삭제 실패');
       }
     }

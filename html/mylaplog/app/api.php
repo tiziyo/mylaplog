@@ -463,8 +463,30 @@ if (($method === 'PUT' || $method === 'POST') && preg_match('#^/vehicles/(\d+)$#
 // DELETE /vehicles/:id
 if ($method === 'DELETE' && preg_match('#^/vehicles/(\d+)$#', $uri, $m)) {
     $userId = requireAuth();
+    $vehicleId = (int)$m[1];
+
+    // Check ownership
+    $check = $pdo->prepare('SELECT id, make, model FROM vehicles WHERE id = ? AND user_id = ?');
+    $check->execute([$vehicleId, $userId]);
+    $veh = $check->fetch();
+    if (!$veh) {
+        jsonResponse(404, ['error' => '삭제할 차량을 찾을 수 없거나 권한이 없습니다.']);
+    }
+
+    // Check if there are related track sessions
+    $sCheck = $pdo->prepare('SELECT COUNT(*) as cnt FROM track_sessions WHERE vehicle_id = ?');
+    $sCheck->execute([$vehicleId]);
+    $sessionCount = (int)($sCheck->fetch()['cnt'] ?? 0);
+
+    if ($sessionCount > 0) {
+        $vehName = trim($veh['make'] . ' ' . $veh['model']);
+        jsonResponse(400, [
+            'error' => "해당 차량('{$vehName}')으로 등록된 트랙 세션 로그가 {$sessionCount}건 존재하여 삭제할 수 없습니다. 세션 & 셋업 로거에서 관련 세션을 먼저 삭제해주세요."
+        ]);
+    }
+
     $stmt = $pdo->prepare('DELETE FROM vehicles WHERE id = ? AND user_id = ?');
-    $stmt->execute([$m[1], $userId]);
+    $stmt->execute([$vehicleId, $userId]);
     jsonResponse(200, ['message' => '차량 삭제 완료']);
 }
 
