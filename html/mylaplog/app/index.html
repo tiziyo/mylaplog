@@ -2081,9 +2081,9 @@
         trackId: 2,
         vehicle: 'Porsche 911 GT3 (992)',
         vehicleId: 102,
-        teamId: null,
-        team_id: null,
-        teamName: null,
+        teamId: 202,
+        team_id: 202,
+        teamName: 'Midnight Track Club',
         date: '2026-08-10',
         sessionNum: 1,
         bestLap: '02:24.410',
@@ -3918,7 +3918,40 @@
 
       // 로그아웃(게스트 모드) 상태: 항상 클라이언트 인메모리(SAMPLE_LEADERBOARD)에서 즉시 로드
       if (!user.isLoggedIn) {
-        leaderboardData = SAMPLE_LEADERBOARD[trackId] || [];
+        leaderboardData = JSON.parse(JSON.stringify(SAMPLE_LEADERBOARD[trackId] || []));
+
+        // 출전 머신의 실제 개러지 소속 팀 정보를 리더보드에 동적으로 연동
+        const myTrackSessions = sessions.filter(s => s.trackId == trackId && s.bestLapMs > 0);
+        if (myTrackSessions.length > 0) {
+          myTrackSessions.sort((a, b) => a.bestLapMs - b.bestLapMs);
+          const bestSess = myTrackSessions[0];
+          const veh = garage.find(v => v.id == bestSess.vehicleId);
+          const correctTeamName = veh ? (veh.teamName || (veh.team_id ? userTeams.find(t => t.id == veh.team_id)?.name : null)) : bestSess.teamName;
+
+          const myLeaderIndex = leaderboardData.findIndex(r => r.driver_name.includes('Alex Kim'));
+          if (myLeaderIndex !== -1) {
+            leaderboardData[myLeaderIndex].team_name = correctTeamName || '개인 소유 (미소속)';
+            if (veh) {
+              leaderboardData[myLeaderIndex].vehicle_name = `${veh.make} ${veh.model}`;
+              leaderboardData[myLeaderIndex].tire_model = veh.tire || veh.tire_model || leaderboardData[myLeaderIndex].tire_model;
+            }
+            leaderboardData[myLeaderIndex].best_lap_ms = bestSess.bestLapMs;
+            leaderboardData[myLeaderIndex].hot_psi_fl = bestSess.psiFL;
+            leaderboardData[myLeaderIndex].camber_fl = bestSess.camberFL;
+            leaderboardData[myLeaderIndex].damper_front_clicks = bestSess.damperF;
+          }
+        } else {
+          leaderboardData.forEach(item => {
+            if (item.driver_name.includes('Alex Kim')) {
+              const matchedVeh = garage.find(v => item.vehicle_name.toLowerCase().includes(v.model.split(' ')[0].toLowerCase()));
+              if (matchedVeh) {
+                item.team_name = matchedVeh.teamName || (matchedVeh.team_id ? userTeams.find(t => t.id == matchedVeh.team_id)?.name : '개인 소유 (미소속)');
+              }
+            }
+          });
+        }
+
+        leaderboardData.sort((a, b) => a.best_lap_ms - b.best_lap_ms);
       } else {
         // 로그인 모드: MariaDB API 호출
         tbody.innerHTML = `
