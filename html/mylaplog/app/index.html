@@ -1153,68 +1153,51 @@
         <!-- ================= TAB 4: TELEMETRY & ANALYTICS ================= -->
         <div id="tab-analytics" class="tab-panel">
           
-          <!-- Chart Section: Setup vs Lap Time -->
-          <div class="card">
-            <div class="card-header">
-              <div class="card-title">
-                <i data-lucide="line-chart"></i> 타이어 공기압 및 댐퍼 세팅에 따른 랩타임 변화 추이
+          <!-- MAIN CARD: 동일 서킷 & 동일 차종 랩타임 순위 Top 3 공기압 vs 랩타임 상관관계 분석 -->
+          <div class="card" style="border-color: rgba(0, 240, 255, 0.3); box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);">
+            <div class="card-header" style="flex-wrap:wrap; gap:1rem; align-items:flex-start;">
+              <div>
+                <div class="card-title" style="color:#fff; font-size:1.15rem; display:flex; align-items:center; gap:0.5rem;">
+                  <i data-lucide="line-chart" style="color:var(--accent-cyan)"></i>
+                  동일 서킷 & 동일 차종 랩타임 순위 Top 3 공기압-랩타임 상관관계 텔레메트리
+                </div>
+                <p style="font-size:0.83rem; color:var(--text-muted); margin-top:0.3rem; line-height:1.4;">
+                  동일한 트랙 조건과 동일 머신에서 주행한 상위 1~3위(Top 3) 드라이버들의 4륜 열간 타이어 공기압(PSI) 세팅과 베스트 랩타임 간의 상관관계를 심층 분석합니다.
+                </p>
               </div>
-              <span class="circuit-badge">인제 스피디움 (Full 3.908km)</span>
-            </div>
-            <div style="height: 320px; width: 100%;">
-              <canvas id="telemetryChart"></canvas>
-            </div>
-          </div>
 
-          <!-- Teammate Setup Comparison Matrix -->
-          <div class="card">
-            <div class="card-header">
-              <div class="card-title">
-                <i data-lucide="git-compare"></i> 팀원 간 동일 차종/서킷 셋업 비교 (Alex Kim vs David Lee)
+              <!-- 서킷 & 동일 차종 동적 필터 컨트롤러 -->
+              <div style="display:flex; gap:0.6rem; align-items:center; flex-wrap:wrap; background:rgba(0,0,0,0.35); padding:0.4rem 0.65rem; border-radius:8px; border:1px solid rgba(255,255,255,0.06);">
+                <div style="display:flex; align-items:center; gap:0.4rem;">
+                  <i data-lucide="map-pin" style="width:14px; height:14px; color:var(--accent-cyan);"></i>
+                  <select id="telemetry-track-select" class="form-control compact-input" style="width:auto; padding:0.35rem 0.6rem; font-size:0.82rem;" onchange="onTelemetryFilterChange()">
+                    <!-- Tracks populated via JS -->
+                  </select>
+                </div>
+                <div style="display:flex; align-items:center; gap:0.4rem;">
+                  <i data-lucide="car" style="width:14px; height:14px; color:var(--accent-red);"></i>
+                  <select id="telemetry-vehicle-select" class="form-control compact-input" style="width:auto; padding:0.35rem 0.6rem; font-size:0.82rem;" onchange="onTelemetryFilterChange()">
+                    <!-- Vehicles populated via JS -->
+                  </select>
+                </div>
               </div>
             </div>
-            <table class="compare-table">
-              <thead>
-                <tr>
-                  <th>셋업 항목</th>
-                  <th>Alex Kim (Avante N #77)</th>
-                  <th>David Lee (Avante N #12)</th>
-                  <th>차이 (Delta) & 엔지니어 코멘트</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td><strong>베스트 랩타임</strong></td>
-                  <td><span style="color:var(--accent-cyan); font-family:var(--font-mono); font-weight:700;">01:52.348</span></td>
-                  <td><span style="color:var(--text-muted); font-family:var(--font-mono); font-weight:700;">01:53.120</span></td>
-                  <td><span style="color:var(--accent-green)">-0.772s (Alex 우세, S2 코너 진입 속도)</span></td>
-                </tr>
-                <tr>
-                  <td><strong>프론트 타이어 열간 공기압</strong></td>
-                  <td>34.0 PSI</td>
-                  <td>36.5 PSI</td>
-                  <td>David의 공기압이 다소 높아 트레드 중앙부 발열 집중</td>
-                </tr>
-                <tr>
-                  <td><strong>댐퍼 감쇠력 (F/R)</strong></td>
-                  <td>F 12단 / R 8단</td>
-                  <td>F 8단 / R 8단</td>
-                  <td>Alex가 프론트 댐퍼를 단단히 하여 헤어핀 롤 억제</td>
-                </tr>
-                <tr>
-                  <td><strong>프론트 캠버 각도</strong></td>
-                  <td>-3.2°</td>
-                  <td>-2.5°</td>
-                  <td>Alex의 -3.2° 캠버가 1번 및 4번 코너 접지면적 최적화</td>
-                </tr>
-                <tr>
-                  <td><strong>리어 윙 각도</strong></td>
-                  <td>4° (Low Drag)</td>
-                  <td>8° (High Downforce)</td>
-                  <td>직선주로 최고속도 Alex +4km/h 유리</td>
-                </tr>
-              </tbody>
-            </table>
+
+            <!-- Top 3 순위 드라이버 요약 칩 그리드 -->
+            <div class="stats-grid" id="telemetry-top3-cards" style="grid-template-columns: repeat(3, 1fr); gap:0.85rem; margin:1rem 0;">
+              <!-- Populated via renderTop3TelemetryChips() -->
+            </div>
+
+            <!-- Main Correlation Chart Canvas Container -->
+            <div style="height: 380px; width: 100%; position: relative; margin: 1rem 0; background:rgba(0,0,0,0.25); border-radius:8px; padding:0.75rem; border:1px solid rgba(255,255,255,0.03);">
+              <canvas id="top3PsiLapChart"></canvas>
+            </div>
+
+            <!-- 셋업 & 공기압 상관관계 엔지니어 인사이트 바 -->
+            <div id="telemetry-insights-container" style="display:grid; grid-template-columns: repeat(3, 1fr); gap: 0.75rem; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border-subtle);">
+              <!-- Populated via JS Insights -->
+            </div>
+
           </div>
         </div>
 
@@ -2182,7 +2165,9 @@
       document.getElementById('current-page-title').innerHTML = titles[tabId] || 'MyLapLog App';
       lucide.createIcons();
 
-      if (tabId === 'analytics') renderTelemetryChart();
+      if (tabId === 'analytics') {
+        initAndRenderTop3Telemetry();
+      }
       if (tabId === 'leaderboard') selectLeaderboardTrack(activeLeaderboardTrackId || 1);
     }
 
@@ -2351,6 +2336,7 @@
       renderSessions();
       renderGarage();
       renderTeamUI();
+      initAndRenderTop3Telemetry();
     }
 
     // =============================================
@@ -3928,46 +3914,403 @@
     }
 
     // =============================================
-    // TELEMETRY CHART (Chart.js)
+    // TELEMETRY & ANALYTICS: 동일 서킷 & 동일 차종 Top 3 공기압 vs 랩타임 상관관계 분석
     // =============================================
-    let chartInstance = null;
-    function renderTelemetryChart() {
-      const ctx = document.getElementById('telemetryChart');
-      if (!ctx) return;
-      if (chartInstance) chartInstance.destroy();
+    let top3PsiLapChartInstance = null;
+    let selectedTelemetryTrackId = 1;
+    let selectedTelemetryVehicle = 'Hyundai Avante N TCR';
 
-      let labels, lapData, psiData;
-      const injeSessions = sessions.filter(s => s.track && s.track.includes('인제')).slice(0, 5).reverse();
-      if (injeSessions.length >= 2) {
-        labels = injeSessions.map((s, i) => `세션 ${s.sessionNum} (${s.psiFL} PSI)`);
-        lapData = injeSessions.map(s => s.bestLapMs ? (s.bestLapMs / 1000) : (lapStrToMs(s.bestLap) / 1000));
-        psiData = injeSessions.map(s => s.psiFL);
-      } else {
-        // Sample baseline for preview
-        labels = ['세션 1 (36 PSI)', '세션 2 (35 PSI)', '세션 3 (34 PSI 최적)', '세션 4 (32.5 PSI)', '세션 5 (38 PSI 과열)'];
-        lapData = [113.8, 112.9, 112.3, 112.8, 114.5];
-        psiData = [36, 35, 34, 32.5, 38];
+    // 서킷 및 동일 차종별 Top 3 상세 텔레메트리 데이터셋
+    const TOP3_TELEMETRY_DATA = {
+      // 1. 인제 스피디움
+      '1_Hyundai Avante N TCR': {
+        trackName: '인제 스피디움 (Full 3.908km)',
+        vehicleName: 'Hyundai Avante N TCR',
+        drivers: [
+          { rank: 1, name: 'Alex Kim', team: 'Apex Racing Korea', lapTimeStr: '01:52.348', lapTimeSec: 112.348, hotPsiF: 34.0, hotPsiR: 32.0, psiAvg: 33.0, status: '최적 밸런스', delta: '0.000s (기준)', badgeColor: 'var(--accent-green)', comment: '전륜 34.0 PSI로 헤어핀 탈출 접지면적 최적화 및 타이어 중앙부 발열 억제' },
+          { rank: 2, name: 'David Lee', team: 'Apex Racing Korea', lapTimeStr: '01:53.120', lapTimeSec: 113.120, hotPsiF: 36.0, hotPsiR: 33.5, psiAvg: 34.75, status: '전륜 과열 (+2.0 PSI)', delta: '+0.772s', badgeColor: '#ff9100', comment: '전륜 36.0 PSI 과열로 트레드 중앙부 접촉 집중, 코너 중반 언더스티어로 +0.77s 지연' },
+          { rank: 3, name: 'Minho Choi', team: 'Midnight Track Club', lapTimeStr: '01:53.480', lapTimeSec: 113.480, hotPsiF: 33.0, hotPsiR: 31.0, psiAvg: 32.0, status: '저공기압 (-1.0 PSI)', delta: '+1.132s', badgeColor: '#ff6b81', comment: '전륜 33.0 PSI로 고속 코너에서 사이드월 롤링 발생, 반응성 저하로 +1.13s 지연' }
+        ],
+        insights: [
+          { title: '🎯 최적 공기압 윈도우', value: '33.5 ~ 34.0 PSI', text: '인제 헤어핀 연속 구간에서 34.0 PSI 유지 시 트레드 전체 고른 접지로 -0.77초 우세' },
+          { title: '⚠️ 과공기압(+2.0 PSI) 손실', value: '+0.772초 지연', text: '전륜 36.0 PSI 세팅 시 1·4번 코너 탈출 시 전륜 슬립 앵글 과다 발생' },
+          { title: '⚖️ 전/후륜 밸런스 델타', value: '전륜 대비 후륜 -2.0 PSI', text: '후륜을 전륜보다 2.0 PSI 낮게 유지하여 고속 연속 S자에서 후륜 안정성 극대화' }
+        ]
+      },
+      '1_Porsche 911 GT3 (992)': {
+        trackName: '인제 스피디움 (Full 3.908km)',
+        vehicleName: 'Porsche 911 GT3 (992)',
+        drivers: [
+          { rank: 1, name: 'Taehoon Kang', team: 'Midnight Track Club', lapTimeStr: '01:46.820', lapTimeSec: 106.820, hotPsiF: 31.5, hotPsiR: 33.5, psiAvg: 32.5, status: 'RR 최적 셋업', delta: '0.000s (기준)', badgeColor: 'var(--accent-green)', comment: 'RR 구동 특성 반영: 후륜 33.5 PSI로 트랙션 확보 및 전륜 31.5 PSI로 조향 그립 최적' },
+          { rank: 2, name: 'Alex Kim', team: 'Midnight Track Club', lapTimeStr: '01:47.340', lapTimeSec: 107.340, hotPsiF: 32.5, hotPsiR: 34.5, psiAvg: 33.5, status: '후륜 미세 과열', delta: '+0.520s', badgeColor: '#ff9100', comment: '후륜 34.5 PSI로 코너 탈출 시 스냅 오버스티어 발생하여 조기 스로틀 전개 실패' },
+          { rank: 3, name: 'Junho Jung', team: 'AMG Korea', lapTimeStr: '01:48.150', lapTimeSec: 108.150, hotPsiF: 33.0, hotPsiR: 35.5, psiAvg: 34.25, status: '과열 팽창 (+2.0 PSI)', delta: '+1.330s', badgeColor: '#ff6b81', comment: '후륜 35.5 PSI 과열로 리어 타이어 그립 저하, 직선 제동 안정성 저하' }
+        ],
+        insights: [
+          { title: '🎯 RR 구동 최적 윈도우', value: 'F 31.5 / R 33.5 PSI', text: '후륜 엔진 하중을 견디면서도 오버히트를 방지하는 최적의 타이어 발열 밸런스' },
+          { title: '⚠️ 후륜 과열 편차', value: '+0.520초 손실', text: '후륜 34.5 PSI 초과 시 트랙션 서클 감소로 코너 탈출 스로틀 개도 손실' },
+          { title: '⚖️ 전/후륜 역전 PSI 세팅', value: '후륜이 전륜보다 +2.0 PSI', text: '리어 헤비 머신의 전형적인 세팅으로 전륜 언더스티어와 후륜 횡슬립 동시 억제' }
+        ]
+      },
+      // 2. 영암 KIC
+      '2_Porsche 911 GT3 (992)': {
+        trackName: '영암 KIC (Full 5.615km)',
+        vehicleName: 'Porsche 911 GT3 (992)',
+        drivers: [
+          { rank: 1, name: 'Taehoon Kang', team: 'Midnight Track Club', lapTimeStr: '02:23.850', lapTimeSec: 143.850, hotPsiF: 32.0, hotPsiR: 33.0, psiAvg: 32.5, status: '초고속 최적 셋업', delta: '0.000s (기준)', badgeColor: 'var(--accent-green)', comment: '영암 1.2km 직선 후 3번 헤어핀 풀 브레이킹 시 안정적인 접지 유지' },
+          { rank: 2, name: 'Alex Kim', team: 'Midnight Track Club', lapTimeStr: '02:24.410', lapTimeSec: 144.410, hotPsiF: 33.5, hotPsiR: 31.0, psiAvg: 32.25, status: '전륜 과열 (+1.5 PSI)', delta: '+0.560s', badgeColor: '#ff9100', comment: '전륜 33.5 PSI로 섹터 2 중고속 코너에서 전륜 접지면적 감소' },
+          { rank: 3, name: 'Sangwoo Lee', team: 'Bimmer Track Club', lapTimeStr: '02:25.620', lapTimeSec: 145.620, hotPsiF: 34.5, hotPsiR: 34.0, psiAvg: 34.25, status: '전체 과열 (+2.5 PSI)', delta: '+1.770s', badgeColor: '#ff6b81', comment: '타이어 전체 열간 과열로 섹터 3 마리나 구간에서 지속적인 언더스티어' }
+        ],
+        insights: [
+          { title: '🎯 영암 최적 공기압', value: '32.0 ~ 33.0 PSI', text: '영암 초고속 풀서킷의 높은 횡G와 연속 하중을 완벽히 흡수하는 스윗스팟' },
+          { title: '⚠️ 전륜 과열 랩타임 저하', value: '+0.560초 지연', text: '전륜 열간 33.5 PSI 이상 상승 시 헤어핀 진입 턴인 반응성 저하' },
+          { title: '⚖️ 마리나 테크니컬 밸런스', value: 'F 32.0 / R 33.0 PSI', text: '섹터 3의 저속 연속 코너에서 날카로운 두상 전환과 빠른 탈출 트랙션 보장' }
+        ]
+      },
+      '2_Hyundai Avante N TCR': {
+        trackName: '영암 KIC (Full 5.615km)',
+        vehicleName: 'Hyundai Avante N TCR',
+        drivers: [
+          { rank: 1, name: 'Alex Kim', team: 'Apex Racing Korea', lapTimeStr: '02:30.120', lapTimeSec: 150.120, hotPsiF: 34.5, hotPsiR: 32.0, psiAvg: 33.25, status: 'FF 영암 최적', delta: '0.000s (기준)', badgeColor: 'var(--accent-green)', comment: '영암 초장거리 직선 후 전륜 34.5 PSI로 풀 브레이킹 발열 최적화' },
+          { rank: 2, name: 'David Lee', team: 'Apex Racing Korea', lapTimeStr: '02:31.250', lapTimeSec: 151.250, hotPsiF: 36.5, hotPsiR: 33.0, psiAvg: 34.75, status: '전륜 과열 (+2.0 PSI)', delta: '+1.130s', badgeColor: '#ff9100', comment: '전륜 36.5 PSI로 영암 마리나 저속 코너에서 심한 언더스티어 발생' },
+          { rank: 3, name: 'Seungmin Han', team: 'N-Club Korea', lapTimeStr: '02:32.400', lapTimeSec: 152.400, hotPsiF: 33.0, hotPsiR: 31.0, psiAvg: 32.0, status: '저압 타이어 손실', delta: '+2.280s', badgeColor: '#ff6b81', comment: '직선주로 최고속도에서 구름저항 증가로 직선 랩타임 손실' }
+        ],
+        insights: [
+          { title: '🎯 FF 고속 서킷 최적압', value: '34.5 PSI', text: '직선 최고속도와 고하중 브레이킹을 동시에 만족하는 FF 머신 최적 수치' },
+          { title: '⚠️ 전륜 과열 리스크', value: '+1.130초 지연', text: 'FF 레이스카 특성상 전륜 36 PSI 초과 시 타이어 수명 및 랩타임 급락' },
+          { title: '⚖️ 리어 로테이션 공기압', value: '후륜 32.0 PSI', text: '후륜을 약간 단단하지 않게 유지하여 헤어핀 진입 시 안정적인 테일 로테이션 유도' }
+        ]
+      },
+      // 3. 용인 에버랜드 스피드웨이
+      '3_Porsche 911 GT3 (992)': {
+        trackName: '용인 에버랜드 스피드웨이 (4.346km)',
+        vehicleName: 'Porsche 911 GT3 (992)',
+        drivers: [
+          { rank: 1, name: 'Donghyun Kim', team: 'Apex Racing Korea', lapTimeStr: '02:08.900', lapTimeSec: 128.900, hotPsiF: 32.5, hotPsiR: 33.5, psiAvg: 33.0, status: '테크니컬 최적', delta: '0.000s (기준)', badgeColor: 'var(--accent-green)', comment: '용인의 블라인드 고저차 코너에서 균형 잡힌 타이어 접지' },
+          { rank: 2, name: 'Alex Kim', team: 'Midnight Track Club', lapTimeStr: '02:09.340', lapTimeSec: 129.340, hotPsiF: 33.0, hotPsiR: 34.0, psiAvg: 33.5, status: '미세 과열 (+0.5 PSI)', delta: '+0.440s', badgeColor: '#ff9100', comment: '중저속 코너 탈출 시 후륜 슬립으로 미세 지연' },
+          { rank: 3, name: 'Sangwoo Lee', team: 'Bimmer Track Club', lapTimeStr: '02:11.200', lapTimeSec: 131.200, hotPsiF: 35.0, hotPsiR: 35.0, psiAvg: 35.0, status: '과열 팽창 (+2.0 PSI)', delta: '+2.300s', badgeColor: '#ff6b81', comment: '고저차 내리막 브레이킹 시 ABS 개입 빈도 증가' }
+        ],
+        insights: [
+          { title: '🎯 용인 고저차 서킷 최적압', value: '32.5 ~ 33.5 PSI', text: '용인 특유의 뱅크각 코너와 연석 주행 충격을 유연하게 흡수' },
+          { title: '⚠️ 과공기압 제동 손실', value: '+2.300초 이상 지연', text: '35 PSI 이상 과열 시 내리막 급제동 구간에서 제동거리 급격히 증가' },
+          { title: '⚖️ 롤링 억제 밸런스', value: '전륜 32.5 / 후륜 33.5 PSI', text: '좌우 롤링 전환이 빠른 용인 S코너에서 즉각적인 하중 이동 보장' }
+        ]
+      },
+      // 4. 태백 레이싱파크
+      '4_Hyundai Avante N TCR': {
+        trackName: '태백 레이싱파크 (2.500km)',
+        vehicleName: 'Hyundai Avante N TCR',
+        drivers: [
+          { rank: 1, name: 'Alex Kim', team: 'Apex Racing Korea', lapTimeStr: '01:01.850', lapTimeSec: 61.850, hotPsiF: 34.0, hotPsiR: 32.5, psiAvg: 33.25, status: '숏트랙 최적', delta: '0.000s (기준)', badgeColor: 'var(--accent-green)', comment: '태백 고속 자이언트 코너에서 전륜 34.0 PSI로 완벽한 횡접지 유지' },
+          { rank: 2, name: 'David Lee', team: 'Apex Racing Korea', lapTimeStr: '01:02.450', lapTimeSec: 62.450, hotPsiF: 35.5, hotPsiR: 33.5, psiAvg: 34.5, status: '전륜 과열 (+1.5 PSI)', delta: '+0.600s', badgeColor: '#ff9100', comment: '자이언트 코너에서 전륜 중앙부 과열로 탈출 라인 부풀림 발생' },
+          { rank: 3, name: 'Jinwoo Park', team: 'K-Fast Crew', lapTimeStr: '01:02.720', lapTimeSec: 62.720, hotPsiF: 36.0, hotPsiR: 34.0, psiAvg: 35.0, status: '과열 팽창 (+2.0 PSI)', delta: '+0.870s', badgeColor: '#ff6b81', comment: '숏트랙 연속 턴에서 타이어 과열 누적으로 랩타임 지속 하락' }
+        ],
+        insights: [
+          { title: '🎯 태백 숏코스 최적압', value: '34.0 PSI', text: '짧은 랩타임(1분 1초대) 동안 고속 코너와 헤어핀을 공략하는 최적 스펙' },
+          { title: '⚠️ 자이언트 코너 탈출 영향', value: '+0.600초 지연', text: '전륜 35.5 PSI 이상 시 우측 타이어 편마모 및 언더스티어 가속화' },
+          { title: '⚖️ 좌우 비대칭 발열 관리', value: '우코너 집중 서킷', text: '좌측 타이어 공기압을 우측 대비 1 PSI 낮추어 균일한 열간 PSI 도달 권장' }
+        ]
+      }
+    };
+
+    // 텔레메트리 탭 진입 시 초기화
+    function initAndRenderTop3Telemetry() {
+      // 1. 트랙 셀렉터 초기화
+      const trackSel = document.getElementById('telemetry-track-select');
+      if (trackSel && tracks.length > 0) {
+        trackSel.innerHTML = tracks.map(t => `<option value="${t.id}" ${t.id == selectedTelemetryTrackId ? 'selected' : ''}>${t.name}</option>`).join('');
       }
 
-      chartInstance = new Chart(ctx, {
-        type: 'line',
+      // 2. 차량 셀렉터 초기화
+      updateTelemetryVehicleSelectOptions();
+
+      // 3. 차트 및 인사이트 렌더링
+      renderTop3PsiLapChart();
+      lucide.createIcons();
+    }
+
+    function updateTelemetryVehicleSelectOptions() {
+      const vehSel = document.getElementById('telemetry-vehicle-select');
+      if (!vehSel) return;
+
+      // 가능한 차종 목록
+      const trackVehicles = {
+        1: ['Hyundai Avante N TCR', 'Porsche 911 GT3 (992)'],
+        2: ['Porsche 911 GT3 (992)', 'Hyundai Avante N TCR'],
+        3: ['Porsche 911 GT3 (992)'],
+        4: ['Hyundai Avante N TCR']
+      };
+
+      const options = trackVehicles[selectedTelemetryTrackId] || ['Hyundai Avante N TCR', 'Porsche 911 GT3 (992)'];
+      if (!options.includes(selectedTelemetryVehicle)) {
+        selectedTelemetryVehicle = options[0];
+      }
+
+      vehSel.innerHTML = options.map(v => `<option value="${v}" ${v === selectedTelemetryVehicle ? 'selected' : ''}>${v}</option>`).join('');
+    }
+
+    function onTelemetryFilterChange() {
+      const trackSel = document.getElementById('telemetry-track-select');
+      const vehSel = document.getElementById('telemetry-vehicle-select');
+
+      if (trackSel) selectedTelemetryTrackId = parseInt(trackSel.value) || 1;
+      updateTelemetryVehicleSelectOptions();
+      if (vehSel) selectedTelemetryVehicle = vehSel.value || selectedTelemetryVehicle;
+
+      renderTop3PsiLapChart();
+      lucide.createIcons();
+    }
+
+    // 메인 차트 및 요약 카드 렌더링 함수
+    function renderTop3PsiLapChart() {
+      const ctx = document.getElementById('top3PsiLapChart');
+      if (!ctx) return;
+
+      const key = `${selectedTelemetryTrackId}_${selectedTelemetryVehicle}`;
+      let data = TOP3_TELEMETRY_DATA[key];
+
+      // Fallback
+      if (!data) {
+        const firstKey = Object.keys(TOP3_TELEMETRY_DATA)[0];
+        data = TOP3_TELEMETRY_DATA[firstKey];
+      }
+
+      const drivers = data.drivers;
+
+      // 1. 상단 Top 3 요약 카드 렌더링
+      const cardsContainer = document.getElementById('telemetry-top3-cards');
+      if (cardsContainer) {
+        const medals = ['🥇 1위 (Leader)', '🥈 2위 (P2)', '🥉 3위 (P3)'];
+        const borderGradients = [
+          'border: 1px solid rgba(255, 215, 0, 0.4); box-shadow: 0 4px 16px rgba(255, 215, 0, 0.08);',
+          'border: 1px solid rgba(192, 192, 192, 0.3);',
+          'border: 1px solid rgba(205, 127, 50, 0.3);'
+        ];
+
+        cardsContainer.innerHTML = drivers.map((d, i) => `
+          <div class="stat-card" style="${borderGradients[i]} position: relative; overflow: hidden; background: rgba(16, 21, 33, 0.85);">
+            <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:0.4rem;">
+              <span style="font-size:0.8rem; font-weight:700; color:${i === 0 ? '#ffd700' : (i === 1 ? '#c0c0c0' : '#cd7f32')}; font-family:var(--font-display);">
+                ${medals[i]}
+              </span>
+              <span class="role-badge" style="font-size:0.7rem; padding:0.15rem 0.45rem; background:rgba(255,255,255,0.05); color:${d.badgeColor}; border:1px solid ${d.badgeColor};">
+                ${d.status}
+              </span>
+            </div>
+
+            <div style="display:flex; align-items:baseline; gap:0.5rem; margin:0.25rem 0;">
+              <h4 style="color:#fff; font-size:1.1rem; margin:0;">${d.name}</h4>
+              <span style="font-size:0.75rem; color:var(--text-muted);">${d.team}</span>
+            </div>
+
+            <div style="display:flex; justify-content:space-between; align-items:baseline; margin:0.5rem 0; padding:0.4rem 0.6rem; background:rgba(0,0,0,0.3); border-radius:6px;">
+              <div>
+                <span style="font-size:0.72rem; color:var(--text-muted); display:block;">베스트 랩타임</span>
+                <strong style="color:var(--accent-cyan); font-family:var(--font-mono); font-size:1.15rem;">${d.lapTimeStr}</strong>
+              </div>
+              <div style="text-align:right;">
+                <span style="font-size:0.72rem; color:var(--text-muted); display:block;">1위 대비 격차</span>
+                <span style="font-size:0.85rem; font-family:var(--font-mono); font-weight:700; color:${i === 0 ? 'var(--accent-green)' : (i === 1 ? '#ff9100' : '#ff6b81')};">
+                  ${d.delta}
+                </span>
+              </div>
+            </div>
+
+            <div style="font-size:0.78rem; color:#cbd5e1; display:flex; justify-content:space-between; border-top:1px dashed rgba(255,255,255,0.06); padding-top:0.4rem;">
+              <span>타이어 열간 공기압:</span>
+              <strong style="color:#ff9100; font-family:var(--font-mono);">F ${d.hotPsiF} / R ${d.hotPsiR} PSI</strong>
+            </div>
+          </div>
+        `).join('');
+      }
+
+      // 2. Chart.js Dual-Axis 차트 렌더링
+      if (top3PsiLapChartInstance) top3PsiLapChartInstance.destroy();
+
+      const labels = drivers.map(d => `#${d.rank} ${d.name}`);
+      const lapTimeData = drivers.map(d => d.lapTimeSec);
+      const psiFrontData = drivers.map(d => d.hotPsiF);
+      const psiRearData = drivers.map(d => d.hotPsiR);
+
+      // Y축 최소/최대값 동적 산출
+      const minLap = Math.min(...lapTimeData);
+      const maxLap = Math.max(...lapTimeData);
+      const yLapMin = Math.floor(minLap - 1.5);
+      const yLapMax = Math.ceil(maxLap + 1.5);
+
+      const allPsi = [...psiFrontData, ...psiRearData];
+      const minPsi = Math.min(...allPsi);
+      const maxPsi = Math.max(...allPsi);
+      const yPsiMin = Math.floor(minPsi - 2);
+      const yPsiMax = Math.ceil(maxPsi + 2);
+
+      top3PsiLapChartInstance = new Chart(ctx, {
         data: {
           labels,
           datasets: [
-            { label: '베스트 랩타임 (초)', data: lapData, borderColor: '#00f0ff', backgroundColor: 'rgba(0, 240, 255, 0.1)', borderWidth: 3, tension: 0.3, fill: true, yAxisID: 'y' },
-            { label: '프론트 열간 공기압 (PSI)', data: psiData, borderColor: '#ff2a4b', borderDash: [5, 5], borderWidth: 2, pointBackgroundColor: '#ff2a4b', yAxisID: 'y1' }
+            {
+              type: 'bar',
+              label: '베스트 랩타임 (초 / s)',
+              data: lapTimeData,
+              backgroundColor: [
+                'rgba(0, 240, 255, 0.65)',
+                'rgba(0, 240, 255, 0.40)',
+                'rgba(0, 240, 255, 0.25)'
+              ],
+              borderColor: '#00f0ff',
+              borderWidth: 1.5,
+              borderRadius: 6,
+              barThickness: 45,
+              yAxisID: 'yLap',
+              order: 2
+            },
+            {
+              type: 'line',
+              label: '전륜 열간 공기압 (Front PSI)',
+              data: psiFrontData,
+              borderColor: '#ff9100',
+              backgroundColor: '#ff9100',
+              borderWidth: 3,
+              pointStyle: 'circle',
+              pointRadius: 8,
+              pointHoverRadius: 10,
+              pointBorderColor: '#101521',
+              pointBorderWidth: 2,
+              tension: 0.2,
+              yAxisID: 'yPsi',
+              order: 1
+            },
+            {
+              type: 'line',
+              label: '후륜 열간 공기압 (Rear PSI)',
+              data: psiRearData,
+              borderColor: '#b388ff',
+              backgroundColor: '#b388ff',
+              borderWidth: 2.5,
+              borderDash: [5, 4],
+              pointStyle: 'rectRot',
+              pointRadius: 8,
+              pointHoverRadius: 10,
+              pointBorderColor: '#101521',
+              pointBorderWidth: 2,
+              tension: 0.2,
+              yAxisID: 'yPsi',
+              order: 1
+            }
           ]
         },
         options: {
-          responsive: true, maintainAspectRatio: false,
-          plugins: { legend: { labels: { color: '#f0f4fc', font: { family: 'Noto Sans KR' } } } },
+          responsive: true,
+          maintainAspectRatio: false,
+          interaction: {
+            mode: 'index',
+            intersect: false
+          },
+          plugins: {
+            legend: {
+              position: 'top',
+              labels: {
+                color: '#f0f4fc',
+                font: { family: 'Noto Sans KR', size: 12, weight: '600' },
+                usePointStyle: true,
+                padding: 18
+              }
+            },
+            tooltip: {
+              backgroundColor: 'rgba(11, 14, 23, 0.95)',
+              titleColor: '#00f0ff',
+              titleFont: { family: 'Chakra Petch', size: 13, weight: '700' },
+              bodyColor: '#f0f4fc',
+              bodyFont: { family: 'Noto Sans KR', size: 12 },
+              borderColor: 'rgba(0, 240, 255, 0.4)',
+              borderWidth: 1,
+              padding: 12,
+              boxPadding: 6,
+              callbacks: {
+                title: items => {
+                  const idx = items[0].dataIndex;
+                  return `🏁 ${drivers[idx].rank}위: ${drivers[idx].name} (${drivers[idx].team})`;
+                },
+                label: context => {
+                  const idx = context.dataIndex;
+                  const d = drivers[idx];
+                  if (context.dataset.yAxisID === 'yLap') {
+                    return `⏱️ 베스트 랩타임: ${d.lapTimeStr} (${context.parsed.y.toFixed(3)}s) [${d.delta}]`;
+                  } else if (context.dataset.label.includes('전륜')) {
+                    return `🛞 전륜 열간 공기압: ${context.parsed.y} PSI`;
+                  } else if (context.dataset.label.includes('후륜')) {
+                    return `🛞 후륜 열간 공기압: ${context.parsed.y} PSI`;
+                  }
+                  return `${context.dataset.label}: ${context.parsed.y}`;
+                },
+                afterBody: items => {
+                  const idx = items[0].dataIndex;
+                  return `\n💡 셋업 피드백: ${drivers[idx].comment}`;
+                }
+              }
+            }
+          },
           scales: {
-            x: { grid: { color: 'rgba(255, 255, 255, 0.05)' }, ticks: { color: '#8391a8' } },
-            y: { type: 'linear', position: 'left', grid: { color: 'rgba(255, 255, 255, 0.05)' }, ticks: { color: '#00f0ff', callback: val => `${val}s` } },
-            y1: { type: 'linear', position: 'right', grid: { drawOnChartArea: false }, ticks: { color: '#ff2a4b', callback: val => `${val} PSI` } }
+            x: {
+              grid: { color: 'rgba(255, 255, 255, 0.04)' },
+              ticks: { color: '#f0f4fc', font: { family: 'Noto Sans KR', size: 12, weight: '700' } }
+            },
+            yLap: {
+              type: 'linear',
+              position: 'left',
+              min: yLapMin,
+              max: yLapMax,
+              grid: { color: 'rgba(255, 255, 255, 0.05)' },
+              title: {
+                display: true,
+                text: '베스트 랩타임 (초 / s)',
+                color: '#00f0ff',
+                font: { size: 11, weight: '700' }
+              },
+              ticks: {
+                color: '#00f0ff',
+                font: { family: 'Orbitron', size: 11 },
+                callback: val => `${val.toFixed(1)}s`
+              }
+            },
+            yPsi: {
+              type: 'linear',
+              position: 'right',
+              min: yPsiMin,
+              max: yPsiMax,
+              grid: { drawOnChartArea: false },
+              title: {
+                display: true,
+                text: '열간 타이어 공기압 (PSI)',
+                color: '#ff9100',
+                font: { size: 11, weight: '700' }
+              },
+              ticks: {
+                color: '#ff9100',
+                font: { family: 'Orbitron', size: 11 },
+                callback: val => `${val} PSI`
+              }
+            }
           }
         }
       });
+
+      // 3. 하단 엔지니어 인사이트 렌더링
+      const insightsContainer = document.getElementById('telemetry-insights-container');
+      if (insightsContainer && data.insights) {
+        insightsContainer.innerHTML = data.insights.map((ins, i) => `
+          <div style="background:rgba(0,0,0,0.35); padding:0.85rem; border-radius:6px; border:1px solid rgba(255,255,255,0.05);">
+            <div style="font-size:0.75rem; color:${i === 0 ? 'var(--accent-green)' : (i === 1 ? '#ff9100' : 'var(--accent-cyan)')}; font-weight:700; margin-bottom:0.25rem;">
+              ${ins.title}
+            </div>
+            <div style="font-size:1rem; font-weight:800; font-family:var(--font-mono); color:#fff; margin-bottom:0.35rem;">
+              ${ins.value}
+            </div>
+            <p style="font-size:0.82rem; color:#cbd5e1; line-height:1.45; margin:0;">
+              ${ins.text}
+            </p>
+          </div>
+        `).join('');
+      }
     }
 
     // =============================================
