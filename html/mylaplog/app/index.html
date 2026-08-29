@@ -1907,207 +1907,40 @@
     }
 
     // =============================================
-    // SAMPLE DEMO DATA (For Logged-out / Guest Mode)
+    // =============================================
+    // SAMPLE DEMO DATA (For Logged-out / Guest Mode) - Empty by default
     // =============================================
     const GUEST_USER = {
-      id: 'guest_user',
-      name: 'Alex Kim (게스트)',
-      email: 'guest@mylaplog.com',
-      role: 'PRO-AM Driver',
-      avatar: 'AK',
-      kara_license: 'KARA B License',
-      driver_class: 'PRO-AM',
+      id: null,
+      name: '게스트',
+      email: '',
+      role: '로그인 필요',
+      avatar: 'G',
+      kara_license: '-',
+      driver_class: '-',
       isLoggedIn: false
     };
 
-    const SAMPLE_GARAGE = [
-      {
-        id: 101,
-        make: 'Hyundai',
-        model: 'Avante N (TCR Specs)',
-        year: 2024,
-        power: 350,
-        teamId: 201,
-        team_id: 201,
-        teamName: 'Apex Racing Korea',
-        tire: 'SUR4G (245/40R18)',
-        tire_model: 'SUR4G',
-        tire_size_front: '245/40R18',
-        tire_size_rear: '245/40R18',
-        suspension: 'KW Competition 3-Way 코일오버 (F 12k / R 8k)',
-        suspension_spec: 'KW Competition 3-Way (F 12k / R 8k)',
-        visibility: 'TEAM'
-      },
-      {
-        id: 102,
-        make: 'Porsche',
-        model: '911 GT3 (992)',
-        year: 2023,
-        power: 510,
-        teamId: 202,
-        team_id: 202,
-        teamName: 'Midnight Track Club',
-        tire: 'Michelin Pilot Sport Cup 2 R',
-        tire_model: 'Cup 2 R',
-        tire_size_front: '255/35R20',
-        tire_size_rear: '315/30R21',
-        suspension: 'PASM Clubsport 셋업 (-3.5° 캠버)',
-        suspension_spec: 'PASM Clubsport (-3.5° 캠버)',
-        visibility: 'PUBLIC'
-      }
-    ];
-
-    const SAMPLE_TEAMS = [
-      {
-        id: 201,
-        name: 'Apex Racing Korea',
-        desc: '트랙데이 & 현대 N 페스티벌 출전 크루 (게스트 체험용 메인 팀)',
-        home_track: '인제 스피디움',
-        homeTrack: '인제 스피디움',
-        code: 'APEX-KOR-2026',
-        invite_code: 'APEX-KOR-2026',
-        role: 'OWNER',
-        owner_id: 'guest_user',
-        members: [
-          { id: 'guest_user', name: 'Alex Kim (나)', car: 'Avante N TCR (#77)', role: 'owner', sessions: 18, avatar: 'AK' },
-          { id: 2, name: 'David Lee', car: 'Avante N (#12)', role: 'driver', sessions: 14, avatar: 'DL' },
-          { id: 3, name: 'Jin Park (Chief Mechanic)', car: 'Chief Mechanic', role: 'mechanic', sessions: 0, avatar: 'JP' }
-        ]
-      },
-      {
-        id: 202,
-        name: 'Midnight Track Club',
-        desc: '심야 서킷 와인딩 & 영암 F1 코스 타임어택 크루 (게스트 소속 팀 2)',
-        home_track: '영암 KIC',
-        homeTrack: '영암 KIC',
-        code: 'MDNT-KIC-7700',
-        invite_code: 'MDNT-KIC-7700',
-        role: 'DRIVER',
-        owner_id: 99,
-        members: [
-          { id: 99, name: 'Taehoon Kang (팀장)', car: 'Porsche 911 GT3 RS', role: 'owner', sessions: 32, avatar: 'TK' },
-          { id: 'guest_user', name: 'Alex Kim (나)', car: 'Porsche 911 GT3 (#99)', role: 'driver', sessions: 8, avatar: 'AK' },
-          { id: 104, name: 'Minho Choi', car: 'BMW M2 Competition', role: 'driver', sessions: 19, avatar: 'MC' }
-        ]
-      }
-    ];
-
-    const SAMPLE_TEAM = SAMPLE_TEAMS[0];
-
-    const SAMPLE_SESSIONS = [
-      {
-        id: 301,
-        track: '인제 스피디움',
-        trackId: 1,
-        vehicle: 'Hyundai Avante N (TCR Specs)',
-        vehicleId: 101,
-        teamId: 201,
-        team_id: 201,
-        teamName: 'Apex Racing Korea',
-        date: '2026-08-27',
-        sessionNum: 3,
-        bestLap: '01:52.348',
-        bestLapMs: 112348,
-        airTemp: 24.5,
-        trackTemp: 38.0,
-        weather: 'DRY',
-        visibility: 'TEAM',
-        psiFL: 34.0, psiFR: 34.0, psiRL: 32.0, psiRR: 32.0,
-        coldFL: 28.0, coldFR: 28.0, coldRL: 28.0, coldRR: 28.0,
-        camberFL: -3.2, camberFR: -3.2, camberRL: -2.0, camberRR: -2.0,
-        camber: -3.2,
-        toeFL: 0.0, toeFR: 0.0, toeRL: 1.0, toeRR: 1.0,
-        casterFL: 6.5, casterFR: 6.5,
-        damperF: 12, damperR: 8,
-        wing: 4.0,
-        fuel: 30,
-        notes: '공기압 34psi 최적 도달 후 2번/3번 코너 접지 한계 상승. S2 섹터 베스트 기록 달성.',
-        laps: [{ lap_number: 1, lap_time_ms: 112348, is_best: 1 }]
-      },
-      {
-        id: 302,
-        track: '인제 스피디움',
-        trackId: 1,
-        vehicle: 'Hyundai Avante N (TCR Specs)',
-        vehicleId: 101,
-        teamId: 201,
-        team_id: 201,
-        teamName: 'Apex Racing Korea',
-        date: '2026-08-24',
-        sessionNum: 2,
-        bestLap: '01:52.856',
-        bestLapMs: 112856,
-        airTemp: 26.0,
-        trackTemp: 42.0,
-        weather: 'DRY',
-        visibility: 'TEAM',
-        psiFL: 36.0, psiFR: 36.0, psiRL: 33.5, psiRR: 33.5,
-        coldFL: 28.0, coldFR: 28.0, coldRL: 28.0, coldRR: 28.0,
-        camberFL: -3.2, camberFR: -3.2, camberRL: -2.0, camberRR: -2.0,
-        camber: -3.2,
-        toeFL: 0.0, toeFR: 0.0, toeRL: 1.0, toeRR: 1.0,
-        casterFL: 6.5, casterFR: 6.5,
-        damperF: 10, damperR: 8,
-        wing: 4.0,
-        fuel: 25,
-        notes: '타이어 열간 과열로 헤어핀 탈출 시 약간의 언더스티어 발생. 감쇠력 프론트 12단으로 상향 필요.',
-        laps: [{ lap_number: 1, lap_time_ms: 112856, is_best: 1 }]
-      },
-      {
-        id: 303,
-        track: '영암 KIC',
-        trackId: 2,
-        vehicle: 'Porsche 911 GT3 (992)',
-        vehicleId: 102,
-        teamId: 202,
-        team_id: 202,
-        teamName: 'Midnight Track Club',
-        date: '2026-08-10',
-        sessionNum: 1,
-        bestLap: '02:24.410',
-        bestLapMs: 144410,
-        airTemp: 28.0,
-        trackTemp: 46.0,
-        weather: 'DRY',
-        visibility: 'PUBLIC',
-        psiFL: 33.5, psiFR: 33.5, psiRL: 31.0, psiRR: 31.0,
-        coldFL: 26.0, coldFR: 26.0, coldRL: 28.0, coldRR: 28.0,
-        camberFL: -3.5, camberFR: -3.5, camberRL: -2.5, camberRR: -2.5,
-        camber: -3.5,
-        toeFL: 0.0, toeFR: 0.0, toeRL: 1.5, toeRR: 1.5,
-        casterFL: 7.0, casterFR: 7.0,
-        damperF: 14, damperR: 10,
-        wing: 6.0,
-        fuel: 40,
-        notes: '고속 코너링 안정성 우수. F1 코스 3섹터에서 만족스러운 다운포스와 롤 억제력 달성.',
-        laps: [{ lap_number: 1, lap_time_ms: 144410, is_best: 1 }]
-      }
-    ];
-
+    const SAMPLE_GARAGE = [];
+    const SAMPLE_TEAMS = [];
+    const SAMPLE_TEAM = {
+      id: null,
+      name: '소속 팀 없음',
+      desc: '',
+      home_track: '',
+      homeTrack: '',
+      code: '-',
+      invite_code: '-',
+      role: 'NONE',
+      owner_id: null,
+      members: []
+    };
+    const SAMPLE_SESSIONS = [];
     const SAMPLE_LEADERBOARD = {
-      1: [
-        { rank: 1, driver_name: 'Alex Kim', vehicle_name: 'Hyundai Avante N TCR', team_name: 'Apex Racing Korea', best_lap_ms: 112348, tire_model: 'Sur4G 245/40/18', hot_psi_fl: 34.0, hot_psi_rl: 32.0, camber_fl: -3.2, damper_front_clicks: 12, avatar: 'AK' },
-        { rank: 2, driver_name: 'David Lee', vehicle_name: 'Hyundai Avante N TCR', team_name: 'Apex Racing Korea', best_lap_ms: 113120, tire_model: 'V730 245/40/18', hot_psi_fl: 36.0, hot_psi_rl: 33.5, camber_fl: -2.5, damper_front_clicks: 10, avatar: 'DL' },
-        { rank: 3, driver_name: 'Minho Choi', vehicle_name: 'Hyundai Avante N TCR', team_name: 'Midnight Track Club', best_lap_ms: 113480, tire_model: 'Trofeo R 245/40/18', hot_psi_fl: 33.0, hot_psi_rl: 31.0, camber_fl: -2.8, damper_front_clicks: 14, avatar: 'MC' },
-        { rank: 4, driver_name: 'Sungjin Park', vehicle_name: 'Toyota GR86', team_name: 'Boxer Spirit', best_lap_ms: 115200, tire_model: 'RE-71RS 225/45/17', hot_psi_fl: 32.0, hot_psi_rl: 30.5, camber_fl: -3.0, damper_front_clicks: 8, avatar: 'SP' }
-      ],
-      2: [
-        { rank: 1, driver_name: 'Taehoon Kang', vehicle_name: 'Porsche 911 GT3 (992)', team_name: 'Midnight Track Club', best_lap_ms: 142100, tire_model: 'Cup 2 R 265/35/20', hot_psi_fl: 32.0, hot_psi_rl: 33.0, camber_fl: -3.8, damper_front_clicks: 16, avatar: 'TK' },
-        { rank: 2, driver_name: 'Alex Kim', vehicle_name: 'Porsche 911 GT3 (992)', team_name: 'Midnight Track Club', best_lap_ms: 144410, tire_model: 'Cup 2 R 255/35/20', hot_psi_fl: 33.5, hot_psi_rl: 31.0, camber_fl: -3.5, damper_front_clicks: 14, avatar: 'AK' },
-        { rank: 3, driver_name: 'Junho Jung', vehicle_name: 'Porsche 911 GT3 (992)', team_name: 'AMG Korea', best_lap_ms: 145250, tire_model: 'Cup 2 275/35/19', hot_psi_fl: 34.5, hot_psi_rl: 34.0, camber_fl: -3.0, damper_front_clicks: 12, avatar: 'JJ' },
-        { rank: 4, driver_name: 'David Lee', vehicle_name: 'Hyundai Avante N TCR', team_name: 'Apex Racing Korea', best_lap_ms: 148920, tire_model: 'Sur4G 245/40/18', hot_psi_fl: 34.5, hot_psi_rl: 32.0, camber_fl: -2.8, damper_front_clicks: 10, avatar: 'DL' }
-      ],
-      3: [
-        { rank: 1, driver_name: 'Donghyun Kim', vehicle_name: 'Porsche 911 GT3 (992)', team_name: 'Apex Racing Korea', best_lap_ms: 128900, tire_model: 'Cup 2 245/35/20', hot_psi_fl: 32.5, hot_psi_rl: 33.5, camber_fl: -3.2, damper_front_clicks: 10, avatar: 'DK' },
-        { rank: 2, driver_name: 'Alex Kim', vehicle_name: 'Porsche 911 GT3 (992)', team_name: 'Midnight Track Club', best_lap_ms: 129340, tire_model: 'Cup 2 R 255/35/20', hot_psi_fl: 33.0, hot_psi_rl: 34.0, camber_fl: -3.4, damper_front_clicks: 12, avatar: 'AK' },
-        { rank: 3, driver_name: 'Sangwoo Lee', vehicle_name: 'Porsche 911 GT3 (992)', team_name: 'Bimmer Track Club', best_lap_ms: 131200, tire_model: 'Trofeo R 275/35/19', hot_psi_fl: 35.0, hot_psi_rl: 35.0, camber_fl: -2.8, damper_front_clicks: 12, avatar: 'SL' }
-      ],
-      4: [
-        { rank: 1, driver_name: 'Alex Kim', vehicle_name: 'Hyundai Avante N TCR', team_name: 'Apex Racing Korea', best_lap_ms: 61850, tire_model: 'Sur4G 245/40/18', hot_psi_fl: 34.0, hot_psi_rl: 32.5, camber_fl: -3.2, damper_front_clicks: 12, avatar: 'AK' },
-        { rank: 2, driver_name: 'David Lee', vehicle_name: 'Hyundai Avante N TCR', team_name: 'Apex Racing Korea', best_lap_ms: 62450, tire_model: 'Sur4G 245/40/18', hot_psi_fl: 35.5, hot_psi_rl: 33.5, camber_fl: -2.8, damper_front_clicks: 11, avatar: 'DL' },
-        { rank: 3, driver_name: 'Jinwoo Park', vehicle_name: 'Hyundai Avante N TCR', team_name: 'K-Fast Crew', best_lap_ms: 62720, tire_model: 'PS4S 235/40/19', hot_psi_fl: 36.0, hot_psi_rl: 34.0, camber_fl: -2.4, damper_front_clicks: 10, avatar: 'JP' },
-        { rank: 4, driver_name: 'Seungmin Han', vehicle_name: 'Hyundai Veloster N', team_name: 'N-Club Korea', best_lap_ms: 63110, tire_model: 'Sur4G 235/35/19', hot_psi_fl: 33.5, hot_psi_rl: 31.5, camber_fl: -2.6, damper_front_clicks: 8, avatar: 'SH' }
-      ]
+      1: [],
+      2: [],
+      3: [],
+      4: []
     };
 
     // =============================================
@@ -2284,7 +2117,7 @@
 
     async function handleLogout() {
       await api('/auth/logout', 'POST');
-      showToast('로그아웃 되었습니다. 게스트 샘플 데이타가 표시됩니다.');
+      showToast('로그아웃 되었습니다.');
       loadGuestSampleData();
     }
 
@@ -2307,11 +2140,11 @@
     // =============================================
     function loadGuestSampleData() {
       user = { ...GUEST_USER };
-      garage = JSON.parse(JSON.stringify(SAMPLE_GARAGE));
-      sessions = JSON.parse(JSON.stringify(SAMPLE_SESSIONS));
-      userTeams = JSON.parse(JSON.stringify(SAMPLE_TEAMS));
-      activeTeamId = SAMPLE_TEAMS[0].id;
-      team = JSON.parse(JSON.stringify(SAMPLE_TEAMS[0]));
+      garage = [];
+      sessions = [];
+      userTeams = [];
+      activeTeamId = null;
+      team = { id: null, name: '소속 팀 없음', desc: '', homeTrack: '', code: '-', members: [], role: 'NONE' };
       
       updateUserUI();
       renderAllViews();
@@ -2591,16 +2424,16 @@
 
     async function loadTeamData(preferredTeamId = null) {
       if (!user.isLoggedIn) {
-        if (!userTeams || userTeams.length === 0) {
-          userTeams = [JSON.parse(JSON.stringify(SAMPLE_TEAM))];
-        }
+        if (!userTeams) userTeams = [];
         if (!activeTeamId && userTeams.length > 0) {
           activeTeamId = userTeams[0].id;
         }
-        const activeT = userTeams.find(t => t.id == activeTeamId) || userTeams[0];
+        const activeT = userTeams.find(t => t.id == activeTeamId) || (userTeams.length > 0 ? userTeams[0] : null);
         if (activeT) {
           team = JSON.parse(JSON.stringify(activeT));
-          team.members = activeT.members || SAMPLE_TEAM.members;
+          team.members = activeT.members || [];
+        } else {
+          team = { id: null, name: '소속 팀 없음', desc: '', homeTrack: '', code: '-', members: [], role: 'NONE' };
         }
         renderTeamUI();
         return;
@@ -2863,7 +2696,7 @@
         : '팀 미소속';
       document.getElementById('stat-team-members-count').innerText = (userTeams.length > 0)
         ? `총 ${userTeams.length}개 팀 소속 중 (최대 10개)`
-        : (user.isLoggedIn ? '팀에 가입해보세요 (최대 10개)' : '체험용 샘플 팀');
+        : '소속 팀 없음 (최대 10개)';
 
       // 3. Render ALL My Teams Cards Grid (Section 1)
       const allTeamsGrid = document.getElementById('my-teams-cards-container');
