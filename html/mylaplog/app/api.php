@@ -833,7 +833,8 @@ if ($method === 'GET' && preg_match('#^/leaderboard/(\d+)$#', $uri, $m)) {
                CONCAT(v.make, " ", v.model) as vehicle_name, v.tire_model,
                t2.name as team_name,
                ts.best_lap_ms, ts.session_date,
-               vs.hot_psi_fl, vs.camber_fl, vs.damper_front_clicks
+               vs.hot_psi_fl, vs.hot_psi_fr, vs.hot_psi_rl, vs.hot_psi_rr,
+               vs.camber_fl, vs.damper_front_clicks
         FROM track_sessions ts
         JOIN users u ON u.id = ts.user_id
         JOIN vehicles v ON v.id = ts.vehicle_id
