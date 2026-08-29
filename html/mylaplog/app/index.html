@@ -1193,11 +1193,6 @@
               <canvas id="top3PsiLapChart"></canvas>
             </div>
 
-            <!-- 셋업 & 공기압 상관관계 엔지니어 인사이트 바 -->
-            <div id="telemetry-insights-container" style="display:grid; grid-template-columns: repeat(3, 1fr); gap: 0.75rem; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border-subtle);">
-              <!-- Populated via JS Insights -->
-            </div>
-
           </div>
         </div>
 
@@ -4013,7 +4008,6 @@
     function renderTop3PsiLapChartFromLeaderboard(leaderboardData) {
       const ctx = document.getElementById('top3PsiLapChart');
       const cardsContainer = document.getElementById('telemetry-top3-cards');
-      const insightsContainer = document.getElementById('telemetry-insights-container');
       if (!ctx) return;
 
       // 1. 차종 필터링 (ALL 또는 동일 차종)
@@ -4035,7 +4029,6 @@
             </div>
           `;
         }
-        if (insightsContainer) insightsContainer.innerHTML = '';
         return;
       }
 
@@ -4306,52 +4299,6 @@
           }
         }
       });
-
-      // 4. 하단 셋업 인사이트 동적 계산 및 렌더링
-      if (insightsContainer) {
-        const top1Driver = processedDrivers[0];
-        const secondDriver = processedDrivers.length > 1 ? processedDrivers[1] : null;
-        const p2Delta = secondDriver ? secondDriver.delta : '0.000s';
-        const p2PsiDiff = secondDriver ? (secondDriver.hotPsiF - top1Driver.hotPsiF).toFixed(1) : '0.0';
-
-        insightsContainer.innerHTML = `
-          <div style="background:rgba(0,0,0,0.35); padding:0.85rem; border-radius:6px; border:1px solid rgba(255,255,255,0.05);">
-            <div style="font-size:0.75rem; color:var(--accent-green); font-weight:700; margin-bottom:0.25rem;">
-              🎯 리더보드 #1 최적 공기압 셋업
-            </div>
-            <div style="font-size:1rem; font-weight:800; font-family:var(--font-mono); color:#fff; margin-bottom:0.35rem;">
-              F ${top1Driver.hotPsiF.toFixed(1)} / R ${top1Driver.hotPsiR.toFixed(1)} PSI
-            </div>
-            <p style="font-size:0.82rem; color:#cbd5e1; line-height:1.45; margin:0;">
-              <strong>${top1Driver.name}</strong> 님이 ${top1Driver.lapTimeStr} 베스트랩을 기록했을 당시의 실시간 리더보드 타이어 셋업입니다.
-            </p>
-          </div>
-
-          <div style="background:rgba(0,0,0,0.35); padding:0.85rem; border-radius:6px; border:1px solid rgba(255,255,255,0.05);">
-            <div style="font-size:0.75rem; color:#ff9100; font-weight:700; margin-bottom:0.25rem;">
-              ⚠️ 1위 vs 2위 랩타임 & 공기압 델타
-            </div>
-            <div style="font-size:1rem; font-weight:800; font-family:var(--font-mono); color:#fff; margin-bottom:0.35rem;">
-              ${p2Delta} / ${parseFloat(p2PsiDiff) >= 0 ? '+' : ''}${p2PsiDiff} PSI
-            </div>
-            <p style="font-size:0.82rem; color:#cbd5e1; line-height:1.45; margin:0;">
-              ${secondDriver ? `2위(${secondDriver.name})와의 공기압 차이에 따른 코너 탈출 슬립 앵글 및 트랙션 편차를 나타냅니다.` : '단일 랭커 등록 상태입니다.'}
-            </p>
-          </div>
-
-          <div style="background:rgba(0,0,0,0.35); padding:0.85rem; border-radius:6px; border:1px solid rgba(255,255,255,0.05);">
-            <div style="font-size:0.75rem; color:var(--accent-cyan); font-weight:700; margin-bottom:0.25rem;">
-              ⚖️ 서킷 랭킹 데이터 실시간 직결
-            </div>
-            <div style="font-size:1rem; font-weight:800; font-family:var(--font-mono); color:#fff; margin-bottom:0.35rem;">
-              Live Leaderboard Sync
-            </div>
-            <p style="font-size:0.82rem; color:#cbd5e1; line-height:1.45; margin:0;">
-              서킷 리더보드에 새로운 랩타임이나 셋업이 등록/갱신되면 텔레메트리 차트에도 즉각 실시간 반영됩니다.
-            </p>
-          </div>
-        `;
-      }
     }
 
     // =============================================
