@@ -1427,24 +1427,13 @@
           <label>비밀번호</label>
           <input type="password" class="form-control" id="reg-password" placeholder="8자리 이상 영문/숫자 조합" required>
         </div>
-        <div class="form-grid" style="margin-bottom:1.5rem;">
-          <div class="form-group">
-            <label>주 출전 클래스</label>
-            <select class="form-control" id="reg-class">
-              <option value="PRO-AM">PRO-AM (타임어택/스프린트)</option>
-              <option value="Clubman">Clubman (트랙데이)</option>
-              <option value="Expert">Expert (N 페스티벌 등)</option>
-              <option value="Rookie">Rookie (초급자)</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label>라이선스 등급</label>
-            <select class="form-control" id="reg-license">
-              <option value="KARA C">KARA C 이상</option>
-              <option value="KARA D">KARA D / 일반</option>
-              <option value="Circuit License">서킷 라이선스 보유</option>
-            </select>
-          </div>
+        <div class="form-group" style="margin-bottom:1.5rem;">
+          <label>라이선스 등급</label>
+          <select class="form-control" id="reg-license">
+            <option value="KARA C">KARA C 이상</option>
+            <option value="KARA D">KARA D / 일반</option>
+            <option value="Circuit License">서킷 라이선스 보유</option>
+          </select>
         </div>
         <button type="submit" class="btn btn-primary" style="width:100%; justify-content:center; padding:0.8rem;">
           <i data-lucide="user-plus"></i> 회원가입 완료
@@ -2082,15 +2071,14 @@
       const name = document.getElementById('reg-name').value;
       const email = document.getElementById('reg-email').value;
       const password = document.getElementById('reg-password').value;
-      const driverClass = document.getElementById('reg-class').value;
       const karaLicense = document.getElementById('reg-license').value;
 
       const res = await api('/auth/register', 'POST', {
-        name, email, password, driver_class: driverClass, kara_license: karaLicense
+        name, email, password, kara_license: karaLicense
       });
 
       if (res.ok) {
-        user = { ...res.user, isLoggedIn: true, role: driverClass + ' Driver' };
+        user = { ...res.user, isLoggedIn: true, role: (res.user.driver_class || 'PRO-AM') + ' Driver' };
         closeModal('auth-modal');
         showToast(`${name} 님, 회원가입이 완료되었습니다! 🏆`);
         updateUserUI();
