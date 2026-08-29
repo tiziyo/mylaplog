@@ -4047,16 +4047,9 @@
         let statusText = '최적 밸런스';
         let badgeColor = 'var(--accent-green)';
         if (i > 0) {
-          if (psiDiff > 0.5) {
-            statusText = `전륜 과열 (+${psiDiff.toFixed(1)} PSI)`;
-            badgeColor = '#ff9100';
-          } else if (psiDiff < -0.5) {
-            statusText = `저공기압 (${psiDiff.toFixed(1)} PSI)`;
-            badgeColor = '#ff6b81';
-          } else {
-            statusText = `동일 공기압 매칭`;
-            badgeColor = 'var(--accent-cyan)';
-          }
+          const sign = psiDiff >= 0 ? '+' : '';
+          statusText = `전륜 공기압 (${sign}${psiDiff.toFixed(1)} PSI)`;
+          badgeColor = psiDiff > 0.5 ? '#ff9100' : (psiDiff < -0.5 ? '#ff6b81' : 'var(--accent-cyan)');
         }
 
         const deltaDisplay = i === 0 ? '0.000s (기준)' : `+${deltaSec.toFixed(3)}s`;
