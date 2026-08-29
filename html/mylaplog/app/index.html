@@ -2808,6 +2808,15 @@
     }
 
     async function handleDeleteOrLeaveSpecificTeam(targetTeamId, targetTeamName, isChief) {
+      if (isChief) {
+        // 1. Check if there are garage vehicles registered under this team
+        const relatedVehicles = garage.filter(v => v.team_id == targetTeamId || v.teamId == targetTeamId);
+        if (relatedVehicles.length > 0) {
+          alert(`⚠️ '${targetTeamName}' 팀에 등록된 개러지 머신이 ${relatedVehicles.length}대 존재합니다.\n\n[차량 개러지] 탭에서 해당 머신의 소속 팀을 다른 팀 또는 개인 소유로 변경하거나 먼저 삭제해야 팀을 삭제할 수 있습니다.`);
+          return;
+        }
+      }
+
       const confirmMsg = isChief
         ? `'${targetTeamName}' 팀의 팀장 권한을 가지고 있습니다.\n정말로 팀을 완전히 삭제(해체)하시겠습니까?\n(모든 팀원의 소속 정보가 함께 삭제됩니다)`
         : `'${targetTeamName}' 팀에서 정말 탈퇴하시겠습니까?`;
@@ -2836,103 +2845,7 @@
         await loadTeamData();
         renderDashboardMetrics();
       } else {
-        showToast(res.error || '처리 실패');
-      }
-    }
-
-    async function handleSwitchActiveTeam(teamId) {
-      if (!teamId) return;
-      activeTeamId = parseInt(teamId);
-      await loadTeamData(activeTeamId);
-      renderDashboardMetrics();
-    }
-
-    async function handleSaveTeam(e) {
-      e.preventDefault();
-      if (!user.isLoggedIn) {
-        showToast('로그인이 필요한 기능입니다. 먼저 로그인해주세요.');
-        openModal('auth-modal');
-        return;
-      }
-
-      const editId = document.getElementById('edit-team-id').value;
-      const isEdit = !!editId;
-
-      if (!isEdit && userTeams.length >= 10) {
-        showToast('팀은 최대 10개까지만 생성하거나 가입할 수 있습니다.');
-        closeModal('create-team-modal');
-        return;
-      }
-
-      const teamName = document.getElementById('new-team-name').value.trim();
-      const homeTrack = document.getElementById('new-team-track').value;
-      const desc = document.getElementById('new-team-desc').value.trim();
-
-      const payload = { name: teamName, home_track: homeTrack, description: desc };
-      const endpoint = isEdit ? `/teams/${editId}` : '/teams';
-      const method = isEdit ? 'PUT' : 'POST';
-
-      const res = await api(endpoint, method, payload);
-
-      if (res.ok) {
-        closeModal('create-team-modal');
-        showToast(isEdit ? `'${teamName}' 팀 정보가 성공적으로 수정되었습니다!` : `'${teamName}' 팀 등록 완료! (코드: ${res.team.invite_code})`);
-        document.getElementById('create-team-form').reset();
-        document.getElementById('edit-team-id').value = '';
-        await loadTeamData(isEdit ? editId : (res.team ? res.team.id : null));
-        renderDashboardMetrics();
-      } else {
-        showToast(res.error || (isEdit ? '팀 정보 수정 실패' : '팀 생성 실패'));
-      }
-    }
-
-    async function handleJoinTeam(e) {
-      e.preventDefault();
-      if (!user.isLoggedIn) {
-        showToast('로그인이 필요한 기능입니다. 먼저 로그인해주세요.');
-        openModal('auth-modal');
-        return;
-      }
-      if (userTeams.length >= 10) {
-        showToast('팀은 최대 10개까지만 생성하거나 가입할 수 있습니다.');
-        closeModal('join-team-modal');
-        return;
-      }
-
-      const code = document.getElementById('join-invite-code').value.toUpperCase();
-      const role = document.getElementById('join-role').value;
-
-      const res = await api('/teams/join', 'POST', { invite_code: code, role: role.toUpperCase() });
-
-      if (res.ok) {
-        showToast(res.message || '팀 가입 완료!');
-        closeModal('join-team-modal');
-        document.getElementById('join-team-form').reset();
-        await loadTeamData(res.team ? res.team.id : null);
-        renderDashboardMetrics();
-      } else {
-        showToast(res.error || '팀 가입 실패');
-      }
-    }
-
-    async function handleDeleteOrLeaveSpecificTeam(targetTeamId, targetTeamName, isChief) {
-      if (!user.isLoggedIn) return;
-      
-      const confirmMsg = isChief
-        ? `'${targetTeamName}' 팀의 팀장 권한을 가지고 있습니다.\n정말로 팀을 완전히 삭제(해체)하시겠습니까?\n(모든 팀원의 소속 정보가 함께 삭제됩니다)`
-        : `'${targetTeamName}' 팀에서 정말 탈퇴하시겠습니까?`;
-
-      if (!confirm(confirmMsg)) return;
-
-      const res = await api(`/teams/${targetTeamId}`, 'DELETE');
-      if (res.ok) {
-        showToast(res.message || (isChief ? '팀이 삭제되었습니다.' : '팀에서 탈퇴했습니다.'));
-        if (activeTeamId == targetTeamId) {
-          activeTeamId = null;
-        }
-        await loadTeamData();
-        renderDashboardMetrics();
-      } else {
+        alert(res.error || '팀 삭제/탈퇴 처리에 실패했습니다.');
         showToast(res.error || '처리 실패');
       }
     }

@@ -338,6 +338,15 @@ if ($method === 'DELETE' && preg_match('#^/teams/(\d+)$#', $uri, $m)) {
     $pdo->beginTransaction();
     try {
         if ($isOwner) {
+            // 1. Check if there are garage vehicles registered under this team
+            $checkVeh = $pdo->prepare('SELECT COUNT(*) FROM vehicles WHERE team_id = ?');
+            $checkVeh->execute([$teamId]);
+            $vehCount = (int)$checkVeh->fetchColumn();
+            if ($vehCount > 0) {
+                $pdo->rollBack();
+                jsonResponse(400, ['error' => "⚠️ '{$membership['name']}' 팀에 등록된 개러지 머신이 {$vehCount}대 존재합니다.\n\n[차량 개러지] 탭에서 해당 머신의 소속 팀을 다른 팀 또는 개인 소유로 변경하거나 먼저 삭제해야 팀을 삭제할 수 있습니다."]);
+            }
+
             // 팀장/소유자: 팀 전체 해체 및 삭제
             $stmt = $pdo->prepare('DELETE FROM team_members WHERE team_id = ?');
             $stmt->execute([$teamId]);
