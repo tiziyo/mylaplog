@@ -828,7 +828,7 @@ if ($method === 'GET' && preg_match('#^/leaderboard/(\d+)$#', $uri, $m)) {
         FROM track_sessions ts
         JOIN users u ON u.id = ts.user_id
         JOIN vehicles v ON v.id = ts.vehicle_id
-        LEFT JOIN teams t2 ON t2.id = COALESCE(ts.team_id, v.team_id)
+        LEFT JOIN teams t2 ON t2.id = v.team_id
         LEFT JOIN vehicle_setups vs ON vs.session_id = ts.id
         WHERE ts.track_id = ? AND ts.best_lap_ms > 0
         ORDER BY ts.best_lap_ms ASC

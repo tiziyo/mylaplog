@@ -1639,7 +1639,7 @@
           </div>
           <div class="form-group">
             <label style="font-size:0.78rem;">출전 머신</label>
-            <select class="form-control compact-input" id="sess-vehicle" required></select>
+            <select class="form-control compact-input" id="sess-vehicle" onchange="onSessionVehicleChange()" required></select>
           </div>
           <div class="form-group">
             <label style="font-size:0.78rem;">소속 레이싱 팀</label>
@@ -3416,6 +3416,19 @@
       }
     }
 
+    function onSessionVehicleChange() {
+      const vehSelect = document.getElementById('sess-vehicle');
+      if (!vehSelect) return;
+      const vehId = parseInt(vehSelect.value);
+      const v = garage.find(item => item.id == vehId);
+      if (v) {
+        const teamId = v.team_id || v.teamId || '';
+        populateSessionTeamSelect(teamId);
+      } else {
+        populateSessionTeamSelect(null);
+      }
+    }
+
     function openAddSessionModal(preSelectedVehicleId = null) {
       if (garage.length === 0) {
         showToast('세션을 로깅하려면 먼저 개러지에 차량을 등록해야 합니다.');
@@ -3463,11 +3476,11 @@
 
       populateVehicleSelect();
       populateTrackSelect();
-      populateSessionTeamSelect(activeTeamId);
 
       if (preSelectedVehicleId) {
         document.getElementById('sess-vehicle').value = preSelectedVehicleId;
       }
+      onSessionVehicleChange();
 
       document.getElementById('session-modal-title').innerText = '새 트랙데이 세션 & 셋업 로깅';
       document.getElementById('session-modal-submit-text').innerText = user.isLoggedIn ? '세션 로그 저장' : '세션 로그 저장 [게스트 메모리]';
@@ -3646,6 +3659,9 @@
         const matchedTrack = tracks.find(t => t.id == trackId) || { name: '인제 스피디움' };
         const matchedTeam = payload.team_id ? userTeams.find(t => t.id == payload.team_id) : null;
 
+        const vehTeamId = matchedVehicle ? (matchedVehicle.team_id || matchedVehicle.teamId) : (payload.team_id || null);
+        const vehTeamName = matchedVehicle ? (matchedVehicle.teamName || (vehTeamId ? userTeams.find(t => t.id == vehTeamId)?.name : null)) : (matchedTeam ? matchedTeam.name : null);
+
         if (isEdit) {
           const idx = sessions.findIndex(s => s.id == editId);
           if (idx !== -1) {
@@ -3655,9 +3671,9 @@
               trackId: trackId,
               vehicle: matchedVehicle ? `${matchedVehicle.make} ${matchedVehicle.model}` : '머신',
               vehicleId: vehicleId,
-              teamId: payload.team_id,
-              team_id: payload.team_id,
-              teamName: matchedTeam ? matchedTeam.name : (matchedVehicle?.teamName || null),
+              teamId: vehTeamId,
+              team_id: vehTeamId,
+              teamName: vehTeamName,
               date: payload.session_date,
               sessionNum: payload.session_number,
               bestLap: msToLapStr(bestLapMs),
@@ -3686,9 +3702,9 @@
             trackId: trackId,
             vehicle: matchedVehicle ? `${matchedVehicle.make} ${matchedVehicle.model}` : '머신',
             vehicleId: vehicleId,
-            teamId: payload.team_id,
-            team_id: payload.team_id,
-            teamName: matchedTeam ? matchedTeam.name : (matchedVehicle?.teamName || null),
+            teamId: vehTeamId,
+            team_id: vehTeamId,
+            teamName: vehTeamName,
             date: payload.session_date,
             sessionNum: payload.session_number,
             bestLap: msToLapStr(bestLapMs),
