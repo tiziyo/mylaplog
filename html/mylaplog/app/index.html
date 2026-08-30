@@ -1742,14 +1742,14 @@
           </div>
         </div>
 
-        <!-- 2. 타이어 공기압 (열간 Hot PSI & 냉간 Cold PSI 4륜 그리드) -->
+        <!-- 2. 타이어 공기압 (열간 Hot PSI & 냉간 Cold PSI 그리드) -->
         <div class="session-tires-grid">
           
           <!-- 타이어 열간 공기압 (Hot PSI) -->
           <div style="background: rgba(255,255,255,0.02); padding: 0.6rem 0.75rem; border-radius: 6px; border: 1px solid rgba(0,240,255,0.15);">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.5rem;">
               <span style="color:var(--accent-cyan); font-family:var(--font-display); font-size:0.82rem; font-weight:700; display:flex; align-items:center; gap:0.4rem;">
-                <i data-lucide="gauge" style="width:14px; height:14px;"></i> 4륜 타이어 열간 공기압 (Hot PSI)
+                <i data-lucide="gauge" style="width:14px; height:14px;"></i> 타이어 열간 공기압 (Hot PSI)
               </span>
               <span style="font-size:0.68rem; color:var(--text-muted); background:rgba(0,240,255,0.1); padding:0.15rem 0.45rem; border-radius:4px; font-family:var(--font-mono);">
                 전륜 ▲ / 후륜 ▼
@@ -1787,7 +1787,7 @@
           <div style="background: rgba(255,255,255,0.02); padding: 0.6rem 0.75rem; border-radius: 6px; border: 1px solid rgba(131,145,168,0.2);">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.5rem;">
               <span style="color:#8391a8; font-family:var(--font-display); font-size:0.82rem; font-weight:700; display:flex; align-items:center; gap:0.4rem;">
-                <i data-lucide="thermometer-snowflake" style="width:14px; height:14px;"></i> 4륜 타이어 냉간 공기압 (Cold PSI)
+                <i data-lucide="thermometer-snowflake" style="width:14px; height:14px;"></i> 타이어 냉간 공기압 (Cold PSI)
               </span>
               <span style="font-size:0.68rem; color:var(--text-muted); background:rgba(131,145,168,0.1); padding:0.15rem 0.45rem; border-radius:4px; font-family:var(--font-mono);">
                 전륜 ▲ / 후륜 ▼
@@ -1823,16 +1823,16 @@
 
         </div>
 
-        <!-- 3. 4륜 휠 얼라인먼트 (캠버 & 토우 4륜 각각 등록 + 전륜 캐스터) -->
+        <!-- 3. 휠 얼라인먼트 (캠버 & 토우 각각 등록 + 전륜 캐스터) -->
         <div style="background: rgba(0,0,0,0.3); padding: 0.75rem 0.85rem; border-radius: 8px; border: 1px solid var(--border-subtle); margin-bottom: 0.75rem;">
           
           <div class="session-align-grid">
             
-            <!-- 4륜 캠버 각도 (Camber °) -->
+            <!-- 캠버 각도 (Camber °) -->
             <div style="background: rgba(255,255,255,0.02); padding: 0.6rem 0.65rem; border-radius: 6px; border: 1px solid rgba(255,140,0,0.15);">
               <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.4rem;">
                 <span style="color:var(--accent-orange); font-family:var(--font-display); font-size:0.8rem; font-weight:700; display:flex; align-items:center; gap:0.35rem;">
-                  <i data-lucide="compass" style="width:13px; height:13px;"></i> 4륜 캠버 각도 (°)
+                  <i data-lucide="compass" style="width:13px; height:13px;"></i> 캠버 각도 (°)
                 </span>
                 <span style="font-size:0.65rem; color:var(--text-muted); font-family:var(--font-mono);">전▲ / 후▼</span>
               </div>
@@ -1864,11 +1864,11 @@
               </div>
             </div>
 
-            <!-- 4륜 토우 (Toe mm/°) -->
+            <!-- 토우 (Toe mm/°) -->
             <div style="background: rgba(255,255,255,0.02); padding: 0.6rem 0.65rem; border-radius: 6px; border: 1px solid rgba(179,136,255,0.15);">
               <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.4rem;">
                 <span style="color:#b388ff; font-family:var(--font-display); font-size:0.8rem; font-weight:700; display:flex; align-items:center; gap:0.35rem;">
-                  <i data-lucide="move-horizontal" style="width:13px; height:13px;"></i> 4륜 토우 (Toe)
+                  <i data-lucide="move-horizontal" style="width:13px; height:13px;"></i> 토우 (Toe)
                 </span>
                 <span style="font-size:0.65rem; color:var(--text-muted); font-family:var(--font-mono);">전▲ / 후▼</span>
               </div>
@@ -3574,7 +3574,7 @@
               fuel: payload.setup.fuel_liters,
               notes: payload.setup.driver_notes
             };
-            showToast('세션 및 4륜 셋업 정보가 성공적으로 수정되었습니다! 🏁 [게스트 메모리]');
+            showToast('세션 및 셋업 정보가 성공적으로 수정되었습니다! 🏁 [게스트 메모리]');
           }
         } else {
           const newSessId = Date.now();
@@ -3606,7 +3606,7 @@
             notes: payload.setup.driver_notes
           };
           sessions.unshift(newSess);
-          showToast('세션 및 4륜 상세 셋업이 등록되었습니다! 🏁 [게스트 메모리]');
+          showToast('세션 및 상세 셋업이 등록되었습니다! 🏁 [게스트 메모리]');
         }
         closeModal('session-modal');
         document.getElementById('session-form').reset();
@@ -3622,7 +3622,7 @@
 
       const res = await api(endpoint, method, payload);
       if (res.ok) {
-        showToast(isEdit ? '세션 및 4륜 셋업 정보가 성공적으로 수정되었습니다! 🏁' : '세션 및 4륜 상세 셋업이 DB에 저장되었습니다! 🏁');
+        showToast(isEdit ? '세션 및 셋업 정보가 성공적으로 수정되었습니다! 🏁' : '세션 및 상세 셋업이 DB에 저장되었습니다! 🏁');
         closeModal('session-modal');
         document.getElementById('session-form').reset();
         document.getElementById('edit-session-id').value = '';
@@ -3669,7 +3669,7 @@
           <div style="grid-column: 1 / -1; text-align:center; padding:3rem 1rem; background:rgba(255,255,255,0.02); border-radius:8px; border:1px dashed var(--border-subtle);">
             <i data-lucide="clipboard-list" style="width:48px; height:48px; color:var(--text-muted); margin-bottom:1rem; opacity:0.6;"></i>
             <h4 style="color:#fff; margin-bottom:0.5rem;">로깅된 트랙 세션이 없습니다</h4>
-            <p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:1.5rem;">서킷 주행 후 4륜 공기압, 감쇠력 세팅과 베스트 랩타임을 기록해보세요.</p>
+            <p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:1.5rem;">서킷 주행 후 공기압, 감쇠력 세팅과 베스트 랩타임을 기록해보세요.</p>
             <button class="btn btn-primary" onclick="openAddSessionModal()"><i data-lucide="zap"></i> 세션 로깅 추가</button>
           </div>
         `;
@@ -3703,7 +3703,7 @@
               <div class="best-lap-num">${s.bestLap}</div>
             </div>
           </div>
-          <!-- 4륜 타이어 열간 PSI 그리드 -->
+          <!-- 타이어 열간 PSI 그리드 -->
           <div class="tire-box-grid">
             <div class="tire-cell"><span>FL Hot</span> <span class="psi">${s.psiFL || 34} PSI</span></div>
             <div class="tire-cell"><span>FR Hot</span> <span class="psi">${s.psiFR || 34} PSI</span></div>
@@ -3711,7 +3711,7 @@
             <div class="tire-cell"><span>RR Hot</span> <span class="psi">${s.psiRR || 32} PSI</span></div>
           </div>
 
-          <!-- 4륜 캠버 & 댐퍼 & 토우 & 에어로/연료 상세 셋업 정보 -->
+          <!-- 캠버 & 댐퍼 & 토우 & 에어로/연료 상세 셋업 정보 -->
           <div style="display:grid; grid-template-columns: 1fr 1fr; gap:0.35rem 0.6rem; font-size:0.75rem; color:var(--text-muted); margin-top:0.6rem; background:rgba(0,0,0,0.25); padding:0.5rem 0.65rem; border-radius:6px; border:1px solid rgba(255,255,255,0.03);">
             <div><span style="color:#8892b0;">캠버(F/R):</span> <span style="color:#fff; font-family:var(--font-mono);">${s.camberFL || '-3.2'}° / ${s.camberRL || '-2.0'}°</span></div>
             <div><span style="color:#8892b0;">감쇠력(F/R):</span> <span style="color:#fff; font-family:var(--font-mono);">F ${s.damperF || '12'}단 / R ${s.damperR || '8'}단</span></div>
