@@ -1457,15 +1457,6 @@
           <label>레이싱 팀명 (Team Name)</label>
           <input type="text" class="form-control" id="new-team-name" placeholder="예: Monster Garage Racing" required>
         </div>
-        <div class="form-group" style="margin-bottom:1rem;">
-          <label>주 활동 홈 서킷</label>
-          <select class="form-control" id="new-team-track">
-            <option value="인제 스피디움">인제 스피디움</option>
-            <option value="영암 KIC">영암 KIC F1 서킷</option>
-            <option value="용인 에버랜드 스피드웨이">용인 에버랜드 스피드웨이</option>
-            <option value="태백 레이싱파크">태백 레이싱파크</option>
-          </select>
-        </div>
         <div class="form-group" style="margin-bottom:1.5rem;">
           <label>팀 소개 및 슬로건</label>
           <textarea class="form-control" id="new-team-desc" rows="3" placeholder="예: 주말 트랙데이 공기압 및 텔레메트리 셋업 연구 모임"></textarea>
@@ -2385,7 +2376,6 @@
 
       document.getElementById('edit-team-id').value = t.id;
       document.getElementById('new-team-name').value = t.name || '';
-      document.getElementById('new-team-track').value = t.home_track || t.homeTrack || '인제 스피디움';
       document.getElementById('new-team-desc').value = t.description || t.desc || '';
       document.getElementById('team-modal-title').innerText = `${t.name} 팀 정보 수정`;
       document.getElementById('team-modal-submit-text').innerText = user.isLoggedIn ? '수정 내용 저장' : '수정 내용 저장 [게스트]';
@@ -2493,8 +2483,9 @@
       const isEdit = !!editId;
 
       const name = document.getElementById('new-team-name').value.trim();
-      const home_track = document.getElementById('new-team-track').value;
       const description = document.getElementById('new-team-desc').value.trim();
+      const existingTeam = isEdit ? userTeams.find(t => t.id == editId) : null;
+      const home_track = existingTeam ? (existingTeam.home_track || existingTeam.homeTrack || '인제 스피디움') : '인제 스피디움';
 
       // Guest Mode Memory Handling
       if (!user.isLoggedIn) {
@@ -2553,6 +2544,7 @@
         showToast(res.error || (isEdit ? '팀 정보 수정 실패' : '팀 생성 실패'));
       }
     }
+    const handleSaveTeam = handleCreateTeam;
 
     async function handleJoinTeam(e) {
       e.preventDefault();
