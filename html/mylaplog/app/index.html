@@ -921,12 +921,79 @@
       opacity: 1;
     }
 
+    /* Session Modal Responsive Layout */
+    .session-modal-content {
+      max-width: 880px;
+      width: 95%;
+      max-height: 92vh;
+      padding: 1.5rem 1.75rem;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+    .session-basic-grid {
+      display: grid;
+      grid-template-columns: 1.1fr 1.1fr 1fr 1.1fr 1fr 1.1fr;
+      gap: 0.55rem;
+      margin-bottom: 0.85rem;
+    }
+    .session-tires-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.75rem;
+      margin-bottom: 0.75rem;
+      background: rgba(0, 0, 0, 0.3);
+      padding: 0.75rem 0.85rem;
+      border-radius: 8px;
+      border: 1px solid var(--border-subtle);
+    }
+    .session-align-grid {
+      display: grid;
+      grid-template-columns: 1.2fr 1.2fr 1fr;
+      gap: 0.75rem;
+    }
+    .session-chassis-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr 1fr 1.2fr;
+      gap: 0.65rem;
+      margin-bottom: 0.75rem;
+      background: rgba(0, 0, 0, 0.3);
+      padding: 0.75rem 0.85rem;
+      border-radius: 8px;
+      border: 1px solid var(--border-subtle);
+    }
+    .session-actions-bar {
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.75rem;
+      padding-top: 0.6rem;
+      border-top: 1px solid var(--border-subtle);
+    }
+
     /* Responsive */
     @media (max-width: 1024px) {
       .stats-grid { grid-template-columns: repeat(2, 1fr); }
       .session-list-grid { grid-template-columns: 1fr; }
       .garage-grid { grid-template-columns: repeat(2, 1fr); }
       .team-hub-grid { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 860px) {
+      .session-basic-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 0.6rem;
+      }
+      .session-align-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+      .session-align-grid > div:last-child {
+        grid-column: span 2;
+      }
+      .session-chassis-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+      .session-chassis-grid > div:last-child {
+        grid-column: span 2;
+      }
     }
 
     @media (max-width: 768px) {
@@ -937,6 +1004,64 @@
       .garage-grid { grid-template-columns: 1fr; }
       .form-grid { grid-template-columns: 1fr; }
       .topbar { height: auto; padding: 1rem; flex-direction: column; gap: 0.75rem; align-items: flex-start; }
+    }
+
+    @media (max-width: 640px) {
+      .session-modal-content {
+        padding: 1rem 0.75rem !important;
+        width: 98% !important;
+        max-height: 94vh !important;
+        border-radius: 12px !important;
+      }
+      .session-modal-header {
+        margin-bottom: 0.65rem !important;
+        padding-bottom: 0.5rem !important;
+      }
+      .session-modal-header h3 {
+        font-size: 1.05rem !important;
+      }
+      .session-basic-grid {
+        grid-template-columns: 1fr 1fr !important;
+        gap: 0.5rem !important;
+      }
+      .session-tires-grid {
+        grid-template-columns: 1fr !important;
+        gap: 0.65rem !important;
+        padding: 0.6rem !important;
+      }
+      .session-align-grid {
+        grid-template-columns: 1fr !important;
+        gap: 0.65rem !important;
+      }
+      .session-align-grid > div:last-child {
+        grid-column: span 1 !important;
+      }
+      .session-chassis-grid {
+        grid-template-columns: 1fr 1fr !important;
+        gap: 0.5rem !important;
+        padding: 0.6rem !important;
+      }
+      .session-chassis-grid > div:last-child {
+        grid-column: span 2 !important;
+      }
+      .session-actions-bar {
+        display: flex !important;
+        gap: 0.5rem !important;
+        width: 100% !important;
+      }
+      .session-actions-bar button {
+        flex: 1 !important;
+        justify-content: center !important;
+        padding: 0.75rem !important;
+        font-size: 0.9rem !important;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .session-basic-grid .form-group:nth-child(1),
+      .session-basic-grid .form-group:nth-child(2) {
+        grid-column: span 2;
+      }
     }
   </style>
 </head>
@@ -1570,8 +1695,8 @@
 
   <!-- ================= MODAL: ADD / EDIT SESSION & SETUP ================= -->
   <div class="modal-overlay" id="session-modal">
-    <div class="modal-content" style="max-width: 880px; width: 95%; max-height: 92vh; padding: 1.5rem 1.75rem;">
-      <div class="modal-header" style="margin-bottom: 0.85rem; padding-bottom: 0.65rem;">
+    <div class="modal-content session-modal-content">
+      <div class="modal-header session-modal-header" style="margin-bottom: 0.85rem; padding-bottom: 0.65rem;">
         <h3 style="font-family:var(--font-display); color:#fff; font-size:1.25rem;">
           <i data-lucide="zap" style="color:var(--accent-red)"></i> <span id="session-modal-title">새 트랙데이 세션 & 셋업 로깅</span>
         </h3>
@@ -1581,8 +1706,8 @@
       <form id="session-form" onsubmit="handleSaveSession(event)">
         <input type="hidden" id="edit-session-id" value="">
         
-        <!-- 1. 기본 주행 & 기상 정보 (6열 가로 그리드) -->
-        <div style="display: grid; grid-template-columns: 1.1fr 1.1fr 1fr 1fr 1fr 1fr; gap: 0.55rem; margin-bottom: 0.85rem;">
+        <!-- 1. 기본 주행 & 기상 정보 (반응형 그리드) -->
+        <div class="session-basic-grid">
           <div class="form-group">
             <label style="font-size:0.78rem;">방문 서킷</label>
             <select class="form-control compact-input" id="sess-track" required></select>
@@ -1601,7 +1726,7 @@
             <label style="font-size:0.78rem;">주행 일자 / 세션</label>
             <div style="display:flex; gap:0.25rem;">
               <input type="date" class="form-control compact-input" id="sess-date" style="flex:2;" required>
-              <input type="number" class="form-control compact-input" id="sess-num" value="1" min="1" max="20" style="flex:1; min-width:40px;" placeholder="#" required>
+              <input type="number" class="form-control compact-input" id="sess-num" value="1" min="1" max="20" style="flex:1; min-width:40px;" placeholder="#" inputmode="numeric" required>
             </div>
           </div>
           <div class="form-group">
@@ -1611,14 +1736,14 @@
           <div class="form-group">
             <label style="font-size:0.78rem;">기온 / 노면온도</label>
             <div style="display:flex; gap:0.25rem;">
-              <input type="number" step="0.5" class="form-control compact-input" id="sess-air-temp" value="25.0" placeholder="기온°C" title="기온 (°C)">
-              <input type="number" step="0.5" class="form-control compact-input" id="sess-track-temp" value="40.0" placeholder="노면°C" title="노면온도 (°C)">
+              <input type="number" step="0.5" class="form-control compact-input" id="sess-air-temp" value="25.0" placeholder="기온°C" title="기온 (°C)" inputmode="decimal">
+              <input type="number" step="0.5" class="form-control compact-input" id="sess-track-temp" value="40.0" placeholder="노면°C" title="노면온도 (°C)" inputmode="decimal">
             </div>
           </div>
         </div>
 
         <!-- 2. 타이어 공기압 (열간 Hot PSI & 냉간 Cold PSI 4륜 그리드) -->
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 0.75rem; background: rgba(0,0,0,0.3); padding: 0.75rem 0.85rem; border-radius: 8px; border: 1px solid var(--border-subtle);">
+        <div class="session-tires-grid">
           
           <!-- 타이어 열간 공기압 (Hot PSI) -->
           <div style="background: rgba(255,255,255,0.02); padding: 0.6rem 0.75rem; border-radius: 6px; border: 1px solid rgba(0,240,255,0.15);">
@@ -1635,25 +1760,25 @@
                 <label style="font-size:0.72rem; color:var(--accent-cyan); display:flex; justify-content:space-between; margin-bottom:0.2rem;">
                   <span>FL Hot</span><span style="font-size:0.68rem; color:var(--text-muted);">전륜 좌측</span>
                 </label>
-                <input type="number" step="0.5" class="form-control compact-input" id="sess-psi-fl" value="34.0" required style="font-weight:600;">
+                <input type="number" step="0.5" class="form-control compact-input" id="sess-psi-fl" value="34.0" required style="font-weight:600;" inputmode="decimal">
               </div>
               <div class="form-group" style="margin-bottom:0;">
                 <label style="font-size:0.72rem; color:var(--accent-cyan); display:flex; justify-content:space-between; margin-bottom:0.2rem;">
                   <span>FR Hot</span><span style="font-size:0.68rem; color:var(--text-muted);">전륜 우측</span>
                 </label>
-                <input type="number" step="0.5" class="form-control compact-input" id="sess-psi-fr" value="34.0" required style="font-weight:600;">
+                <input type="number" step="0.5" class="form-control compact-input" id="sess-psi-fr" value="34.0" required style="font-weight:600;" inputmode="decimal">
               </div>
               <div class="form-group" style="margin-bottom:0;">
                 <label style="font-size:0.72rem; color:var(--accent-cyan); display:flex; justify-content:space-between; margin-bottom:0.2rem;">
                   <span>RL Hot</span><span style="font-size:0.68rem; color:var(--text-muted);">후륜 좌측</span>
                 </label>
-                <input type="number" step="0.5" class="form-control compact-input" id="sess-psi-rl" value="32.0" required style="font-weight:600;">
+                <input type="number" step="0.5" class="form-control compact-input" id="sess-psi-rl" value="32.0" required style="font-weight:600;" inputmode="decimal">
               </div>
               <div class="form-group" style="margin-bottom:0;">
                 <label style="font-size:0.72rem; color:var(--accent-cyan); display:flex; justify-content:space-between; margin-bottom:0.2rem;">
                   <span>RR Hot</span><span style="font-size:0.68rem; color:var(--text-muted);">후륜 우측</span>
                 </label>
-                <input type="number" step="0.5" class="form-control compact-input" id="sess-psi-rr" value="32.0" required style="font-weight:600;">
+                <input type="number" step="0.5" class="form-control compact-input" id="sess-psi-rr" value="32.0" required style="font-weight:600;" inputmode="decimal">
               </div>
             </div>
           </div>
@@ -1673,25 +1798,25 @@
                 <label style="font-size:0.72rem; color:#8391a8; display:flex; justify-content:space-between; margin-bottom:0.2rem;">
                   <span>FL Cold</span><span style="font-size:0.68rem; color:var(--text-muted);">전륜 좌측</span>
                 </label>
-                <input type="number" step="0.5" class="form-control compact-input" id="sess-cold-fl" value="28.0">
+                <input type="number" step="0.5" class="form-control compact-input" id="sess-cold-fl" value="28.0" inputmode="decimal">
               </div>
               <div class="form-group" style="margin-bottom:0;">
                 <label style="font-size:0.72rem; color:#8391a8; display:flex; justify-content:space-between; margin-bottom:0.2rem;">
                   <span>FR Cold</span><span style="font-size:0.68rem; color:var(--text-muted);">전륜 우측</span>
                 </label>
-                <input type="number" step="0.5" class="form-control compact-input" id="sess-cold-fr" value="28.0">
+                <input type="number" step="0.5" class="form-control compact-input" id="sess-cold-fr" value="28.0" inputmode="decimal">
               </div>
               <div class="form-group" style="margin-bottom:0;">
                 <label style="font-size:0.72rem; color:#8391a8; display:flex; justify-content:space-between; margin-bottom:0.2rem;">
                   <span>RL Cold</span><span style="font-size:0.68rem; color:var(--text-muted);">후륜 좌측</span>
                 </label>
-                <input type="number" step="0.5" class="form-control compact-input" id="sess-cold-rl" value="28.0">
+                <input type="number" step="0.5" class="form-control compact-input" id="sess-cold-rl" value="28.0" inputmode="decimal">
               </div>
               <div class="form-group" style="margin-bottom:0;">
                 <label style="font-size:0.72rem; color:#8391a8; display:flex; justify-content:space-between; margin-bottom:0.2rem;">
                   <span>RR Cold</span><span style="font-size:0.68rem; color:var(--text-muted);">후륜 우측</span>
                 </label>
-                <input type="number" step="0.5" class="form-control compact-input" id="sess-cold-rr" value="28.0">
+                <input type="number" step="0.5" class="form-control compact-input" id="sess-cold-rr" value="28.0" inputmode="decimal">
               </div>
             </div>
           </div>
@@ -1701,7 +1826,7 @@
         <!-- 3. 4륜 휠 얼라인먼트 (캠버 & 토우 4륜 각각 등록 + 전륜 캐스터) -->
         <div style="background: rgba(0,0,0,0.3); padding: 0.75rem 0.85rem; border-radius: 8px; border: 1px solid var(--border-subtle); margin-bottom: 0.75rem;">
           
-          <div style="display: grid; grid-template-columns: 1.2fr 1.2fr 1fr; gap: 0.75rem;">
+          <div class="session-align-grid">
             
             <!-- 4륜 캠버 각도 (Camber °) -->
             <div style="background: rgba(255,255,255,0.02); padding: 0.6rem 0.65rem; border-radius: 6px; border: 1px solid rgba(255,140,0,0.15);">
@@ -1716,25 +1841,25 @@
                   <label style="font-size:0.68rem; color:var(--accent-orange); display:flex; justify-content:space-between; margin-bottom:0.15rem;">
                     <span>FL Camber</span><span style="font-size:0.62rem; color:var(--text-muted);">전좌</span>
                   </label>
-                  <input type="number" step="0.1" class="form-control compact-input" id="sess-camber-fl" value="-3.2">
+                  <input type="number" step="0.1" class="form-control compact-input" id="sess-camber-fl" value="-3.2" inputmode="decimal">
                 </div>
                 <div class="form-group" style="margin-bottom:0;">
                   <label style="font-size:0.68rem; color:var(--accent-orange); display:flex; justify-content:space-between; margin-bottom:0.15rem;">
                     <span>FR Camber</span><span style="font-size:0.62rem; color:var(--text-muted);">전우</span>
                   </label>
-                  <input type="number" step="0.1" class="form-control compact-input" id="sess-camber-fr" value="-3.2">
+                  <input type="number" step="0.1" class="form-control compact-input" id="sess-camber-fr" value="-3.2" inputmode="decimal">
                 </div>
                 <div class="form-group" style="margin-bottom:0;">
                   <label style="font-size:0.68rem; color:var(--accent-orange); display:flex; justify-content:space-between; margin-bottom:0.15rem;">
                     <span>RL Camber</span><span style="font-size:0.62rem; color:var(--text-muted);">후좌</span>
                   </label>
-                  <input type="number" step="0.1" class="form-control compact-input" id="sess-camber-rl" value="-2.0">
+                  <input type="number" step="0.1" class="form-control compact-input" id="sess-camber-rl" value="-2.0" inputmode="decimal">
                 </div>
                 <div class="form-group" style="margin-bottom:0;">
                   <label style="font-size:0.68rem; color:var(--accent-orange); display:flex; justify-content:space-between; margin-bottom:0.15rem;">
                     <span>RR Camber</span><span style="font-size:0.62rem; color:var(--text-muted);">후우</span>
                   </label>
-                  <input type="number" step="0.1" class="form-control compact-input" id="sess-camber-rr" value="-2.0">
+                  <input type="number" step="0.1" class="form-control compact-input" id="sess-camber-rr" value="-2.0" inputmode="decimal">
                 </div>
               </div>
             </div>
@@ -1752,25 +1877,25 @@
                   <label style="font-size:0.68rem; color:#b388ff; display:flex; justify-content:space-between; margin-bottom:0.15rem;">
                     <span>FL Toe</span><span style="font-size:0.62rem; color:var(--text-muted);">전좌</span>
                   </label>
-                  <input type="number" step="0.1" class="form-control compact-input" id="sess-toe-fl" value="0.0">
+                  <input type="number" step="0.1" class="form-control compact-input" id="sess-toe-fl" value="0.0" inputmode="decimal">
                 </div>
                 <div class="form-group" style="margin-bottom:0;">
                   <label style="font-size:0.68rem; color:#b388ff; display:flex; justify-content:space-between; margin-bottom:0.15rem;">
                     <span>FR Toe</span><span style="font-size:0.62rem; color:var(--text-muted);">전우</span>
                   </label>
-                  <input type="number" step="0.1" class="form-control compact-input" id="sess-toe-fr" value="0.0">
+                  <input type="number" step="0.1" class="form-control compact-input" id="sess-toe-fr" value="0.0" inputmode="decimal">
                 </div>
                 <div class="form-group" style="margin-bottom:0;">
                   <label style="font-size:0.68rem; color:#b388ff; display:flex; justify-content:space-between; margin-bottom:0.15rem;">
                     <span>RL Toe</span><span style="font-size:0.62rem; color:var(--text-muted);">후좌</span>
                   </label>
-                  <input type="number" step="0.1" class="form-control compact-input" id="sess-toe-rl" value="1.0">
+                  <input type="number" step="0.1" class="form-control compact-input" id="sess-toe-rl" value="1.0" inputmode="decimal">
                 </div>
                 <div class="form-group" style="margin-bottom:0;">
                   <label style="font-size:0.68rem; color:#b388ff; display:flex; justify-content:space-between; margin-bottom:0.15rem;">
                     <span>RR Toe</span><span style="font-size:0.62rem; color:var(--text-muted);">후우</span>
                   </label>
-                  <input type="number" step="0.1" class="form-control compact-input" id="sess-toe-rr" value="1.0">
+                  <input type="number" step="0.1" class="form-control compact-input" id="sess-toe-rr" value="1.0" inputmode="decimal">
                 </div>
               </div>
             </div>
@@ -1788,13 +1913,13 @@
                   <label style="font-size:0.68rem; color:#00ff88; display:flex; justify-content:space-between; margin-bottom:0.15rem;">
                     <span>FL Caster</span><span style="font-size:0.62rem; color:var(--text-muted);">전좌</span>
                   </label>
-                  <input type="number" step="0.1" class="form-control compact-input" id="sess-caster-fl" value="6.5">
+                  <input type="number" step="0.1" class="form-control compact-input" id="sess-caster-fl" value="6.5" inputmode="decimal">
                 </div>
                 <div class="form-group" style="margin-bottom:0;">
                   <label style="font-size:0.68rem; color:#00ff88; display:flex; justify-content:space-between; margin-bottom:0.15rem;">
                     <span>FR Caster</span><span style="font-size:0.62rem; color:var(--text-muted);">전우</span>
                   </label>
-                  <input type="number" step="0.1" class="form-control compact-input" id="sess-caster-fr" value="6.5">
+                  <input type="number" step="0.1" class="form-control compact-input" id="sess-caster-fr" value="6.5" inputmode="decimal">
                 </div>
                 <div style="grid-column: span 2; padding:0.4rem 0.5rem; background:rgba(0,255,136,0.05); border:1px dashed rgba(0,255,136,0.2); border-radius:4px; font-size:0.68rem; color:var(--text-muted); text-align:center; margin-top:0.1rem;">
                   후륜 캐스터 고정 (전륜 조향축 전용)
@@ -1807,22 +1932,22 @@
         </div>
 
         <!-- 4. 서스펜션 댐퍼 & 에어로 & 연료량 & 날씨 -->
-        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr 1fr; gap: 0.65rem; margin-bottom: 0.75rem; background: rgba(0,0,0,0.3); padding: 0.75rem 0.85rem; border-radius: 8px; border: 1px solid var(--border-subtle);">
+        <div class="session-chassis-grid">
           <div class="form-group">
             <label style="font-size:0.75rem; color:var(--text-muted);">프론트 댐퍼 (F단)</label>
-            <input type="number" class="form-control compact-input" id="sess-damper-f" value="12" placeholder="F단수">
+            <input type="number" class="form-control compact-input" id="sess-damper-f" value="12" placeholder="F단수" inputmode="numeric">
           </div>
           <div class="form-group">
             <label style="font-size:0.75rem; color:var(--text-muted);">리어 댐퍼 (R단)</label>
-            <input type="number" class="form-control compact-input" id="sess-damper-r" value="8" placeholder="R단수">
+            <input type="number" class="form-control compact-input" id="sess-damper-r" value="8" placeholder="R단수" inputmode="numeric">
           </div>
           <div class="form-group">
             <label style="font-size:0.75rem; color:var(--text-muted);">리어 윙 각도 (°)</label>
-            <input type="number" step="0.5" class="form-control compact-input" id="sess-wing" value="4.0" placeholder="윙 각도">
+            <input type="number" step="0.5" class="form-control compact-input" id="sess-wing" value="4.0" placeholder="윙 각도" inputmode="decimal">
           </div>
           <div class="form-group">
             <label style="font-size:0.75rem; color:var(--text-muted);">연료 탑재량 (L)</label>
-            <input type="number" step="1" class="form-control compact-input" id="sess-fuel" value="30" placeholder="연료(L)">
+            <input type="number" step="1" class="form-control compact-input" id="sess-fuel" value="30" placeholder="연료(L)" inputmode="numeric">
           </div>
           <div class="form-group">
             <label style="font-size:0.75rem; color:var(--text-muted);">트랙 날씨 (Condition)</label>
@@ -1841,7 +1966,7 @@
         </div>
 
         <!-- 6. 하단 액션 버튼 -->
-        <div style="display:flex; justify-content:flex-end; gap:0.75rem; padding-top:0.6rem; border-top:1px solid var(--border-subtle);">
+        <div class="session-actions-bar">
           <button type="button" class="btn btn-secondary" onclick="closeModal('session-modal')">취소</button>
           <button type="submit" class="btn btn-primary" id="session-modal-submit-btn">
             <i data-lucide="zap"></i> <span id="session-modal-submit-text">세션 로그 저장</span>
