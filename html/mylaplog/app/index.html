@@ -997,6 +997,7 @@
     }
 
     /* Responsive */
+    /* Responsive Media Queries */
     @media (max-width: 1024px) {
       .stats-grid { grid-template-columns: repeat(2, 1fr); }
       .session-list-grid { grid-template-columns: 1fr; }
@@ -1023,14 +1024,228 @@
       }
     }
 
+    /* Mobile & Tablet App Bottom Navigation Bar (max-width: 768px) */
     @media (max-width: 768px) {
-      .sidebar { width: 70px; }
-      .sidebar .logo-text, .sidebar .team-badge-pill, .sidebar .nav-item span, .sidebar .user-details { display: none; }
-      .main-wrapper { margin-left: 70px; }
-      .stats-grid { grid-template-columns: 1fr; }
-      .garage-grid { grid-template-columns: 1fr; }
-      .form-grid { grid-template-columns: 1fr; }
-      .topbar { height: auto; padding: 1rem; flex-direction: column; gap: 0.75rem; align-items: flex-start; }
+      .sidebar {
+        position: fixed !important;
+        bottom: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        width: 100% !important;
+        height: 60px !important;
+        max-height: 60px !important;
+        z-index: 1000 !important;
+        display: flex !important;
+        flex-direction: row !important;
+        justify-content: space-around !important;
+        align-items: center !important;
+        padding: 0.2rem 0.25rem calc(0.2rem + env(safe-area-inset-bottom, 0px)) 0.25rem !important;
+        background: rgba(14, 18, 30, 0.97) !important;
+        backdrop-filter: blur(16px) !important;
+        -webkit-backdrop-filter: blur(16px) !important;
+        border-right: none !important;
+        border-top: 1px solid rgba(255, 255, 255, 0.12) !important;
+        box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.7) !important;
+      }
+      .sidebar-header,
+      .team-badge-pill,
+      .sidebar-footer {
+        display: none !important;
+      }
+      .sidebar .nav-menu {
+        display: flex !important;
+        flex-direction: row !important;
+        width: 100% !important;
+        height: 100% !important;
+        justify-content: space-around !important;
+        align-items: center !important;
+        margin: 0 !important;
+        padding: 0 !important;
+      }
+      .sidebar .nav-item {
+        flex: 1 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        text-align: center !important;
+      }
+      .sidebar .nav-item a {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 2px !important;
+        padding: 0.3rem 0.1rem !important;
+        border-radius: 8px !important;
+        color: var(--text-muted) !important;
+        border-left: none !important;
+        text-decoration: none !important;
+        transition: all 0.2s ease !important;
+      }
+      .sidebar .nav-item a i {
+        width: 18px !important;
+        height: 18px !important;
+        stroke-width: 2.2 !important;
+      }
+      .sidebar .nav-item span {
+        display: block !important;
+        font-size: 0.62rem !important;
+        font-weight: 600 !important;
+        letter-spacing: -0.3px !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        max-width: 56px !important;
+      }
+      .sidebar .nav-item.active a {
+        color: var(--accent-cyan) !important;
+        background: rgba(0, 240, 255, 0.1) !important;
+      }
+      .sidebar .nav-item.active a i {
+        color: var(--accent-cyan) !important;
+        filter: drop-shadow(0 0 6px var(--accent-cyan-glow)) !important;
+      }
+
+      .main-wrapper {
+        margin-left: 0 !important;
+        margin-bottom: calc(64px + env(safe-area-inset-bottom, 0px)) !important;
+        width: 100% !important;
+        max-width: 100vw !important;
+        overflow-x: hidden !important;
+      }
+
+      .topbar {
+        height: auto !important;
+        padding: 0.75rem 0.85rem !important;
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 0.55rem !important;
+        background: rgba(14, 18, 30, 0.85) !important;
+        border-bottom: 1px solid var(--border-subtle) !important;
+      }
+      .topbar .page-title h1 {
+        font-size: 1.15rem !important;
+        display: flex !important;
+        align-items: center !important;
+        gap: 0.45rem !important;
+      }
+      .topbar-actions {
+        display: flex !important;
+        flex-direction: row !important;
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+        white-space: nowrap !important;
+        gap: 0.45rem !important;
+        padding-bottom: 0.2rem !important;
+        scrollbar-width: none !important;
+      }
+      .topbar-actions::-webkit-scrollbar {
+        display: none !important;
+        width: 0 !important;
+        height: 0 !important;
+      }
+      .topbar-actions button {
+        flex-shrink: 0 !important;
+        padding: 0.42rem 0.75rem !important;
+        font-size: 0.78rem !important;
+        white-space: nowrap !important;
+        border-radius: 20px !important;
+      }
+
+      .content-body {
+        padding: 0.85rem 0.75rem !important;
+      }
+
+      .stats-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 0.55rem !important;
+      }
+      .stat-card {
+        padding: 0.75rem 0.65rem !important;
+      }
+      .stat-card .stat-val {
+        font-size: 1.35rem !important;
+      }
+      .stat-card .stat-label {
+        font-size: 0.72rem !important;
+      }
+      .stat-card .stat-sub {
+        font-size: 0.68rem !important;
+      }
+
+      .garage-grid {
+        grid-template-columns: 1fr !important;
+        gap: 0.75rem !important;
+      }
+      .form-grid {
+        grid-template-columns: 1fr !important;
+        gap: 0.75rem !important;
+      }
+      .my-teams-grid {
+        grid-template-columns: 1fr !important;
+        gap: 0.75rem !important;
+      }
+      .telemetry-cards-grid {
+        grid-template-columns: 1fr !important;
+        gap: 0.65rem !important;
+      }
+      .telemetry-chart-box {
+        height: 280px !important;
+        padding: 0.4rem !important;
+      }
+      .telemetry-filters-box {
+        width: 100% !important;
+        justify-content: space-between !important;
+      }
+      .telemetry-filters-box > div {
+        flex: 1 !important;
+      }
+      .telemetry-filters-box select {
+        width: 100% !important;
+      }
+
+      /* Leaderboard Track Chips Horizontal Swipe */
+      .leaderboard-track-chips {
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+        flex-wrap: nowrap !important;
+        width: 100% !important;
+        padding-bottom: 0.3rem !important;
+        scrollbar-width: none !important;
+      }
+      .leaderboard-track-chips::-webkit-scrollbar {
+        display: none !important;
+        width: 0 !important;
+        height: 0 !important;
+      }
+      .leaderboard-track-chips button {
+        flex-shrink: 0 !important;
+        white-space: nowrap !important;
+      }
+
+      /* Modal General Mobile Layout */
+      .modal-content {
+        width: 95% !important;
+        max-height: 92vh !important;
+        padding: 1.25rem 1rem !important;
+        border-radius: 14px !important;
+        margin: auto !important;
+      }
+      .modal-header {
+        margin-bottom: 0.85rem !important;
+        padding-bottom: 0.5rem !important;
+      }
+      .modal-header h3 {
+        font-size: 1.1rem !important;
+      }
+
+      /* Floating Toast above Mobile Bottom Nav */
+      .toast {
+        bottom: calc(70px + env(safe-area-inset-bottom, 0px)) !important;
+        right: 0.85rem !important;
+        left: 0.85rem !important;
+        padding: 0.75rem 1rem !important;
+        font-size: 0.85rem !important;
+      }
     }
 
     @media (max-width: 640px) {
@@ -1144,31 +1359,31 @@
         <li class="nav-item" data-tab="garage">
           <a href="#garage" onclick="switchTab('garage')">
             <i data-lucide="car"></i>
-            <span>차량 개러지</span>
+            <span>개러지</span>
           </a>
         </li>
         <li class="nav-item" data-tab="sessions">
           <a href="#sessions" onclick="switchTab('sessions')">
             <i data-lucide="clipboard-list"></i>
-            <span>세션 & 셋업 로거</span>
+            <span>세션로그</span>
           </a>
         </li>
         <li class="nav-item" data-tab="analytics">
           <a href="#analytics" onclick="switchTab('analytics')">
             <i data-lucide="activity"></i>
-            <span>텔레메트리 & 셋업 비교</span>
+            <span>텔레메트리</span>
           </a>
         </li>
         <li class="nav-item" data-tab="team">
           <a href="#team" onclick="switchTab('team')">
             <i data-lucide="users"></i>
-            <span>팀 허브 & 데이터 공유</span>
+            <span>팀허브</span>
           </a>
         </li>
         <li class="nav-item" data-tab="leaderboard">
           <a href="#leaderboard" onclick="switchTab('leaderboard')">
             <i data-lucide="trophy"></i>
-            <span>서킷 랭킹 리더보드</span>
+            <span>리더보드</span>
           </a>
         </li>
       </ul>
@@ -1338,7 +1553,7 @@
               </div>
 
               <!-- 서킷 & 동일 차종 동적 필터 컨트롤러 -->
-              <div style="display:flex; gap:0.6rem; align-items:center; flex-wrap:wrap; background:rgba(0,0,0,0.35); padding:0.4rem 0.65rem; border-radius:8px; border:1px solid rgba(255,255,255,0.06);">
+              <div class="telemetry-filters-box" style="display:flex; gap:0.6rem; align-items:center; flex-wrap:wrap; background:rgba(0,0,0,0.35); padding:0.4rem 0.65rem; border-radius:8px; border:1px solid rgba(255,255,255,0.06);">
                 <div style="display:flex; align-items:center; gap:0.4rem;">
                   <i data-lucide="map-pin" style="width:14px; height:14px; color:var(--accent-cyan);"></i>
                   <select id="telemetry-track-select" class="form-control compact-input" style="width:auto; padding:0.35rem 0.6rem; font-size:0.82rem;" onchange="onTelemetryFilterChange()">
@@ -1355,12 +1570,12 @@
             </div>
 
             <!-- Top 3 순위 드라이버 요약 칩 그리드 -->
-            <div class="stats-grid" id="telemetry-top3-cards" style="grid-template-columns: repeat(3, 1fr); gap:0.85rem; margin:1rem 0;">
+            <div class="stats-grid telemetry-cards-grid" id="telemetry-top3-cards">
               <!-- Populated via renderTop3TelemetryChips() -->
             </div>
 
             <!-- Main Correlation Chart Canvas Container -->
-            <div style="height: 380px; width: 100%; position: relative; margin: 1rem 0; background:rgba(0,0,0,0.25); border-radius:8px; padding:0.75rem; border:1px solid rgba(255,255,255,0.03);">
+            <div class="telemetry-chart-box">
               <canvas id="top3PsiLapChart"></canvas>
             </div>
 
@@ -1465,7 +1680,7 @@
                   서킷을 선택하여 드라이버별 베스트 랩타임 및 머신 셋업 순위를 확인하세요.
                 </p>
               </div>
-              <div id="leaderboard-track-buttons" style="display:flex; gap:0.4rem; flex-wrap:wrap;">
+              <div id="leaderboard-track-buttons" class="leaderboard-track-chips">
                 <!-- Populated via renderLeaderboardTrackButtons() -->
               </div>
             </div>
@@ -1573,7 +1788,7 @@
       <form id="login-form" onsubmit="handleLogin(event)">
         <div class="form-group" style="margin-bottom:1rem;">
           <label>드라이버 이메일</label>
-          <input type="email" class="form-control" id="login-email" placeholder="driver@mylaplog.com" value="alex.kim@apex-racing.kr" required>
+          <input type="email" class="form-control" id="login-email" placeholder="driver@mylaplog.com" value="alex.kim@apex-racing.kr" inputmode="email" required>
         </div>
         <div class="form-group" style="margin-bottom:1.5rem;">
           <label>비밀번호</label>
@@ -1592,7 +1807,7 @@
         </div>
         <div class="form-group" style="margin-bottom:1rem;">
           <label>이메일 주소</label>
-          <input type="email" class="form-control" id="reg-email" placeholder="driver@mylaplog.com" required>
+          <input type="email" class="form-control" id="reg-email" placeholder="driver@mylaplog.com" inputmode="email" required>
         </div>
         <div class="form-group" style="margin-bottom:1.5rem;">
           <label>비밀번호</label>
@@ -1654,7 +1869,7 @@
       <form id="join-team-form" onsubmit="handleJoinTeam(event)">
         <div class="form-group" style="margin-bottom:1.25rem;">
           <label>팀 초대 코드 입력</label>
-          <input type="text" class="form-control" id="join-invite-code" placeholder="예: APEX-KOR-2026" style="text-transform:uppercase; font-family:var(--font-mono); letter-spacing:1px;" required>
+          <input type="text" class="form-control" id="join-invite-code" placeholder="예: APEX-KOR-2026" autocapitalize="characters" style="text-transform:uppercase; font-family:var(--font-mono); letter-spacing:1px;" required>
         </div>
         <div class="form-group" style="margin-bottom:1.5rem;">
           <label>팀 내 활동 역할 선택</label>
@@ -1696,11 +1911,11 @@
           </div>
           <div class="form-group">
             <label>연식 (Year)</label>
-            <input type="number" class="form-control" id="veh-year" placeholder="예: 2024" value="2024" required>
+            <input type="number" class="form-control" id="veh-year" placeholder="예: 2024" value="2024" inputmode="numeric" required>
           </div>
           <div class="form-group">
             <label>엔진 최고 출력 (마력 hp)</label>
-            <input type="number" class="form-control" id="veh-power" placeholder="예: 280" value="280">
+            <input type="number" class="form-control" id="veh-power" placeholder="예: 280" value="280" inputmode="numeric">
           </div>
           <div class="form-group">
             <label>장착 타이어 모델</label>
@@ -2534,16 +2749,16 @@
                 </span>
                 <span>· ${s.weather || 'DRY'}</span>
               </p>
-              <h2 style="font-family:var(--font-mono); font-size:2.6rem; color:#fff; margin: 0.3rem 0;">
+              <h2 style="font-family:var(--font-mono); font-size:clamp(1.8rem, 6vw, 2.6rem); color:#fff; margin: 0.3rem 0; word-break:break-all;">
                 ${s.bestLap} <small style="font-size:1rem; color:var(--accent-cyan); font-family:var(--font-display); font-weight:700;">Fastest Lap</small>
               </h2>
-              <div style="display:flex; gap:1rem; font-family:var(--font-mono); font-size:0.85rem; color:var(--text-muted); flex-wrap:wrap;">
+              <div style="display:flex; gap:0.75rem 1rem; font-family:var(--font-mono); font-size:0.82rem; color:var(--text-muted); flex-wrap:wrap;">
                 <span>FL/FR Hot: <strong style="color:#fff">${s.psiFL || 34}/${s.psiFR || 34} PSI</strong></span>
                 <span>RL/RR Hot: <strong style="color:#fff">${s.psiRL || 32}/${s.psiRR || 32} PSI</strong></span>
                 <span>감쇠력: <strong style="color:var(--accent-cyan)">F ${s.damperF || '12'} / R ${s.damperR || '8'}단</strong></span>
               </div>
             </div>
-            <div style="background: rgba(0,0,0,0.45); padding: 1rem 1.4rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.06); min-width:240px;">
+            <div style="background: rgba(0,0,0,0.45); padding: 0.85rem 1.1rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.06); flex: 1 1 240px;">
               <p style="font-size:0.78rem; color:var(--text-muted); margin-bottom: 0.4rem; font-weight:700; text-transform:uppercase; letter-spacing:0.5px;">베스트 랩 당시 머신 셋업</p>
               <p style="font-size:0.85rem; color:#fff; margin-bottom:0.25rem;">타이어 열간: <strong style="color:var(--accent-cyan);">FL ${s.psiFL || 34} / FR ${s.psiFR || 34} PSI</strong></p>
               <p style="font-size:0.85rem; color:#fff; margin-bottom:0.25rem;">캠버(F/R): <strong style="color:#fff;">${s.camberFL || s.camber || '-3.2'}° / ${s.camberRL || '-2.0'}°</strong></p>
