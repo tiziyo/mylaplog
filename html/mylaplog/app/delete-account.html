@@ -368,14 +368,39 @@
     }
 
     @media (max-width: 640px) {
+      .header-container {
+        flex-direction: column;
+        gap: 0.75rem;
+        align-items: stretch;
+      }
+      .nav-actions {
+        display: flex;
+        width: 100%;
+        gap: 0.5rem;
+      }
+      .nav-actions .btn {
+        flex: 1;
+        justify-content: center;
+        padding: 0.45rem 0.5rem;
+        font-size: 0.78rem;
+        white-space: nowrap;
+      }
+      .main-content {
+        padding: 1rem 0.65rem 2rem;
+      }
       .card {
-        padding: 1.5rem 1.25rem;
+        padding: 1.25rem 0.95rem;
+        border-radius: 12px;
       }
       .title {
-        font-size: 1.4rem;
+        font-size: 1.35rem;
       }
       .step-grid {
         grid-template-columns: 1fr;
+        gap: 0.75rem;
+      }
+      .input, .select, input, select {
+        font-size: 16px !important;
       }
     }
   </style>

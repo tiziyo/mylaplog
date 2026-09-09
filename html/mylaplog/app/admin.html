@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>MyLapLog Admin | 통합 관리자 센터</title>
   <link rel="icon" type="image/x-icon" href="/favicon.ico">
   <link rel="icon" type="image/png" sizes="192x192" href="/app/icon-192.png">
@@ -482,18 +482,22 @@
         font-size: 1rem;
       }
       .admin-container {
-        padding: 1.1rem 0.85rem 3rem;
-        gap: 1.1rem;
+        padding: 1rem 0.75rem 3rem;
+        gap: 1rem;
       }
       .panel-card {
-        padding: 1rem 0.85rem;
+        padding: 1rem 0.75rem;
+        overflow-x: auto;
       }
       .filter-bar {
         width: 100%;
+        flex-direction: column;
+        align-items: stretch;
       }
       .filter-bar input, .filter-bar select {
         width: 100%;
         min-width: 100% !important;
+        font-size: 16px !important;
       }
       .stats-grid {
         grid-template-columns: repeat(2, 1fr);
@@ -503,10 +507,29 @@
         overflow-x: auto;
         white-space: nowrap;
         scrollbar-width: none;
+        -webkit-overflow-scrolling: touch;
       }
       .admin-tabs::-webkit-scrollbar {
         display: none;
       }
+      .admin-table-container {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+      }
+      table {
+        min-width: 600px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .stats-grid {
+        grid-template-columns: 1fr;
+      }
+      .admin-gate-card {
+        padding: 1.75rem 1.25rem !important;
+      }
+    }
+
     /* Admin Security Gate Overlay */
     .admin-gate-overlay {
       position: fixed;
