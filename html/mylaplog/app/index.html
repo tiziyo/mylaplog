@@ -2703,6 +2703,39 @@
         100% { transform: scale(0.95); opacity: 0.8; }
       }
 
+      /* GPS Compass Dial & Coordinate Widget */
+      .gps-compass-dial {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(0,240,255,0.18), rgba(7,9,14,0.95));
+        border: 1.5px solid rgba(0,240,255,0.45);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        flex-shrink: 0;
+        box-shadow: 0 0 10px rgba(0,240,255,0.25);
+      }
+      .gps-compass-n-mark {
+        position: absolute;
+        top: 1px;
+        font-size: 0.48rem;
+        font-weight: 900;
+        color: #ff2a4b;
+        line-height: 1;
+        font-family: var(--font-display);
+        pointer-events: none;
+      }
+      .gps-compass-needle-wrap {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: transform 0.25s cubic-bezier(0.2, 0.8, 0.4, 1);
+      }
+
       /* GPS Lap Timer Modal Mobile Enhancements & Complete Scroll Fix */
       #gps-timer-modal.modal-overlay {
         position: fixed !important;
@@ -5052,6 +5085,48 @@
               </div>
             </div>
           </div>
+        </div>
+
+        <!-- GPS Coordinates & Dynamic Heading Compass Widget -->
+        <div id="gps-coords-heading-bar" style="background:rgba(0,0,0,0.52); padding:0.55rem 0.8rem; border-radius:9px; border:1px solid rgba(0,240,255,0.22); margin-bottom:0.75rem; display:grid; grid-template-columns: 1.15fr 1fr; gap:0.65rem; align-items:center;">
+          
+          <!-- Left: Real-time Compass & Heading Indicator -->
+          <div style="display:flex; align-items:center; gap:0.6rem; min-width:0;">
+            <!-- Compass Dial with Rotating Needle -->
+            <div class="gps-compass-dial" title="진행 방향 나침반 (N: 북쪽 기준)">
+              <span class="gps-compass-n-mark">N</span>
+              <div id="gps-compass-needle" class="gps-compass-needle-wrap" style="transform: rotate(0deg);">
+                <i data-lucide="navigation" style="width:16px; height:16px; color:#00f0ff; fill:rgba(0,240,255,0.7); filter:drop-shadow(0 0 3px #00f0ff);"></i>
+              </div>
+            </div>
+
+            <!-- Heading Angle & 16-Wind Cardinal Text -->
+            <div style="min-width:0;">
+              <div class="gps-hud-label" style="font-size:0.65rem; color:var(--text-muted); display:flex; align-items:center; gap:0.25rem; margin:0;">
+                <i data-lucide="compass" style="width:11px; height:11px; color:var(--accent-cyan);"></i> <span>진행 방향</span>
+              </div>
+              <div style="display:flex; align-items:baseline; gap:0.35rem; margin-top:0.12rem;">
+                <span id="gps-heading-deg" style="font-family:var(--font-mono); font-size:1.02rem; font-weight:900; color:#00f0ff; line-height:1;">--°</span>
+                <span id="gps-heading-cardinal" style="font-size:0.75rem; font-weight:700; color:#e2e8f0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">대기</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right: High-Precision Live Coordinates (Lat/Lon) -->
+          <div style="border-left:1px solid rgba(255,255,255,0.08); padding-left:0.65rem; min-width:0;">
+            <div class="gps-hud-label" style="font-size:0.65rem; color:var(--text-muted); display:flex; align-items:center; gap:0.25rem; margin:0;">
+              <i data-lucide="map-pin" style="width:11px; height:11px; color:var(--accent-green);"></i> <span>현재 좌표 (WGS84)</span>
+            </div>
+            <div style="font-family:var(--font-mono); font-size:0.72rem; color:#f0f4fc; margin-top:0.15rem; display:flex; flex-direction:column; gap:0.12rem;">
+              <div style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+                <span style="color:var(--text-muted); font-size:0.65rem;">위도(LAT):</span> <strong id="gps-coord-lat" style="color:#00ff88; font-weight:800;">--.------°</strong>
+              </div>
+              <div style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+                <span style="color:var(--text-muted); font-size:0.65rem;">경도(LON):</span> <strong id="gps-coord-lon" style="color:#00f0ff; font-weight:800;">--.------°</strong>
+              </div>
+            </div>
+          </div>
+
         </div>
 
         <!-- Live Lap Timer Display -->
@@ -10368,6 +10443,87 @@
     let gpsStandstillStartTime = null;
     let gpsAutoApplied = false;
 
+    // Real-time Coordinates & Heading State
+    let gpsCurrentLat = null;
+    let gpsCurrentLon = null;
+    let gpsCurrentHeading = null; // 0 ~ 359 degrees
+
+    // Two-point Bearing / Heading calculation (0° ~ 359°)
+    function calculateBearingDegrees(lat1, lon1, lat2, lon2) {
+      if (lat1 === lat2 && lon1 === lon2) return null;
+      const toRad = deg => (deg * Math.PI) / 180.0;
+      const toDeg = rad => (rad * 180.0) / Math.PI;
+      const phi1 = toRad(lat1);
+      const phi2 = toRad(lat2);
+      const deltaLambda = toRad(lon2 - lon1);
+
+      const y = Math.sin(deltaLambda) * Math.cos(phi2);
+      const x = Math.cos(phi1) * Math.sin(phi2) - Math.sin(phi1) * Math.cos(phi2) * Math.cos(deltaLambda);
+      let brng = toDeg(Math.atan2(y, x));
+      return (brng + 360.0) % 360.0;
+    }
+
+    // 16-Wind Cardinal Direction Converter (한국어 방위 + 영문 코드)
+    function getCardinalDirectionText(deg) {
+      if (deg === null || deg === undefined || isNaN(deg)) return '대기';
+      const dirs = [
+        { code: 'N', name: '북' },
+        { code: 'NNE', name: '북북동' },
+        { code: 'NE', name: '북동' },
+        { code: 'ENE', name: '동북동' },
+        { code: 'E', name: '동' },
+        { code: 'ESE', name: '동남동' },
+        { code: 'SE', name: '남동' },
+        { code: 'SSE', name: '남남동' },
+        { code: 'S', name: '남' },
+        { code: 'SSW', name: '남남서' },
+        { code: 'SW', name: '남서' },
+        { code: 'WSW', name: '서남서' },
+        { code: 'W', name: '서' },
+        { code: 'WNW', name: '서북서' },
+        { code: 'NW', name: '북서' },
+        { code: 'NNW', name: '북북서' }
+      ];
+      const idx = Math.round(((deg % 360) / 22.5)) % 16;
+      return `${dirs[idx].name} (${dirs[idx].code})`;
+    }
+
+    function updateGpsHeadingAndCoordsUI(lat, lon, heading) {
+      gpsCurrentLat = lat;
+      gpsCurrentLon = lon;
+      if (heading !== null && heading !== undefined && !isNaN(heading) && heading >= 0) {
+        gpsCurrentHeading = (heading + 360) % 360;
+      }
+
+      // 1. Coordinates UI
+      const latEl = document.getElementById('gps-coord-lat');
+      const lonEl = document.getElementById('gps-coord-lon');
+      if (latEl) {
+        latEl.innerText = lat !== null ? `${lat.toFixed(6)}°` : '--.------°';
+        latEl.style.color = lat !== null ? '#00ff88' : 'var(--text-muted)';
+      }
+      if (lonEl) {
+        lonEl.innerText = lon !== null ? `${lon.toFixed(6)}°` : '--.------°';
+        lonEl.style.color = lon !== null ? '#00f0ff' : 'var(--text-muted)';
+      }
+
+      // 2. Heading & Compass Needle UI
+      const degEl = document.getElementById('gps-heading-deg');
+      const cardEl = document.getElementById('gps-heading-cardinal');
+      const needle = document.getElementById('gps-compass-needle');
+
+      if (gpsCurrentHeading !== null) {
+        const roundedDeg = Math.round(gpsCurrentHeading);
+        if (degEl) degEl.innerText = `${roundedDeg}°`;
+        if (cardEl) cardEl.innerText = getCardinalDirectionText(gpsCurrentHeading);
+        if (needle) needle.style.transform = `rotate(${roundedDeg}deg)`;
+      } else {
+        if (degEl) degEl.innerText = '--°';
+        if (cardEl) cardEl.innerText = '대기';
+        if (needle) needle.style.transform = 'rotate(0deg)';
+      }
+    }
+
     function openGpsLapTimerModal(isFromSessionModal = false) {
       openSessionAfterGps = isFromSessionModal;
       const modal = document.getElementById('gps-timer-modal');
@@ -10697,6 +10853,9 @@
       hadRacingSpeed = false;
       gpsStandstillStartTime = null;
       gpsAutoApplied = false;
+      gpsCurrentLat = null;
+      gpsCurrentLon = null;
+      gpsCurrentHeading = null;
 
       const liveLapEl = document.getElementById('gps-live-laptime');
       if (liveLapEl) liveLapEl.innerText = '00:00.000';
@@ -10714,6 +10873,7 @@
         badge.style.borderColor = 'rgba(255,255,255,0.15)';
       }
 
+      updateGpsHeadingAndCoordsUI(null, null, null);
       updateGpsHudUI();
       renderGpsLapsTable();
       if (!silent) {
@@ -10922,6 +11082,18 @@
           }
         }
       }
+
+      // 5. Calculate Dynamic Heading & Update Coordinates / Compass UI
+      let heading = (coords.heading !== null && coords.heading !== undefined && !isNaN(coords.heading) && coords.heading >= 0) ? coords.heading : null;
+      if (heading === null && gpsPreviousPos) {
+        const d = haversineDistMeters(gpsPreviousPos.lat, gpsPreviousPos.lon, lat, lon);
+        if (d >= 0.8) {
+          heading = calculateBearingDegrees(gpsPreviousPos.lat, gpsPreviousPos.lon, lat, lon);
+        } else {
+          heading = gpsCurrentHeading; // Maintain last known heading when stationary
+        }
+      }
+      updateGpsHeadingAndCoordsUI(lat, lon, heading);
 
       gpsPreviousPos = curPos;
 
@@ -11287,6 +11459,35 @@
             }
           }
         }
+
+        // Realistic track coordinate and heading simulation
+        const cLat = (gpsCurrentGate && gpsCurrentGate.centerLat) ? gpsCurrentGate.centerLat : 38.016335;
+        const cLon = (gpsCurrentGate && gpsCurrentGate.centerLon) ? gpsCurrentGate.centerLon : 128.324391;
+        const baseH = (gpsCurrentGate && gpsCurrentGate.trackHeadingDeg != null) ? gpsCurrentGate.trackHeadingDeg : 22.5;
+        let simLat = cLat;
+        let simLon = cLon;
+        let simHeading = baseH;
+
+        if (simPhase === 'outlap') {
+          const p = Math.min(1, phaseElapsed / outlapDuration);
+          simLat = cLat - (1 - p) * 0.0012;
+          simLon = cLon - (1 - p) * 0.0008;
+          simHeading = (baseH + (1 - p) * 18 + 360) % 360;
+        } else if (simPhase === 'lap1' || simPhase === 'lap2') {
+          const dur = (simPhase === 'lap1') ? lap1TargetDuration : lap2TargetDuration;
+          const p = Math.min(1, phaseElapsed / dur);
+          const theta = p * Math.PI * 2;
+          simLat = cLat + Math.sin(theta) * 0.0032;
+          simLon = cLon + Math.cos(theta) * 0.0042;
+          const curveOffset = Math.sin(p * Math.PI * 6) * 32;
+          simHeading = (baseH + (theta * 180 / Math.PI) + curveOffset + 360) % 360;
+        } else if (simPhase === 'cooldown') {
+          simLat = cLat + 0.0002;
+          simLon = cLon + 0.0004;
+          simHeading = (baseH + 75) % 360;
+        }
+
+        updateGpsHeadingAndCoordsUI(simLat, simLon, simHeading);
 
         gpsCurrentSpeedKmh = Math.round(simSpeed * 10) / 10;
         if (simSpeed >= 20.0) hadRacingSpeed = true;
