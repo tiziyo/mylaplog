@@ -5183,7 +5183,12 @@
             <span style="font-size:0.7rem; color:var(--text-muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; display:block;">스마트폰 GPS 랩타임 & 최고속도 실시간 계측</span>
           </div>
         </div>
-        <button class="modal-close" onclick="closeGpsLapTimerModal()" style="font-size:1.4rem; color:var(--text-muted); background:transparent; border:none; cursor:pointer; flex-shrink:0;">&times;</button>
+        <div style="display:flex; align-items:center; gap:0.4rem; flex-shrink:0;">
+          <button type="button" class="btn btn-secondary btn-sm gps-nowrap" onclick="copyGpsTimerDirectLink()" style="font-size:0.7rem; padding:0.25rem 0.5rem; background:rgba(0,240,255,0.1); border-color:rgba(0,240,255,0.3); color:var(--accent-cyan);" title="이 랩타이머 화면으로 즉시 열리는 바로가기 링크를 복사합니다.">
+            <i data-lucide="link" style="width:11px; height:11px;"></i> 바로가기 복사
+          </button>
+          <button class="modal-close" onclick="closeGpsLapTimerModal()" style="font-size:1.4rem; color:var(--text-muted); background:transparent; border:none; cursor:pointer;">&times;</button>
+        </div>
       </div>
 
       <!-- Top Toolbar: Circuit Selection & Start/Finish Gate Options -->
@@ -5400,7 +5405,12 @@
             <span style="font-size:0.7rem; color:var(--text-muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; display:block;">정밀 스피드리밋 · 정차 카운트다운 · 릴리즈 델타 감시</span>
           </div>
         </div>
-        <button class="modal-close" onclick="closeGpsPitLaneTimerModal()" style="font-size:1.4rem; color:var(--text-muted); background:transparent; border:none; cursor:pointer; flex-shrink:0;">&times;</button>
+        <div style="display:flex; align-items:center; gap:0.4rem; flex-shrink:0;">
+          <button type="button" class="btn btn-secondary btn-sm gps-nowrap" onclick="copyPitTimerDirectLink()" style="font-size:0.7rem; padding:0.25rem 0.5rem; background:rgba(255,145,0,0.1); border-color:rgba(255,145,0,0.3); color:var(--accent-orange);" title="이 피트타이머 화면으로 즉시 열리는 바로가기 링크를 복사합니다.">
+            <i data-lucide="link" style="width:11px; height:11px;"></i> 바로가기 복사
+          </button>
+          <button class="modal-close" onclick="closeGpsPitLaneTimerModal()" style="font-size:1.4rem; color:var(--text-muted); background:transparent; border:none; cursor:pointer;">&times;</button>
+        </div>
       </div>
 
       <!-- Toolbar: Circuit, Speed Limit, Target Rule & Imminent Alert Config -->
@@ -13124,6 +13134,72 @@
         updatePitHudUI();
       }, 60);
     }
+
+    // =========================================================================
+    // DIRECT MODAL DEEP-LINKS & CLIPBOARD LINK SHARING
+    // =========================================================================
+    function getDirectAppUrl(paramKey, paramVal) {
+      const origin = window.location.origin;
+      const pathname = window.location.pathname;
+      return `${origin}${pathname}?${paramKey}=${paramVal}`;
+    }
+
+    function copyPitTimerDirectLink() {
+      const url = getDirectAppUrl('view', 'pit');
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(url).then(() => {
+          showToast('🔗 GPS 피트타이머 바로가기 링크가 복사되었습니다! 홈 화면 바로가기나 즐겨찾기에 추가하세요.');
+        }).catch(() => {
+          prompt('GPS 피트타이머 바로가기 링크:', url);
+        });
+      } else {
+        prompt('GPS 피트타이머 바로가기 링크:', url);
+      }
+    }
+
+    function copyGpsTimerDirectLink() {
+      const url = getDirectAppUrl('view', 'gps');
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(url).then(() => {
+          showToast('🔗 GPS 랩타이머 바로가기 링크가 복사되었습니다! 홈 화면 바로가기나 즐겨찾기에 추가하세요.');
+        }).catch(() => {
+          prompt('GPS 랩타이머 바로가기 링크:', url);
+        });
+      } else {
+        prompt('GPS 랩타이머 바로가기 링크:', url);
+      }
+    }
+
+    function checkDirectModalDeepLinks() {
+      try {
+        const urlParams = new URLSearchParams(window.location.search);
+        const hash = (window.location.hash || '').toLowerCase();
+        const viewParam = (urlParams.get('view') || urlParams.get('modal') || '').toLowerCase();
+
+        // 1. Pit Timer Direct Trigger (?view=pit, ?modal=pit, ?pit, #pit, #pittimer, #pitlane)
+        if (viewParam === 'pit' || viewParam === 'pittimer' || viewParam === 'pitlane' || hash === '#pit' || hash === '#pittimer' || hash === '#pitlane' || urlParams.has('pit')) {
+          setTimeout(() => {
+            openGpsPitLaneTimerModal();
+          }, 150);
+        }
+        // 2. Lap Timer Direct Trigger (?view=gps, ?view=lap, ?modal=gps, ?gps, #gps, #lap, #laptimer)
+        else if (viewParam === 'gps' || viewParam === 'lap' || viewParam === 'laptimer' || hash === '#gps' || hash === '#lap' || hash === '#laptimer' || urlParams.has('gps')) {
+          setTimeout(() => {
+            openGpsLapTimerModal();
+          }, 150);
+        }
+      } catch (e) {
+        console.warn('Deep link parsing error:', e);
+      }
+    }
+
+    // Auto-execute deep-link check on startup & hash changes
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', checkDirectModalDeepLinks);
+    } else {
+      checkDirectModalDeepLinks();
+    }
+    window.addEventListener('hashchange', checkDirectModalDeepLinks);
   </script>
 </body>
 </html>
