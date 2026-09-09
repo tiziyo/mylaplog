@@ -1,5 +1,8 @@
 RewriteEngine On
 
+# 0. Redirect root / to /app/
+RewriteRule ^$ /app/ [R=301,L]
+
 # 1. API routing: /api/* -> api.php
 RewriteCond %{REQUEST_URI} ^/api/
 RewriteRule ^api/(.*)$ /api.php/$1 [L,QSA]
@@ -14,3 +17,4 @@ RewriteRule ^app(/.*)?$ /app/index.html [L]
 
 # 4. SPA Fallback for all other subpaths -> /index.html
 RewriteRule ^(.*)$ /index.html [L]
+
