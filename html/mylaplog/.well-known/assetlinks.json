@@ -1,0 +1,8 @@
+[{
+  "relation": ["delegate_permission/common.handle_all_urls"],
+  "target": {
+    "namespace": "android_app",
+    "package_name": "com.mylaplog.app",
+    "sha256_cert_fingerprints": ["6E:9A:C3:17:80:00:F6:7F:C0:63:0D:4B:D4:F5:C0:81:0B:F4:62:4C:1A:93:06:6B:67:98:9F:CB:F0:24:97:1F"]
+  }
+}]

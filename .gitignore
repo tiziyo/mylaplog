@@ -42,3 +42,7 @@ $RECYCLE.BIN/
 *.bkg
 *.swp
 *~
+
+# Local scratch and tooling scripts
+scratch/
+

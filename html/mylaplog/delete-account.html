@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>계정 삭제 및 회원 탈퇴 요청 (Account Deletion) | MyLapLog</title>
+  <meta name="description" content="MyLapLog 모터스포츠 트랙데이 서비스 계정 삭제 및 회원 탈퇴 요청 안내 페이지">
+  <link rel="canonical" href="https://www.mylaplog.com/delete-account.html">
+
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+  <link rel="icon" type="image/png" sizes="192x192" href="/app/icon-192.png">
+  <link rel="icon" type="image/png" sizes="512x512" href="/app/icon-512.png">
+  <link rel="apple-touch-icon" href="/app/apple-touch-icon.png">
+  <meta name="theme-color" content="#07090e">
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:ital,wght@0,400;0,600;0,700;1,700&family=Noto+Sans+KR:wght@300;400;500;600;700;900&family=Orbitron:wght@600;700;800;900&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <style>
+    :root {
+      --bg-base: #07090e;
+      --bg-card: rgba(14, 18, 30, 0.85);
+      --bg-card-elevated: #151b2b;
+      --bg-input: rgba(7, 9, 14, 0.9);
+      --accent-red: #ff2a4b;
+      --accent-red-glow: rgba(255, 42, 75, 0.4);
+      --accent-cyan: #00f0ff;
+      --accent-green: #00ff88;
+      --text-main: #f0f4fc;
+      --text-muted: #94a3b8;
+      --border-subtle: rgba(255, 255, 255, 0.08);
+      --border-focus: rgba(0, 240, 255, 0.4);
+      --font-display: 'Chakra Petch', sans-serif;
+      --font-mono: 'Orbitron', monospace;
+      --font-body: 'Noto Sans KR', sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-base);
+      color: var(--text-main);
+      font-family: var(--font-body);
+      line-height: 1.7;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      background-image: 
+        radial-gradient(circle at 10% 15%, rgba(255, 42, 75, 0.06) 0%, transparent 40%),
+        radial-gradient(circle at 90% 85%, rgba(0, 240, 255, 0.04) 0%, transparent 50%),
+        linear-gradient(to bottom, #07090e, #0c101a);
+      background-attachment: fixed;
+    }
+
+    /* Top Navigation Header */
+    .top-header {
+      background: rgba(11, 14, 23, 0.85);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border-subtle);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      padding: 0.85rem 1.5rem;
+    }
+
+    .header-container {
+      max-width: 900px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      text-decoration: none;
+      color: #fff;
+    }
+
+    .brand-logo-img {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      border: 1.5px solid rgba(0, 240, 255, 0.4);
+      box-shadow: 0 0 10px rgba(0, 240, 255, 0.3);
+      object-fit: cover;
+    }
+
+    .brand-text {
+      font-family: var(--font-display);
+      font-size: 1.25rem;
+      font-weight: 700;
+      font-style: italic;
+      color: #fff;
+      letter-spacing: 0.5px;
+    }
+
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.2s;
+      cursor: pointer;
+      border: 1px solid transparent;
+    }
+
+    .btn-cyan {
+      background: linear-gradient(135deg, var(--accent-cyan), #00b4d8);
+      color: #07090e;
+      font-weight: 700;
+    }
+    .btn-cyan:hover {
+      box-shadow: 0 0 14px rgba(0, 240, 255, 0.5);
+      transform: translateY(-1px);
+    }
+
+    .btn-danger {
+      background: linear-gradient(135deg, var(--accent-red), #d90429);
+      color: #fff;
+      font-weight: 700;
+    }
+    .btn-danger:hover {
+      box-shadow: 0 0 16px var(--accent-red-glow);
+      transform: translateY(-1px);
+    }
+
+    .btn-outline {
+      border-color: var(--border-subtle);
+      color: var(--text-muted);
+      background: rgba(255, 255, 255, 0.03);
+    }
+    .btn-outline:hover {
+      color: #fff;
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+
+    /* Main Container */
+    .main-content {
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1.5rem;
+      flex: 1;
+      width: 100%;
+    }
+
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 12px;
+      padding: 2.25rem 2rem;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+      margin-bottom: 2rem;
+    }
+
+    .card-header {
+      border-bottom: 1px solid var(--border-subtle);
+      padding-bottom: 1.25rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .badge-danger {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      background: rgba(255, 42, 75, 0.12);
+      border: 1px solid rgba(255, 42, 75, 0.35);
+      color: #ff6b81;
+      font-size: 0.8rem;
+      font-weight: 700;
+      padding: 0.25rem 0.65rem;
+      border-radius: 20px;
+      margin-bottom: 0.75rem;
+      font-family: var(--font-display);
+    }
+
+    .title {
+      font-size: 1.75rem;
+      font-weight: 800;
+      color: #fff;
+      letter-spacing: -0.5px;
+      margin-bottom: 0.5rem;
+    }
+
+    .desc {
+      color: var(--text-muted);
+      font-size: 0.93rem;
+    }
+
+    /* Steps Box */
+    .step-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+      margin: 1.5rem 0;
+    }
+
+    .step-box {
+      background: rgba(0, 0, 0, 0.35);
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      padding: 1.25rem 1rem;
+      text-align: center;
+    }
+
+    .step-num {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent-red), var(--accent-cyan));
+      color: #fff;
+      font-weight: 900;
+      font-family: var(--font-mono);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 0.75rem;
+      font-size: 0.95rem;
+    }
+
+    .step-title {
+      color: #fff;
+      font-weight: 700;
+      font-size: 0.95rem;
+      margin-bottom: 0.35rem;
+    }
+
+    .step-text {
+      color: var(--text-muted);
+      font-size: 0.82rem;
+      line-height: 1.4;
+    }
+
+    /* Warning List */
+    .warning-box {
+      background: rgba(255, 42, 75, 0.08);
+      border: 1px solid rgba(255, 42, 75, 0.3);
+      border-radius: 8px;
+      padding: 1.25rem;
+      margin: 1.5rem 0;
+    }
+
+    .warning-box h4 {
+      color: var(--accent-red);
+      font-size: 1rem;
+      margin-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .warning-list {
+      list-style-type: none;
+      padding-left: 0;
+    }
+
+    .warning-list li {
+      position: relative;
+      padding-left: 1.25rem;
+      margin-bottom: 0.35rem;
+      color: #fca5a5;
+      font-size: 0.88rem;
+    }
+
+    .warning-list li::before {
+      content: "✕";
+      color: var(--accent-red);
+      position: absolute;
+      left: 0;
+      font-weight: bold;
+    }
+
+    /* Web Deletion Form */
+    .form-group {
+      margin-bottom: 1.25rem;
+      text-align: left;
+    }
+
+    .form-group label {
+      display: block;
+      color: #fff;
+      font-size: 0.88rem;
+      font-weight: 600;
+      margin-bottom: 0.4rem;
+    }
+
+    .form-control {
+      width: 100%;
+      background: var(--bg-input);
+      border: 1px solid var(--border-subtle);
+      border-radius: 6px;
+      padding: 0.75rem 1rem;
+      color: #fff;
+      font-size: 0.9rem;
+      font-family: inherit;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .form-control:focus {
+      border-color: var(--accent-red);
+      box-shadow: 0 0 10px rgba(255, 42, 75, 0.3);
+    }
+
+    .alert {
+      padding: 0.85rem 1.1rem;
+      border-radius: 6px;
+      margin-bottom: 1.25rem;
+      font-size: 0.88rem;
+      display: none;
+    }
+    .alert-success {
+      background: rgba(0, 255, 136, 0.12);
+      border: 1px solid var(--accent-green);
+      color: #a7f3d0;
+    }
+    .alert-danger {
+      background: rgba(255, 42, 75, 0.12);
+      border: 1px solid var(--accent-red);
+      color: #fca5a5;
+    }
+
+    /* Footer */
+    .site-footer {
+      border-top: 1px solid var(--border-subtle);
+      padding: 2rem 1.5rem;
+      background: rgba(7, 9, 14, 0.9);
+      text-align: center;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    .footer-links {
+      display: flex;
+      justify-content: center;
+      gap: 1.5rem;
+      margin-bottom: 0.75rem;
+      flex-wrap: wrap;
+    }
+
+    .footer-links a {
+      color: var(--text-muted);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .footer-links a:hover {
+      color: var(--accent-cyan);
+    }
+
+    @media (max-width: 640px) {
+      .card {
+        padding: 1.5rem 1.25rem;
+      }
+      .title {
+        font-size: 1.4rem;
+      }
+      .step-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Header -->
+  <header class="top-header">
+    <div class="header-container">
+      <a href="/" class="brand">
+        <img src="/app/icon-192.png" alt="MyLapLog" class="brand-logo-img">
+        <span class="brand-text">MyLapLog</span>
+      </a>
+      <div class="nav-actions">
+        <a href="/privacy.html" class="btn btn-outline">
+          <i data-lucide="shield-check"></i> 개인정보처리방침
+        </a>
+        <a href="/" class="btn btn-cyan">
+          <i data-lucide="zap"></i> 메인 앱 열기
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    
+    <!-- Step Guide Card -->
+    <div class="card">
+      <div class="card-header">
+        <div class="badge-danger">
+          <i data-lucide="user-x"></i> ACCOUNT DELETION POLICY
+        </div>
+        <h1 class="title">MyLapLog 계정 삭제 및 데이터 파기 안내</h1>
+        <p class="desc">
+          Google Play 정책 및 개인정보보호법에 따라 MyLapLog 회원은 언제든지 앱 내에서 직접 또는 본 웹 페이지를 통해 계정 삭제 및 모든 연관 데이터의 영구 파기를 요청할 수 있습니다.
+        </p>
+      </div>
+
+      <!-- Warning Box -->
+      <div class="warning-box">
+        <h4><i data-lucide="alert-octagon"></i> 계정 삭제 시 영구 삭제되는 데이터 항목</h4>
+        <ul class="warning-list">
+          <li><strong>회원 계정 정보:</strong> 이메일, 닉네임, 라이선스 정보 및 소셜 로그인 연동 해제</li>
+          <li><strong>개러지 머신 데이터:</strong> 등록된 차량 제원 및 마력/타이어 셋업 히스토리</li>
+          <li><strong>트랙 세션 & 텔레메트리:</strong> 서킷별 랩타임, 최고속도, 공기압/감쇠력 로깅 일체</li>
+          <li><strong>팀 및 메시지:</strong> 소속 팀 멤버십 탈퇴 및 피트인 크루 채팅 기록</li>
+        </ul>
+        <p style="font-size:0.82rem; color:#fca5a5; margin-top:0.6rem;">
+          ⚠️ 삭제된 데이터는 즉시 데이터베이스에서 완전 영구 삭제(DELETE)되며, 어떠한 경우에도 복구할 수 없습니다.
+        </p>
+      </div>
+
+      <h2 style="font-size:1.15rem; color:#fff; margin-bottom:0.75rem; display:flex; align-items:center; gap:0.4rem;">
+        <i data-lucide="smartphone" style="color:var(--accent-cyan)"></i> 1. MyLapLog 앱 내에서 직접 탈퇴하는 방법
+      </h2>
+      <div class="step-grid">
+        <div class="step-box">
+          <div class="step-num">1</div>
+          <div class="step-title">프로필 열기</div>
+          <div class="step-text">앱 화면 우측 상단의 드라이버 프로필 아이콘(아바타)을 터치합니다.</div>
+        </div>
+        <div class="step-box">
+          <div class="step-num">2</div>
+          <div class="step-title">회원 탈퇴 선택</div>
+          <div class="step-text">프로필 모달 하단의 붉은색 [회원 탈퇴] 버튼을 터치합니다.</div>
+        </div>
+        <div class="step-box">
+          <div class="step-num">3</div>
+          <div class="step-title">최종 확인 & 완료</div>
+          <div class="step-text">안내 팝업 확인 후 즉시 계정과 모든 데이터가 영구 파기되고 로그아웃됩니다.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Direct Web Deletion Card -->
+    <div class="card" id="web-deletion-section">
+      <div class="card-header">
+        <h2 style="font-size:1.25rem; color:#fff; display:flex; align-items:center; gap:0.5rem;">
+          <i data-lucide="globe" style="color:var(--accent-red)"></i> 2. 웹에서 즉시 계정 삭제 요청하기
+        </h2>
+        <p class="desc">
+          앱이 설치되어 있지 않거나 직접 접속하여 탈퇴하고자 하는 경우 아래 양식을 작성하여 즉시 삭제할 수 있습니다.
+        </p>
+      </div>
+
+      <div id="alert-box" class="alert"></div>
+
+      <!-- Current Logged In State (If Active) -->
+      <div id="logged-in-box" style="display:none; background:rgba(0,240,255,0.06); border:1px solid rgba(0,240,255,0.25); border-radius:8px; padding:1.25rem; margin-bottom:1.25rem;">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <div>
+            <div style="font-size:0.8rem; color:var(--accent-cyan);">현재 로그인된 계정</div>
+            <strong id="logged-in-user-info" style="color:#fff; font-size:1.05rem;">-</strong>
+          </div>
+          <button type="button" class="btn btn-danger" onclick="deleteCurrentAccount()">
+            <i data-lucide="trash-2"></i> 이 계정 즉시 삭제
+          </button>
+        </div>
+      </div>
+
+      <!-- Web Deletion Form -->
+      <form id="delete-form" onsubmit="handleWebAccountDelete(event)">
+        <div class="form-group">
+          <label for="del-email">가입된 드라이버 이메일 주소</label>
+          <input type="email" id="del-email" class="form-control" placeholder="driver@mylaplog.com" required inputmode="email">
+        </div>
+
+        <div class="form-group">
+          <label for="del-password">비밀번호 (자체 계정인 경우)</label>
+          <input type="password" id="del-password" class="form-control" placeholder="비밀번호를 입력하세요 (카카오 가입자는 비워둘 수 있습니다)">
+        </div>
+
+        <div class="form-group">
+          <label for="del-reason">탈퇴 사유 (선택)</label>
+          <select id="del-reason" class="form-control">
+            <option value="NO_LONGER_USE">더 이상 트랙데이를 주행하지 않음</option>
+            <option value="USE_OTHER_APP">다른 앱/서비스 이용</option>
+            <option value="LACK_FEATURES">원하는 기능 부족</option>
+            <option value="PRIVACY_CONCERN">개인정보 및 데이터 삭제 목적</option>
+            <option value="OTHER">기타 사유</option>
+          </select>
+        </div>
+
+        <div style="margin-bottom:1.5rem;">
+          <label style="display:flex; align-items:flex-start; gap:0.5rem; color:#fca5a5; font-size:0.85rem; cursor:pointer;">
+            <input type="checkbox" id="del-agree" required style="margin-top:0.25rem; accent-color:var(--accent-red);">
+            <span>위 안내를 모두 확인하였으며, 계정 삭제 시 모든 세션 로그, 셋업, 머신 데이터가 영구 파기되는 것에 동의합니다.</span>
+          </label>
+        </div>
+
+        <button type="submit" id="btn-submit-delete" class="btn btn-danger" style="width:100%; justify-content:center; padding:0.85rem; font-size:0.95rem;">
+          <i data-lucide="user-minus"></i> MyLapLog 계정 및 모든 데이터 영구 삭제
+        </button>
+      </form>
+
+      <div style="margin-top:1.5rem; padding-top:1rem; border-top:1px solid var(--border-subtle); font-size:0.85rem; color:var(--text-muted); text-align:center;">
+        문제가 지속되거나 수동 삭제 처리를 원하시는 경우 <a href="mailto:racesolution.nl@gmail.com" style="color:var(--accent-cyan);">racesolution.nl@gmail.com</a> 으로 등록 이메일과 함께 메일을 보내주시면 24시간 이내에 처리해 드립니다.
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Site Footer -->
+  <footer class="site-footer">
+    <div class="footer-links">
+      <a href="/">홈 대시보드</a>
+      <a href="/privacy.html">개인정보처리방침</a>
+      <a href="/delete-account.html" style="color:var(--accent-red); font-weight:700;">회원 탈퇴 (계정 삭제)</a>
+      <a href="mailto:racesolution.nl@gmail.com">고객 문의</a>
+    </div>
+    <p>&copy; 2026 MyLapLog. All rights reserved. Motorsport Trackday & Telemetry Intelligence Platform.</p>
+  </footer>
+
+  <script>
+    lucide.createIcons();
+
+    // Check if user is currently logged in via /api/auth/me
+    async function checkAuthStatus() {
+      try {
+        const res = await fetch('/api/auth/me');
+        const data = await res.json();
+        if (data && data.user) {
+          document.getElementById('logged-in-box').style.display = 'block';
+          document.getElementById('logged-in-user-info').innerText = `${data.user.name} (${data.user.email})`;
+          document.getElementById('del-email').value = data.user.email;
+        }
+      } catch (e) {
+        console.error('Auth check error:', e);
+      }
+    }
+    checkAuthStatus();
+
+    function showAlert(msg, type = 'danger') {
+      const box = document.getElementById('alert-box');
+      box.className = `alert alert-${type}`;
+      box.innerHTML = msg;
+      box.style.display = 'block';
+      box.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+
+    // Direct deletion for logged in user
+    async function deleteCurrentAccount() {
+      if (!confirm('정말로 MyLapLog 계정을 영구 삭제하시겠습니까?\n모든 랩타임 기록, 차량 정보, 셋업 데이터가 즉시 영구 파기되며 되돌릴 수 없습니다.')) {
+        return;
+      }
+      try {
+        const res = await fetch('/api/auth/delete-account', {
+          method: 'DELETE',
+          headers: { 'Content-Type': 'application/json' }
+        });
+        const data = await res.json();
+        if (res.ok) {
+          showAlert('🎉 계정과 모든 데이터가 성공적으로 영구 삭제되었습니다. 이용해 주셔서 감사합니다.', 'success');
+          document.getElementById('logged-in-box').style.display = 'none';
+          document.getElementById('delete-form').style.display = 'none';
+          setTimeout(() => {
+            window.location.href = '/';
+          }, 2500);
+        } else {
+          showAlert(data.error || '계정 삭제 처리에 실패했습니다.');
+        }
+      } catch (e) {
+        showAlert('서버 통신 오류가 발생했습니다: ' + e.message);
+      }
+    }
+
+    // Web form submission
+    async function handleWebAccountDelete(e) {
+      e.preventDefault();
+      const email = document.getElementById('del-email').value.trim();
+      const password = document.getElementById('del-password').value;
+      const reason = document.getElementById('del-reason').value;
+      const agreed = document.getElementById('del-agree').checked;
+
+      if (!agreed) {
+        alert('데이터 삭제 안내 동의가 필요합니다.');
+        return;
+      }
+
+      if (!confirm(`[${email}] 계정의 모든 랩타임, 머신, 셋업 데이터를 영구 삭제하시겠습니까?\n이 작업은 취소할 수 없습니다.`)) {
+        return;
+      }
+
+      const btn = document.getElementById('btn-submit-delete');
+      btn.disabled = true;
+      btn.innerHTML = '<i data-lucide="loader" class="spin"></i> 처리 중...';
+
+      try {
+        const res = await fetch('/api/auth/request-delete-account', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password, reason })
+        });
+        const data = await res.json();
+
+        if (res.ok) {
+          showAlert('🎉 계정과 모든 데이터가 성공적으로 영구 삭제되었습니다. 이용해 주셔서 감사합니다.', 'success');
+          document.getElementById('delete-form').style.display = 'none';
+          document.getElementById('logged-in-box').style.display = 'none';
+          setTimeout(() => {
+            window.location.href = '/';
+          }, 2500);
+        } else {
+          showAlert(data.error || '계정 삭제 처리에 실패했습니다. 이메일과 비밀번호를 확인해 주세요.');
+          btn.disabled = false;
+          btn.innerHTML = '<i data-lucide="user-minus"></i> MyLapLog 계정 및 모든 데이터 영구 삭제';
+          lucide.createIcons();
+        }
+      } catch (err) {
+        showAlert('서버 통신 오류가 발생했습니다: ' + err.message);
+        btn.disabled = false;
+        btn.innerHTML = '<i data-lucide="user-minus"></i> MyLapLog 계정 및 모든 데이터 영구 삭제';
+        lucide.createIcons();
+      }
+    }
+  </script>
+</body>
+</html>

@@ -14,12 +14,34 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit;
 }
 
-// --- Secure Session Configuration ---
+// --- Extended Secure Session Configuration ---
+$SESSION_LIFETIME = 60 * 60 * 24 * 30; // 30 days
+ini_set('session.gc_maxlifetime', (string)$SESSION_LIFETIME);
+ini_set('session.gc_probability', '1');
+ini_set('session.gc_divisor', '100');
+
+$sessionSaveDir = '/var/lib/php/mylaplog_sessions';
+if (!is_dir($sessionSaveDir)) {
+    @mkdir($sessionSaveDir, 0770, true);
+}
+if (!is_dir($sessionSaveDir) || !is_writable($sessionSaveDir)) {
+    $sessionSaveDir = sys_get_temp_dir() . '/mylaplog_sessions';
+    if (!is_dir($sessionSaveDir)) {
+        @mkdir($sessionSaveDir, 0770, true);
+    }
+}
+if (is_dir($sessionSaveDir) && is_writable($sessionSaveDir)) {
+    session_save_path($sessionSaveDir);
+}
+
 $isHttps = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || (isset($_SERVER['SERVER_PORT']) && $_SERVER['SERVER_PORT'] == 443);
 session_start([
+    'cookie_lifetime' => $SESSION_LIFETIME,
+    'gc_maxlifetime' => $SESSION_LIFETIME,
     'cookie_httponly' => true,
     'cookie_secure' => $isHttps,
     'cookie_samesite' => 'Lax',
+    'cookie_path' => '/',
     'use_strict_mode' => true,
 ]);
 

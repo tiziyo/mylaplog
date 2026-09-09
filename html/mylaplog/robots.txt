@@ -1,0 +1,9 @@
+﻿User-agent: *
+Allow: /
+Allow: /app/
+Disallow: /db/
+Disallow: /app/api.php
+Disallow: /api/
+
+# Sitemap
+Sitemap: https://www.mylaplog.com/sitemap.xml

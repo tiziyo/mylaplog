@@ -1,0 +1,66 @@
+{
+  "name": "MyLapLog - 서킷 랩로그 & 텔레메트리",
+  "short_name": "MyLapLog",
+  "description": "서킷 주행 데이터 및 텔레메트리 랩로그 관리 플랫폼",
+  "id": "/app/",
+  "start_url": "/app/",
+  "scope": "/app/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#07090e",
+  "theme_color": "#ff2a4b",
+  "screenshots": [
+    {
+      "src": "/app/screenshot-dashboard.png",
+      "sizes": "563x760",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "MyLapLog 모바일 대시보드 및 세션 요약"
+    },
+    {
+      "src": "/app/screenshot-session.png",
+      "sizes": "1020x868",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "트랙데이 세션 기록 및 머신 셋업 로깅"
+    },
+    {
+      "src": "/app/screenshot-timer.png",
+      "sizes": "959x820",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "GPS 실시간 서킷 랩타이머 자동 계측"
+    }
+  ],
+  "icons": [
+    {
+      "src": "/app/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/app/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "세션 기록",
+      "url": "/app/#sessions",
+      "description": "새 랩타임 세션 기록"
+    },
+    {
+      "name": "텔레메트리",
+      "url": "/app/#analytics",
+      "description": "텔레메트리 데이터 분석"
+    },
+    {
+      "name": "팀 허브",
+      "url": "/app/#team",
+      "description": "팀 허브 및 크루 채팅"
+    }
+  ]
+}

@@ -1,12 +1,16 @@
 RewriteEngine On
 
-# API routing: /api/* -> api.php
+# 1. API routing: /api/* -> api.php
 RewriteCond %{REQUEST_URI} ^/api/
-RewriteRule ^api/(.*)$ /app/api.php/$1 [L,QSA]
+RewriteRule ^api/(.*)$ /api.php/$1 [L,QSA]
 
-# Let existing files/dirs pass through
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{REQUEST_FILENAME} !-d
+# 2. If the request is for an existing file or directory, serve it directly
+RewriteCond %{REQUEST_FILENAME} -f [OR]
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^ - [L]
 
-# SPA fallback for /app/
-RewriteRule ^app/(.*)$ /app/index.html [L]
+# 3. SPA Fallback for /app/ subpaths
+RewriteRule ^app(/.*)?$ /app/index.html [L]
+
+# 4. SPA Fallback for all other subpaths -> /index.html
+RewriteRule ^(.*)$ /index.html [L]

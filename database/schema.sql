@@ -80,6 +80,7 @@ CREATE TABLE IF NOT EXISTS track_sessions (
     vehicle_id BIGINT NOT NULL,
     track_id INT NOT NULL,
     session_date DATE NOT NULL,
+    session_time TIME DEFAULT NULL,
     session_number INT NOT NULL,
     air_temp DECIMAL(4,1) DEFAULT 25.0,
     track_temp DECIMAL(4,1) DEFAULT 40.0,
@@ -192,3 +193,31 @@ INSERT INTO lap_times (session_id, lap_number, lap_time_ms, sector1_ms, sector2_
 (1, 3, 112348, 34821, 42109, 35418, 1, 1),
 (1, 4, 114100, 35200, 42900, 36000, 1, 0)
 ON DUPLICATE KEY UPDATE lap_time_ms=VALUES(lap_time_ms);
+
+-- 11. Guides (인사이트 & 서킷/셋업 가이드)
+CREATE TABLE IF NOT EXISTS guides (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    slug VARCHAR(191) NOT NULL UNIQUE,
+    title VARCHAR(255) NOT NULL,
+    category VARCHAR(50) DEFAULT '셋업 노하우',
+    excerpt TEXT NULL,
+    content MEDIUMTEXT NOT NULL,
+    cover_image VARCHAR(500) NULL,
+    author_name VARCHAR(100) DEFAULT 'MyLapLog 인텔리전스',
+    read_time VARCHAR(20) DEFAULT '3분',
+    status VARCHAR(20) DEFAULT 'PUBLISHED',
+    views INT DEFAULT 0,
+    is_featured TINYINT(1) DEFAULT 0,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    INDEX idx_guides_status (status),
+    INDEX idx_guides_category (category),
+    INDEX idx_guides_created (created_at)
+) ENGINE=InnoDB;
+
+INSERT INTO guides (id, slug, title, category, excerpt, content, cover_image, author_name, read_time, status, views, is_featured) VALUES
+(1, 'injespeedium-racing-guide', '[서킷 공략] 인제 스피디움 첫 주행: 코너별 기어 단수 & 브레이킹 포인트 기초 가이드', '서킷 공략', '강원도 인제 스피디움(풀코스 3.908km) 첫 입문자를 위한 40m 고저차 대응법, 헤어핀 탈출 기어비, 그리고 1초를 줄이는 1번 코너 하드 브레이킹 포인트를 완벽 정리합니다.', '## 1. 인제 스피디움 서킷 개요\n인제 스피디움은 총 길이 **3.908km**, 19개의 테크니컬 코너와 **고저차 40m**를 자랑하는 아시아 최고의 롤러코스터 서킷입니다.', '', 'MyLapLog 인텔리전스', '4분', 'PUBLISHED', 128, 1),
+(2, 'tire-cold-hot-pressure-master', '[타이어/공기압] 트랙데이 필수! 냉간(Cold) vs 열간(Hot) 공기압 세팅의 모든 것', '타이어/공기압', '트랙데이에서 가장 저렴하고 확실하게 랩타임을 줄이는 튜닝은 공기압입니다. 왜 일상 36psi로 타면 미끄러지는지, 주행 후 피트인 시 적정 열간 공기압 관리 공식을 공개합니다.', '## 1. 일상 주행 공기압으로 서킷을 타면 안 되는 이유\n대부분의 공도용 차량은 냉간 **34~36 PSI**를 권장합니다. 하지만 이 상태로 서킷에 들어가면 과열됩니다.', '', 'MyLapLog 인텔리전스', '3분', 'PUBLISHED', 245, 0),
+(3, 'understeer-camber-damper-setup', '[셋업 노하우] 언더스티어가 심할 때: 프론트 캠버와 댐퍼 감쇠력 조율법', '셋업 노하우', '코너 진입 시 앞머리가 바깥으로 밀려나가는 언더스티어! 타이어 바깥쪽 숄더 마모 분석부터 프론트 네거티브 캠버각과 일체형 서스펜션 감쇠력 클릭 조율 순서를 명쾌하게 정리합니다.', '## 1. 언더스티어의 3가지 유형 분석\n차량이 밀려나간다고 무작정 서스펜션 감쇠력만 조이지 마세요.', '', 'MyLapLog 인텔리전스', '5분', 'PUBLISHED', 192, 0)
+ON DUPLICATE KEY UPDATE title=VALUES(title);
+
