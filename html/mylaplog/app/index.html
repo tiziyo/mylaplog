@@ -2703,6 +2703,31 @@
         100% { transform: scale(0.95); opacity: 0.8; }
       }
 
+      .gps-status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        font-size: 0.68rem;
+        font-weight: 800;
+        padding: 0.15rem 0.45rem;
+        border-radius: 4px;
+        background: rgba(0, 255, 136, 0.15);
+        color: #00ff88;
+        border: 1px solid rgba(0, 255, 136, 0.4);
+        margin-left: 0.4rem;
+        vertical-align: middle;
+        transition: all 0.25s ease;
+        white-space: nowrap;
+      }
+      .gps-modal-title {
+        margin: 0;
+        font-size: 1.05rem;
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+        flex-wrap: wrap;
+      }
+
       /* GPS Compass Dial & Coordinate Widget */
       .gps-compass-dial {
         width: 36px;
@@ -10774,11 +10799,14 @@
       const btnText = document.getElementById('gps-toggle-text');
       const btnIcon = document.getElementById('gps-toggle-icon');
       const badge = document.getElementById('gps-status-badge');
+      const headerDot = document.getElementById('gps-header-dot');
+      const headerText = document.getElementById('gps-header-status-text');
 
       if (btnText) btnText.innerText = 'GPS 계측 일시정지';
       if (btnIcon) btnIcon.setAttribute('data-lucide', 'pause');
+      if (headerText) headerText.innerText = 'GPS 실시간 측정중';
+      if (headerDot) headerDot.className = 'gps-radar-pulse active-green';
       if (badge) {
-        badge.innerText = '● GPS 실시간 측정중';
         badge.style.background = 'rgba(0,255,136,0.15)';
         badge.style.color = '#00ff88';
         badge.style.borderColor = 'rgba(0,255,136,0.4)';
@@ -10822,11 +10850,13 @@
       const btnText = document.getElementById('gps-toggle-text');
       const btnIcon = document.getElementById('gps-toggle-icon');
       const badge = document.getElementById('gps-status-badge');
+      const headerDot = document.getElementById('gps-header-dot');
       const headerText = document.getElementById('gps-header-status-text');
 
       if (btnText) btnText.innerText = 'GPS 주행 측정 재개';
       if (btnIcon) btnIcon.setAttribute('data-lucide', 'play');
       if (headerText) headerText.innerText = '일시정지';
+      if (headerDot) headerDot.className = 'gps-radar-pulse active-orange';
       if (badge) {
         badge.style.background = 'rgba(255,145,0,0.15)';
         badge.style.color = 'var(--accent-orange)';
@@ -10864,9 +10894,11 @@
 
       const btnText = document.getElementById('gps-toggle-text');
       const badge = document.getElementById('gps-status-badge');
+      const headerDot = document.getElementById('gps-header-dot');
       const headerText = document.getElementById('gps-header-status-text');
       if (btnText) btnText.innerText = 'GPS 주행 측정 시작';
       if (headerText) headerText.innerText = '대기중';
+      if (headerDot) headerDot.className = 'gps-radar-pulse';
       if (badge) {
         badge.style.background = 'rgba(255,255,255,0.08)';
         badge.style.color = 'var(--text-muted)';
@@ -10888,6 +10920,7 @@
       const pulseDot = document.getElementById('gps-pulse-dot');
       const headerDot = document.getElementById('gps-header-dot');
       const headerText = document.getElementById('gps-header-status-text');
+      const statusBadge = document.getElementById('gps-status-badge');
 
       if (acc === null || acc === undefined || isNaN(acc)) {
         if (accTxt) {
@@ -10902,8 +10935,23 @@
         }
         if (bars) bars.setAttribute('data-level', '0');
         if (pulseDot) pulseDot.className = 'gps-radar-pulse';
-        if (headerDot) headerDot.className = 'gps-radar-pulse';
-        if (headerText) headerText.innerText = isGpsTracking ? '위성탐색' : '대기중';
+        if (headerDot) {
+          headerDot.className = isGpsTracking ? 'gps-radar-pulse active-green' : 'gps-radar-pulse';
+        }
+        if (headerText) {
+          headerText.innerText = isGpsTracking ? 'GPS 실시간 측정중' : '대기중';
+        }
+        if (statusBadge) {
+          if (isGpsTracking) {
+            statusBadge.style.background = 'rgba(0,255,136,0.15)';
+            statusBadge.style.color = '#00ff88';
+            statusBadge.style.borderColor = 'rgba(0,255,136,0.4)';
+          } else {
+            statusBadge.style.background = 'rgba(255,255,255,0.08)';
+            statusBadge.style.color = 'var(--text-muted)';
+            statusBadge.style.borderColor = 'rgba(255,255,255,0.15)';
+          }
+        }
         return;
       }
 
@@ -10956,7 +11004,13 @@
       }
 
       if (headerText && isGpsTracking) {
-        headerText.innerText = `측정중 (${label})`;
+        headerText.innerText = `GPS 실시간 측정중 (${label})`;
+      }
+
+      if (statusBadge && isGpsTracking) {
+        statusBadge.style.background = `rgba(${level === 4 ? '0,255,136' : level === 3 ? '0,240,255' : level === 2 ? '255,145,0' : '255,42,75'}, 0.15)`;
+        statusBadge.style.color = color;
+        statusBadge.style.borderColor = color;
       }
     }
 
@@ -10970,6 +11024,16 @@
         badge.innerText = '수신불량';
         badge.style.color = '#ff2a4b';
         badge.style.borderColor = '#ff2a4b';
+      }
+      const headerText = document.getElementById('gps-header-status-text');
+      const headerDot = document.getElementById('gps-header-dot');
+      const statusBadge = document.getElementById('gps-status-badge');
+      if (headerText && isGpsTracking) headerText.innerText = 'GPS 신호 탐색중';
+      if (headerDot && isGpsTracking) headerDot.className = 'gps-radar-pulse active-orange';
+      if (statusBadge && isGpsTracking) {
+        statusBadge.style.background = 'rgba(255,145,0,0.15)';
+        statusBadge.style.color = 'var(--accent-orange)';
+        statusBadge.style.borderColor = 'rgba(255,145,0,0.4)';
       }
     }
 
