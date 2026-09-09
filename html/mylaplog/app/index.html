@@ -10285,8 +10285,11 @@
         name: '인제 스피디움',
         centerLat: 38.01518,
         centerLon: 128.30467,
-        gateA: { lat: 38.01538, lon: 128.30440 },
-        gateB: { lat: 38.01498, lon: 128.30495 },
+        gateA: { lat: 38.0152561, lon: 128.3045653 },
+        gateB: { lat: 38.0151039, lon: 128.3047747 },
+        gateWidth: 25.0,
+        trackHeadingDeg: 42.7,
+        gateBearingDeg: 132.7,
         minLapSec: 40,
         simLap1Ms: 114820,   // 1:54.820
         simBestLapMs: 112450, // 1:52.450
@@ -10297,8 +10300,11 @@
         name: '영암 KIC',
         centerLat: 34.73510,
         centerLon: 126.69505,
-        gateA: { lat: 34.73535, lon: 126.69460 },
-        gateB: { lat: 34.73485, lon: 126.69550 },
+        gateA: { lat: 34.7351630, lon: 126.6949369 },
+        gateB: { lat: 34.7350370, lon: 126.6951631 },
+        gateWidth: 25.0,
+        trackHeadingDeg: 34.1,
+        gateBearingDeg: 124.1,
         minLapSec: 50,
         simLap1Ms: 151340,   // 2:31.340
         simBestLapMs: 148120, // 2:28.120
@@ -10309,8 +10315,11 @@
         name: '용인 에버랜드 스피드웨이',
         centerLat: 37.29375,
         centerLon: 127.20140,
-        gateA: { lat: 37.29400, lon: 127.20095 },
-        gateB: { lat: 37.29350, lon: 127.20185 },
+        gateA: { lat: 37.2938142, lon: 127.2012842 },
+        gateB: { lat: 37.2936858, lon: 127.2015158 },
+        gateWidth: 25.0,
+        trackHeadingDeg: 34.9,
+        gateBearingDeg: 124.9,
         minLapSec: 45,
         simLap1Ms: 133280,   // 2:13.280
         simBestLapMs: 130350, // 2:10.350
@@ -10321,8 +10330,11 @@
         name: '태백 레이싱파크',
         centerLat: 37.18880,
         centerLon: 128.93170,
-        gateA: { lat: 37.18910, lon: 128.93130 },
-        gateB: { lat: 37.18850, lon: 128.93210 },
+        gateA: { lat: 37.1888770, lon: 128.9315974 },
+        gateB: { lat: 37.1887230, lon: 128.9318026 },
+        gateWidth: 25.0,
+        trackHeadingDeg: 43.3,
+        gateBearingDeg: 133.3,
         minLapSec: 30,
         simLap1Ms: 67900,    // 1:07.900
         simBestLapMs: 65820,  // 1:05.820
@@ -10511,21 +10523,25 @@
 
           updateGpsAccuracyUI(acc, false);
 
-          // Generate an orthogonal gate perpendicular to heading (36m width)
-          const halfWidthMeters = 18;
+          // Racelogic VBOX standard: 25.0m total gate width (12.5m left, 12.5m right perpendicular to heading)
+          const halfWidthMeters = 12.5;
           const latDegPerMeter = 1.0 / 111320.0;
           const lonDegPerMeter = 1.0 / (111320.0 * Math.cos(lat * Math.PI / 180));
           let gateA, gateB;
+          let gateBearing = null;
 
           if (headingDeg !== null) {
-            const perpRad = (headingDeg + 90) * Math.PI / 180;
+            const perpDeg = (headingDeg + 90) % 360;
+            gateBearing = perpDeg;
+            const perpRad = perpDeg * Math.PI / 180;
             const dLat = halfWidthMeters * Math.cos(perpRad) * latDegPerMeter;
             const dLon = halfWidthMeters * Math.sin(perpRad) * lonDegPerMeter;
-            gateA = { lat: lat + dLat, lon: lon + dLon };
-            gateB = { lat: lat - dLat, lon: lon - dLon };
+            // GateA to the left, GateB to the right
+            gateA = { lat: lat - dLat, lon: lon - dLon };
+            gateB = { lat: lat + dLat, lon: lon + dLon };
           } else {
-            const dLat = halfWidthMeters * 0.707 * latDegPerMeter;
-            const dLon = halfWidthMeters * 0.707 * lonDegPerMeter;
+            const dLat = halfWidthMeters * 0.7071 * latDegPerMeter;
+            const dLon = halfWidthMeters * 0.7071 * lonDegPerMeter;
             gateA = { lat: lat + dLat, lon: lon - dLon };
             gateB = { lat: lat - dLat, lon: lon + dLon };
           }
@@ -10536,6 +10552,9 @@
             centerLon: lon,
             gateA: gateA,
             gateB: gateB,
+            gateWidth: 25.0,
+            trackHeadingDeg: headingDeg,
+            gateBearingDeg: gateBearing,
             minLapSec: 15
           };
 
@@ -10951,7 +10970,31 @@
         return { crossed: false };
       }
 
-      // 1. Vector line segment intersection with Gate line A-B
+      // Racelogic Directional Validation: calculate vehicle movement heading
+      const dLatM = (p2.lat - p1.lat) * 111320.0;
+      const midLatRad = ((p1.lat + p2.lat) / 2.0) * Math.PI / 180.0;
+      const dLonM = (p2.lon - p1.lon) * (111320.0 * Math.cos(midLatRad));
+      const moveDistM = Math.hypot(dLatM, dLonM);
+
+      let moveHeadingDeg = null;
+      if (moveDistM > 0.4) {
+        // atan2(dx, dy): 0=North, 90=East, 180=South, 270=West
+        let h = Math.atan2(dLonM, dLatM) * 180.0 / Math.PI;
+        if (h < 0) h += 360.0;
+        moveHeadingDeg = h;
+      } else if (p2.heading !== undefined && p2.heading !== null && !isNaN(p2.heading) && p2.heading >= 0) {
+        moveHeadingDeg = p2.heading;
+      }
+
+      // Validate heading against track direction (Racelogic filter: +/-60 deg tolerance)
+      if (gate.trackHeadingDeg != null && moveHeadingDeg != null) {
+        const headingDiff = Math.abs((moveHeadingDeg - gate.trackHeadingDeg + 180.0) % 360.0 - 180.0);
+        if (headingDiff > 60.0) {
+          return { crossed: false }; // Discard reverse driving, pit exit counter-flow, or perpendicular crosses
+        }
+      }
+
+      // 1. Vector line segment intersection with Racelogic 25m Gate line (GateA - GateB)
       if (gate.gateA && gate.gateB) {
         const x1 = p1.lon, y1 = p1.lat;
         const x2 = p2.lon, y2 = p2.lat;
@@ -10964,16 +11007,20 @@
         const dy34 = y4 - y3;
 
         const denom = dx12 * dy34 - dy12 * dx34;
-        if (Math.abs(denom) > 1e-13) {
+        if (Math.abs(denom) > 1e-14) {
           const t = ((x3 - x1) * dy34 - (y3 - y1) * dx34) / denom;
           const u = ((x3 - x1) * dy12 - (y3 - y1) * dx12) / denom;
 
-          if (t >= 0.0 && t <= 1.0 && u >= 0.0 && u <= 1.0) {
-            // Sub-sample exact time & speed calculation (RaceChrono sub-tick interpolation)
-            const exactTime = p1.time + t * (p2.time - p1.time);
+          // t in [0, 1] means crossing happened between sample p1 and p2.
+          // u in [0, 1] bounds the crossing strictly within the 25.0m gate corridor.
+          // Slight tolerance: t in [-0.01, 1.01], u in [-0.06, 1.06] (~1.5m buffer for GPS jitter)
+          if (t >= -0.01 && t <= 1.01 && u >= -0.06 && u <= 1.06) {
+            const clampedT = Math.max(0.0, Math.min(1.0, t));
+            // Exact sub-sample time & speed linear interpolation (Racelogic / RaceChrono sub-tick)
+            const exactTime = p1.time + clampedT * (p2.time - p1.time);
             const s1 = p1.speedKmh || 0;
             const s2 = p2.speedKmh || 0;
-            const exactSpeed = s1 + t * (s2 - s1);
+            const exactSpeed = s1 + clampedT * (s2 - s1);
             return {
               crossed: true,
               exactTime: Math.round(exactTime),
@@ -10981,17 +11028,6 @@
             };
           }
         }
-      }
-
-      // 2. Fallback: Radius proximity trigger (< 20m)
-      const d1 = haversineDistMeters(p1.lat, p1.lon, gate.centerLat, gate.centerLon);
-      const d2 = haversineDistMeters(p2.lat, p2.lon, gate.centerLat, gate.centerLon);
-      if (d2 < 20 && d2 < d1) {
-        return {
-          crossed: true,
-          exactTime: now,
-          exactSpeed: p2.speedKmh || 0
-        };
       }
 
       return { crossed: false };
