@@ -2960,51 +2960,91 @@
         grid-template-columns: 1fr !important;
         gap: 0.65rem !important;
       }
-      #gps-timer-modal.modal-overlay {
+      #gps-timer-modal.modal-overlay,
+      #gps-pitlane-modal.modal-overlay {
         padding: 0.35rem 0.25rem calc(6.5rem + env(safe-area-inset-bottom, 35px)) 0.25rem !important;
       }
-      #gps-timer-modal .modal-content {
+      #gps-timer-modal .modal-content,
+      #gps-pitlane-modal .modal-content {
         padding: 0.65rem 0.45rem calc(2.2rem + env(safe-area-inset-bottom, 25px)) 0.45rem !important;
         border-radius: 12px !important;
       }
-      #gps-timer-modal .gps-toolbar-row {
+      #gps-timer-modal .gps-toolbar-row,
+      #gps-pitlane-modal .gps-toolbar-row {
         flex-direction: column !important;
         align-items: stretch !important;
+        gap: 0.45rem !important;
       }
-      #gps-timer-modal .gps-toolbar-select-wrap {
+      #gps-timer-modal .gps-toolbar-select-wrap,
+      #gps-pitlane-modal .gps-toolbar-select-wrap {
         width: 100% !important;
+      }
+      #gps-pitlane-modal .gps-toolbar-row > div {
+        width: 100% !important;
+        justify-content: space-between !important;
+      }
+      #gps-pitlane-modal .gps-toolbar-row > div select {
+        flex: 1 !important;
+        min-width: 0 !important;
       }
       #gps-timer-modal #gps-set-custom-gate-btn {
         width: 100% !important;
         justify-content: center !important;
       }
-      #gps-timer-modal .gps-bottom-actions {
+      #gps-timer-modal .gps-bottom-actions,
+      #gps-pitlane-modal .gps-bottom-actions {
         flex-direction: column !important;
         align-items: stretch !important;
+        gap: 0.45rem !important;
       }
-      #gps-timer-modal .gps-bottom-actions button {
+      #gps-timer-modal .gps-bottom-actions button,
+      #gps-pitlane-modal .gps-bottom-actions button {
         width: 100% !important;
         justify-content: center !important;
+      }
+      .pit-stage-pills {
+        gap: 2px !important;
+        margin-bottom: 0.5rem !important;
+      }
+      .pit-stage-pill {
+        padding: 0.25rem 0.1rem !important;
+        font-size: clamp(0.55rem, 2.2vw, 0.65rem) !important;
+      }
+      #btn-pit-toggle {
+        min-height: 48px !important;
+        font-size: 0.95rem !important;
+        border-radius: 10px !important;
+      }
+      #pit-current-speed {
+        font-size: clamp(2.2rem, 8.5vw, 3.2rem) !important;
+      }
+      #pit-main-timer-digit {
+        font-size: clamp(2.5rem, 10.5vw, 3.8rem) !important;
       }
     }
 
     /* Cockpit HUD Landscape Mode for Dash Smartphone Mounts */
     @media (max-height: 520px) and (orientation: landscape) {
-      #gps-timer-modal.modal-overlay {
+      #gps-timer-modal.modal-overlay,
+      #gps-pitlane-modal.modal-overlay {
         padding: 0.25rem 0.5rem calc(2.5rem + env(safe-area-inset-bottom, 15px)) 0.5rem !important;
       }
-      #gps-timer-modal .modal-content {
+      #gps-timer-modal .modal-content,
+      #gps-pitlane-modal .modal-content {
         max-height: none !important;
         padding: 0.5rem 0.75rem calc(1.5rem + env(safe-area-inset-bottom, 10px)) 0.75rem !important;
       }
-      #gps-timer-modal .modal-header {
+      #gps-timer-modal .modal-header,
+      #gps-pitlane-modal .modal-header {
         margin-bottom: 0.25rem !important;
         padding-bottom: 0.2rem !important;
       }
-      #gps-live-laptime {
+      #gps-live-laptime,
+      #pit-main-timer-digit {
         font-size: clamp(2rem, 9vh, 2.8rem) !important;
       }
-      #gps-current-speed {
+      #gps-current-speed,
+      #pit-current-speed {
         font-size: clamp(1.8rem, 8vh, 2.5rem) !important;
       }
     }
@@ -5379,9 +5419,9 @@
         <div style="display:flex; align-items:center; gap:0.35rem;">
           <label style="font-size:0.72rem; color:var(--text-muted); margin:0; white-space:nowrap;"><i data-lucide="hourglass" style="width:11px; height:11px;"></i> 규정시간:</label>
           <select id="pit-target-rule-select" class="form-control compact-input" style="font-size:0.78rem; padding:0.3rem 0.4rem; height:auto; background:rgba(0,0,0,0.6); width:110px;" onchange="onPitTargetRuleChange()">
-            <option value="60" selected>총 피트 60s</option>
+            <option value="300" selected>총 피트 5분</option>
+            <option value="60">총 피트 60s</option>
             <option value="75">총 피트 75s</option>
-            <option value="300">총 피트 5분</option>
             <option value="45">정차 45s</option>
             <option value="30">정차 30s</option>
             <option value="0">자유 (규정없음)</option>
@@ -11921,7 +11961,7 @@
       1: {
         name: '인제 스피디움',
         speedLimitKmh: 60,
-        defaultTargetSec: 60,
+        defaultTargetSec: 300,
         entryGate: {
           centerLat: 38.01452,
           centerLon: 128.30398,
@@ -11940,7 +11980,7 @@
       2: {
         name: '영암 KIC',
         speedLimitKmh: 60,
-        defaultTargetSec: 80,
+        defaultTargetSec: 300,
         entryGate: {
           centerLat: 34.73440,
           centerLon: 126.69420,
@@ -11959,7 +11999,7 @@
       3: {
         name: '용인 에버랜드 스피드웨이',
         speedLimitKmh: 60,
-        defaultTargetSec: 60,
+        defaultTargetSec: 300,
         entryGate: {
           centerLat: 37.29310,
           centerLon: 127.20080,
@@ -11978,7 +12018,7 @@
       4: {
         name: '태백 레이싱파크',
         speedLimitKmh: 50,
-        defaultTargetSec: 45,
+        defaultTargetSec: 300,
         entryGate: {
           centerLat: 37.18820,
           centerLon: 128.93120,
@@ -12002,7 +12042,7 @@
     let pitSimInterval = null;
     let pitCurrentTrackId = 1;
     let pitSpeedLimitKmh = 60;
-    let pitTargetSec = 60;
+    let pitTargetSec = 300;
     let pitTargetRuleMode = 'total'; // 'total' | 'stationary' | 'none'
 
     let pitState = 'WAITING'; // 'WAITING' -> 'TRANSIT' -> 'STATIONARY' -> 'RELEASE_READY' -> 'COMPLETED'
@@ -12026,6 +12066,11 @@
         modal.scrollTop = 0;
       }
       onPitTrackSelectChange();
+      const ruleSel = document.getElementById('pit-target-rule-select');
+      if (ruleSel && !ruleSel.value) {
+        ruleSel.value = '300';
+      }
+      onPitTargetRuleChange();
       updatePitHudUI();
       lucide.createIcons();
 
