@@ -5378,11 +5378,12 @@
 
         <div style="display:flex; align-items:center; gap:0.35rem;">
           <label style="font-size:0.72rem; color:var(--text-muted); margin:0; white-space:nowrap;"><i data-lucide="hourglass" style="width:11px; height:11px;"></i> 규정시간:</label>
-          <select id="pit-target-rule-select" class="form-control compact-input" style="font-size:0.78rem; padding:0.3rem 0.4rem; height:auto; background:rgba(0,0,0,0.6); width:98px;" onchange="onPitTargetRuleChange()">
+          <select id="pit-target-rule-select" class="form-control compact-input" style="font-size:0.78rem; padding:0.3rem 0.4rem; height:auto; background:rgba(0,0,0,0.6); width:110px;" onchange="onPitTargetRuleChange()">
             <option value="60" selected>총 피트 60s</option>
+            <option value="75">총 피트 75s</option>
+            <option value="300">총 피트 5분</option>
             <option value="45">정차 45s</option>
             <option value="30">정차 30s</option>
-            <option value="75">총 피트 75s</option>
             <option value="0">자유 (규정없음)</option>
           </select>
         </div>
@@ -12215,6 +12216,7 @@
       pitTopSpeedKmh = 0.0;
       pitPreviousPos = null;
       pitLastBeepSec = -1;
+      pitStopHistory = [];
 
       const mainTimer = document.getElementById('pit-main-timer-digit');
       if (mainTimer) mainTimer.innerText = '00:00.00';
@@ -12234,6 +12236,7 @@
 
       updatePitStagePills(1);
       updatePitHudUI();
+      renderPitStopsTable();
       showToast('피트레인 타이머 데이터를 초기화했습니다.');
     }
 
