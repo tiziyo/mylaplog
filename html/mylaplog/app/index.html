@@ -12052,6 +12052,8 @@
     let pitWatchId = null;
     let pitTimerInterval = null;
     let pitSimInterval = null;
+    let isPitSimulating = false;
+    let pitSimTargetSec = 14;
     let pitCurrentTrackId = 1;
     let pitSpeedLimitKmh = 60;
     let pitTargetSec = 300;
@@ -12241,6 +12243,7 @@
 
     function stopPitTracking() {
       isPitTracking = false;
+      isPitSimulating = false;
       if (pitWatchId !== null) {
         navigator.geolocation.clearWatch(pitWatchId);
         pitWatchId = null;
@@ -12276,6 +12279,7 @@
     function resetPitSession() {
       if (isPitTracking) stopPitTracking();
 
+      isPitSimulating = false;
       pitState = 'WAITING';
       pitEntryTimestamp = null;
       pitStopTimestamp = null;
@@ -12508,7 +12512,10 @@
 
       let deltaSec = 0;
       let isCompliant = true;
-      if (pitTargetRuleMode === 'total' && pitTargetSec > 0) {
+      if (isPitSimulating) {
+        deltaSec = 0.5;
+        isCompliant = true;
+      } else if (pitTargetRuleMode === 'total' && pitTargetSec > 0) {
         deltaSec = Math.round((totalPitMs / 1000 - pitTargetSec) * 10) / 10;
         isCompliant = deltaSec >= 0;
       } else if (pitTargetRuleMode === 'stationary' && pitTargetSec > 0) {
@@ -12568,7 +12575,7 @@
         }
         mainDigit.innerText = '00:00.00';
       } else if (pitState === 'TRANSIT') {
-        if (pitTargetRuleMode === 'total' && pitTargetSec > 0) {
+        if (!isPitSimulating && pitTargetRuleMode === 'total' && pitTargetSec > 0) {
           const remainMs = Math.max(0, (pitTargetSec * 1000) - totalElapsedMs);
           const remainSec = Math.ceil(remainMs / 1000);
 
@@ -12593,14 +12600,21 @@
           mainDigit.innerText = msToLapStr(remainMs);
         } else {
           if (mainLabel) mainLabel.innerText = 'TOTAL PIT ELAPSED';
-          if (mainBadge) mainBadge.innerText = '피트레인 주행중';
+          if (mainBadge) {
+            mainBadge.innerText = '피트레인 주행중';
+            mainBadge.style.background = 'rgba(255,145,0,0.18)';
+            mainBadge.style.color = 'var(--accent-orange)';
+          }
           mainDigit.innerText = msToLapStr(totalElapsedMs);
         }
       } else if (pitState === 'STATIONARY') {
         let targetMs = 0;
         let elapsedMs = 0;
 
-        if (pitTargetRuleMode === 'stationary') {
+        if (isPitSimulating) {
+          targetMs = pitSimTargetSec * 1000;
+          elapsedMs = currentStatMs;
+        } else if (pitTargetRuleMode === 'stationary') {
           targetMs = pitTargetSec * 1000;
           elapsedMs = currentStatMs;
         } else if (pitTargetRuleMode === 'total') {
@@ -12749,16 +12763,34 @@
       if (pitSimInterval) {
         clearInterval(pitSimInterval);
         pitSimInterval = null;
+        isPitSimulating = false;
         showToast('가상 피트스탑 시뮬레이션을 정지했습니다.');
         return;
       }
 
-      showToast('🛑 [피트스탑 시뮬레이션] 시작! (피트 진입 -> 55km/h 주행 -> 박스 정차 -> 카운트다운 -> 릴리즈 -> 출구 통과)');
+      isPitSimulating = true;
+      const alertSec = (pitWarningAlertSec > 0) ? pitWarningAlertSec : 10;
+      pitSimTargetSec = Math.max(14, alertSec + 4);
+
       if (!isPitTracking) startPitTracking();
 
-      let simPhase = 'entry'; // 'entry' -> 'transit1' -> 'stopping' -> 'stationary' -> 'launch' -> 'transit2' -> 'exit'
+      // Reset to Waiting stage
+      pitState = 'WAITING';
+      pitEntryTimestamp = null;
+      pitStopTimestamp = null;
+      pitStationaryDurationMs = 0;
+      pitReleaseTimestamp = null;
+      pitExitTimestamp = null;
+      pitLastBeepSec = -1;
+      pitImminentAlarmTriggered = false;
+      pitCurrentSpeedKmh = 95.0;
+      updatePitStagePills(1);
+      updatePitHudUI();
+
+      showToast('🛑 [피트스탑 시뮬레이션] 1단계: 진입 대기 상태 (곧 피트 진입선을 통과합니다)');
+
+      let simPhase = 'waiting'; // 'waiting' -> 'entry' -> 'transit1' -> 'stopping' -> 'stationary' -> 'launch' -> 'transit2' -> 'exit'
       let phaseStart = Date.now();
-      triggerPitEntry(Date.now());
 
       pitSimInterval = setInterval(() => {
         const now = Date.now();
@@ -12766,40 +12798,49 @@
 
         let simSpeed = 0;
 
-        if (simPhase === 'entry') {
-          // Decelerating into pit lane (80 -> 56 km/h)
-          simSpeed = 80 - Math.min(1, elapsed / 1200) * 24;
+        if (simPhase === 'waiting') {
+          // Approaching pit entry line (95 -> 60 km/h)
+          simSpeed = 95.0 - Math.min(1, elapsed / 2800) * 35.0;
+          if (elapsed >= 2800) {
+            simPhase = 'entry';
+            phaseStart = Date.now();
+            triggerPitEntry(Date.now());
+          }
+        } else if (simPhase === 'entry') {
+          // Decelerating safely into pit lane (60 -> 55 km/h)
+          simSpeed = 60.0 - Math.min(1, elapsed / 1200) * 5.0;
           if (elapsed >= 1200) {
             simPhase = 'transit1';
             phaseStart = Date.now();
           }
         } else if (simPhase === 'transit1') {
-          // Driving in pit lane at 55.5 km/h
-          simSpeed = 55.0 + Math.sin(elapsed / 300) * 1.8;
+          // Driving in pit lane at ~55 km/h
+          simSpeed = 55.0 + Math.sin(elapsed / 300) * 1.5;
           if (elapsed >= 2500) {
             simPhase = 'stopping';
             phaseStart = Date.now();
           }
         } else if (simPhase === 'stopping') {
           // Braking into pit box (55 -> 0 km/h)
-          simSpeed = Math.max(0, 55 - (elapsed / 1200) * 55);
+          simSpeed = Math.max(0, 55.0 - (elapsed / 1200) * 55.0);
           if (simSpeed <= 1.0) {
             simSpeed = 0.0;
             simPhase = 'stationary';
             phaseStart = Date.now();
             triggerPitStop(Date.now());
+            showToast(`🛑 [박스 정차] 카운트다운 시작 (${alertSec}초 전 임박 알람 작동)`);
           }
         } else if (simPhase === 'stationary') {
-          // Car stationary in box for 12.0s simulation
+          // Car stationary in box for pitSimTargetSec countdown
           simSpeed = 0.0;
-          if (elapsed >= 12000) {
+          if (elapsed >= (pitSimTargetSec * 1000) + 1200) {
             simPhase = 'launch';
             phaseStart = Date.now();
             triggerPitLaunch(Date.now());
           }
         } else if (simPhase === 'launch') {
           // Accelerating out of box (0 -> 58 km/h)
-          simSpeed = Math.min(58.0, (elapsed / 1500) * 58);
+          simSpeed = Math.min(58.0, (elapsed / 1500) * 58.0);
           if (elapsed >= 1500) {
             simPhase = 'transit2';
             phaseStart = Date.now();
@@ -12807,17 +12848,18 @@
         } else if (simPhase === 'transit2') {
           // Cruising towards pit exit line at 58 km/h
           simSpeed = 58.0 + Math.sin(elapsed / 250) * 1.5;
-          if (elapsed >= 2500) {
+          if (elapsed >= 2000) {
             simPhase = 'exit';
             phaseStart = Date.now();
             triggerPitExit(Date.now());
           }
         } else if (simPhase === 'exit') {
-          // Accelerating back on track (58 -> 140 km/h)
-          simSpeed = 58 + Math.min(85, (elapsed / 2000) * 85);
+          // Accelerating back on track (58 -> 135 km/h)
+          simSpeed = 58.0 + Math.min(77.0, (elapsed / 2000) * 77.0);
           if (elapsed >= 2200) {
             clearInterval(pitSimInterval);
             pitSimInterval = null;
+            isPitSimulating = false;
             showToast('🏁 가상 피트스탑 시뮬레이션 완료!');
           }
         }
@@ -12826,7 +12868,7 @@
         if (pitCurrentSpeedKmh > pitTopSpeedKmh) pitTopSpeedKmh = pitCurrentSpeedKmh;
 
         updatePitHudUI();
-      }, 80);
+      }, 70);
     }
   </script>
 </body>
