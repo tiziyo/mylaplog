@@ -12064,15 +12064,12 @@
     let pitTimerInterval = null;
     let pitSimInterval = null;
     let isPitSimulating = false;
-    let pitSimTargetSec = 34;
     let pitCurrentTrackId = 1;
     let pitSpeedLimitKmh = 60;
     let pitTargetSec = 300;
     let pitTargetRuleMode = 'total'; // 'total' | 'stationary' | 'none'
     let pitWarningAlertSec = 30;
     let pitImminentAlarmTriggered = false;
-    let simPitVirtualTotalMs = 0;
-    let simPitVirtualStatMs = 0;
 
     let pitState = 'WAITING'; // 'WAITING' -> 'TRANSIT' -> 'STATIONARY' -> 'RELEASE_READY' -> 'COMPLETED'
     let pitEntryTimestamp = null;
@@ -12524,13 +12521,8 @@
       pitExitTimestamp = timestamp;
       pitState = 'COMPLETED';
 
-      let totalPitMs = pitEntryTimestamp ? (timestamp - pitEntryTimestamp) : 0;
-      let statMs = pitStationaryDurationMs > 0 ? pitStationaryDurationMs : (pitStopTimestamp ? (timestamp - pitStopTimestamp) : 0);
-
-      if (isPitSimulating) {
-        if (simPitVirtualTotalMs > 0) totalPitMs = simPitVirtualTotalMs;
-        if (simPitVirtualStatMs > 0) statMs = simPitVirtualStatMs;
-      }
+      const totalPitMs = pitEntryTimestamp ? (timestamp - pitEntryTimestamp) : 0;
+      const statMs = pitStationaryDurationMs > 0 ? pitStationaryDurationMs : (pitStopTimestamp ? (timestamp - pitStopTimestamp) : 0);
 
       let deltaSec = 0;
       let isCompliant = true;
@@ -12578,16 +12570,11 @@
       let totalElapsedMs = 0;
       let currentStatMs = 0;
 
-      if (isPitSimulating) {
-        totalElapsedMs = simPitVirtualTotalMs;
-        currentStatMs = simPitVirtualStatMs;
-      } else {
-        if (pitEntryTimestamp) {
-          totalElapsedMs = (pitExitTimestamp || now) - pitEntryTimestamp;
-        }
-        if (pitStopTimestamp) {
-          currentStatMs = (pitState === 'STATIONARY') ? (now - pitStopTimestamp) : pitStationaryDurationMs;
-        }
+      if (pitEntryTimestamp) {
+        totalElapsedMs = (pitExitTimestamp || now) - pitEntryTimestamp;
+      }
+      if (pitStopTimestamp) {
+        currentStatMs = (pitState === 'STATIONARY') ? (now - pitStopTimestamp) : pitStationaryDurationMs;
       }
 
       if (totalElapsedEl) totalElapsedEl.innerText = msToLapStr(totalElapsedMs);
@@ -12894,8 +12881,6 @@
       }
 
       isPitSimulating = true;
-      simPitVirtualTotalMs = 0;
-      simPitVirtualStatMs = 0;
 
       // Read current active target and warning settings
       const targetSec = pitTargetSec;
@@ -12904,7 +12889,7 @@
 
       let ruleDesc = '규정없음 (자유)';
       if (ruleMode === 'total') {
-        ruleDesc = targetSec >= 60 ? `총 피트 ${(targetSec / 60).toFixed(0)}분` : `총 피트 ${targetSec}s`;
+        ruleDesc = targetSec >= 60 ? `총 피트 ${(targetSec / 60).toFixed(0)}분 (${targetSec}s)` : `총 피트 ${targetSec}s`;
       } else if (ruleMode === 'stationary') {
         ruleDesc = `정차 ${targetSec}s`;
       }
@@ -12925,25 +12910,11 @@
       updatePitStagePills(1);
       updatePitHudUI();
 
-      showToast(`🛑 [가상 피트스탑 체험] ${ruleDesc} / ${alertDesc} 시나리오를 시작합니다!`);
+      showToast(`🛑 [가상 피트스탑 실시간 체험] ${ruleDesc} / ${alertDesc} (실제 1:1 실시간 시간 진행)`);
 
       let simPhase = 'waiting'; // 'waiting' -> 'entry' -> 'transit1' -> 'stopping' -> 'stationary' -> 'launch' -> 'transit2' -> 'exit' -> 'finish'
       let phaseStart = Date.now();
-
-      // Calculation of scenario milestones
-      let boxEntryTotalSec = 0;
-      let alarmAtSec = 0;
-
-      if (ruleMode === 'total' && targetSec > 0) {
-        alarmAtSec = (alertSec > 0 && targetSec > alertSec) ? (targetSec - alertSec) : Math.max(0, targetSec - 10);
-        boxEntryTotalSec = Math.max(0, alarmAtSec - 6);
-      } else if (ruleMode === 'stationary' && targetSec > 0) {
-        alarmAtSec = (alertSec > 0 && targetSec > alertSec) ? (targetSec - alertSec) : Math.max(0, targetSec - 10);
-        boxEntryTotalSec = 15; // transit before stop
-      } else {
-        alarmAtSec = 0;
-        boxEntryTotalSec = 10;
-      }
+      let releaseDetectedTime = 0;
 
       pitSimInterval = setInterval(() => {
         const now = Date.now();
@@ -12951,10 +12922,8 @@
         let simSpeed = 0;
 
         if (simPhase === 'waiting') {
-          // 1. Approaching pit entry line (95 -> 60 km/h in 2.5s)
+          // 1. Approaching pit entry line in real time (95 -> 60 km/h in 2.5s)
           simSpeed = 95.0 - Math.min(1, elapsed / 2500) * 35.0;
-          simPitVirtualTotalMs = 0;
-          simPitVirtualStatMs = 0;
 
           if (elapsed >= 2500) {
             simPhase = 'entry';
@@ -12964,142 +12933,73 @@
         } else if (simPhase === 'entry') {
           // 2. Passing pit entry line into pit lane (60 -> 55 km/h in 1.2s)
           simSpeed = 60.0 - Math.min(1, elapsed / 1200) * 5.0;
-          simPitVirtualTotalMs = (elapsed / 1200) * 2000;
-          simPitVirtualStatMs = 0;
 
           if (elapsed >= 1200) {
             simPhase = 'transit1';
             phaseStart = Date.now();
           }
         } else if (simPhase === 'transit1') {
-          // 3. Driving along pit lane to pit box (2.5s real time)
-          simSpeed = 55.0 + Math.sin(elapsed / 300) * 1.2;
-          const transitProgress = Math.min(1, elapsed / 2500);
-
-          if (ruleMode === 'total' && targetSec > 0) {
-            simPitVirtualTotalMs = (2000 + transitProgress * (boxEntryTotalSec * 1000 - 3000));
-          } else {
-            simPitVirtualTotalMs = (2000 + transitProgress * 8000);
-          }
-          simPitVirtualStatMs = 0;
+          // 3. Driving along pit lane to pit box at ~55 km/h (2.5s real time)
+          simSpeed = 55.0 + Math.sin(elapsed / 300) * 1.0;
 
           if (elapsed >= 2500) {
             simPhase = 'stopping';
             phaseStart = Date.now();
           }
         } else if (simPhase === 'stopping') {
-          // 4. Decelerating into pit box (55 -> 0 km/h in 1.3s)
+          // 4. Braking into pit box (55 -> 0 km/h in 1.3s)
           const brakeProgress = Math.min(1, elapsed / 1300);
           simSpeed = Math.max(0, 55.0 * (1 - brakeProgress));
-
-          if (ruleMode === 'total' && targetSec > 0) {
-            simPitVirtualTotalMs = (boxEntryTotalSec * 1000 - 1000) + (brakeProgress * 1000);
-          } else {
-            simPitVirtualTotalMs = 10000 + (brakeProgress * 1500);
-          }
-          simPitVirtualStatMs = 0;
 
           if (brakeProgress >= 1.0) {
             simSpeed = 0.0;
             simPhase = 'stationary';
             phaseStart = Date.now();
+            releaseDetectedTime = 0;
             triggerPitStop(Date.now());
           }
         } else if (simPhase === 'stationary') {
-          // 5. Stationary in Pit Box: Scenario-tailored countdown (7.0s total real duration)
-          // 0.0s ~ 1.5s: Progress to imminent alarm trigger
-          // 1.5s: Imminent alarm fires! (warning banner + pulse + audio)
-          // 1.5s ~ 5.5s (4s): Countdown through 3-2-1 tick to targetSec
-          // 5.5s: 🟢 RELEASE GO!
-          // 5.5s ~ 7.0s (1.5s): Reaction time before driver launch
+          // 5. Stationary in Pit Box: 100% 1:1 real-time countdown / work
           simSpeed = 0.0;
-          const statRealDurationMs = 7000;
 
-          if (ruleMode === 'total' && targetSec > 0) {
-            if (elapsed < 1500) {
-              // Heading to alarm point
-              const p = elapsed / 1500;
-              simPitVirtualTotalMs = (boxEntryTotalSec * 1000) + p * ((alarmAtSec - boxEntryTotalSec) * 1000);
-              simPitVirtualStatMs = p * 6000;
-            } else if (elapsed < 5500) {
-              // Counting down from alarm point to exact targetSec
-              const p = (elapsed - 1500) / 4000;
-              simPitVirtualTotalMs = (alarmAtSec * 1000) + p * ((targetSec - alarmAtSec) * 1000);
-              simPitVirtualStatMs = 6000 + p * 24000;
-            } else {
-              // Released!
-              const p = (elapsed - 5500) / 1500;
-              simPitVirtualTotalMs = (targetSec * 1000) + p * 500;
-              simPitVirtualStatMs = 30000 + p * 500;
-            }
-          } else if (ruleMode === 'stationary' && targetSec > 0) {
-            if (elapsed < 1500) {
-              const p = elapsed / 1500;
-              simPitVirtualStatMs = p * (alarmAtSec * 1000);
-              simPitVirtualTotalMs = (boxEntryTotalSec * 1000) + simPitVirtualStatMs;
-            } else if (elapsed < 5500) {
-              const p = (elapsed - 1500) / 4000;
-              simPitVirtualStatMs = (alarmAtSec * 1000) + p * ((targetSec - alarmAtSec) * 1000);
-              simPitVirtualTotalMs = (boxEntryTotalSec * 1000) + simPitVirtualStatMs;
-            } else {
-              const p = (elapsed - 5500) / 1500;
-              simPitVirtualStatMs = (targetSec * 1000) + p * 500;
-              simPitVirtualTotalMs = (boxEntryTotalSec * 1000) + simPitVirtualStatMs;
-            }
-          } else {
-            // None (자유 모드): 5초 작업 후 릴리즈
-            const p = Math.min(1, elapsed / 5000);
-            simPitVirtualStatMs = p * 15000;
-            simPitVirtualTotalMs = 12000 + simPitVirtualStatMs;
-            if (elapsed >= 5000 && pitState !== 'RELEASE_READY') {
+          if (ruleMode === 'none') {
+            // Free mode: 10s stationary work then release
+            if (elapsed >= 10000 && pitState !== 'RELEASE_READY') {
               pitState = 'RELEASE_READY';
               updatePitStagePills(4);
               playPitAudio('release');
             }
           }
 
-          if (elapsed >= statRealDurationMs) {
-            simPhase = 'launch';
-            phaseStart = Date.now();
-            triggerPitLaunch(Date.now());
+          // Once RELEASE_READY is reached, driver reacts and launches after 1.5s
+          if (pitState === 'RELEASE_READY') {
+            if (releaseDetectedTime === 0) releaseDetectedTime = now;
+            if (now - releaseDetectedTime >= 1500) {
+              simPhase = 'launch';
+              phaseStart = Date.now();
+              triggerPitLaunch(Date.now());
+            }
           }
         } else if (simPhase === 'launch') {
-          // 6. Accelerating out of box (0 -> 58 km/h in 1.4s)
-          const launchProgress = Math.min(1, elapsed / 1400);
+          // 6. Accelerating out of box (0 -> 58 km/h in 1.5s real time)
+          const launchProgress = Math.min(1, elapsed / 1500);
           simSpeed = launchProgress * 58.0;
 
-          if (ruleMode === 'total' && targetSec > 0) {
-            simPitVirtualTotalMs = (targetSec * 1000) + 500 + launchProgress * 600;
-          } else if (ruleMode === 'stationary' && targetSec > 0) {
-            simPitVirtualTotalMs = (boxEntryTotalSec * 1000) + (targetSec * 1000) + 500 + launchProgress * 600;
-          } else {
-            simPitVirtualTotalMs = 27000 + launchProgress * 600;
-          }
-
-          if (elapsed >= 1400) {
+          if (elapsed >= 1500) {
             simPhase = 'transit2';
             phaseStart = Date.now();
           }
         } else if (simPhase === 'transit2') {
-          // 7. Cruising towards pit exit line at 58 km/h (1.5s)
-          simSpeed = 58.0 + Math.sin(elapsed / 250) * 1.0;
-          const exitTransitProgress = Math.min(1, elapsed / 1500);
+          // 7. Cruising towards pit exit line at 58 km/h (2.0s real time)
+          simSpeed = 58.0 + Math.sin(elapsed / 250) * 0.8;
 
-          if (ruleMode === 'total' && targetSec > 0) {
-            simPitVirtualTotalMs = (targetSec * 1000) + 1100 + exitTransitProgress * 400; // Final: +1.5s
-          } else if (ruleMode === 'stationary' && targetSec > 0) {
-            simPitVirtualTotalMs = (boxEntryTotalSec * 1000) + (targetSec * 1000) + 1100 + exitTransitProgress * 400;
-          } else {
-            simPitVirtualTotalMs = 27600 + exitTransitProgress * 400;
-          }
-
-          if (elapsed >= 1500) {
+          if (elapsed >= 2000) {
             simPhase = 'exit';
             phaseStart = Date.now();
             triggerPitExit(Date.now());
           }
         } else if (simPhase === 'exit') {
-          // 8. Accelerating back onto circuit (58 -> 135 km/h in 2.0s)
+          // 8. Accelerating back onto circuit (58 -> 135 km/h in 2.0s real time)
           const fullGasProgress = Math.min(1, elapsed / 2000);
           simSpeed = 58.0 + fullGasProgress * 77.0;
 
@@ -13107,7 +13007,7 @@
             clearInterval(pitSimInterval);
             pitSimInterval = null;
             isPitSimulating = false;
-            showToast('🏁 가상 피트스탑 체험 시나리오가 성공적으로 완료되었습니다!');
+            showToast('🏁 가상 피트스탑 실시간 체험이 완료되었습니다!');
           }
         }
 
@@ -13115,7 +13015,7 @@
         if (pitCurrentSpeedKmh > pitTopSpeedKmh) pitTopSpeedKmh = pitCurrentSpeedKmh;
 
         updatePitHudUI();
-      }, 70);
+      }, 60);
     }
   </script>
 </body>
