@@ -72,14 +72,13 @@ sudo mariadb
 ## 6. 서버 내 관련 파일 위치
 - **자격 증명 파일**: `/opt/aws/lamp/credentials.log` (심볼릭 링크: `/home/admin/application_credentials`)
 - **웹 기본 루트**: `/var/www/html`
-- **MyLapLog 홍보 랜딩 경로**: `/var/www/html/mylaplog/index.html` (`https://mylaplog.com`)
-- **MyLapLog 웹 앱 포털 경로**: `/var/www/html/mylaplog/app/index.html` (`https://app.mylaplog.com` / `https://mylaplog.com/app/`)
-- **로컬 앱 소스 경로**: `html/mylaplog/app/index.html`
-- **로컬 랜딩 소스 경로**: `html/mylaplog/index.html`
-- **가상 호스트 SSL 설정**:
-  - `/etc/apache2/sites-available/randomfi.com-le-ssl.conf`
+- **MyLapLog 웹 루트 (.htaccess/SEO)**: `/var/www/html/mylaplog` (`.htaccess`, `sitemap.xml`, `robots.txt`, `favicon.ico`)
+- **MyLapLog 웹 앱 포털 메인**: `/var/www/html/mylaplog/app/index.html` (`https://mylaplog.com/app/`)
+- **MyLapLog 관리자 센터**: `/var/www/html/mylaplog/app/admin.html` (`https://mylaplog.com/app/admin.html`)
+- **MyLapLog 백엔드 REST API**: `/var/www/html/mylaplog/app/api.php` (`https://mylaplog.com/api/*`)
+- **개인정보처리방침 / 탈퇴 안내**: `/var/www/html/mylaplog/app/privacy.html`, `/var/www/html/mylaplog/app/delete-account.html`
+- **가상 호스트 SSL 설정**: `/etc/apache2/sites-available/mylaplog.com-le-ssl.conf`
 - **MySQL / MariaDB 웹 뷰어 앱 경로**: `https://mylaplog.com/db/` (`/var/www/html/mylaplog/db/index.html`)
-- **로컬 DB 뷰어 소스 경로**: `html/mylaplog/db/index.html`, `html/mylaplog/db/api.php`
 - **phpMyAdmin 설정**: `/etc/phpmyadmin/config-db.php`
 
 
