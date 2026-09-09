@@ -12596,23 +12596,40 @@
         mainDigit.style.color = '#fff';
         mainDigit.style.textShadow = '0 0 20px rgba(255,255,255,0.3)';
       } else if (pitState === 'TRANSIT') {
-        const immBanner = document.getElementById('pit-imminent-banner');
-        if (immBanner) immBanner.style.display = 'none';
-        if (hud) hud.classList.remove('imminent-alarm', 'release-ready');
-
         if (!isPitSimulating && pitTargetRuleMode === 'total' && pitTargetSec > 0) {
           const remainMs = Math.max(0, (pitTargetSec * 1000) - totalElapsedMs);
           const remainSec = Math.ceil(remainMs / 1000);
+          const isImminent = (pitWarningAlertSec > 0 && remainSec <= pitWarningAlertSec && remainSec > 0);
 
           // Imminent alert trigger in transit if total pit time is ticking down
-          if (pitWarningAlertSec > 0 && remainSec <= pitWarningAlertSec && remainSec > 3 && !pitImminentAlarmTriggered) {
+          if (isImminent && remainSec > 3 && !pitImminentAlarmTriggered) {
             pitImminentAlarmTriggered = true;
             playPitAudio('imminent');
           }
 
+          if (isImminent) {
+            if (hud && !hud.classList.contains('overspeed-alarm')) hud.classList.add('imminent-alarm');
+            const immBanner = document.getElementById('pit-imminent-banner');
+            const immSecSpan = document.getElementById('pit-imminent-banner-sec');
+            if (immBanner) immBanner.style.display = 'block';
+            if (immSecSpan) immSecSpan.innerText = remainSec;
+            if (mainDigit) {
+              mainDigit.style.color = '#ffb703';
+              mainDigit.style.textShadow = '0 0 25px rgba(255, 183, 3, 0.9)';
+            }
+          } else {
+            if (hud) hud.classList.remove('imminent-alarm', 'release-ready');
+            const immBanner = document.getElementById('pit-imminent-banner');
+            if (immBanner) immBanner.style.display = 'none';
+            if (mainDigit) {
+              mainDigit.style.color = '#fff';
+              mainDigit.style.textShadow = '0 0 20px rgba(255,255,255,0.3)';
+            }
+          }
+
           if (mainLabel) mainLabel.innerText = 'MIN PIT TIME COUNTDOWN';
           if (mainBadge) {
-            if (pitWarningAlertSec > 0 && remainSec <= pitWarningAlertSec && remainSec > 0) {
+            if (isImminent) {
               mainBadge.innerText = `⚠️ 출발 준비 임박 (${remainSec}s 남음)`;
               mainBadge.style.background = 'rgba(255,145,0,0.35)';
               mainBadge.style.color = '#ff9100';
@@ -12626,6 +12643,10 @@
           }
           mainDigit.innerText = msToLapStr(remainMs);
         } else {
+          const immBanner = document.getElementById('pit-imminent-banner');
+          if (immBanner) immBanner.style.display = 'none';
+          if (hud) hud.classList.remove('imminent-alarm', 'release-ready');
+
           if (mainLabel) mainLabel.innerText = 'TOTAL PIT ELAPSED';
           if (mainBadge) {
             mainBadge.innerText = '피트레인 주행중';
@@ -12634,6 +12655,8 @@
             mainBadge.style.borderColor = 'rgba(255,145,0,0.3)';
           }
           mainDigit.innerText = msToLapStr(totalElapsedMs);
+          mainDigit.style.color = '#fff';
+          mainDigit.style.textShadow = '0 0 20px rgba(255,255,255,0.3)';
         }
       } else if (pitState === 'STATIONARY') {
         let targetMs = 0;
