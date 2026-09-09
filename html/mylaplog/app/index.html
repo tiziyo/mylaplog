@@ -5981,6 +5981,10 @@
     // Tab Switching
     // =============================================
     function switchTab(tabId) {
+      // Close any active fullscreen GPS modals when navigating tabs via sidebar/bottom bar
+      closeGpsPitLaneTimerModal();
+      closeGpsLapTimerModal();
+
       document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
       document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
 
@@ -13184,36 +13188,78 @@
       }
     }
 
+    let hasHandledInitialDeepLink = false;
+
     function checkDirectModalDeepLinks() {
+      if (hasHandledInitialDeepLink) return;
       try {
         const urlParams = new URLSearchParams(window.location.search);
         const hash = (window.location.hash || '').toLowerCase();
         const viewParam = (urlParams.get('view') || urlParams.get('modal') || '').toLowerCase();
 
+        // Clean up URL query parameters so subsequent tab clicks don't re-trigger modal
+        if (viewParam || urlParams.has('pit') || urlParams.has('gps')) {
+          try {
+            const cleanUrl = window.location.pathname + (window.location.hash || '');
+            window.history.replaceState(null, '', cleanUrl);
+          } catch(e) {}
+        }
+
         // 1. Pit Timer Direct Trigger (?view=pit, ?modal=pit, ?pit, #pit, #pittimer, #pitlane)
         if (viewParam === 'pit' || viewParam === 'pittimer' || viewParam === 'pitlane' || hash === '#pit' || hash === '#pittimer' || hash === '#pitlane' || urlParams.has('pit')) {
+          hasHandledInitialDeepLink = true;
           setTimeout(() => {
             openGpsPitLaneTimerModal();
           }, 150);
+          return;
         }
         // 2. Lap Timer Direct Trigger (?view=gps, ?view=lap, ?modal=gps, ?gps, #gps, #lap, #laptimer)
         else if (viewParam === 'gps' || viewParam === 'lap' || viewParam === 'laptimer' || hash === '#gps' || hash === '#lap' || hash === '#laptimer' || urlParams.has('gps')) {
+          hasHandledInitialDeepLink = true;
           setTimeout(() => {
             openGpsLapTimerModal();
           }, 150);
+          return;
+        }
+
+        // 3. Tab Direct Trigger via hash (#sessions, #garage, #analytics, #team, #leaderboard, #guides, #feedback)
+        if (hash) {
+          const tabName = hash.replace('#', '');
+          const knownTabs = ['dashboard', 'sessions', 'garage', 'analytics', 'team', 'leaderboard', 'guides', 'feedback'];
+          if (knownTabs.includes(tabName)) {
+            hasHandledInitialDeepLink = true;
+            setTimeout(() => {
+              switchTab(tabName);
+            }, 100);
+          }
         }
       } catch (e) {
         console.warn('Deep link parsing error:', e);
       }
     }
 
-    // Auto-execute deep-link check on startup & hash changes
+    // Auto-execute deep-link check on startup
     if (document.readyState === 'loading') {
       document.addEventListener('DOMContentLoaded', checkDirectModalDeepLinks);
     } else {
       checkDirectModalDeepLinks();
     }
-    window.addEventListener('hashchange', checkDirectModalDeepLinks);
+
+    // Handle hash change for navigation
+    window.addEventListener('hashchange', () => {
+      const hash = (window.location.hash || '').toLowerCase();
+      if (hash === '#pit' || hash === '#pittimer' || hash === '#pitlane') {
+        openGpsPitLaneTimerModal();
+      } else if (hash === '#gps' || hash === '#lap' || hash === '#laptimer') {
+        openGpsLapTimerModal();
+      } else if (hash) {
+        const tabName = hash.replace('#', '');
+        const knownTabs = ['dashboard', 'sessions', 'garage', 'analytics', 'team', 'leaderboard', 'guides', 'feedback'];
+        if (knownTabs.includes(tabName)) {
+          switchTab(tabName);
+        }
+      }
+    });
   </script>
 </body>
 </html>
