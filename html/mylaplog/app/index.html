@@ -2859,7 +2859,7 @@
     }
 
       /* ============================================================ */
-      /* VBOX Pit Lane Timer HUD & OLED Cockpit Styling               */
+      /* GPS Pit Lane Timer HUD & OLED Cockpit Styling                */
       /* ============================================================ */
       #gps-pitlane-modal.modal-overlay {
         position: fixed !important;
@@ -2884,7 +2884,7 @@
         padding: 0.85rem 0.65rem calc(2rem + env(safe-area-inset-bottom, 20px)) 0.65rem !important;
         border-radius: 14px !important;
       }
-      .pit-vbox-hud {
+      .pit-vbox-hud, .pit-hud {
         background: radial-gradient(circle at 50% 30%, rgba(35, 20, 5, 0.95), #06070a);
         border: 2px solid rgba(255, 145, 0, 0.45);
         border-radius: 12px;
@@ -2893,12 +2893,12 @@
         box-shadow: inset 0 0 30px rgba(0,0,0,0.85), 0 0 20px rgba(255, 145, 0, 0.15);
         transition: border-color 0.25s ease, box-shadow 0.25s ease;
       }
-      .pit-vbox-hud.overspeed-alarm {
+      .pit-vbox-hud.overspeed-alarm, .pit-hud.overspeed-alarm {
         border-color: #ff2a4b !important;
         box-shadow: inset 0 0 35px rgba(255, 42, 75, 0.6), 0 0 25px rgba(255, 42, 75, 0.5) !important;
         animation: pit-alarm-pulse 0.4s infinite alternate;
       }
-      .pit-vbox-hud.release-ready {
+      .pit-vbox-hud.release-ready, .pit-hud.release-ready {
         border-color: #00ff88 !important;
         box-shadow: inset 0 0 35px rgba(0, 255, 136, 0.4), 0 0 25px rgba(0, 255, 136, 0.4) !important;
       }
@@ -3361,7 +3361,7 @@
             <button class="btn btn-outline-cyan topbar-btn-cyan" onclick="openGpsLapTimerModal()" title="스마트폰 GPS 기반 실시간 랩타임 & 최고속도 자동 측정">
               <i data-lucide="crosshair"></i> <span>🛰️ GPS 랩타이머</span>
             </button>
-            <button class="btn btn-outline-orange topbar-btn-orange" onclick="openGpsPitLaneTimerModal()" title="VBOX 규격 GPS 피트레인 타이머 (스피드리밋/정차시간/릴리즈 카운트다운)">
+            <button class="btn btn-outline-orange topbar-btn-orange" onclick="openGpsPitLaneTimerModal()" title="GPS 피트레인 타이머 (스피드리밋/정차시간/릴리즈 카운트다운)">
               <i data-lucide="traffic-cone"></i> <span>🛑 GPS 피트타이머</span>
             </button>
           </div>
@@ -5344,7 +5344,7 @@
           <button type="button" class="btn btn-secondary btn-sm gps-nowrap" onclick="simulateGpsLap()" style="font-size:0.72rem; padding:0.3rem 0.55rem; background:rgba(255,145,0,0.1); border-color:rgba(255,145,0,0.3); color:var(--accent-orange);" title="실내에서 GPS 랩타이머 동작을 체험해보는 가상 주행 모드">
             <i data-lucide="play-circle" style="width:12px; height:12px;"></i> 가상 주행 시뮬레이션
           </button>
-          <button type="button" class="btn btn-secondary btn-sm gps-nowrap" onclick="switchGpsModalToPitLane()" style="font-size:0.72rem; padding:0.3rem 0.55rem; background:rgba(255,145,0,0.1); border-color:rgba(255,145,0,0.3); color:var(--accent-orange);" title="VBOX 피트레인 타이머로 바로 전환">
+          <button type="button" class="btn btn-secondary btn-sm gps-nowrap" onclick="switchGpsModalToPitLane()" style="font-size:0.72rem; padding:0.3rem 0.55rem; background:rgba(255,145,0,0.1); border-color:rgba(255,145,0,0.3); color:var(--accent-orange);" title="GPS 피트레인 타이머로 바로 전환">
             <i data-lucide="traffic-cone" style="width:12px; height:12px;"></i> 🛑 피트타이머 전환
           </button>
         </div>
@@ -5369,7 +5369,7 @@
     </div>
   </div>
 
-  <!-- VBOX GPS Pit Lane Timer Cockpit HUD Modal -->
+  <!-- GPS Pit Lane Timer Cockpit HUD Modal -->
   <div class="modal-overlay" id="gps-pitlane-modal" style="display:none; z-index: 1051;">
     <div class="modal-content" style="max-width: 680px; width: 96%; background: #07090e; border: 1px solid rgba(255,145,0,0.45); box-shadow: 0 0 35px rgba(255,145,0,0.25); padding: 1rem 1.1rem; border-radius: 14px;">
       
@@ -5381,21 +5381,21 @@
           </div>
           <div style="min-width:0;">
             <h3 class="gps-modal-title">
-              <span class="gps-nowrap">VBOX GPS 피트레인 타이머</span>
+              <span class="gps-nowrap">GPS 피트레인 타이머</span>
               <span id="pit-status-badge" class="gps-status-badge" style="background:rgba(255,145,0,0.15); color:var(--accent-orange); border-color:rgba(255,145,0,0.4);">
                 <span class="gps-radar-pulse active-orange" id="pit-header-dot"></span>
                 <span id="pit-header-status-text">대기중</span>
               </span>
             </h3>
-            <span style="font-size:0.7rem; color:var(--text-muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; display:block;">VBOX 규격 스피드리밋 · 정차 카운트다운 · 릴리즈 델타 감시</span>
+            <span style="font-size:0.7rem; color:var(--text-muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; display:block;">정밀 스피드리밋 · 정차 카운트다운 · 릴리즈 델타 감시</span>
           </div>
         </div>
         <button class="modal-close" onclick="closeGpsPitLaneTimerModal()" style="font-size:1.4rem; color:var(--text-muted); background:transparent; border:none; cursor:pointer; flex-shrink:0;">&times;</button>
       </div>
 
-      <!-- Toolbar: Circuit, Speed Limit & Target Rule Config -->
-      <div class="gps-toolbar-row" style="background: rgba(16,21,33,0.85); padding: 0.6rem 0.75rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.08); margin-bottom: 0.75rem; display:flex; gap:0.5rem; flex-wrap:wrap;">
-        <div class="gps-toolbar-select-wrap" style="flex:1.2; min-width:140px;">
+      <!-- Toolbar: Circuit, Speed Limit, Target Rule & Imminent Alert Config -->
+      <div class="gps-toolbar-row" style="background: rgba(16,21,33,0.85); padding: 0.6rem 0.75rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.08); margin-bottom: 0.75rem; display:flex; gap:0.5rem; flex-wrap:wrap; align-items:center;">
+        <div class="gps-toolbar-select-wrap" style="flex:1.2; min-width:130px;">
           <label style="font-size:0.72rem; color:var(--text-muted); margin:0; white-space:nowrap; flex-shrink:0;"><i data-lucide="flag" style="width:11px; height:11px;"></i> 서킷:</label>
           <select id="pit-track-select" class="form-control compact-input" style="font-size:0.78rem; padding:0.3rem 0.5rem; height:auto; background:rgba(0,0,0,0.6);" onchange="onPitTrackSelectChange()">
             <option value="1">인제 스피디움</option>
@@ -5418,7 +5418,7 @@
 
         <div style="display:flex; align-items:center; gap:0.35rem;">
           <label style="font-size:0.72rem; color:var(--text-muted); margin:0; white-space:nowrap;"><i data-lucide="hourglass" style="width:11px; height:11px;"></i> 규정시간:</label>
-          <select id="pit-target-rule-select" class="form-control compact-input" style="font-size:0.78rem; padding:0.3rem 0.4rem; height:auto; background:rgba(0,0,0,0.6); width:110px;" onchange="onPitTargetRuleChange()">
+          <select id="pit-target-rule-select" class="form-control compact-input" style="font-size:0.78rem; padding:0.3rem 0.4rem; height:auto; background:rgba(0,0,0,0.6); width:100px;" onchange="onPitTargetRuleChange()">
             <option value="300" selected>총 피트 5분</option>
             <option value="60">총 피트 60s</option>
             <option value="75">총 피트 75s</option>
@@ -5427,10 +5427,22 @@
             <option value="0">자유 (규정없음)</option>
           </select>
         </div>
+
+        <div style="display:flex; align-items:center; gap:0.35rem;">
+          <label style="font-size:0.72rem; color:var(--text-muted); margin:0; white-space:nowrap;"><i data-lucide="bell-ring" style="width:11px; height:11px; color:var(--accent-orange);"></i> 임박알람:</label>
+          <select id="pit-warning-alert-select" class="form-control compact-input" style="font-size:0.78rem; padding:0.3rem 0.4rem; height:auto; background:rgba(0,0,0,0.6); width:90px;" onchange="onPitWarningAlertChange()" title="설정한 잔여 시간 도달 시 준비 알람 차임 발생">
+            <option value="10" selected>10초 전</option>
+            <option value="5">5초 전</option>
+            <option value="15">15초 전</option>
+            <option value="20">20초 전</option>
+            <option value="30">30초 전</option>
+            <option value="0">사용 안 함</option>
+          </select>
+        </div>
       </div>
 
-      <!-- Live VBOX Pit Lane AMOLED HUD Display -->
-      <div id="pit-vbox-hud" class="pit-vbox-hud">
+      <!-- Live Pit Lane AMOLED HUD Display -->
+      <div id="pit-vbox-hud" class="pit-vbox-hud pit-hud">
         
         <!-- Pit Stage Tracker Pills -->
         <div class="pit-stage-pills">
@@ -5464,7 +5476,7 @@
           </div>
         </div>
 
-        <!-- Central Big VBOX Display: Countdown / Elapsed Time / Release Chime -->
+        <!-- Central Big Display: Countdown / Elapsed Time / Release Chime -->
         <div id="pit-main-timer-box" style="background:rgba(0,0,0,0.7); padding:0.85rem 1rem; border-radius:10px; border:1.5px solid rgba(255,145,0,0.4); text-align:center; margin-bottom:0.75rem;">
           <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.2rem;">
             <span id="pit-main-timer-label" class="gps-hud-label" style="color:var(--accent-orange); letter-spacing:1px; font-family:var(--font-display);">
@@ -5541,7 +5553,7 @@
       <div style="background:rgba(0,0,0,0.35); padding:0.65rem 0.75rem; border-radius:8px; border:1px solid var(--border-subtle); max-height:200px; overflow-y:auto; -webkit-overflow-scrolling:touch; margin-bottom:0.5rem;">
         <div style="font-size:0.74rem; color:var(--text-muted); font-weight:700; margin-bottom:0.4rem; display:flex; justify-content:space-between; align-items:center; white-space:nowrap; gap:0.4rem;">
           <span class="gps-nowrap">피트스탑 기록 (<span id="pit-stop-count">0</span>회)</span>
-          <span class="gps-nowrap" style="font-size:0.68rem; color:var(--accent-orange); flex-shrink:0;">* VBOX 정밀 델타 분석</span>
+          <span class="gps-nowrap" style="font-size:0.68rem; color:var(--accent-orange); flex-shrink:0;">* 정밀 델타 분석</span>
         </div>
         <div id="pit-stops-table-body">
           <div style="text-align:center; color:var(--text-muted); font-size:0.75rem; padding:0.75rem 0;">
@@ -11955,7 +11967,7 @@
     }
 
     // =========================================================================
-    // VBOX GPS PIT LANE TIMER ENGINE (Racelogic VBOX Pit Lane Timer Specification)
+    // GPS PIT LANE TIMER ENGINE
     // =========================================================================
     const CIRCUIT_PIT_GATES = {
       1: {
@@ -12044,6 +12056,8 @@
     let pitSpeedLimitKmh = 60;
     let pitTargetSec = 300;
     let pitTargetRuleMode = 'total'; // 'total' | 'stationary' | 'none'
+    let pitWarningAlertSec = 10;
+    let pitImminentAlarmTriggered = false;
 
     let pitState = 'WAITING'; // 'WAITING' -> 'TRANSIT' -> 'STATIONARY' -> 'RELEASE_READY' -> 'COMPLETED'
     let pitEntryTimestamp = null;
@@ -12071,6 +12085,11 @@
         ruleSel.value = '300';
       }
       onPitTargetRuleChange();
+      const alertSel = document.getElementById('pit-warning-alert-select');
+      if (alertSel && !alertSel.value) {
+        alertSel.value = '10';
+      }
+      onPitWarningAlertChange();
       updatePitHudUI();
       lucide.createIcons();
 
@@ -12135,6 +12154,12 @@
         pitTargetSec = val;
       }
       updatePitHudUI();
+    }
+
+    function onPitWarningAlertChange() {
+      const alertSel = document.getElementById('pit-warning-alert-select');
+      if (!alertSel) return;
+      pitWarningAlertSec = parseInt(alertSel.value, 10) || 0;
     }
 
     function setPitCustomGate(type) {
@@ -12210,7 +12235,7 @@
         { enableHighAccuracy: true, maximumAge: 0, timeout: 6000 }
       );
 
-      showToast('🛑 VBOX 피트레인 실시간 계측이 시작되었습니다! (스피드리밋 & 정차 카운트다운 가동)');
+      showToast('🛑 GPS 피트레인 실시간 계측이 시작되었습니다! (스피드리밋 & 정차 카운트다운 가동)');
       lucide.createIcons();
     }
 
@@ -12261,6 +12286,7 @@
       pitTopSpeedKmh = 0.0;
       pitPreviousPos = null;
       pitLastBeepSec = -1;
+      pitImminentAlarmTriggered = false;
       pitStopHistory = [];
 
       const mainTimer = document.getElementById('pit-main-timer-digit');
@@ -12333,6 +12359,23 @@
           gain.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
           osc.connect(gain); gain.connect(ctx.destination);
           osc.start(now); osc.stop(now + 0.2);
+        } else if (type === 'imminent') {
+          // Imminent pre-warning 2-tone pleasant alert
+          const osc1 = ctx.createOscillator();
+          const gain1 = ctx.createGain();
+          osc1.frequency.setValueAtTime(987.77, now); // B5
+          gain1.gain.setValueAtTime(0.32, now);
+          gain1.gain.exponentialRampToValueAtTime(0.01, now + 0.14);
+          osc1.connect(gain1); gain1.connect(ctx.destination);
+          osc1.start(now); osc1.stop(now + 0.14);
+
+          const osc2 = ctx.createOscillator();
+          const gain2 = ctx.createGain();
+          osc2.frequency.setValueAtTime(1318.51, now + 0.16); // E6
+          gain2.gain.setValueAtTime(0.35, now + 0.16);
+          gain2.gain.exponentialRampToValueAtTime(0.01, now + 0.35);
+          osc2.connect(gain2); gain2.connect(ctx.destination);
+          osc2.start(now + 0.16); osc2.stop(now + 0.35);
         } else if (type === 'countdown') {
           // Crisp 3-2-1 tick
           const osc = ctx.createOscillator();
@@ -12433,6 +12476,7 @@
       pitExitTimestamp = null;
       pitTopSpeedKmh = pitCurrentSpeedKmh;
       pitLastBeepSec = -1;
+      pitImminentAlarmTriggered = false;
 
       updatePitStagePills(2);
       playPitAudio('entry');
@@ -12442,6 +12486,7 @@
     function triggerPitStop(timestamp) {
       pitState = 'STATIONARY';
       pitStopTimestamp = timestamp;
+      pitImminentAlarmTriggered = false;
       updatePitStagePills(3);
       showToast('🛑 피트 박스 정차 감지! 정차 작업 시간 계측 시작');
     }
@@ -12525,11 +12570,25 @@
       } else if (pitState === 'TRANSIT') {
         if (pitTargetRuleMode === 'total' && pitTargetSec > 0) {
           const remainMs = Math.max(0, (pitTargetSec * 1000) - totalElapsedMs);
+          const remainSec = Math.ceil(remainMs / 1000);
+
+          // Imminent alert trigger in transit if total pit time is ticking down
+          if (pitWarningAlertSec > 0 && remainSec <= pitWarningAlertSec && remainSec > 3 && !pitImminentAlarmTriggered) {
+            pitImminentAlarmTriggered = true;
+            playPitAudio('imminent');
+          }
+
           if (mainLabel) mainLabel.innerText = 'MIN PIT TIME COUNTDOWN';
           if (mainBadge) {
-            mainBadge.innerText = '피트레인 주행중';
-            mainBadge.style.background = 'rgba(255,145,0,0.18)';
-            mainBadge.style.color = 'var(--accent-orange)';
+            if (pitWarningAlertSec > 0 && remainSec <= pitWarningAlertSec && remainSec > 0) {
+              mainBadge.innerText = `⚠️ 출발 준비 임박 (${remainSec}s 남음)`;
+              mainBadge.style.background = 'rgba(255,145,0,0.28)';
+              mainBadge.style.color = 'var(--accent-orange)';
+            } else {
+              mainBadge.innerText = '피트레인 주행중';
+              mainBadge.style.background = 'rgba(255,145,0,0.18)';
+              mainBadge.style.color = 'var(--accent-orange)';
+            }
           }
           mainDigit.innerText = msToLapStr(remainMs);
         } else {
@@ -12567,6 +12626,12 @@
           mainDigit.innerText = '00:00.00';
           mainDigit.style.color = '#00ff88';
         } else {
+          // Imminent pre-warning alert check
+          if (pitWarningAlertSec > 0 && remainSec <= pitWarningAlertSec && remainSec > 3 && !pitImminentAlarmTriggered) {
+            pitImminentAlarmTriggered = true;
+            playPitAudio('imminent');
+          }
+
           // Audible 3-2-1 countdown ticks
           if (remainSec <= 3 && remainSec > 0 && remainSec !== pitLastBeepSec) {
             pitLastBeepSec = remainSec;
@@ -12575,7 +12640,11 @@
 
           if (mainLabel) mainLabel.innerText = `COUNTDOWN TO GO (${remainSec}s)`;
           if (mainBadge) {
-            mainBadge.innerText = `🛑 박스 정차중 (${remainSec}s 남음)`;
+            if (pitWarningAlertSec > 0 && remainSec <= pitWarningAlertSec) {
+              mainBadge.innerText = `⚠️ 출발 준비 임박 (${remainSec}s 남음)`;
+            } else {
+              mainBadge.innerText = `🛑 박스 정차중 (${remainSec}s 남음)`;
+            }
             mainBadge.style.background = (remainSec <= 5) ? 'rgba(255,42,75,0.25)' : 'rgba(255,145,0,0.2)';
             mainBadge.style.color = (remainSec <= 5) ? '#ff2a4b' : 'var(--accent-orange)';
           }
@@ -12684,7 +12753,7 @@
         return;
       }
 
-      showToast('🛑 [VBOX 피트스탑 시뮬레이션] 시작! (피트 진입 -> 55km/h 주행 -> 박스 정차 -> 카운트다운 -> 릴리즈 -> 출구 통과)');
+      showToast('🛑 [피트스탑 시뮬레이션] 시작! (피트 진입 -> 55km/h 주행 -> 박스 정차 -> 카운트다운 -> 릴리즈 -> 출구 통과)');
       if (!isPitTracking) startPitTracking();
 
       let simPhase = 'entry'; // 'entry' -> 'transit1' -> 'stopping' -> 'stationary' -> 'launch' -> 'transit2' -> 'exit'
