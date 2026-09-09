@@ -11989,16 +11989,18 @@
         entryGate: {
           centerLat: 38.01452,
           centerLon: 128.30398,
-          gateA: { lat: 38.01458, lon: 128.30390 },
-          gateB: { lat: 38.01446, lon: 128.30406 },
-          trackHeadingDeg: 45.0
+          gateA: { lat: 38.01460, lon: 128.30388 },
+          gateB: { lat: 38.01444, lon: 128.30408 },
+          trackHeadingDeg: 45.0,
+          gateWidthMeters: 24.0
         },
         exitGate: {
           centerLat: 38.01595,
           centerLon: 128.30560,
-          gateA: { lat: 38.01601, lon: 128.30552 },
-          gateB: { lat: 38.01589, lon: 128.30568 },
-          trackHeadingDeg: 42.0
+          gateA: { lat: 38.01603, lon: 128.30550 },
+          gateB: { lat: 38.01587, lon: 128.30570 },
+          trackHeadingDeg: 42.0,
+          gateWidthMeters: 24.0
         }
       },
       2: {
@@ -12008,16 +12010,18 @@
         entryGate: {
           centerLat: 34.73440,
           centerLon: 126.69420,
-          gateA: { lat: 34.73446, lon: 126.69412 },
-          gateB: { lat: 34.73434, lon: 126.69428 },
-          trackHeadingDeg: 35.0
+          gateA: { lat: 34.73448, lon: 126.69410 },
+          gateB: { lat: 34.73432, lon: 126.69430 },
+          trackHeadingDeg: 35.0,
+          gateWidthMeters: 25.0
         },
         exitGate: {
           centerLat: 34.73620,
           centerLon: 126.69610,
-          gateA: { lat: 34.73626, lon: 126.69602 },
-          gateB: { lat: 34.73614, lon: 126.69618 },
-          trackHeadingDeg: 34.0
+          gateA: { lat: 34.73628, lon: 126.69600 },
+          gateB: { lat: 34.73612, lon: 126.69620 },
+          trackHeadingDeg: 34.0,
+          gateWidthMeters: 25.0
         }
       },
       3: {
@@ -12027,16 +12031,18 @@
         entryGate: {
           centerLat: 37.29310,
           centerLon: 127.20080,
-          gateA: { lat: 37.29316, lon: 127.20072 },
-          gateB: { lat: 37.29304, lon: 127.20088 },
-          trackHeadingDeg: 35.0
+          gateA: { lat: 37.29318, lon: 127.20070 },
+          gateB: { lat: 37.29302, lon: 127.20090 },
+          trackHeadingDeg: 35.0,
+          gateWidthMeters: 22.0
         },
         exitGate: {
           centerLat: 37.29440,
           centerLon: 127.20210,
-          gateA: { lat: 37.29446, lon: 127.20202 },
-          gateB: { lat: 37.29434, lon: 127.20218 },
-          trackHeadingDeg: 35.0
+          gateA: { lat: 37.29448, lon: 127.20200 },
+          gateB: { lat: 37.29432, lon: 127.20220 },
+          trackHeadingDeg: 35.0,
+          gateWidthMeters: 22.0
         }
       },
       4: {
@@ -12046,19 +12052,25 @@
         entryGate: {
           centerLat: 37.18820,
           centerLon: 128.93120,
-          gateA: { lat: 37.18826, lon: 128.93112 },
-          gateB: { lat: 37.18814, lon: 128.93128 },
-          trackHeadingDeg: 43.0
+          gateA: { lat: 37.18828, lon: 128.93110 },
+          gateB: { lat: 37.18812, lon: 128.93130 },
+          trackHeadingDeg: 43.0,
+          gateWidthMeters: 22.0
         },
         exitGate: {
           centerLat: 37.18940,
           centerLon: 128.93220,
-          gateA: { lat: 37.18946, lon: 128.93212 },
-          gateB: { lat: 37.18934, lon: 128.93228 },
-          trackHeadingDeg: 43.0
+          gateA: { lat: 37.18948, lon: 128.93210 },
+          gateB: { lat: 37.18932, lon: 128.93230 },
+          trackHeadingDeg: 43.0,
+          gateWidthMeters: 22.0
         }
       }
     };
+
+    const pitSpeedKalman = new GpsSpeedKalmanFilter();
+    let pitLastEntryCrossTime = null;
+    let pitLastExitCrossTime = null;
 
     let isPitTracking = false;
     let pitWatchId = null;
@@ -12291,6 +12303,9 @@
       if (isPitTracking) stopPitTracking();
 
       isPitSimulating = false;
+      pitSpeedKalman.reset();
+      pitLastEntryCrossTime = null;
+      pitLastExitCrossTime = null;
       pitState = 'WAITING';
       pitEntryTimestamp = null;
       pitStopTimestamp = null;
@@ -12429,12 +12444,94 @@
       } catch (e) {}
     }
 
+    function calculateExactPitGateCrossing(p1, p2, gate, lastCrossTime) {
+      if (!p1 || !p2 || !gate) return { crossed: false };
+      const now = p2.time;
+
+      // Pit Gate Anti-retrigger Cooldown (6.0s)
+      if (lastCrossTime && (now - lastCrossTime < 6000)) {
+        return { crossed: false };
+      }
+
+      // 1. Calculate vehicle movement vector and heading
+      const dLatM = (p2.lat - p1.lat) * 111320.0;
+      const midLatRad = ((p1.lat + p2.lat) / 2.0) * Math.PI / 180.0;
+      const dLonM = (p2.lon - p1.lon) * (111320.0 * Math.cos(midLatRad));
+      const moveDistM = Math.hypot(dLatM, dLonM);
+
+      let moveHeadingDeg = null;
+      if (moveDistM > 0.35) {
+        let h = Math.atan2(dLonM, dLatM) * 180.0 / Math.PI;
+        if (h < 0) h += 360.0;
+        moveHeadingDeg = h;
+      } else if (p2.heading !== undefined && p2.heading !== null && !isNaN(p2.heading) && p2.heading >= 0) {
+        moveHeadingDeg = p2.heading;
+      }
+
+      // Directional validation (strict +/-55 deg tolerance to filter main-straight flybys & reverse driving)
+      if (gate.trackHeadingDeg != null && moveHeadingDeg != null) {
+        const headingDiff = Math.abs((moveHeadingDeg - gate.trackHeadingDeg + 180.0) % 360.0 - 180.0);
+        if (headingDiff > 55.0) {
+          return { crossed: false };
+        }
+      }
+
+      // 2. High-precision vector line segment intersection (p1->p2 with gateA->gateB)
+      if (gate.gateA && gate.gateB) {
+        const x1 = p1.lon, y1 = p1.lat;
+        const x2 = p2.lon, y2 = p2.lat;
+        const x3 = gate.gateA.lon, y3 = gate.gateA.lat;
+        const x4 = gate.gateB.lon, y4 = gate.gateB.lat;
+
+        const dx12 = x2 - x1;
+        const dy12 = y2 - y1;
+        const dx34 = x4 - x3;
+        const dy34 = y4 - y3;
+
+        const denom = dx12 * dy34 - dy12 * dx34;
+        if (Math.abs(denom) > 1e-14) {
+          const t = ((x3 - x1) * dy34 - (y3 - y1) * dx34) / denom;
+          const u = ((x3 - x1) * dy12 - (y3 - y1) * dx12) / denom;
+
+          // t in [-0.02, 1.02] (crossed during step) and u in [-0.08, 1.08] (within gate corridor)
+          if (t >= -0.02 && t <= 1.02 && u >= -0.08 && u <= 1.08) {
+            const clampedT = Math.max(0.0, Math.min(1.0, t));
+            const exactTime = p1.time + clampedT * (p2.time - p1.time);
+            const s1 = p1.speedKmh || 0;
+            const s2 = p2.speedKmh || 0;
+            const exactSpeed = s1 + clampedT * (s2 - s1);
+            return {
+              crossed: true,
+              exactTime: Math.round(exactTime),
+              exactSpeed: Math.round(exactSpeed * 10) / 10
+            };
+          }
+        }
+      }
+
+      // 3. Proximity Perpendicular Plane Crossing Fallback (if within 14m of gate center)
+      if (gate.centerLat && gate.centerLon) {
+        const dCenter = haversineDistMeters(p2.lat, p2.lon, gate.centerLat, gate.centerLon);
+        if (dCenter <= 14.0 && moveDistM > 0.4) {
+          return {
+            crossed: true,
+            exactTime: p2.time,
+            exactSpeed: p2.speedKmh || 0
+          };
+        }
+      }
+
+      return { crossed: false };
+    }
+
     function onPitPositionSuccess(pos) {
       const coords = pos.coords;
       const now = pos.timestamp || Date.now();
       const lat = coords.latitude;
       const lon = coords.longitude;
+      const acc = (coords.accuracy !== null && !isNaN(coords.accuracy)) ? coords.accuracy : 8.0;
 
+      // 1. Raw Speed calculation (Doppler Radar speed if available, otherwise GPS position difference)
       let rawSpeedKmh = 0;
       if (coords.speed !== null && coords.speed !== undefined && !isNaN(coords.speed) && coords.speed >= 0) {
         rawSpeedKmh = coords.speed * 3.6;
@@ -12446,43 +12543,52 @@
         }
       }
 
-      pitCurrentSpeedKmh = Math.round(rawSpeedKmh * 10) / 10;
+      // 2. Kalman Filter Speed Smoothing (removes GPS speed jitters, precise standstill & launch detection)
+      const filteredSpeedKmh = pitSpeedKalman.update(rawSpeedKmh, acc, now);
+      pitCurrentSpeedKmh = filteredSpeedKmh;
+
       if (pitCurrentSpeedKmh > pitTopSpeedKmh && pitState !== 'WAITING') {
         pitTopSpeedKmh = pitCurrentSpeedKmh;
       }
 
-      // Check Pit Entry Gate
+      const curPos = { lat, lon, time: now, speedKmh: filteredSpeedKmh, heading: coords.heading };
+
+      // 3. Check Pit Gates (Entry / Exit)
       const trk = CIRCUIT_PIT_GATES[pitCurrentTrackId] || CIRCUIT_PIT_GATES[1];
       const entryGate = pitCustomEntryGate || trk.entryGate;
       const exitGate = pitCustomExitGate || trk.exitGate;
 
       if (pitState === 'WAITING' && entryGate) {
-        const distEntry = haversineDistMeters(lat, lon, entryGate.centerLat, entryGate.centerLon);
-        if (distEntry <= 18.0 || (pitPreviousPos && calculateExactGateCrossing(pitPreviousPos, { lat, lon, time: now }, entryGate).crossed)) {
-          // Cross Pit Entry!
-          triggerPitEntry(now);
+        if (pitPreviousPos) {
+          const crossInfo = calculateExactPitGateCrossing(pitPreviousPos, curPos, entryGate, pitLastEntryCrossTime);
+          if (crossInfo.crossed) {
+            pitLastEntryCrossTime = crossInfo.exactTime;
+            triggerPitEntry(crossInfo.exactTime);
+          }
         }
       } else if (pitState === 'TRANSIT') {
-        if (pitCurrentSpeedKmh <= 2.5) {
-          // Vehicle stopped in Pit Box!
+        // Vehicle stopped in Pit Box (Speed <= 2.2 km/h)
+        if (filteredSpeedKmh <= 2.2) {
           triggerPitStop(now);
         }
       } else if (pitState === 'STATIONARY' || pitState === 'RELEASE_READY') {
-        if (pitCurrentSpeedKmh >= 6.0) {
-          // Vehicle launched from pit box towards pit exit
+        // Vehicle launched from pit box towards pit exit (Speed >= 4.5 km/h)
+        if (filteredSpeedKmh >= 4.5) {
           triggerPitLaunch(now);
         }
       }
 
       if ((pitState === 'TRANSIT' || pitState === 'RELEASE_READY' || pitState === 'STATIONARY') && exitGate) {
-        const distExit = haversineDistMeters(lat, lon, exitGate.centerLat, exitGate.centerLon);
-        if (distExit <= 18.0 || (pitPreviousPos && calculateExactGateCrossing(pitPreviousPos, { lat, lon, time: now }, exitGate).crossed)) {
-          // Cross Pit Exit!
-          triggerPitExit(now);
+        if (pitPreviousPos) {
+          const crossInfo = calculateExactPitGateCrossing(pitPreviousPos, curPos, exitGate, pitLastExitCrossTime);
+          if (crossInfo.crossed) {
+            pitLastExitCrossTime = crossInfo.exactTime;
+            triggerPitExit(crossInfo.exactTime);
+          }
         }
       }
 
-      pitPreviousPos = { lat, lon, time: now, speedKmh: pitCurrentSpeedKmh };
+      pitPreviousPos = curPos;
       updatePitHudUI();
     }
 
