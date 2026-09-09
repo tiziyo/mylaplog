@@ -1687,7 +1687,7 @@
 
       try {
         const res = await adminApi('/admin/guides');
-        if (res.ok && res.guides && res.guides.length > 0) {
+        if (res.ok && Array.isArray(res.guides)) {
           allGuidesData = res.guides;
         } else {
           const local = localStorage.getItem('mylaplog_admin_guides');
@@ -1698,6 +1698,7 @@
           }
         }
       } catch (e) {
+        console.warn('loadGuidesData error:', e);
         allGuidesData = [...ADMIN_SAMPLE_GUIDES];
       }
 

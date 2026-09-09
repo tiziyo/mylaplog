@@ -9707,14 +9707,14 @@
     async function loadGuidesList() {
       try {
         const res = await api('/guides');
-        if (res.ok && res.guides && res.guides.length > 0) {
+        if (res.ok && Array.isArray(res.guides)) {
           guidesData = res.guides;
         } else {
           const local = localStorage.getItem('mylaplog_admin_guides');
           if (local) {
             try { 
               const parsed = JSON.parse(local).filter(g => g.status === 'PUBLISHED');
-              guidesData = (parsed && parsed.length > 0) ? parsed : [...SAMPLE_GUIDES];
+              guidesData = (parsed && Array.isArray(parsed)) ? parsed : [...SAMPLE_GUIDES];
             } catch(e) { 
               guidesData = [...SAMPLE_GUIDES]; 
             }
@@ -9723,6 +9723,7 @@
           }
         }
       } catch (e) {
+        console.warn('loadGuidesList error:', e);
         guidesData = [...SAMPLE_GUIDES];
       }
 
