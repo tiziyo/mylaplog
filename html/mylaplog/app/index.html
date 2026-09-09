@@ -322,6 +322,10 @@
       display: none;
     }
 
+    .mobile-top-utility {
+      display: none;
+    }
+
     .page-title h1 {
       font-family: var(--font-display);
       font-size: 1.35rem;
@@ -2241,20 +2245,20 @@
         overflow-x: hidden !important;
       }
 
-      /* 3. Slim Top Action Bar */
+      /* 3. Slim & Ergonomic Mobile Top Action Bar */
       .topbar {
         position: sticky !important;
         top: 0 !important;
         z-index: 900 !important;
         height: auto !important;
-        padding: 0.5rem 0.75rem 0.45rem 0.75rem !important;
+        padding: 0.45rem 0.65rem 0.35rem 0.65rem !important;
         flex-direction: column !important;
         align-items: stretch !important;
         gap: 0.35rem !important;
         background: rgba(7, 9, 14, 0.96) !important;
         backdrop-filter: blur(24px) !important;
         -webkit-backdrop-filter: blur(24px) !important;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.12) !important;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
         box-shadow: 0 4px 20px rgba(0, 0, 0, 0.7) !important;
       }
       .topbar-left-cluster {
@@ -2262,6 +2266,9 @@
         align-items: center !important;
         justify-content: space-between !important;
         width: 100% !important;
+      }
+      .desktop-only {
+        display: none !important;
       }
       .mobile-brand-logo {
         display: inline-flex !important;
@@ -2285,26 +2292,10 @@
       .mobile-brand-logo:active .mobile-logo-img {
         transform: scale(0.92) !important;
       }
-      .logo-badge-sm {
-        background: linear-gradient(135deg, var(--accent-red), #d90429) !important;
-        color: #fff !important;
-        font-family: var(--font-mono) !important;
-        font-size: 0.65rem !important;
-        font-weight: 900 !important;
-        font-style: italic !important;
-        padding: 0.12rem 0.38rem !important;
-        border-radius: 5px !important;
-        letter-spacing: 0.5px !important;
-        box-shadow: 0 0 10px rgba(255, 42, 75, 0.45) !important;
-        display: inline-flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-        line-height: 1.2 !important;
-      }
       .logo-brand-text {
         font-family: var(--font-display) !important;
         font-weight: 800 !important;
-        font-size: 1.1rem !important;
+        font-size: 1.05rem !important;
         letter-spacing: 0.4px !important;
         font-style: italic !important;
         color: #ffffff !important;
@@ -2312,26 +2303,32 @@
         -webkit-background-clip: text !important;
         -webkit-text-fill-color: transparent !important;
       }
-      .topbar .page-title h1 {
-        font-size: 0.8rem !important;
-        color: var(--text-muted) !important;
-        font-weight: 600 !important;
-        display: inline-flex !important;
+      .mobile-top-utility {
+        display: flex !important;
         align-items: center !important;
         gap: 0.3rem !important;
-        background: rgba(255, 255, 255, 0.05) !important;
-        padding: 0.18rem 0.5rem !important;
-        border-radius: 6px !important;
-        border: 1px solid var(--border-subtle) !important;
+      }
+      .btn-mobile-util {
+        padding: 0.22rem 0.5rem !important;
+        font-size: 0.72rem !important;
+        font-weight: 700 !important;
+        border-radius: 14px !important;
+        height: 28px !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        gap: 0.25rem !important;
+        background: rgba(255, 255, 255, 0.06) !important;
+        border: 1px solid rgba(255, 255, 255, 0.12) !important;
       }
       .topbar-actions {
         display: flex !important;
         flex-direction: row !important;
+        flex-wrap: nowrap !important;
         overflow-x: auto !important;
         -webkit-overflow-scrolling: touch !important;
         white-space: nowrap !important;
-        gap: 0.3rem !important;
-        padding-bottom: 0.15rem !important;
+        gap: 0.35rem !important;
+        padding: 0.05rem 0.1rem 0.15rem 0.1rem !important;
         scrollbar-width: none !important;
         width: 100% !important;
       }
@@ -2342,20 +2339,23 @@
       }
       .topbar-action-group {
         display: inline-flex !important;
-        gap: 0.25rem !important;
-        padding: 0.15rem 0.25rem !important;
-        border-radius: 20px !important;
+        flex-wrap: nowrap !important;
+        gap: 0.35rem !important;
+        padding: 0 !important;
+        background: transparent !important;
+        border: none !important;
       }
       .topbar-divider {
         display: none !important;
       }
       .topbar-actions .btn {
         flex-shrink: 0 !important;
-        padding: 0.35rem 0.6rem !important;
-        font-size: 0.72rem !important;
+        padding: 0.38rem 0.72rem !important;
+        font-size: 0.76rem !important;
         white-space: nowrap !important;
-        border-radius: 16px !important;
+        border-radius: 20px !important;
         font-weight: 700 !important;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.3) !important;
       }
 
       /* 4. Body Content Layout */
@@ -3357,8 +3357,22 @@
             <span class="logo-brand-text">MyLapLog</span>
           </div>
 
-          <div class="page-title">
+          <div class="page-title desktop-only">
             <h1 id="current-page-title"><i data-lucide="layout-dashboard"></i> 대시보드</h1>
+          </div>
+
+          <!-- Mobile Utility Cluster (Language, Install, Auth) -->
+          <div class="mobile-top-utility">
+            <button type="button" class="btn btn-lang-toggle btn-mobile-util" id="app-lang-toggle-btn-m" onclick="toggleLanguage()" title="한국어 / English 번역 전환">
+              <i data-lucide="globe" style="width:12px; height:12px; color:var(--accent-cyan);"></i>
+              <span class="lang-label-text"><strong>KO</strong>/EN</span>
+            </button>
+            <button class="btn btn-outline-install btn-mobile-util" id="btn-pwa-install-m" onclick="handleInstallAppClick()" title="홈 화면 바로가기 추가">
+              <i data-lucide="download-cloud" style="width:12px; height:12px;"></i> <span>설치</span>
+            </button>
+            <button class="btn btn-cyan btn-mobile-util" id="topbar-auth-btn-m" onclick="handleAuthButtonClick()" title="사용자 로그인 / 프로필">
+              <i data-lucide="user" style="width:12px; height:12px;"></i> <span>로그인</span>
+            </button>
           </div>
         </div>
         <div class="topbar-actions">
@@ -3391,10 +3405,10 @@
             </button>
           </div>
 
-          <div class="topbar-divider"></div>
+          <div class="topbar-divider desktop-only"></div>
 
-          <!-- Category 3: 시스템 유틸리티 & 계정 (Utility & Account) -->
-          <div class="topbar-action-group group-system" title="시스템 및 계정">
+          <!-- Category 3: 데스크탑 시스템 유틸리티 & 계정 (Desktop Only) -->
+          <div class="topbar-action-group group-system desktop-only" title="시스템 및 계정">
             <button class="btn btn-outline-install" id="btn-pwa-install" onclick="handleInstallAppClick()" title="바탕화면 / 스마트폰 홈 화면에 바로가기 아이콘 생성">
               <i data-lucide="download-cloud"></i> <span>앱 설치</span>
             </button>
@@ -6278,11 +6292,13 @@
       document.getElementById('sidebar-user-role').innerHTML = `<i data-lucide="award" style="width:12px; color:var(--accent-red)"></i> ${user.role || '로그인 필요'}`;
 
       const topbarAuthBtn = document.getElementById('topbar-auth-btn');
-      if (user.isLoggedIn) {
-        topbarAuthBtn.innerHTML = `<i data-lucide="user-check"></i> ${user.name}`;
-      } else {
-        topbarAuthBtn.innerHTML = `<i data-lucide="user"></i> 로그인`;
-      }
+      const topbarAuthBtnM = document.getElementById('topbar-auth-btn-m');
+      const authHtml = user.isLoggedIn
+        ? `<i data-lucide="user-check" style="width:12px; height:12px;"></i> <span>${user.name}</span>`
+        : `<i data-lucide="user" style="width:12px; height:12px;"></i> <span>로그인</span>`;
+
+      if (topbarAuthBtn) topbarAuthBtn.innerHTML = authHtml;
+      if (topbarAuthBtnM) topbarAuthBtnM.innerHTML = authHtml;
 
       // Toggle Guest Mode Notice Banner
       const guestBanner = document.getElementById('guest-mode-notice-banner');
