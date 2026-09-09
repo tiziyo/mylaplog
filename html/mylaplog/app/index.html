@@ -5352,8 +5352,44 @@
           </div>
         </div>
 
-        <!-- GPS Coordinates & Dynamic Heading Compass Widget -->
-        <div id="gps-coords-heading-bar" class="gps-coords-heading-bar" style="background:rgba(0,0,0,0.52); padding:0.5rem 0.65rem; border-radius:9px; border:1px solid rgba(0,240,255,0.22); margin-bottom:0.75rem; display:grid; grid-template-columns: 1fr 1fr; gap:0.5rem; align-items:center;">
+        <!-- Live Lap Timer Display -->
+        <div style="background:rgba(0,0,0,0.6); padding:0.75rem 1rem; border-radius:10px; border:1px solid rgba(0,240,255,0.3); text-align:center; margin-bottom:0.65rem;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.15rem; gap:0.4rem; white-space:nowrap;">
+            <span class="gps-hud-label" style="color:var(--accent-cyan); letter-spacing:1px; font-family:var(--font-display);">
+              LIVE LAP TIME <span id="gps-lap-num-badge" style="background:var(--accent-cyan); color:#000; font-size:0.65rem; padding:0.1rem 0.35rem; border-radius:3px; margin-left:0.25rem;">LAP 1</span>
+            </span>
+            <span id="gps-lap-status" class="gps-ellipsis" style="font-size:0.68rem; color:var(--text-muted); font-family:var(--font-mono); max-width:55%; text-align:right;">게이트 대기중</span>
+          </div>
+          <div id="gps-live-laptime" style="font-family:var(--font-mono); font-size:clamp(2.4rem, 9vw, 3.8rem); font-weight:900; color:#fff; letter-spacing:2px; line-height:1.1; margin:0.2rem 0; text-shadow:0 0 20px rgba(255,255,255,0.3);">
+            00:00.000
+          </div>
+        </div>
+
+        <!-- Best Lap & Last Lap 2-Col Grid -->
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:0.65rem; margin-bottom:0.65rem;">
+          <!-- Best Lap -->
+          <div style="background:rgba(0,255,136,0.08); padding:0.55rem 0.75rem; border-radius:8px; border:1px solid rgba(0,255,136,0.3); white-space:nowrap;">
+            <div class="gps-hud-label" style="color:var(--accent-green);">
+              <i data-lucide="trophy" style="width:12px; height:12px;"></i> BEST LAP
+            </div>
+            <div id="gps-best-lap" class="gps-hud-value" style="font-size:1.25rem; font-weight:900; color:#00ff88; margin-top:0.2rem;">
+              --:--.---
+            </div>
+          </div>
+
+          <!-- Last Lap -->
+          <div style="background:rgba(255,255,255,0.04); padding:0.55rem 0.75rem; border-radius:8px; border:1px solid rgba(255,255,255,0.1); white-space:nowrap;">
+            <div class="gps-hud-label" style="color:var(--text-muted);">
+              <i data-lucide="timer" style="width:12px; height:12px;"></i> LAST LAP
+            </div>
+            <div id="gps-last-lap" class="gps-hud-value" style="font-size:1.25rem; font-weight:800; color:#cbd5e1; margin-top:0.2rem;">
+              --:--.---
+            </div>
+          </div>
+        </div>
+
+        <!-- GPS Coordinates & Dynamic Heading Compass Widget (Bottom of HUD) -->
+        <div id="gps-coords-heading-bar" class="gps-coords-heading-bar" style="background:rgba(0,0,0,0.52); padding:0.5rem 0.65rem; border-radius:9px; border:1px solid rgba(0,240,255,0.22); display:grid; grid-template-columns: 1fr 1fr; gap:0.5rem; align-items:center;">
           
           <!-- Left: Real-time Compass & Heading Indicator -->
           <div style="display:flex; align-items:center; gap:0.45rem; min-width:0;">
@@ -5394,50 +5430,14 @@
 
         </div>
 
-        <!-- Live Lap Timer Display -->
-        <div style="background:rgba(0,0,0,0.6); padding:0.75rem 1rem; border-radius:10px; border:1px solid rgba(0,240,255,0.3); text-align:center; margin-bottom:0.75rem;">
-          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.15rem; gap:0.4rem; white-space:nowrap;">
-            <span class="gps-hud-label" style="color:var(--accent-cyan); letter-spacing:1px; font-family:var(--font-display);">
-              LIVE LAP TIME <span id="gps-lap-num-badge" style="background:var(--accent-cyan); color:#000; font-size:0.65rem; padding:0.1rem 0.35rem; border-radius:3px; margin-left:0.25rem;">LAP 1</span>
-            </span>
-            <span id="gps-lap-status" class="gps-ellipsis" style="font-size:0.68rem; color:var(--text-muted); font-family:var(--font-mono); max-width:55%; text-align:right;">게이트 대기중</span>
-          </div>
-          <div id="gps-live-laptime" style="font-family:var(--font-mono); font-size:clamp(2.4rem, 9vw, 3.8rem); font-weight:900; color:#fff; letter-spacing:2px; line-height:1.1; margin:0.2rem 0; text-shadow:0 0 20px rgba(255,255,255,0.3);">
-            00:00.000
-          </div>
-        </div>
-
-        <!-- Best Lap & Last Lap 2-Col Grid -->
-        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:0.65rem;">
-          <!-- Best Lap -->
-          <div style="background:rgba(0,255,136,0.08); padding:0.55rem 0.75rem; border-radius:8px; border:1px solid rgba(0,255,136,0.3); white-space:nowrap;">
-            <div class="gps-hud-label" style="color:var(--accent-green);">
-              <i data-lucide="trophy" style="width:12px; height:12px;"></i> BEST LAP
-            </div>
-            <div id="gps-best-lap" class="gps-hud-value" style="font-size:1.25rem; font-weight:900; color:#00ff88; margin-top:0.2rem;">
-              --:--.---
-            </div>
-          </div>
-
-          <!-- Last Lap -->
-          <div style="background:rgba(255,255,255,0.04); padding:0.55rem 0.75rem; border-radius:8px; border:1px solid rgba(255,255,255,0.1); white-space:nowrap;">
-            <div class="gps-hud-label" style="color:var(--text-muted);">
-              <i data-lucide="timer" style="width:12px; height:12px;"></i> LAST LAP
-            </div>
-            <div id="gps-last-lap" class="gps-hud-value" style="font-size:1.25rem; font-weight:800; color:#cbd5e1; margin-top:0.2rem;">
-              --:--.---
-            </div>
-          </div>
-        </div>
-
       </div>
 
-      <!-- Main Action Controls -->
-      <div style="display:grid; grid-template-columns: 1.4fr 1fr; gap:0.5rem; margin-bottom:0.75rem;">
-        <button type="button" id="btn-gps-toggle" class="btn btn-primary gps-nowrap" onclick="toggleGpsTracking()" style="padding:0.75rem 0.5rem; font-size:clamp(0.85rem, 3.5vw, 0.95rem); font-weight:800; justify-content:center; box-shadow:0 4px 15px rgba(255,42,75,0.4);">
+      <!-- Main Action Controls (2 Vertical Full-Width Rows) -->
+      <div class="gps-main-action-grid" style="display:flex; flex-direction:column; gap:0.5rem; margin-bottom:0.75rem;">
+        <button type="button" id="btn-gps-toggle" class="btn btn-primary" onclick="toggleGpsTracking()" style="width:100%; padding:0.8rem 0.5rem; font-size:clamp(0.92rem, 3.8vw, 1.05rem); font-weight:800; justify-content:center; box-shadow:0 4px 15px rgba(255,42,75,0.4);">
           <i data-lucide="play" id="gps-toggle-icon"></i> <span id="gps-toggle-text">GPS 주행 측정 시작</span>
         </button>
-        <button type="button" class="btn btn-secondary gps-nowrap" onclick="resetGpsSession()" style="padding:0.75rem 0.5rem; font-size:0.85rem; justify-content:center;">
+        <button type="button" class="btn btn-secondary" onclick="resetGpsSession()" style="width:100%; padding:0.65rem 0.5rem; font-size:0.88rem; justify-content:center;">
           <i data-lucide="rotate-ccw"></i> 계측 초기화
         </button>
       </div>
