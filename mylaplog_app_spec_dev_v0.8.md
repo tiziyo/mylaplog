@@ -1,23 +1,24 @@
-# MyLapLog - 통합 개발 기획 및 v0.8 구현 명세서 (App Specifications & Dev Report)
+# MyLapLog - 통합 개발 기획 및 v0.8.5 구현 명세서 (App Specifications & Dev Report)
 
 ## 1. 프로젝트 및 릴리즈 개요 (Project & Release Overview)
 
 ### (1) 서비스 개요 (Service Overview)
 - **서비스명**: **MyLapLog (마이랩로그)**
-- **서비스 목적**: 서킷 트랙데이 및 모터스포츠 레이스 드라이버를 위한 **팀/드라이버/차량 등록, 세션별 머신 셋업값 로깅, 팀원 간 셋업 데이터 공유, 랩타임 분석 및 셋업-성능 상관관계 추적 플랫폼**
-
+- **서비스 목적**: 서킷 트랙데이 및 모터스포츠 레이스 드라이버를 위한 **팀/드라이버/차량 등록, 세션별 4륜 머신 셋업 로깅, 실시간 GPS 랩 타이머, 팀원 간 셋업 데이터 및 텔레메트리 공유, 인사이트 지식 허브 및 커뮤니티 피드백 플랫폼**
 - **호스팅 도메인**: 
-  - 랜딩/홍보: `https://mylaplog.com`, `https://www.mylaplog.com`
-  - 웹 애플리케이션: `https://app.mylaplog.com` (또는 `https://mylaplog.com/app/`)
-- **서버 인프라**: AWS Lightsail Debian 12 LAMP (Apache2, MariaDB 10.11, PHP 8.2+)
+  - 메인 접속 도메인: `https://mylaplog.com`, `https://www.mylaplog.com`, `https://app.mylaplog.com` (접속 시 `https://mylaplog.com/app/`로 단일 라우팅)
+- **서버 인프라**: AWS Lightsail Debian 12 LAMP (Apache 2.4, MariaDB 10.11, PHP 8.2+)
 
 ### (2) 릴리즈 정보 (Release Info)
-- **릴리즈 버전**: `v0.8.0 (Preview / Client Core Release)`
-- **작성일자**: 2026-08-25
+- **릴리즈 버전**: `v0.8.5 (Integrated Telemetry & Live Platform Release)`
+- **최종 수정일자**: 2026-09-09
 - **개발 산출물 경로**:
-  - **웹 앱 소스**: [html/mylaplog/app/index.html](file:///c:/Users/tiziy/Documents/Antigravity/lightsail_lamp/html/mylaplog/app/index.html)
-  - **홍보 랜딩 페이지**: [html/mylaplog/index.html](file:///c:/Users/tiziy/Documents/Antigravity/lightsail_lamp/html/mylaplog/index.html)
-  - **통합 명세 및 개발 문서**: [mylaplog_app_spec_dev_v0.8.md](file:///c:/Users/tiziy/Documents/Antigravity/lightsail_lamp/mylaplog_app_spec_dev_v0.8.md)
+  - **웹 앱 포털**: [html/mylaplog/app/index.html](file:///c:/Users/tiziy/Documents/Antigravity/lightsail_lamp/html/mylaplog/app/index.html) (`https://mylaplog.com/app/`)
+  - **관리자 컨트롤 센터**: [html/mylaplog/app/admin.html](file:///c:/Users/tiziy/Documents/Antigravity/lightsail_lamp/html/mylaplog/app/admin.html) (`https://mylaplog.com/app/admin.html`)
+  - **백엔드 REST API**: [html/mylaplog/app/api.php](file:///c:/Users/tiziy/Documents/Antigravity/lightsail_lamp/html/mylaplog/app/api.php) (`https://mylaplog.com/api/*`)
+  - **개인정보처리방침**: [html/mylaplog/app/privacy.html](file:///c:/Users/tiziy/Documents/Antigravity/lightsail_lamp/html/mylaplog/app/privacy.html)
+  - **계정 삭제 안내**: [html/mylaplog/app/delete-account.html](file:///c:/Users/tiziy/Documents/Antigravity/lightsail_lamp/html/mylaplog/app/delete-account.html)
+  - **통합 명세 문서**: [mylaplog_app_spec_dev_v0.8.md](file:///c:/Users/tiziy/Documents/Antigravity/lightsail_lamp/mylaplog_app_spec_dev_v0.8.md)
 
 ---
 
@@ -26,301 +27,203 @@
 ```
 [ Layout Structure ]
 ┌─────────────────┬────────────────────────────────────────────────────────┐
-│  Sidebar        │  Topbar (Page Title, Quick Action Modals)              │
+│  Sidebar        │  Topbar (Page Title, Language Selector, Action Modals) │
 │  - Logo         │  [ 팀 등록 | 팀 가입 | 머신 등록 | 세션 로깅 | 로그인 ] │
 │  - Team Switch  ├────────────────────────────────────────────────────────┤
-│  - 6 Main Tabs  │  Active Tab Panel                                      │
-│  - User Profile │  [Dashboard | Sessions | Garage | Analytics | Team...] │
+│  - 8 Main Tabs  │  Active Tab Panel                                      │
+│  - User Profile │  [Dashboard | Sessions | Garage | Analytics |          │
+│                 │   Leaderboard | Timer | Guides | Feedback]             │
+│                 ├────────────────────────────────────────────────────────┤
+│                 │  Mobile Bottom Nav (Home, Log, Timer, Insights, Menu)  │
 └─────────────────┴────────────────────────────────────────────────────────┘
 ```
 
 - **프론트엔드 스택**:
-  - **Core**: Vanilla HTML5 + Modern JavaScript (ES6+ SPA 구조)
-  - **Styling**: Vanilla CSS3 (Custom Design System, 다크 레이싱 테마, 글래스모피즘)
-  - **시각화 엔진**: Chart.js (텔레메트리 셋업-랩타임 상관관계 라인 차트)
-  - **아이콘**: Lucide Icons (CDN)
+  - **Core**: Vanilla HTML5 + Modern ES6+ JavaScript (Single Page Application 구조)
+  - **Styling**: Vanilla CSS3 (Custom Design System, High-Contrast Racing Dark Theme, Glassmorphism)
+  - **시각화 엔진**: Chart.js (텔레메트리 셋업 vs 랩타임 상관관계 다이내믹 차트)
+  - **아이콘 시스템**: Lucide Icons
   - **타이포그래피**: Google Fonts (`Chakra Petch`, `Orbitron`, `Noto Sans KR`)
-- **데이터 스토리지 아키텍처 (클라이언트 메모리 게스트 모드 + 100% MariaDB Backend)**:
-  - 브라우저의 `localStorage` 또는 `sessionStorage`를 통한 로컬 캐싱을 완전히 배제하고, **모든 데이터(유저 인증, 차량, 세션, 셋업, 팀, 리더보드)는 MariaDB 10.11 REST API를 통해 실시간 생성/조회/수정/삭제**됩니다.
-  - 앱 구동(`initApp`) 시 기존 브라우저 로컬 스토리지를 자동 클리어(`localStorage.clear()`)하여 과거 캐시 잔여물을 차단합니다.
-  - **게스트 모드 (비로그인 상태)**: 로그인하지 않은 상태에서도 웹 앱의 모든 기능(머신 등록/수정/삭제, 4륜 셋업 로깅/수정/삭제, 팀 생성/가입/탈퇴, 텔레메트리 차트, 서킷 리더보드)을 자유롭게 조작하고 테스트할 수 있도록 **순수 클라이언트 메모리(JS 변수 / JSON 데이터: `SAMPLE_GARAGE`, `SAMPLE_SESSIONS`, `SAMPLE_TEAM`, `SAMPLE_LEADERBOARD`)를 사용하여 실시간 반응형 인터랙션**을 완벽하게 지원합니다.
-  - **로그인 모드 (인증 상태)**: PHP PDO 세션 인증 기반으로 MariaDB에서 해당 로그인 유저의 레코드만 안전하게 쿼리하여 영구 저장 및 렌더링
-  - **대시보드 메트릭스 & 하이라이트 배너**: 메모리/DB에 저장된 실제 세션/차량/팀 데이터에 기반하여 실시간 동적 계산 및 Empty State UI 완벽 지원
+  - **다국어 엔진**: Google Translate API 연동 (한국어 / 영어 실시간 전환)
+- **데이터 스토리지 아키텍처 (100% MariaDB Backend + Guest Client-Memory Sandbox)**:
+  - **MariaDB 10.11 REST API**: 모든 엔드포인트(`/api/*`)를 통해 유저 인증, 팀, 차량, 세션, 4륜 셋업, 랩타임, GPS 로그, 인사이트, 피드백을 실시간 저장 및 쿼리
+  - **게스트 모드 (비로그인)**: 별도 로그인 없이도 모든 기능(머신 등록, 셋업 로깅, GPS 타이머, 텔레메트리 분석, 인사이트 열람)을 테스트할 수 있도록 클라이언트 메모리 기반 샌드박스 완벽 지원
+  - **인사이트 & 피드백**: 게스트와 회원 모두 실제 MariaDB의 최신 데이터를 실시간 조회 및 상호작용
 
 ---
 
 ## 3. 핵심 기능 요구사항 및 프로세스 (Core Features & Flow)
 
 ```
-[ 팀 생성 & 멤버 초대 ] ──> [ 드라이버 & 차량 등록 ] ──> [ 트랙데이 세션 생성 ] ──> [ 머신 셋업 로깅 ] ──> [ 랩타임 기록 & 분석 ]
-                                                                                             │
-                                                                                             └──> [ 팀원 간 셋업/데이터 공유 & AI 인사이트 ]
+[ 팀 구성 / 초대 ] ──> [ 머신 등록 ] ──> [ GPS 타이머 실시간 주행 ] ──> [ 4륜 셋업 로깅 ] ──> [ 텔레메트리 분석 ]
+                                                      │                                  │
+                                                      └──> [ 팀 실시간 채팅 공유 ]        └──> [ 인사이트 가이드 학습 ]
 ```
 
-### (1) 유저 & 드라이버 및 팀 관리 (User, Driver & Team Management)
-- **회원가입 / 로그인**: 이메일, 간편 소셜 로그인 (Google, Apple, Kakao 모의 연동)
-- **드라이버 프로필 모달 (Driver Profile Modal)**:
-  - **로그인 상태**: 상단 로그인 버튼 및 사이드바 프로필 클릭 시 **해당 로그인 드라이버의 상세 정보 모달**(아바타, 이름, 이메일, 출전 클래스, KARA 라이선스, 소속 팀, 등록 머신 수, 총 주행 세션 수, 계정 상태) 노출 및 원클릭 로그아웃 지원
-  - **로그아웃(게스트) 상태**: 클릭 시 로그인/회원가입 모달 노출
-- **레이싱 팀/크루 관리**:
-  - 팀 생성 및 고유 초대 코드/링크 기반 팀원 가입
-  - 팀 내 역할 및 권한 관리: 팀장(Chief), 매니저(Manager), 드라이버(Driver), 미캐닉/엔지니어(Mechanic), 뷰어(Viewer)
-  - **팀 삭제/해체 무결성 보호**: 팀에 등록된 개러지 머신이 1대 이상 존재할 경우, 데이터 무결성 보호를 위해 팀 삭제를 원천 차단하고 개러지 머신의 소속 팀 변경 또는 머신 선행 삭제 안내 알림(`Alert` / `HTTP 400`) 제공
+### (1) 유저 & 드라이버 및 팀 관리 (`Auth & Team Hub`)
+- **이메일 및 카카오 소셜 로그인**: 이메일/비밀번호 인증 및 카카오 OAuth 2.0 간편 로그인 연동
+- **드라이버 프로필**: 드라이버 클래스(`VIP Driver`), KARA 라이선스 등급, 소속 팀, 차량/세션 통계 관리
+- **다중 팀 관리**: 유저당 최대 10개 팀 생성/가입, 고유 초대 코드(`APEX-KOR-2026`) 발급, 팀원 역할(`CHIEF`, `ADMIN`, `DRIVER`, `MECHANIC`, `VIEWER`) 및 권한 관리
 
-### (2) 개러지 (차량 등록 및 관리)
-- **차량 기본 정보**: 제조사, 모델명, 연식, 구동방식 (FF/FR/AWD/MR), 트랜스미션 (수동/DCT/시퀀셜)
-- **엔진 & 파워트레인**: 마력(hp), 토크(kg.m), ECU 맵핑 상태, 흡배기 튜닝
-- **하체 & 서스펜션 스펙**: 서스펜션 브랜드, 스프링 레이트(F/R kgf/mm), 조절단수
-- **타이어 & 휠**: 휠 사이즈, 타이어 모델(Sur4G, V730, Trofeo R 등), 단면폭(F/R mm)
-- **브레이크 & 에어로**: 브레이크 캘리퍼/패드 모델, 리어 윙/프론트 스플리터 유무
+### (2) 개러지 차량 관리 (`Garage`)
+- 제조사, 모델명, 연식, 엔진 최고출력(hp), 장착 타이어 규격(F/R), 서스펜션 사양 등록
+- 팀 소속 및 공개 범위(`TEAM`, `PUBLIC`, `PRIVATE`) 태그 관리
+- 주행 기록이 연결된 차량의 무결성 보호(선행 세션 삭제 또는 변경 알림)
 
-### (3) 트랙데이 세션 및 머신 셋업 로깅 (Core Log Engine)
-- **이벤트 정보**: 방문 서킷 (인제 스피디움, 영암 KIC, 용인 에버랜드 스피드웨이, 태백 모터파크 등), 주행 일자, 주최사
-- **기상/트랙 환경**: 기온(°C), 노면온도(Track Temp °C), 습도, 기압, 날씨(Dry/Damp/Wet)
-- **세션별 셋업 파라미터 (Session Setups)**:
-  - **타이어 공기압**: 주행 전 냉간(Cold PSI) / 주행 직후 열간(Hot PSI) (FL, FR, RL, RR 4륜 개별)
-  - **댐퍼 감쇠력**: Bump / Rebound 또는 통합 클릭 수 (F / R Clicks)
-  - **얼라인먼트**: 네거티브 캠버각(F/R ° 4륜 개별), 토우각(Toe In/Out mm 4륜 개별), 캐스터각(F/R ° 4륜 개별)
-  - **스웨이바 / 스태빌라이저**: 강도 세팅 (Soft / Mid / Hard)
-  - **에어로 파츠**: 리어 윙 앵글(Angle of Attack, °), 프론트 댐퍼 스트로크
-  - **기타**: 연료 잔여량(L / %), 타이어 트레드 잔여 깊이(mm), 브레이크 잔량
+### (3) 4륜 정밀 머신 셋업 로거 (`Sessions / Setup Logger`)
+- **서킷 및 환경**: 전국 4대 서킷, 주행 일자, 기온(°C), 노면온도(°C), 노면 상태(`DRY`/`DAMP`/`WET`)
+- **4륜 타이어 공기압**: FL / FR / RL / RR 개별 냉간(Cold PSI) 및 피트인 직후 열간(Hot PSI) 관리
+- **4륜 휠 얼라인먼트**: FL/FR/RL/RR 캠버(°), 토우(mm/°), 전륜 캐스터(°) 4륜 독립 등록
+- **섀시 & 서스펜션 & 에어로**: 댐퍼 감쇠력(Front/Rear Clicks), 리어 윙 각도(°), 연료 탑재량(L)
+- **최고속도 및 드라이버 피드백**: `top_speed_kmh`, `driver_notes`
 
-### (4) 랩타임 & 섹터 분석 (Lap Times)
-- **랩타임 수집**: 세션별 Best Lap, 세부 랩(Lap 1 ~ N), In/Out 랩 구분
-- **섹터 분할**: Sector 1, Sector 2, Sector 3 구간 타임 기록
-- **이론상 최적 랩 (Optimal Lap)**: 각 세션의 최고 섹터 조합 자동 계산
-- **일관성 지수 (Consistency Index)**: 랩타임 편차 분석
+### (4) ⏱️ 실시간 GPS 랩 타이머 (`GPS Lap Timer`)
+- 브라우저 고정밀 Geolocation API 기반 서킷 Start/Finish 라인 및 3개 섹터 실시간 감지
+- 국내 4대 서킷 결승선 좌표 지오펜스 내장, 현재 랩 / 베스트 랩 / 실시간 델타 HUD 시각화
+- 주행 완료 즉시 세션 로거(`Sessions`)로 원클릭 저장 연동
 
-### (5) 팀 데이터 공유 & 셋업 상관관계 피드백 (Team Sharing & Setup Intelligence)
-- **팀 내 데이터 공유 (Data Sharing)**:
-  - 같은 팀 멤버 간 차량 개러지 스펙, 세션별 세팅값(공기압/감쇠력/캠버 등), 랩타임 및 드라이버 피드백 실시간 열람/공유
-  - 공개 범위 설정: 비공개(Private), 팀 전체 공유(Team Shared), 전체 공개(Public)
-  - 팀원 간 세션 셋업 비교 (예: 동일 차종/서킷에서 팀원 A vs 팀원 B의 공기압/감쇠력 셋업 및 랩타임 비교)
-- **셋업 vs 랩타임 상관관계 피드백**:
-  - 셋팅값 변경에 따른 랩타임 증감 추세 분석 (예: 공기압 2psi 인하 시 0.4초 단축)
-  - 드라이버 피드백 노트 (언더스티어/오버스티어 경향, 브레이크 페이드, 연석 추종성 등)
+### (5) 📖 인사이트 & 텔레메트리 가이드 (`Insights & Guides`)
+- 서킷 공략, 셋업 노하우, 타이어/공기압, 레이싱 철학 등 카테고리별 전문 가이드
+- MariaDB `guides` 테이블 기반 실시간 렌더링, 추천(Featured) 배너, 조회수 카운트, 마크다운 리더
+
+### (6) 💬 팀 실시간 채팅 & 초대 (`Team Chat & Invitations`)
+- 팀원 간 실시간 메시지 송수신 및 엔지니어링 피드백 공유
+- 회원 검색 및 초대장 발송 / 수락 / 거절 워크플로우
+
+### (7) 💡 기능 제안 및 커뮤니티 피드백 (`Feedback Hub`)
+- 기능 제안, 버그 제보, 유저 공감(Upvote) 투표 시스템
+- 관리자 상태 변경(`PENDING`, `IN_REVIEW`, `PLANNED`, `RESOLVED`) 및 공식 답변 연동
+
+### (8) 🛠️ 관리자 컨트롤 센터 (`Admin Control Center - admin.html`)
+- 마스터 키 인증 및 관리자 보안 세션
+- 회원/팀 관리, 피드백 상태 관리, 인사이트 CMS 마크다운 에디터, DB 실시간 지표 대시보드
 
 ---
 
-## 4. v0.8 구현 완료 화면 및 기능 명세 (Implemented Features in v0.8)
+## 4. 상세 화면 및 기능 명세 (Implemented Features)
 
-### (1) 👤 유저 인증 및 프로필 관리 (`Auth System`)
-- **로그인 / 회원가입 모달 (`Auth Modal`)**:
-  - 로그인: 이메일/비밀번호 인증 및 간편 소셜 로그인 (Google, Apple, Kakao 모의 연동)
-  - 회원가입: 드라이버 닉네임/본명, 이메일, 비밀번호, 주 출전 클래스(`PRO-AM`, `Clubman`, `Expert`, `Rookie`), KARA 라이선스 등급 선택
-- **동적 프로필 연동**: 로그인/가입 완료 시 사이드바 및 세션 로거 작성자 정보 실시간 동기화
-- **로그아웃 지원**
+### (1) 🏁 드라이버 대시보드 (`Dashboard`)
+- 총 세션 수, 최근 주행 일자, 서킷별 베스트 랩타임 및 차순위 대비 랩타임 델타(`-N.NNNs`)
+- 가장 빠른 기록의 베스트 세션 하이라이트 배너
+- 대시보드 내 최신 인사이트 가이드 위젯 (3건 미리보기)
 
-### (2) 🛡️ 레이싱 팀 허브 & 다중 팀 관리 (`Team Hub`)
-- **내 소속 팀 전체 카드 목록 (최대 10개)**:
-  - 사용자가 가입/창단한 모든 팀을 반응형 카드 그리드로 한눈에 조회
-  - 각 팀 카드별 팀명, 역할(CHIEF/DRIVER/MECHANIC), 홈 서킷, 초대 코드 복사, [팀 선택/조회], [팀 정보 수정 (팀장 전용)], [팀 삭제/탈퇴] 액션 제공
-- **팀 등록 및 생성 (`Create Team Modal`)**: 팀명, 연고 서킷, 팀 슬로건 입력 시 고유 초대 코드 자동 생성 (유저당 최대 10개)
-- **팀 정보 수정 (`Edit Team Modal`)**: 팀장(CHIEF / Owner) 권한을 가진 유저가 팀명, 주 활동 홈 서킷, 팀 소개/슬로건 실시간 수정 및 동기화
-- **팀 가입 (`Join Team Modal`)**: 초대 코드(`APEX-KOR-2026` 등) 입력 및 역할(`Driver`, `Mechanic`, `Viewer`) 선택 후 즉시 가입 (유저당 최대 10개)
-- **팀 프로필 & 초대 코드 시스템**: 초대 코드 원클릭 복사 및 실시간 팀원 목록/권한 동기화
-- **팀 삭제 (해체) 및 팀 탈퇴**:
-  - 팀장(CHIEF / Owner): 팀 전체 해체 및 영구 삭제
-  - 일반 멤버(DRIVER / MECHANIC 등): 소속 팀 탈퇴
+### (2) ⏱️ GPS 랩 타이머 (`Timer Tab`)
+- **서킷 자동/수동 선택**: 인제 스피디움, 영암 KIC, 용인 스피드웨이, 태백 레이싱파크
+- **실시간 HUD**: 대형 디지털 랩타임(분:초.밀리초), 현재 랩 번호, Best Lap, Last Lap
+- **섹터 타임 스플릿**: S1, S2, S3 구간 통과 시 즉시 섹터 타임 기록 및 베스트 대비 델타 표시
+- **주행 세션 저장**: 측정 완료된 랩타임 리스트를 세션 로거 모달로 자동 전송하여 원클릭 저장
 
-### (3) 🏁 드라이버 대시보드 (`Dashboard`)
-- **실시간 핵심 메트릭스 카드**:
-  - 총 주행 세션수 (Total Sessions 및 최근 주행 일자: `최근 주행 일자 : YY년 M월 D일`)
-  - 서킷별 베스트 랩타임 (인제 스피디움 베스트 기록 및 동일 서킷·드라이버·차종 차순위 대비 랩타임 델타 `-N.NNNs`)
-  - 등록 개러지 머신수 (`개인소유(N), 팀소유(N)`)
-  - 소속 레이싱 팀 상태 및 활동 멤버수
-- **베스트 트랙데이 세션 하이라이트 배너**: 등록된 전체 세션 중 가장 빠른 랩타임(Fastest Lap)을 기록한 베스트 세션을 자동 탐색하여 서킷명, 일자, 머신, 소속 팀, 4륜 PSI/캠버/감쇠력 셋업 요약 표시
-- **최근 세션 피드**: 최신 생성 순으로 등록된 셋업 및 랩타임 카드 렌더링
+### (3) 📖 인사이트 허브 (`Guides Tab & Modal`)
+- **카테고리 필터**: 전체(`ALL`), 서킷 공략, 셋업 노하우, 타이어/공기압, 레이싱 철학
+- **실시간 검색**: 제목, 요약문, 카테고리 키워드 실시간 필터링
+- **추천 인사이트 배너**: `is_featured = 1` 아티클 상단 강조
+- **마크다운 리더 모달**: 테이블, 코드블록, 인용구, 헤딩 지원 및 원클릭 URL 링크 복사(`copyCurrentGuideLink`)
 
-### (4) ⚙️ 세션 & 머신 셋업 로거 (`Sessions / Setup Logger`)
-- **세션 로그 목록 조회**: 서킷명, 일자, 세션 번호, 출전 머신, 베스트 랩타임
-- **4륜 타이어 열간/냉간 공기압(PSI) 시각화**: FL / FR / RL / RR 개별 수치 박스 및 冷/熱 상태 관리
-- **4륜 휠 얼라인먼트 셋업**:
-  - **4륜 캠버 각도(Camber °)**: FL, FR, RL, RR 4륜 개별 등록 및 관리
-  - **4륜 토우 수치(Toe mm/°)**: FL, FR, RL, RR 4륜 개별 등록 및 관리
-  - **전륜 캐스터 각도(Caster °)**: FL, FR 전륜 좌/우 캐스터 각도 등록
-- **서스펜션 & 에어로 & 연료**:
-  - **댐퍼 감쇠력**: 프론트(F단), 리어(R단) 클릭수
-  - **에어로 & 연료**: 리어 윙 각도(°), 연료 탑재량(L)
-  - **기상 & 트랙**: 기온(Air °C), 노면 온도(Track °C), 노면 상태(DRY/DAMP/WET)
-- **드라이버 피드백 & 엔지니어링 메모**: `driver_notes`
-- **신규 세션 등록 모달 (`Add Modal`)**: 서킷, 머신, 일자, 세션, 베스트 랩, 4륜 PSI/캠버/토우/캐스터/댐퍼/윙/연료/기상 일체 등록 지원
-- **세션 & 셋업 정보 수정 (`Edit Modal`)**: 등록된 세션의 모든 4륜 셋업 및 랩타임 실시간 수정
-- **세션 로그 삭제**: 불필요한 주행 세션 및 연결된 셋업 데이터 삭제
+### (4) 💬 팀 허브 & 라이브 채팅 (`Team Hub`)
+- 소속 팀 카드 목록 (최대 10개) 및 초대 코드 원클릭 복사
+- 팀 라이브 채팅창: 팀원 간 실시간 대화, 엔지니어링 코멘트 공유
+- 팀원 초대 및 초대장 수락/거절 팝업
 
-### (5) 🏎️ 개러지 머신 관리 (`Garage`)
-- **머신 스펙 카드**: 제조사, 모델, 연식, 엔진 마력(hp), 소속 팀(Team), 장착 타이어 모델, 타이어 규격, 하체 서스펜션 사양
-- **소속 팀 연동 및 뱃지**: 차량이 소속된 레이싱 팀명(또는 개인 소유) 실시간 표시
-- **공개 범위 태그**: `TEAM` (팀원 공유), `PUBLIC` (전체 공개), `PRIVATE` (나만 보기)
-- **신규 머신 등록 모달 (`Modal`)**: 제조사, 모델명, 마력, 소속 팀 선택, 타이어 규격 등 입력 지원
-- **머신 스펙 정보 수정 (`Edit Modal`)**: 등록된 머신의 출력, 소속 팀, 타이어, 하체 셋업, 공개 범위를 실시간으로 수정 및 저장
-- **머신 삭제 및 무결성 보호**: 불필요한 개러지 차량 삭제 지원. 단, **해당 차량으로 등록된 트랙 세션 로그가 1건 이상 존재하는 경우 삭제 불가 경고 알림(`Alert`)**을 띄워 데이터 무결성을 철저히 보호.
+### (5) 💡 기능 제안 / 제보 (`Feedback Tab`)
+- 카테고리별(기능 제안, 버그 제보, 셋업 질문, 기타) 피드백 작성
+- 사용자 공감(👍 Upvote) 추천 및 실시간 카운트
+- 관리자 공식 답변(`admin_response`) 배너 노출
 
-### (6) 📊 텔레메트리 & 셋업 비교 분석 (`Analytics`)
-- **셋업 vs 랩타임 상관관계 차트 (Chart.js)**:
-  - 타이어 열간 공기압(PSI) 변화(36 -> 35 -> 34 -> 32.5 -> 38)에 따른 랩타임 증감 추세 분석
-  - 공기압 최적점(34 PSI) 도달 시 베스트 랩타임 시각화
-- **팀원 간 셋업 비교 매트릭스 (`Teammate Setup Comparison`)**:
-  - 동일 서킷/차종에서 `Alex Kim (#77)` vs `David Lee (#12)` 셋업 비교
-  - 베스트 랩타임 델타(-0.772s), 타이어 공기압 차이, 댐퍼 클릭수, 캠버 각도, 리어 윙 각도 비교 및 피드백
-
-### (7) 🏆 서킷 랭킹 리더보드 (`Leaderboard`)
-- **서킷별 탭 전환 (인제 스피디움, 영암 KIC, 용인 스피드웨이, 태백 레이싱파크)**:
-  - 서킷 선택 버튼 클릭 시 해당 서킷의 공식 랩타임 랭킹 순위표 실시간 로드
-  - 서킷 레이아웃 및 트랙 길이(km) 메타 서브타이틀 연동
-- **순위표 표시 항목**: 순위(메달/넘버링), 드라이버명(아바타), 출전 머신, 소속 팀, 베스트 랩타임, 장착 타이어 모델, 주요 셋업 요약(Hot PSI, 캠버, 댐퍼 클릭수)
-- **실시간 빈 상태(Empty State) 안내**: 데이터가 없는 서킷 선택 시 안내 화면 제공
+### (6) 📱 모바일 UX & PWA 최적화
+- **모바일 하단 플로팅 네비게이션**: 홈, 세션 로깅, GPS 타이머, 인사이트, 메뉴 퀵 전환
+- **모바일 터치 셋업 입력**: 4륜 PSI/캠버를 2x2 차량 레이아웃으로 직관적 배치, `inputmode="decimal"` 적용
+- **모달 UX**: 모바일 화면에서 하단 버튼 고정(Sticky Footer) 및 우측 스크롤바 미관 개선
 
 ---
 
-## 5. 데이터베이스 설계안 (Database Schema Draft)
+## 5. 데이터베이스 설계 (Database Schema)
 
 ```mermaid
 erDiagram
-    TEAMS ||--o{ TEAM_MEMBERS : includes
+    USERS ||--o{ TEAMS : owns
     USERS ||--o{ TEAM_MEMBERS : belongs_to
-    USERS ||--o{ DRIVERS : has
+    TEAMS ||--o{ TEAM_MEMBERS : includes
+    USERS ||--o{ TEAM_INVITATIONS : receives
+    TEAMS ||--o{ TEAM_INVITATIONS : sends
     USERS ||--o{ VEHICLES : owns
     TEAMS ||--o{ VEHICLES : shares
     USERS ||--o{ TRACK_SESSIONS : logs
-    TEAMS ||--o{ TRACK_SESSIONS : shares
-    DRIVERS ||--o{ TRACK_SESSIONS : drives
-    VEHICLES ||--o{ TRACK_SESSIONS : used_in
-    TRACKS ||--o{ TRACK_SESSIONS : held_at
     TRACK_SESSIONS ||--|| VEHICLE_SETUPS : configured_with
-    TRACK_SESSIONS ||--o{ LAP_TIMES : logs
+    TRACK_SESSIONS ||--o{ LAP_TIMES : records
+    TEAMS ||--o{ TEAM_MESSAGES : contains
+    USERS ||--o{ FEEDBACKS : submits
+    USERS ||--o{ GUIDES : writes
 ```
 
 ### 주요 테이블 명세
 
 #### 1) `users` (회원 테이블)
-- `id` (BIGINT PK AUTO_INCREMENT)
-- `email` (VARCHAR(191) UNIQUE)
-- `password_hash` (VARCHAR(255))
-- `name` (VARCHAR(100))
-- `created_at` (DATETIME)
+- `id` (BIGINT PK), `email` (VARCHAR(191) UNIQUE), `password_hash` (VARCHAR(255)), `name` (VARCHAR(100)), `driver_class` (VARCHAR(50)), `is_admin` (TINYINT(1)), `kakao_id` (VARCHAR(100) UNIQUE), `created_at` (DATETIME)
 
-#### 2) `teams` (레이싱 팀/크루 테이블)
-- `id` (BIGINT PK AUTO_INCREMENT)
-- `name` (VARCHAR(100)) - 팀명
-- `invite_code` (VARCHAR(32) UNIQUE) - 팀 초대 코드
-- `owner_id` (BIGINT FK) - 팀 소유자/팀장 user_id
-- `description` (TEXT) - 팀 소개
-- `created_at` (DATETIME)
+#### 2) `teams` (레이싱 팀 테이블)
+- `id` (BIGINT PK), `name` (VARCHAR(100)), `invite_code` (VARCHAR(32) UNIQUE), `owner_id` (BIGINT FK), `home_track` (VARCHAR(100)), `description` (TEXT), `created_at` (DATETIME)
 
-#### 3) `team_members` (팀 소속 멤버 및 권한)
-- `id` (BIGINT PK AUTO_INCREMENT)
-- `team_id` (BIGINT FK) - 소속 팀 ID
-- `user_id` (BIGINT FK) - 회원 ID
-- `role` (VARCHAR(20)) - OWNER, MANAGER, DRIVER, MECHANIC, VIEWER
-- `can_view_data` (TINYINT(1) DEFAULT 1) - 팀 데이터 열람 권한
-- `can_edit_data` (TINYINT(1) DEFAULT 0) - 팀 세션/셋업 편집 권한
-- `joined_at` (DATETIME)
- 
-#### 4) `vehicles` (차량 개러지)
-- `id` (BIGINT PK)
-- `user_id` (BIGINT FK) - 소유자 ID
-- `team_id` (BIGINT FK NULLABLE) - 소속 팀 ID (팀 내 차량 공유)
-- `make` (VARCHAR(50)) - 예: Hyundai, Porsche, BMW
-- `model` (VARCHAR(100)) - 예: Avante N, 911 GT3, M2
-- `year` (INT)
-- `engine_power` (INT) - 엔진 최고 출력 / 마력(hp) (예: 280)
-- `tire_model` (VARCHAR(100)) - 예: Sur4G, V730, Trofeo R
-- `tire_size_front` / `tire_size_rear` (VARCHAR(50))
-- `suspension_spec` (TEXT)
-- `visibility` (VARCHAR(20) DEFAULT 'TEAM') - PRIVATE(나만 보기), TEAM(팀원 공유), PUBLIC(전체 공개)
-- `is_active` (TINYINT(1))
+#### 3) `team_members` (팀 소속 멤버)
+- `id` (BIGINT PK), `team_id` (BIGINT FK), `user_id` (BIGINT FK), `role` (VARCHAR(20) - ADMIN, DRIVER, MECHANIC, VIEWER), `joined_at` (DATETIME)
 
-#### 5) `tracks` (서킷 메타데이터)
-- `id` (INT PK)
-- `name` (VARCHAR(100)) - 예: 인제 스피디움, 영암 KIC
-- `layout_name` (VARCHAR(50)) - Full, Short, F1 Course
-- `length_meters` (INT)
-- `sector_count` (INT DEFAULT 3)
+#### 4) `team_invitations` (팀 초대 관리)
+- `id` (BIGINT PK), `team_id` (BIGINT FK), `inviter_id` (BIGINT FK), `invitee_id` (BIGINT FK), `role` (VARCHAR(20)), `status` (VARCHAR(20) - PENDING, ACCEPTED, REJECTED), `created_at` (DATETIME)
 
-#### 6) `track_sessions` (세션 정보)
-- `id` (BIGINT PK)
-- `user_id` (BIGINT FK) - 주행 드라이버 ID
-- `team_id` (BIGINT FK NULLABLE) - 소속 팀 ID (팀 내 데이터 공유)
-- `vehicle_id` (BIGINT FK)
-- `track_id` (INT FK)
-- `session_date` (DATE)
-- `session_number` (INT) - Session 1, 2, 3...
-- `air_temp` (DECIMAL(4,1))
-- `track_temp` (DECIMAL(4,1))
-- `weather_condition` (VARCHAR(50)) - DRY, WET, DAMP
-- `visibility` (VARCHAR(20) DEFAULT 'TEAM') - PRIVATE(나만 보기), TEAM(팀원 공유), PUBLIC(전체 공개)
+#### 5) `team_messages` (팀 실시간 채팅)
+- `id` (BIGINT PK), `team_id` (BIGINT FK), `user_id` (BIGINT FK), `message` (TEXT), `created_at` (DATETIME)
 
-#### 7) `vehicle_setups` (세션별 셋팅값)
-- `id` (BIGINT PK)
-- `session_id` (BIGINT FK UNIQUE)
-- `cold_psi_fl`, `cold_psi_fr`, `cold_psi_rl`, `cold_psi_rr` (DECIMAL(4,1))
-- `hot_psi_fl`, `hot_psi_fr`, `hot_psi_rl`, `hot_psi_rr` (DECIMAL(4,1))
-- `damper_front_clicks`, `damper_rear_clicks` (INT)
-- `camber_front`, `camber_rear` (DECIMAL(3,1))
-- `wing_angle_deg` (DECIMAL(3,1))
-- `fuel_liters` (DECIMAL(4,1))
-- `driver_notes` (TEXT)
+#### 6) `vehicles` (차량 개러지)
+- `id` (BIGINT PK), `user_id` (BIGINT FK), `team_id` (BIGINT FK NULLABLE), `make` (VARCHAR(50)), `model` (VARCHAR(100)), `year` (INT), `engine_power` (INT), `tire_model` (VARCHAR(100)), `tire_size_front` / `tire_size_rear` (VARCHAR(50)), `suspension_spec` (TEXT), `visibility` (VARCHAR(20)), `is_active` (TINYINT(1))
 
-#### 8) `lap_times` (랩타임)
-- `id` (BIGINT PK)
-- `session_id` (BIGINT FK)
-- `lap_number` (INT)
-- `lap_time_ms` (INT) - 밀리초 단위 (예: 112348 -> 01:52.348)
-- `is_valid` (TINYINT(1) DEFAULT 1)
-- `is_best` (TINYINT(1) DEFAULT 0)
+#### 7) `track_sessions` (세션 정보)
+- `id` (BIGINT PK), `user_id` (BIGINT FK), `team_id` (BIGINT FK NULLABLE), `vehicle_id` (BIGINT FK), `track_id` (INT FK), `session_date` (DATE), `session_number` (INT), `air_temp` (DECIMAL(4,1)), `track_temp` (DECIMAL(4,1)), `weather_condition` (VARCHAR(50)), `top_speed_kmh` (DECIMAL(5,1)), `best_lap_ms` (INT), `visibility` (VARCHAR(20))
+
+#### 8) `vehicle_setups` (4륜 정밀 셋업)
+- `id` (BIGINT PK), `session_id` (BIGINT FK UNIQUE), `cold_psi_fl/fr/rl/rr` (DECIMAL(4,1)), `hot_psi_fl/fr/rl/rr` (DECIMAL(4,1)), `damper_front_clicks/rear_clicks` (INT), `camber_fl/fr/rl/rr` (DECIMAL(3,1)), `toe_fl/fr/rl/rr` (DECIMAL(4,1)), `caster_fl/fr` (DECIMAL(3,1)), `wing_angle_deg` (DECIMAL(3,1)), `fuel_liters` (DECIMAL(4,1)), `driver_notes` (TEXT)
+
+#### 9) `guides` (인사이트 & 텔레메트리 지식 가이드)
+- `id` (BIGINT PK), `slug` (VARCHAR(191) UNIQUE), `title` (VARCHAR(255)), `category` (VARCHAR(50)), `excerpt` (TEXT), `content` (MEDIUMTEXT), `cover_image` (VARCHAR(500)), `author_name` (VARCHAR(100)), `read_time` (VARCHAR(20)), `status` (VARCHAR(20) - PUBLISHED, DRAFT), `views` (INT), `is_featured` (TINYINT(1)), `created_at` (DATETIME), `updated_at` (DATETIME)
+
+#### 10) `feedbacks` (기능 제안 및 버그 제보)
+- `id` (BIGINT PK), `user_id` (BIGINT FK NULLABLE), `user_name` (VARCHAR(100)), `user_email` (VARCHAR(191)), `category` (VARCHAR(50)), `title` (VARCHAR(255)), `content` (TEXT), `status` (VARCHAR(20) - PENDING, IN_REVIEW, PLANNED, RESOLVED), `priority` (VARCHAR(20)), `admin_response` (TEXT), `upvotes` (INT), `created_at` (DATETIME)
 
 ---
 
-## 6. 인프라 및 파일 경로 매핑 (Infrastructure Mapping)
-
-| 구분 | 서버 실제 경로 | 접속 URL | 설명 |
-| :--- | :--- | :--- | :--- |
-| **웹 앱 포털** | `/var/www/html/mylaplog/app/index.html` | `https://app.mylaplog.com`<br>`https://mylaplog.com/app/` | MyLapLog 웹 애플리케이션 (`v0.8.0`) |
-| **REST API** | `/var/www/html/mylaplog/app/api.php` | `https://app.mylaplog.com/api/*` | PHP 백엔드 API (MariaDB PDO) |
-| **API 라우팅** | `/var/www/html/mylaplog/.htaccess` | - | Apache `mod_rewrite` → `api.php` 라우팅 |
-| **홍보 랜딩 페이지** | `/var/www/html/mylaplog/index.html` | `https://mylaplog.com` | 서비스 소개 및 사전 등록 페이지 |
-| **DB 스키마** | `database/schema.sql` | - | 로컬 SQL 스키마 파일 |
-| **로컬 소스** | `html/mylaplog/` | - | 로컬 작업 디렉토리 |
-| **DB 연결** | `localhost:3306` (MariaDB) | - | DB명: `mylaplog` / 계정: `admin` |
-
-### REST API 엔드포인트 목록
+## 6. 인프라 및 REST API 엔드포인트 목록
 
 | Method | Endpoint | 설명 | 인증 |
-| :--- | :--- | :--- | :--- |
+| :--- | :--- | :--- | :---: |
 | `POST` | `/api/auth/login` | 이메일/비밀번호 로그인 | ❌ |
-| `POST` | `/api/auth/register` | 회원가입 | ❌ |
-| `GET` | `/api/auth/me` | 현재 로그인 유저 조회 | ❌ |
+| `POST` | `/api/auth/register` | 신규 회원가입 | ❌ |
+| `POST` | `/api/auth/kakao` | 카카오 소셜 로그인/가입 | ❌ |
+| `GET` | `/api/auth/me` | 현재 세션 유저 정보 조회 | ❌ |
 | `POST` | `/api/auth/logout` | 로그아웃 | ❌ |
-| `GET` | `/api/teams` | 내 소속 팀 목록 (최대 10개) | ✅ |
-| `POST` | `/api/teams` | 새 팀 생성 (최대 10개 제한) | ✅ |
-| `PUT` | `/api/teams/:id` | 팀 정보 수정 (팀장 전용) | ✅ |
-| `POST` | `/api/teams/join` | 초대코드로 팀 가입 (최대 10개 제한) | ✅ |
-| `DELETE` | `/api/teams/:id` | 팀 삭제(팀장) 또는 팀 탈퇴(멤버) | ✅ |
-| `GET` | `/api/teams/:id/members` | 팀원 목록 | ✅ |
-| `GET` | `/api/vehicles` | 내 차량 목록 | ✅ |
+| `DELETE` | `/api/auth/delete-account` | 계정 영구 삭제 (회원 탈퇴) | ✅ |
+| `GET` | `/api/teams` | 내 소속 팀 목록 | ✅ |
+| `POST` | `/api/teams` | 신규 팀 생성 | ✅ |
+| `PUT` | `/api/teams/:id` | 팀 정보 수정 | ✅ |
+| `DELETE` | `/api/teams/:id` | 팀 해체 또는 탈퇴 | ✅ |
+| `GET` | `/api/teams/:id/messages` | 팀 채팅 메시지 목록 | ✅ |
+| `POST` | `/api/teams/:id/messages` | 팀 채팅 메시지 전송 | ✅ |
+| `POST` | `/api/teams/:id/invitations` | 팀원 초대장 발송 | ✅ |
+| `GET` | `/api/invitations/received` | 내가 받은 초대장 목록 | ✅ |
+| `POST` | `/api/invitations/:id/accept` | 팀 초대 수락 | ✅ |
+| `POST` | `/api/invitations/:id/reject` | 팀 초대 거절 | ✅ |
+| `GET` | `/api/vehicles` | 내 개러지 차량 목록 | ✅ |
 | `POST` | `/api/vehicles` | 차량 등록 | ✅ |
 | `PUT` | `/api/vehicles/:id` | 차량 정보 수정 | ✅ |
-| `DELETE` | `/api/vehicles/:id` | 차량 삭제 | ✅ |
+| `DELETE` | `/api/vehicles/:id` | 차량 삭제 (무결성 검사) | ✅ |
 | `GET` | `/api/sessions` | 세션 목록 (셋업+랩타임 포함) | ✅ |
-| `POST` | `/api/sessions` | 세션+셋업 저장 | ✅ |
-| `PUT` | `/api/sessions/:id` | 세션 및 셋업 정보 수정 | ✅ |
-| `DELETE` | `/api/sessions/:id` | 세션 및 셋업 삭제 | ✅ |
-| `GET` | `/api/sessions/:id` | 세션 상세 조회 | ✅ |
-| `GET` | `/api/tracks` | 서킷 목록 | ❌ |
-| `GET` | `/api/leaderboard/:trackId` | 서킷별 리더보드 | ❌ |
-
----
-
-## 7. 향후 로드맵 (v1.0 Release Plan)
-
-1. ~~**백엔드 REST API 및 MariaDB 연동**~~ ✅ **완료 (v0.8)**
-   - `mylaplog` 데이터베이스 8개 테이블 생성 및 시드 데이터 적재 완료
-   - PHP PDO 기반 REST API + PHP 세션 인증 구현 완료
-   - 프론트엔드 `fetch()` API 연동 + LocalStorage 오프라인 폴백 구현
-2. **JWT 기반 토큰 인증으로 전환** (세션 → JWT)
-3. **GPS 텔레메트리 파일 (VBOX / AiM / RaceCapture) 파서 연동**:
-   - CSV / NMEA 로그 업로드 시 랩타임 및 섹터 자동 추출 기능
-4. **프로필 편집 / 차량 스펙 수정 / 세션 삭제 기능**
-5. **팀원 간 실시간 셋업 비교 데이터 DB 연동**
-
+| `POST` | `/api/sessions` | 세션+4륜 셋업 등록 | ✅ |
+| `PUT` | `/api/sessions/:id` | 세션+4륜 셋업 수정 | ✅ |
+| `DELETE` | `/api/sessions/:id` | 세션 삭제 | ✅ |
+| `GET` | `/api/tracks` | 지원 서킷 목록 | ❌ |
+| `GET` | `/api/leaderboard/:trackId` | 서킷별 공식 리더보드 | ❌ |
+| `GET` | `/api/guides` | 공개 인사이트 가이드 목록 | ❌ |
+| `GET` | `/api/guides/:idOrSlug` | 인사이트 상세 본문 조회 (조회수 +1) | ❌ |
+| `GET` | `/api/feedbacks` | 사용자 피드백 목록 | ❌ |
+| `POST` | `/api/feedbacks` | 신규 피드백 등록 | ❌ |
+| `POST` | `/api/feedbacks/:id/upvote` | 피드백 공감 추천 | ❌ |
+| `GET` | `/api/admin/stats` | 관리자 종합 통계 | 🔒 (Admin) |
+| `GET/POST/PUT/DELETE` | `/api/admin/guides/*` | 인사이트 가이드 CRUD CMS | 🔒 (Admin) |
+| `GET/PUT/DELETE` | `/api/admin/feedbacks/*` | 피드백 상태 및 답변 관리 | 🔒 (Admin) |
