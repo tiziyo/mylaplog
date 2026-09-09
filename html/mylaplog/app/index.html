@@ -3022,11 +3022,27 @@
       #gps-timer-modal.modal-overlay,
       #gps-pitlane-modal.modal-overlay {
         padding: 0.35rem 0.25rem calc(6.5rem + env(safe-area-inset-bottom, 35px)) 0.25rem !important;
+        overflow-x: hidden !important;
       }
       #gps-timer-modal .modal-content,
       #gps-pitlane-modal .modal-content {
         padding: 0.65rem 0.45rem calc(2.2rem + env(safe-area-inset-bottom, 25px)) 0.45rem !important;
         border-radius: 12px !important;
+        overflow-x: hidden !important;
+        box-sizing: border-box !important;
+        max-width: 100% !important;
+      }
+      .gps-main-action-grid {
+        grid-template-columns: 1fr !important;
+        gap: 0.45rem !important;
+      }
+      .gps-main-action-grid button {
+        width: 100% !important;
+        justify-content: center !important;
+        white-space: normal !important;
+        word-break: keep-all !important;
+        text-align: center !important;
+        padding: 0.65rem 0.5rem !important;
       }
       #gps-timer-modal .gps-toolbar-row,
       #gps-pitlane-modal .gps-toolbar-row {
@@ -3060,6 +3076,8 @@
       #gps-pitlane-modal .gps-bottom-actions button {
         width: 100% !important;
         justify-content: center !important;
+        white-space: normal !important;
+        word-break: keep-all !important;
       }
       .pit-stage-pills {
         gap: 0.25rem !important;
@@ -3074,6 +3092,7 @@
         flex: 0 0 auto !important;
         white-space: nowrap !important;
       }
+      #btn-gps-toggle,
       #btn-pit-toggle {
         min-height: 48px !important;
         font-size: 0.95rem !important;
@@ -5282,11 +5301,11 @@
       <div style="background: radial-gradient(circle at 50% 30%, rgba(15,25,45,0.95), #05070c); border: 2px solid rgba(0,240,255,0.35); border-radius: 12px; padding: 0.85rem 1rem; margin-bottom: 0.75rem; box-shadow: inset 0 0 25px rgba(0,0,0,0.8);">
         
         <!-- Speedometer & Top Speed Row -->
-        <div style="display:grid; grid-template-columns: 1.1fr 1fr; gap: 0.65rem; align-items:stretch; margin-bottom:0.75rem;">
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 0.55rem; align-items:stretch; margin-bottom:0.75rem;">
           <!-- Speedometer -->
-          <div style="background:rgba(0,0,0,0.5); padding:0.65rem 0.75rem; border-radius:8px; border:1px solid rgba(255,255,255,0.06); text-align:center; display:flex; flex-direction:column; justify-content:center;">
+          <div style="background:rgba(0,0,0,0.5); padding:0.65rem 0.75rem; border-radius:8px; border:1px solid rgba(255,255,255,0.06); text-align:center; display:flex; flex-direction:column; justify-content:center; min-width:0;">
             <div style="font-size:0.72rem; color:var(--text-muted); font-family:var(--font-display); letter-spacing:1px; display:flex; justify-content:space-between; align-items:center; white-space:nowrap;">
-              <span class="gps-hud-label">CURRENT SPEED</span>
+              <span class="gps-hud-label">SPEED</span>
               <span id="gps-speed-unit" style="color:var(--accent-cyan); font-weight:700;">KM/H</span>
             </div>
             <div id="gps-current-speed" style="font-family:var(--font-mono); font-size:clamp(2.2rem, 8vw, 3.2rem); font-weight:900; color:#00f0ff; line-height:1.1; margin:0.2rem 0; text-shadow:0 0 15px rgba(0,240,255,0.5);">
@@ -5309,7 +5328,7 @@
             </div>
 
             <!-- GPS Accuracy & Signal Quality Indicator -->
-            <div id="gps-accuracy-card" style="background:rgba(0,0,0,0.55); padding:0.4rem 0.55rem; border-radius:8px; border:1px solid rgba(0,240,255,0.25); font-size:0.7rem; color:var(--text-muted); display:flex; flex-direction:column; gap:0.3rem; min-width:0;">
+            <div id="gps-accuracy-card" style="background:rgba(0,0,0,0.55); padding:0.4rem 0.55rem; border-radius:8px; border:1px solid rgba(0,240,255,0.25); font-size:0.7rem; color:var(--text-muted); display:flex; flex-direction:column; gap:0.3rem; min-width:0; overflow:hidden;">
               <div style="display:flex; justify-content:space-between; align-items:center; gap:0.25rem; flex-wrap:wrap;">
                 <div style="display:flex; align-items:center; gap:0.25rem; min-width:0;">
                   <span id="gps-pulse-dot" class="gps-radar-pulse"></span>
@@ -5628,11 +5647,11 @@
       </div>
 
       <!-- Main Action Controls -->
-      <div style="display:grid; grid-template-columns: 1.4fr 1fr; gap:0.5rem; margin-bottom:0.75rem;">
-        <button type="button" id="btn-pit-toggle" class="btn btn-primary gps-nowrap" onclick="togglePitTracking()" style="padding:0.75rem 0.5rem; font-size:clamp(0.85rem, 3.5vw, 0.95rem); font-weight:800; justify-content:center; background:linear-gradient(135deg, #ff9100, #ff6b00); border:none; box-shadow:0 4px 15px rgba(255,145,0,0.4);">
+      <div class="gps-main-action-grid" style="display:grid; grid-template-columns: 1.4fr 1fr; gap:0.5rem; margin-bottom:0.75rem;">
+        <button type="button" id="btn-pit-toggle" class="btn btn-primary" onclick="togglePitTracking()" style="padding:0.75rem 0.5rem; font-size:clamp(0.85rem, 3.5vw, 0.95rem); font-weight:800; justify-content:center; background:linear-gradient(135deg, #ff9100, #ff6b00); border:none; box-shadow:0 4px 15px rgba(255,145,0,0.4);">
           <i data-lucide="play" id="pit-toggle-icon"></i> <span id="pit-toggle-text">피트 계측 시작</span>
         </button>
-        <button type="button" class="btn btn-secondary gps-nowrap" onclick="resetPitSession()" style="padding:0.75rem 0.5rem; font-size:0.85rem; justify-content:center;">
+        <button type="button" class="btn btn-secondary" onclick="resetPitSession()" style="padding:0.75rem 0.5rem; font-size:0.85rem; justify-content:center;">
           <i data-lucide="rotate-ccw"></i> 피트 초기화
         </button>
       </div>
