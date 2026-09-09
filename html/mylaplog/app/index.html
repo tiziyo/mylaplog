@@ -3639,7 +3639,7 @@
                 <button type="button" class="cat-chip" data-cat="서킷 공략" onclick="selectGuideCategory('서킷 공략')">🏁 서킷 공략</button>
                 <button type="button" class="cat-chip" data-cat="타이어/공기압" onclick="selectGuideCategory('타이어/공기압')">🛞 타이어/공기압</button>
                 <button type="button" class="cat-chip" data-cat="셋업 노하우" onclick="selectGuideCategory('셋업 노하우')">⚙️ 셋업 노하우</button>
-                <button type="button" class="cat-chip" data-cat="차량 튜닝" onclick="selectGuideCategory('차량 튜닝')">🏎️ 차량 튜닝</button>
+                <button type="button" class="cat-chip" data-cat="레이싱 철학" onclick="selectGuideCategory('레이싱 철학')">🧠 레이싱 철학</button>
                 <button type="button" class="cat-chip" data-cat="트랙데이 팁" onclick="selectGuideCategory('트랙데이 팁')">📋 트랙데이 팁</button>
               </div>
 
@@ -9818,6 +9818,7 @@
         let iconColor = 'var(--accent-cyan)';
         if (cat.includes('서킷')) { iconName = 'flag'; iconColor = 'var(--accent-red)'; }
         else if (cat.includes('타이어')) { iconName = 'disc'; iconColor = 'var(--accent-orange)'; }
+        else if (cat.includes('철학')) { iconName = 'compass'; iconColor = '#c084fc'; }
         else if (cat.includes('튜닝') || cat.includes('차량')) { iconName = 'car'; iconColor = 'var(--accent-green)'; }
 
         const dateStr = g.created_at ? g.created_at.substring(0, 10) : '';
