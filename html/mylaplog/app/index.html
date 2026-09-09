@@ -5392,7 +5392,7 @@
         <div id="gps-coords-heading-bar" class="gps-coords-heading-bar" style="background:rgba(0,0,0,0.52); padding:0.5rem 0.65rem; border-radius:9px; border:1px solid rgba(0,240,255,0.22); display:grid; grid-template-columns: 1fr 1fr; gap:0.5rem; align-items:center;">
           
           <!-- Left: Real-time Compass & Heading Indicator -->
-          <div style="display:flex; align-items:center; gap:0.45rem; min-width:0;">
+          <div style="display:flex; align-items:center; gap:0.5rem; min-width:0;">
             <!-- Compass Dial with Rotating Needle -->
             <div class="gps-compass-dial" title="진행 방향 나침반 (N: 북쪽 기준)">
               <span class="gps-compass-n-mark">N</span>
@@ -5402,28 +5402,20 @@
             </div>
 
             <!-- Heading Angle & 16-Wind Cardinal Text -->
-            <div style="min-width:0;">
-              <div class="gps-hud-label" style="font-size:0.62rem; color:var(--text-muted); display:flex; align-items:center; gap:0.2rem; margin:0;">
-                <i data-lucide="compass" style="width:10px; height:10px; color:var(--accent-cyan);"></i> <span>진행 방향</span>
-              </div>
-              <div style="display:flex; align-items:baseline; gap:0.3rem; margin-top:0.1rem; flex-wrap:wrap;">
-                <span id="gps-heading-deg" style="font-family:var(--font-mono); font-size:0.95rem; font-weight:900; color:#00f0ff; line-height:1;">--°</span>
-                <span id="gps-heading-cardinal" style="font-size:0.7rem; font-weight:700; color:#e2e8f0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">대기</span>
-              </div>
+            <div style="min-width:0; display:flex; align-items:baseline; gap:0.35rem; flex-wrap:wrap;">
+              <span id="gps-heading-deg" style="font-family:var(--font-mono); font-size:1.05rem; font-weight:900; color:#00f0ff; line-height:1;">--°</span>
+              <span id="gps-heading-cardinal" style="font-size:0.75rem; font-weight:700; color:#e2e8f0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">대기</span>
             </div>
           </div>
 
           <!-- Right: High-Precision Live Coordinates (Lat/Lon) -->
-          <div style="border-left:1px solid rgba(255,255,255,0.08); padding-left:0.5rem; min-width:0;">
-            <div class="gps-hud-label" style="font-size:0.62rem; color:var(--text-muted); display:flex; align-items:center; gap:0.2rem; margin:0;">
-              <i data-lucide="map-pin" style="width:10px; height:10px; color:var(--accent-green);"></i> <span>현재 좌표 (WGS84)</span>
-            </div>
-            <div style="font-family:var(--font-mono); font-size:0.7rem; color:#f0f4fc; margin-top:0.12rem; display:flex; flex-direction:column; gap:0.1rem;">
+          <div style="border-left:1px solid rgba(255,255,255,0.08); padding-left:0.5rem; min-width:0; display:flex; flex-direction:column; justify-content:center;">
+            <div style="font-family:var(--font-mono); font-size:0.72rem; color:#f0f4fc; display:flex; flex-direction:column; gap:0.15rem;">
               <div style="display:flex; justify-content:space-between; align-items:center; gap:0.2rem; white-space:nowrap;">
-                <span style="color:var(--text-muted); font-size:0.62rem;">LAT:</span> <strong id="gps-coord-lat" style="color:#00ff88; font-weight:800; font-size:0.7rem;">--.------°</strong>
+                <span style="color:var(--text-muted); font-size:0.65rem;">LAT:</span> <strong id="gps-coord-lat" style="color:#00ff88; font-weight:800; font-size:0.72rem;">--.------°</strong>
               </div>
               <div style="display:flex; justify-content:space-between; align-items:center; gap:0.2rem; white-space:nowrap;">
-                <span style="color:var(--text-muted); font-size:0.62rem;">LON:</span> <strong id="gps-coord-lon" style="color:#00f0ff; font-weight:800; font-size:0.7rem;">--.------°</strong>
+                <span style="color:var(--text-muted); font-size:0.65rem;">LON:</span> <strong id="gps-coord-lon" style="color:#00f0ff; font-weight:800; font-size:0.72rem;">--.------°</strong>
               </div>
             </div>
           </div>
