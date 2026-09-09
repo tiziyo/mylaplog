@@ -12071,6 +12071,8 @@
     let pitTargetRuleMode = 'total'; // 'total' | 'stationary' | 'none'
     let pitWarningAlertSec = 30;
     let pitImminentAlarmTriggered = false;
+    let simPitVirtualTotalMs = 0;
+    let simPitVirtualStatMs = 0;
 
     let pitState = 'WAITING'; // 'WAITING' -> 'TRANSIT' -> 'STATIONARY' -> 'RELEASE_READY' -> 'COMPLETED'
     let pitEntryTimestamp = null;
@@ -12522,20 +12524,25 @@
       pitExitTimestamp = timestamp;
       pitState = 'COMPLETED';
 
-      const totalPitMs = pitEntryTimestamp ? (timestamp - pitEntryTimestamp) : 0;
-      const statMs = pitStationaryDurationMs > 0 ? pitStationaryDurationMs : (pitStopTimestamp ? (timestamp - pitStopTimestamp) : 0);
+      let totalPitMs = pitEntryTimestamp ? (timestamp - pitEntryTimestamp) : 0;
+      let statMs = pitStationaryDurationMs > 0 ? pitStationaryDurationMs : (pitStopTimestamp ? (timestamp - pitStopTimestamp) : 0);
+
+      if (isPitSimulating) {
+        if (simPitVirtualTotalMs > 0) totalPitMs = simPitVirtualTotalMs;
+        if (simPitVirtualStatMs > 0) statMs = simPitVirtualStatMs;
+      }
 
       let deltaSec = 0;
       let isCompliant = true;
-      if (isPitSimulating) {
-        deltaSec = 0.5;
-        isCompliant = true;
-      } else if (pitTargetRuleMode === 'total' && pitTargetSec > 0) {
+      if (pitTargetRuleMode === 'total' && pitTargetSec > 0) {
         deltaSec = Math.round((totalPitMs / 1000 - pitTargetSec) * 10) / 10;
         isCompliant = deltaSec >= 0;
       } else if (pitTargetRuleMode === 'stationary' && pitTargetSec > 0) {
         deltaSec = Math.round((statMs / 1000 - pitTargetSec) * 10) / 10;
         isCompliant = deltaSec >= 0;
+      } else {
+        deltaSec = 0.0;
+        isCompliant = true;
       }
 
       const newStop = {
@@ -12571,11 +12578,16 @@
       let totalElapsedMs = 0;
       let currentStatMs = 0;
 
-      if (pitEntryTimestamp) {
-        totalElapsedMs = (pitExitTimestamp || now) - pitEntryTimestamp;
-      }
-      if (pitStopTimestamp) {
-        currentStatMs = (pitState === 'STATIONARY') ? (now - pitStopTimestamp) : pitStationaryDurationMs;
+      if (isPitSimulating) {
+        totalElapsedMs = simPitVirtualTotalMs;
+        currentStatMs = simPitVirtualStatMs;
+      } else {
+        if (pitEntryTimestamp) {
+          totalElapsedMs = (pitExitTimestamp || now) - pitEntryTimestamp;
+        }
+        if (pitStopTimestamp) {
+          currentStatMs = (pitState === 'STATIONARY') ? (now - pitStopTimestamp) : pitStationaryDurationMs;
+        }
       }
 
       if (totalElapsedEl) totalElapsedEl.innerText = msToLapStr(totalElapsedMs);
@@ -12596,7 +12608,7 @@
         mainDigit.style.color = '#fff';
         mainDigit.style.textShadow = '0 0 20px rgba(255,255,255,0.3)';
       } else if (pitState === 'TRANSIT') {
-        if (!isPitSimulating && pitTargetRuleMode === 'total' && pitTargetSec > 0) {
+        if (pitTargetRuleMode === 'total' && pitTargetSec > 0) {
           const remainMs = Math.max(0, (pitTargetSec * 1000) - totalElapsedMs);
           const remainSec = Math.ceil(remainMs / 1000);
           const isImminent = (pitWarningAlertSec > 0 && remainSec <= pitWarningAlertSec && remainSec > 0);
@@ -12662,91 +12674,105 @@
         let targetMs = 0;
         let elapsedMs = 0;
 
-        if (isPitSimulating) {
-          targetMs = pitSimTargetSec * 1000;
-          elapsedMs = currentStatMs;
-        } else if (pitTargetRuleMode === 'stationary') {
+        if (pitTargetRuleMode === 'stationary' && pitTargetSec > 0) {
           targetMs = pitTargetSec * 1000;
           elapsedMs = currentStatMs;
-        } else if (pitTargetRuleMode === 'total') {
+        } else if (pitTargetRuleMode === 'total' && pitTargetSec > 0) {
           targetMs = pitTargetSec * 1000;
           elapsedMs = totalElapsedMs;
+        } else {
+          targetMs = 0;
+          elapsedMs = currentStatMs;
         }
 
-        const remainMs = Math.max(0, targetMs - elapsedMs);
-        const remainSec = Math.ceil(remainMs / 1000);
-
-        if (remainMs <= 0) {
-          // Ready to Release!
-          pitState = 'RELEASE_READY';
-          updatePitStagePills(4);
-          if (hud) {
-            hud.classList.remove('imminent-alarm');
-            hud.classList.add('release-ready');
-          }
-          const immBanner = document.getElementById('pit-imminent-banner');
-          if (immBanner) immBanner.style.display = 'none';
-
-          playPitAudio('release');
+        if (pitTargetRuleMode === 'none') {
+          // Free measurement mode
+          if (mainLabel) mainLabel.innerText = 'STATIONARY WORK TIME';
           if (mainBadge) {
-            mainBadge.innerText = '🟢 출발 릴리즈 (RELEASE GO!)';
-            mainBadge.style.background = 'rgba(0,255,136,0.3)';
-            mainBadge.style.color = '#00ff88';
-            mainBadge.style.borderColor = 'rgba(0,255,136,0.6)';
+            mainBadge.innerText = '🛑 피트 작업중 (자유 계측)';
+            mainBadge.style.background = 'rgba(255,145,0,0.2)';
+            mainBadge.style.color = 'var(--accent-orange)';
+            mainBadge.style.borderColor = 'rgba(255,145,0,0.3)';
           }
-          if (mainLabel) mainLabel.innerText = 'RELEASE READY (출발 가능)';
-          mainDigit.innerText = '00:00.00';
-          mainDigit.style.color = '#00ff88';
-          mainDigit.style.textShadow = '0 0 25px rgba(0,255,136,0.9)';
+          mainDigit.innerText = msToLapStr(currentStatMs);
+          mainDigit.style.color = '#fff';
+          mainDigit.style.textShadow = '0 0 20px rgba(255,255,255,0.3)';
         } else {
-          // Imminent pre-warning alert check & HUD visual alert
-          const isImminent = (pitWarningAlertSec > 0 && remainSec <= pitWarningAlertSec);
-          if (isImminent && remainSec > 3 && !pitImminentAlarmTriggered) {
-            pitImminentAlarmTriggered = true;
-            playPitAudio('imminent');
-          }
+          const remainMs = Math.max(0, targetMs - elapsedMs);
+          const remainSec = Math.ceil(remainMs / 1000);
 
-          if (isImminent) {
-            if (hud && !hud.classList.contains('overspeed-alarm')) hud.classList.add('imminent-alarm');
-            const immBanner = document.getElementById('pit-imminent-banner');
-            const immSecSpan = document.getElementById('pit-imminent-banner-sec');
-            if (immBanner) immBanner.style.display = 'block';
-            if (immSecSpan) immSecSpan.innerText = remainSec;
-            if (mainDigit) {
-              mainDigit.style.color = '#ffb703';
-              mainDigit.style.textShadow = '0 0 25px rgba(255, 183, 3, 0.9)';
+          if (remainMs <= 0) {
+            // Ready to Release!
+            pitState = 'RELEASE_READY';
+            updatePitStagePills(4);
+            if (hud) {
+              hud.classList.remove('imminent-alarm');
+              hud.classList.add('release-ready');
             }
-          } else {
-            if (hud) hud.classList.remove('imminent-alarm');
             const immBanner = document.getElementById('pit-imminent-banner');
             if (immBanner) immBanner.style.display = 'none';
-            if (mainDigit && pitState !== 'RELEASE_READY') {
-              mainDigit.style.color = '#fff';
-              mainDigit.style.textShadow = '0 0 20px rgba(255,255,255,0.3)';
+
+            playPitAudio('release');
+            if (mainBadge) {
+              mainBadge.innerText = '🟢 출발 릴리즈 (RELEASE GO!)';
+              mainBadge.style.background = 'rgba(0,255,136,0.3)';
+              mainBadge.style.color = '#00ff88';
+              mainBadge.style.borderColor = 'rgba(0,255,136,0.6)';
             }
-          }
+            if (mainLabel) mainLabel.innerText = 'RELEASE READY (출발 가능)';
+            mainDigit.innerText = '00:00.00';
+            mainDigit.style.color = '#00ff88';
+            mainDigit.style.textShadow = '0 0 25px rgba(0,255,136,0.9)';
+          } else {
+            // Imminent pre-warning alert check & HUD visual alert
+            const isImminent = (pitWarningAlertSec > 0 && remainSec <= pitWarningAlertSec);
+            if (isImminent && remainSec > 3 && !pitImminentAlarmTriggered) {
+              pitImminentAlarmTriggered = true;
+              playPitAudio('imminent');
+            }
 
-          // Audible 3-2-1 countdown ticks
-          if (remainSec <= 3 && remainSec > 0 && remainSec !== pitLastBeepSec) {
-            pitLastBeepSec = remainSec;
-            playPitAudio('countdown');
-          }
-
-          if (mainLabel) mainLabel.innerText = `COUNTDOWN TO GO (${remainSec}s)`;
-          if (mainBadge) {
             if (isImminent) {
-              mainBadge.innerText = `⚠️ 출발 준비 임박 (${remainSec}s 남음)`;
-              mainBadge.style.background = 'rgba(255,145,0,0.35)';
-              mainBadge.style.color = '#ff9100';
-              mainBadge.style.borderColor = 'rgba(255,145,0,0.6)';
+              if (hud && !hud.classList.contains('overspeed-alarm')) hud.classList.add('imminent-alarm');
+              const immBanner = document.getElementById('pit-imminent-banner');
+              const immSecSpan = document.getElementById('pit-imminent-banner-sec');
+              if (immBanner) immBanner.style.display = 'block';
+              if (immSecSpan) immSecSpan.innerText = remainSec;
+              if (mainDigit) {
+                mainDigit.style.color = '#ffb703';
+                mainDigit.style.textShadow = '0 0 25px rgba(255, 183, 3, 0.9)';
+              }
             } else {
-              mainBadge.innerText = `🛑 박스 정차중 (${remainSec}s 남음)`;
-              mainBadge.style.background = (remainSec <= 5) ? 'rgba(255,42,75,0.25)' : 'rgba(255,145,0,0.2)';
-              mainBadge.style.color = (remainSec <= 5) ? '#ff2a4b' : 'var(--accent-orange)';
-              mainBadge.style.borderColor = 'rgba(255,145,0,0.3)';
+              if (hud) hud.classList.remove('imminent-alarm');
+              const immBanner = document.getElementById('pit-imminent-banner');
+              if (immBanner) immBanner.style.display = 'none';
+              if (mainDigit && pitState !== 'RELEASE_READY') {
+                mainDigit.style.color = '#fff';
+                mainDigit.style.textShadow = '0 0 20px rgba(255,255,255,0.3)';
+              }
             }
+
+            // Audible 3-2-1 countdown ticks
+            if (remainSec <= 3 && remainSec > 0 && remainSec !== pitLastBeepSec) {
+              pitLastBeepSec = remainSec;
+              playPitAudio('countdown');
+            }
+
+            if (mainLabel) mainLabel.innerText = `COUNTDOWN TO GO (${remainSec}s)`;
+            if (mainBadge) {
+              if (isImminent) {
+                mainBadge.innerText = `⚠️ 출발 준비 임박 (${remainSec}s 남음)`;
+                mainBadge.style.background = 'rgba(255,145,0,0.35)';
+                mainBadge.style.color = '#ff9100';
+                mainBadge.style.borderColor = 'rgba(255,145,0,0.6)';
+              } else {
+                mainBadge.innerText = `🛑 박스 정차중 (${remainSec}s 남음)`;
+                mainBadge.style.background = (remainSec <= 5) ? 'rgba(255,42,75,0.25)' : 'rgba(255,145,0,0.2)';
+                mainBadge.style.color = (remainSec <= 5) ? '#ff2a4b' : 'var(--accent-orange)';
+                mainBadge.style.borderColor = 'rgba(255,145,0,0.3)';
+              }
+            }
+            mainDigit.innerText = msToLapStr(remainMs);
           }
-          mainDigit.innerText = msToLapStr(remainMs);
         }
       } else if (pitState === 'RELEASE_READY') {
         const immBanner = document.getElementById('pit-imminent-banner');
@@ -12868,8 +12894,21 @@
       }
 
       isPitSimulating = true;
-      const alertSec = (pitWarningAlertSec > 0) ? pitWarningAlertSec : 30;
-      pitSimTargetSec = Math.max(14, alertSec + 4);
+      simPitVirtualTotalMs = 0;
+      simPitVirtualStatMs = 0;
+
+      // Read current active target and warning settings
+      const targetSec = pitTargetSec;
+      const ruleMode = pitTargetRuleMode;
+      const alertSec = pitWarningAlertSec;
+
+      let ruleDesc = '규정없음 (자유)';
+      if (ruleMode === 'total') {
+        ruleDesc = targetSec >= 60 ? `총 피트 ${(targetSec / 60).toFixed(0)}분` : `총 피트 ${targetSec}s`;
+      } else if (ruleMode === 'stationary') {
+        ruleDesc = `정차 ${targetSec}s`;
+      }
+      const alertDesc = alertSec > 0 ? `${alertSec}초 전 임박알람` : '알람 OFF';
 
       if (!isPitTracking) startPitTracking();
 
@@ -12886,80 +12925,189 @@
       updatePitStagePills(1);
       updatePitHudUI();
 
-      showToast('🛑 [피트스탑 시뮬레이션] 1단계: 진입 대기 상태 (곧 피트 진입선을 통과합니다)');
+      showToast(`🛑 [가상 피트스탑 체험] ${ruleDesc} / ${alertDesc} 시나리오를 시작합니다!`);
 
-      let simPhase = 'waiting'; // 'waiting' -> 'entry' -> 'transit1' -> 'stopping' -> 'stationary' -> 'launch' -> 'transit2' -> 'exit'
+      let simPhase = 'waiting'; // 'waiting' -> 'entry' -> 'transit1' -> 'stopping' -> 'stationary' -> 'launch' -> 'transit2' -> 'exit' -> 'finish'
       let phaseStart = Date.now();
+
+      // Calculation of scenario milestones
+      let boxEntryTotalSec = 0;
+      let alarmAtSec = 0;
+
+      if (ruleMode === 'total' && targetSec > 0) {
+        alarmAtSec = (alertSec > 0 && targetSec > alertSec) ? (targetSec - alertSec) : Math.max(0, targetSec - 10);
+        boxEntryTotalSec = Math.max(0, alarmAtSec - 6);
+      } else if (ruleMode === 'stationary' && targetSec > 0) {
+        alarmAtSec = (alertSec > 0 && targetSec > alertSec) ? (targetSec - alertSec) : Math.max(0, targetSec - 10);
+        boxEntryTotalSec = 15; // transit before stop
+      } else {
+        alarmAtSec = 0;
+        boxEntryTotalSec = 10;
+      }
 
       pitSimInterval = setInterval(() => {
         const now = Date.now();
         const elapsed = now - phaseStart;
-
         let simSpeed = 0;
 
         if (simPhase === 'waiting') {
-          // Approaching pit entry line (95 -> 60 km/h)
-          simSpeed = 95.0 - Math.min(1, elapsed / 2800) * 35.0;
-          if (elapsed >= 2800) {
+          // 1. Approaching pit entry line (95 -> 60 km/h in 2.5s)
+          simSpeed = 95.0 - Math.min(1, elapsed / 2500) * 35.0;
+          simPitVirtualTotalMs = 0;
+          simPitVirtualStatMs = 0;
+
+          if (elapsed >= 2500) {
             simPhase = 'entry';
             phaseStart = Date.now();
             triggerPitEntry(Date.now());
           }
         } else if (simPhase === 'entry') {
-          // Decelerating safely into pit lane (60 -> 55 km/h)
+          // 2. Passing pit entry line into pit lane (60 -> 55 km/h in 1.2s)
           simSpeed = 60.0 - Math.min(1, elapsed / 1200) * 5.0;
+          simPitVirtualTotalMs = (elapsed / 1200) * 2000;
+          simPitVirtualStatMs = 0;
+
           if (elapsed >= 1200) {
             simPhase = 'transit1';
             phaseStart = Date.now();
           }
         } else if (simPhase === 'transit1') {
-          // Driving in pit lane at ~55 km/h
-          simSpeed = 55.0 + Math.sin(elapsed / 300) * 1.5;
+          // 3. Driving along pit lane to pit box (2.5s real time)
+          simSpeed = 55.0 + Math.sin(elapsed / 300) * 1.2;
+          const transitProgress = Math.min(1, elapsed / 2500);
+
+          if (ruleMode === 'total' && targetSec > 0) {
+            simPitVirtualTotalMs = (2000 + transitProgress * (boxEntryTotalSec * 1000 - 3000));
+          } else {
+            simPitVirtualTotalMs = (2000 + transitProgress * 8000);
+          }
+          simPitVirtualStatMs = 0;
+
           if (elapsed >= 2500) {
             simPhase = 'stopping';
             phaseStart = Date.now();
           }
         } else if (simPhase === 'stopping') {
-          // Braking into pit box (55 -> 0 km/h)
-          simSpeed = Math.max(0, 55.0 - (elapsed / 1200) * 55.0);
-          if (simSpeed <= 1.0) {
+          // 4. Decelerating into pit box (55 -> 0 km/h in 1.3s)
+          const brakeProgress = Math.min(1, elapsed / 1300);
+          simSpeed = Math.max(0, 55.0 * (1 - brakeProgress));
+
+          if (ruleMode === 'total' && targetSec > 0) {
+            simPitVirtualTotalMs = (boxEntryTotalSec * 1000 - 1000) + (brakeProgress * 1000);
+          } else {
+            simPitVirtualTotalMs = 10000 + (brakeProgress * 1500);
+          }
+          simPitVirtualStatMs = 0;
+
+          if (brakeProgress >= 1.0) {
             simSpeed = 0.0;
             simPhase = 'stationary';
             phaseStart = Date.now();
             triggerPitStop(Date.now());
-            showToast(`🛑 [박스 정차] 카운트다운 시작 (${alertSec}초 전 임박 알람 작동)`);
           }
         } else if (simPhase === 'stationary') {
-          // Car stationary in box for pitSimTargetSec countdown
+          // 5. Stationary in Pit Box: Scenario-tailored countdown (7.0s total real duration)
+          // 0.0s ~ 1.5s: Progress to imminent alarm trigger
+          // 1.5s: Imminent alarm fires! (warning banner + pulse + audio)
+          // 1.5s ~ 5.5s (4s): Countdown through 3-2-1 tick to targetSec
+          // 5.5s: 🟢 RELEASE GO!
+          // 5.5s ~ 7.0s (1.5s): Reaction time before driver launch
           simSpeed = 0.0;
-          if (elapsed >= (pitSimTargetSec * 1000) + 1200) {
+          const statRealDurationMs = 7000;
+
+          if (ruleMode === 'total' && targetSec > 0) {
+            if (elapsed < 1500) {
+              // Heading to alarm point
+              const p = elapsed / 1500;
+              simPitVirtualTotalMs = (boxEntryTotalSec * 1000) + p * ((alarmAtSec - boxEntryTotalSec) * 1000);
+              simPitVirtualStatMs = p * 6000;
+            } else if (elapsed < 5500) {
+              // Counting down from alarm point to exact targetSec
+              const p = (elapsed - 1500) / 4000;
+              simPitVirtualTotalMs = (alarmAtSec * 1000) + p * ((targetSec - alarmAtSec) * 1000);
+              simPitVirtualStatMs = 6000 + p * 24000;
+            } else {
+              // Released!
+              const p = (elapsed - 5500) / 1500;
+              simPitVirtualTotalMs = (targetSec * 1000) + p * 500;
+              simPitVirtualStatMs = 30000 + p * 500;
+            }
+          } else if (ruleMode === 'stationary' && targetSec > 0) {
+            if (elapsed < 1500) {
+              const p = elapsed / 1500;
+              simPitVirtualStatMs = p * (alarmAtSec * 1000);
+              simPitVirtualTotalMs = (boxEntryTotalSec * 1000) + simPitVirtualStatMs;
+            } else if (elapsed < 5500) {
+              const p = (elapsed - 1500) / 4000;
+              simPitVirtualStatMs = (alarmAtSec * 1000) + p * ((targetSec - alarmAtSec) * 1000);
+              simPitVirtualTotalMs = (boxEntryTotalSec * 1000) + simPitVirtualStatMs;
+            } else {
+              const p = (elapsed - 5500) / 1500;
+              simPitVirtualStatMs = (targetSec * 1000) + p * 500;
+              simPitVirtualTotalMs = (boxEntryTotalSec * 1000) + simPitVirtualStatMs;
+            }
+          } else {
+            // None (자유 모드): 5초 작업 후 릴리즈
+            const p = Math.min(1, elapsed / 5000);
+            simPitVirtualStatMs = p * 15000;
+            simPitVirtualTotalMs = 12000 + simPitVirtualStatMs;
+            if (elapsed >= 5000 && pitState !== 'RELEASE_READY') {
+              pitState = 'RELEASE_READY';
+              updatePitStagePills(4);
+              playPitAudio('release');
+            }
+          }
+
+          if (elapsed >= statRealDurationMs) {
             simPhase = 'launch';
             phaseStart = Date.now();
             triggerPitLaunch(Date.now());
           }
         } else if (simPhase === 'launch') {
-          // Accelerating out of box (0 -> 58 km/h)
-          simSpeed = Math.min(58.0, (elapsed / 1500) * 58.0);
-          if (elapsed >= 1500) {
+          // 6. Accelerating out of box (0 -> 58 km/h in 1.4s)
+          const launchProgress = Math.min(1, elapsed / 1400);
+          simSpeed = launchProgress * 58.0;
+
+          if (ruleMode === 'total' && targetSec > 0) {
+            simPitVirtualTotalMs = (targetSec * 1000) + 500 + launchProgress * 600;
+          } else if (ruleMode === 'stationary' && targetSec > 0) {
+            simPitVirtualTotalMs = (boxEntryTotalSec * 1000) + (targetSec * 1000) + 500 + launchProgress * 600;
+          } else {
+            simPitVirtualTotalMs = 27000 + launchProgress * 600;
+          }
+
+          if (elapsed >= 1400) {
             simPhase = 'transit2';
             phaseStart = Date.now();
           }
         } else if (simPhase === 'transit2') {
-          // Cruising towards pit exit line at 58 km/h
-          simSpeed = 58.0 + Math.sin(elapsed / 250) * 1.5;
-          if (elapsed >= 2000) {
+          // 7. Cruising towards pit exit line at 58 km/h (1.5s)
+          simSpeed = 58.0 + Math.sin(elapsed / 250) * 1.0;
+          const exitTransitProgress = Math.min(1, elapsed / 1500);
+
+          if (ruleMode === 'total' && targetSec > 0) {
+            simPitVirtualTotalMs = (targetSec * 1000) + 1100 + exitTransitProgress * 400; // Final: +1.5s
+          } else if (ruleMode === 'stationary' && targetSec > 0) {
+            simPitVirtualTotalMs = (boxEntryTotalSec * 1000) + (targetSec * 1000) + 1100 + exitTransitProgress * 400;
+          } else {
+            simPitVirtualTotalMs = 27600 + exitTransitProgress * 400;
+          }
+
+          if (elapsed >= 1500) {
             simPhase = 'exit';
             phaseStart = Date.now();
             triggerPitExit(Date.now());
           }
         } else if (simPhase === 'exit') {
-          // Accelerating back on track (58 -> 135 km/h)
-          simSpeed = 58.0 + Math.min(77.0, (elapsed / 2000) * 77.0);
-          if (elapsed >= 2200) {
+          // 8. Accelerating back onto circuit (58 -> 135 km/h in 2.0s)
+          const fullGasProgress = Math.min(1, elapsed / 2000);
+          simSpeed = 58.0 + fullGasProgress * 77.0;
+
+          if (elapsed >= 2000) {
             clearInterval(pitSimInterval);
             pitSimInterval = null;
             isPitSimulating = false;
-            showToast('🏁 가상 피트스탑 시뮬레이션 완료!');
+            showToast('🏁 가상 피트스탑 체험 시나리오가 성공적으로 완료되었습니다!');
           }
         }
 
