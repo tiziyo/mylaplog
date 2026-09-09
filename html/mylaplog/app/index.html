@@ -91,6 +91,43 @@
       z-index: 0;
     }
 
+    /* Google Translate Integration & Layout Shift Prevention */
+    .goog-te-banner-frame.skiptranslate,
+    .goog-te-banner-frame,
+    iframe.goog-te-banner-frame,
+    iframe.skiptranslate {
+      display: none !important;
+      visibility: hidden !important;
+      height: 0 !important;
+      width: 0 !important;
+      border: none !important;
+      margin: 0 !important;
+      padding: 0 !important;
+    }
+    body {
+      top: 0px !important;
+      position: static !important;
+    }
+    #google_translate_element {
+      display: none !important;
+      visibility: hidden !important;
+      width: 0 !important;
+      height: 0 !important;
+    }
+    .skiptranslate:not(.goog-te-combo) {
+      display: none !important;
+    }
+    .goog-tooltip, .goog-tooltip:hover {
+      display: none !important;
+    }
+    .goog-text-highlight {
+      background-color: transparent !important;
+      box-shadow: none !important;
+    }
+    .notranslate {
+      -webkit-font-smoothing: antialiased;
+    }
+
     /* Layout: Sidebar + Main Content Area */
     .app-layout {
       display: flex;
@@ -5428,7 +5465,7 @@
       </div>
 
       <!-- Toolbar: Circuit, Speed Limit, Target Rule & Imminent Alert Config -->
-      <div class="pit-toolbar-grid" style="background: rgba(16,21,33,0.85); padding: 0.65rem 0.75rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.08); margin-bottom: 0.75rem; display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 0.55rem 0.65rem; align-items: end;">
+      <div class="pit-toolbar-grid" style="background: rgba(16,21,33,0.85); padding: 0.65rem 0.75rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.08); margin-bottom: 0.75rem; display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 0.55rem 0.65rem; align-items: end;">
         
         <!-- 1. 서킷 선택 -->
         <div style="display: flex; flex-direction: column; gap: 0.25rem; min-width: 0;">
