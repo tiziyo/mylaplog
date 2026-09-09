@@ -2898,6 +2898,11 @@
         box-shadow: inset 0 0 35px rgba(255, 42, 75, 0.6), 0 0 25px rgba(255, 42, 75, 0.5) !important;
         animation: pit-alarm-pulse 0.4s infinite alternate;
       }
+      .pit-vbox-hud.imminent-alarm, .pit-hud.imminent-alarm {
+        border-color: #ff9100 !important;
+        box-shadow: inset 0 0 35px rgba(255, 145, 0, 0.6), 0 0 25px rgba(255, 145, 0, 0.5) !important;
+        animation: pit-imminent-pulse 0.6s infinite alternate;
+      }
       .pit-vbox-hud.release-ready, .pit-hud.release-ready {
         border-color: #00ff88 !important;
         box-shadow: inset 0 0 35px rgba(0, 255, 136, 0.4), 0 0 25px rgba(0, 255, 136, 0.4) !important;
@@ -2905,6 +2910,10 @@
       @keyframes pit-alarm-pulse {
         0% { background: radial-gradient(circle at 50% 30%, rgba(60, 10, 20, 0.95), #06070a); }
         100% { background: radial-gradient(circle at 50% 30%, rgba(120, 15, 30, 0.95), #1a0508); }
+      }
+      @keyframes pit-imminent-pulse {
+        0% { background: radial-gradient(circle at 50% 30%, rgba(65, 35, 5, 0.95), #06070a); }
+        100% { background: radial-gradient(circle at 50% 30%, rgba(125, 68, 10, 0.95), #1a0e02); }
       }
       .pit-stage-pills {
         display: flex;
@@ -5412,7 +5421,6 @@
             <option value="60" selected>60 km/h</option>
             <option value="50">50 km/h</option>
             <option value="40">40 km/h</option>
-            <option value="80">80 km/h</option>
           </select>
         </div>
 
@@ -5421,7 +5429,6 @@
           <select id="pit-target-rule-select" class="form-control compact-input" style="font-size:0.78rem; padding:0.3rem 0.4rem; height:auto; background:rgba(0,0,0,0.6); width:100px;" onchange="onPitTargetRuleChange()">
             <option value="300" selected>총 피트 5분</option>
             <option value="60">총 피트 60s</option>
-            <option value="75">총 피트 75s</option>
             <option value="45">정차 45s</option>
             <option value="30">정차 30s</option>
             <option value="0">자유 (규정없음)</option>
@@ -5430,12 +5437,11 @@
 
         <div style="display:flex; align-items:center; gap:0.35rem;">
           <label style="font-size:0.72rem; color:var(--text-muted); margin:0; white-space:nowrap;"><i data-lucide="bell-ring" style="width:11px; height:11px; color:var(--accent-orange);"></i> 임박알람:</label>
-          <select id="pit-warning-alert-select" class="form-control compact-input" style="font-size:0.78rem; padding:0.3rem 0.4rem; height:auto; background:rgba(0,0,0,0.6); width:90px;" onchange="onPitWarningAlertChange()" title="설정한 잔여 시간 도달 시 준비 알람 차임 발생">
-            <option value="10" selected>10초 전</option>
-            <option value="5">5초 전</option>
-            <option value="15">15초 전</option>
+          <select id="pit-warning-alert-select" class="form-control compact-input" style="font-size:0.78rem; padding:0.3rem 0.4rem; height:auto; background:rgba(0,0,0,0.6); width:90px;" onchange="onPitWarningAlertChange()" title="설정한 잔여 시간 도달 시 준비 알람 차임 및 시각 경고 발생">
+            <option value="50">50초 전</option>
+            <option value="40">40초 전</option>
+            <option value="30" selected>30초 전</option>
             <option value="20">20초 전</option>
-            <option value="30">30초 전</option>
             <option value="0">사용 안 함</option>
           </select>
         </div>
@@ -5456,6 +5462,11 @@
         <!-- Over-speed Warning Banner (Hidden by default, flashes red when speed > limit) -->
         <div id="pit-overspeed-banner" style="display:none; background:#ff2a4b; color:#fff; text-align:center; font-weight:900; font-size:0.9rem; padding:0.3rem; border-radius:6px; margin-bottom:0.6rem; animation:radar-ping 0.6s infinite alternate;">
           🚨 PIT SPEED LIMIT EXCEEDED! (과속 경고 - 감속하세요!)
+        </div>
+
+        <!-- Imminent Alert Warning Banner (Hidden by default, flashes bright amber when countdown is imminent) -->
+        <div id="pit-imminent-banner" style="display:none; background:linear-gradient(90deg, #ff9100, #ff6b00); color:#000; text-align:center; font-weight:900; font-size:0.92rem; padding:0.35rem 0.5rem; border-radius:6px; margin-bottom:0.6rem; letter-spacing:0.5px; animation:radar-ping 0.8s infinite alternate; box-shadow:0 0 18px rgba(255,145,0,0.65);">
+          ⚠️ [출발 준비 임박] 잔여 <span id="pit-imminent-banner-sec">30</span>초 - 드라이버 출발 준비!
         </div>
 
         <!-- Speedometer & Pit Speed Supervision Bar -->
@@ -12053,12 +12064,12 @@
     let pitTimerInterval = null;
     let pitSimInterval = null;
     let isPitSimulating = false;
-    let pitSimTargetSec = 14;
+    let pitSimTargetSec = 34;
     let pitCurrentTrackId = 1;
     let pitSpeedLimitKmh = 60;
     let pitTargetSec = 300;
     let pitTargetRuleMode = 'total'; // 'total' | 'stationary' | 'none'
-    let pitWarningAlertSec = 10;
+    let pitWarningAlertSec = 30;
     let pitImminentAlarmTriggered = false;
 
     let pitState = 'WAITING'; // 'WAITING' -> 'TRANSIT' -> 'STATIONARY' -> 'RELEASE_READY' -> 'COMPLETED'
@@ -12089,7 +12100,7 @@
       onPitTargetRuleChange();
       const alertSel = document.getElementById('pit-warning-alert-select');
       if (alertSel && !alertSel.value) {
-        alertSel.value = '10';
+        alertSel.value = '30';
       }
       onPitWarningAlertChange();
       updatePitHudUI();
@@ -12304,10 +12315,17 @@
 
       const hud = document.getElementById('pit-vbox-hud');
       if (hud) {
-        hud.classList.remove('overspeed-alarm', 'release-ready');
+        hud.classList.remove('overspeed-alarm', 'release-ready', 'imminent-alarm');
       }
       const banner = document.getElementById('pit-overspeed-banner');
       if (banner) banner.style.display = 'none';
+      const immBanner = document.getElementById('pit-imminent-banner');
+      if (immBanner) immBanner.style.display = 'none';
+      const mainDigit = document.getElementById('pit-main-timer-digit');
+      if (mainDigit) {
+        mainDigit.style.color = '#fff';
+        mainDigit.style.textShadow = '0 0 20px rgba(255,255,255,0.3)';
+      }
 
       updatePitStagePills(1);
       updatePitHudUI();
@@ -12364,22 +12382,19 @@
           osc.connect(gain); gain.connect(ctx.destination);
           osc.start(now); osc.stop(now + 0.2);
         } else if (type === 'imminent') {
-          // Imminent pre-warning 2-tone pleasant alert
-          const osc1 = ctx.createOscillator();
-          const gain1 = ctx.createGain();
-          osc1.frequency.setValueAtTime(987.77, now); // B5
-          gain1.gain.setValueAtTime(0.32, now);
-          gain1.gain.exponentialRampToValueAtTime(0.01, now + 0.14);
-          osc1.connect(gain1); gain1.connect(ctx.destination);
-          osc1.start(now); osc1.stop(now + 0.14);
-
-          const osc2 = ctx.createOscillator();
-          const gain2 = ctx.createGain();
-          osc2.frequency.setValueAtTime(1318.51, now + 0.16); // E6
-          gain2.gain.setValueAtTime(0.35, now + 0.16);
-          gain2.gain.exponentialRampToValueAtTime(0.01, now + 0.35);
-          osc2.connect(gain2); gain2.connect(ctx.destination);
-          osc2.start(now + 0.16); osc2.stop(now + 0.35);
+          // Imminent pre-warning energetic multi-harmonic alert with vibration
+          if (navigator.vibrate) {
+            try { navigator.vibrate([300, 100, 300]); } catch(e){}
+          }
+          [740, 932, 1174, 1480].forEach((freq, idx) => {
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.frequency.setValueAtTime(freq, now + idx * 0.08);
+            gain.gain.setValueAtTime(0.42, now + idx * 0.08);
+            gain.gain.exponentialRampToValueAtTime(0.01, now + idx * 0.08 + 0.22);
+            osc.connect(gain); gain.connect(ctx.destination);
+            osc.start(now + idx * 0.08); osc.stop(now + idx * 0.08 + 0.22);
+          });
         } else if (type === 'countdown') {
           // Crisp 3-2-1 tick
           const osc = ctx.createOscillator();
@@ -12567,6 +12582,10 @@
       if (statTimeEl) statTimeEl.innerText = msToLapStr(currentStatMs);
 
       if (pitState === 'WAITING') {
+        const immBanner = document.getElementById('pit-imminent-banner');
+        if (immBanner) immBanner.style.display = 'none';
+        if (hud) hud.classList.remove('imminent-alarm', 'release-ready');
+
         if (mainLabel) mainLabel.innerText = 'TIME TO GO (남은 시간)';
         if (mainBadge) {
           mainBadge.innerText = '피트 진입 대기';
@@ -12574,7 +12593,13 @@
           mainBadge.style.color = 'var(--accent-orange)';
         }
         mainDigit.innerText = '00:00.00';
+        mainDigit.style.color = '#fff';
+        mainDigit.style.textShadow = '0 0 20px rgba(255,255,255,0.3)';
       } else if (pitState === 'TRANSIT') {
+        const immBanner = document.getElementById('pit-imminent-banner');
+        if (immBanner) immBanner.style.display = 'none';
+        if (hud) hud.classList.remove('imminent-alarm', 'release-ready');
+
         if (!isPitSimulating && pitTargetRuleMode === 'total' && pitTargetSec > 0) {
           const remainMs = Math.max(0, (pitTargetSec * 1000) - totalElapsedMs);
           const remainSec = Math.ceil(remainMs / 1000);
@@ -12589,12 +12614,14 @@
           if (mainBadge) {
             if (pitWarningAlertSec > 0 && remainSec <= pitWarningAlertSec && remainSec > 0) {
               mainBadge.innerText = `⚠️ 출발 준비 임박 (${remainSec}s 남음)`;
-              mainBadge.style.background = 'rgba(255,145,0,0.28)';
-              mainBadge.style.color = 'var(--accent-orange)';
+              mainBadge.style.background = 'rgba(255,145,0,0.35)';
+              mainBadge.style.color = '#ff9100';
+              mainBadge.style.borderColor = 'rgba(255,145,0,0.6)';
             } else {
               mainBadge.innerText = '피트레인 주행중';
               mainBadge.style.background = 'rgba(255,145,0,0.18)';
               mainBadge.style.color = 'var(--accent-orange)';
+              mainBadge.style.borderColor = 'rgba(255,145,0,0.3)';
             }
           }
           mainDigit.innerText = msToLapStr(remainMs);
@@ -12604,6 +12631,7 @@
             mainBadge.innerText = '피트레인 주행중';
             mainBadge.style.background = 'rgba(255,145,0,0.18)';
             mainBadge.style.color = 'var(--accent-orange)';
+            mainBadge.style.borderColor = 'rgba(255,145,0,0.3)';
           }
           mainDigit.innerText = msToLapStr(totalElapsedMs);
         }
@@ -12629,21 +12657,50 @@
           // Ready to Release!
           pitState = 'RELEASE_READY';
           updatePitStagePills(4);
-          if (hud) hud.classList.add('release-ready');
+          if (hud) {
+            hud.classList.remove('imminent-alarm');
+            hud.classList.add('release-ready');
+          }
+          const immBanner = document.getElementById('pit-imminent-banner');
+          if (immBanner) immBanner.style.display = 'none';
+
           playPitAudio('release');
           if (mainBadge) {
             mainBadge.innerText = '🟢 출발 릴리즈 (RELEASE GO!)';
             mainBadge.style.background = 'rgba(0,255,136,0.3)';
             mainBadge.style.color = '#00ff88';
+            mainBadge.style.borderColor = 'rgba(0,255,136,0.6)';
           }
           if (mainLabel) mainLabel.innerText = 'RELEASE READY (출발 가능)';
           mainDigit.innerText = '00:00.00';
           mainDigit.style.color = '#00ff88';
+          mainDigit.style.textShadow = '0 0 25px rgba(0,255,136,0.9)';
         } else {
-          // Imminent pre-warning alert check
-          if (pitWarningAlertSec > 0 && remainSec <= pitWarningAlertSec && remainSec > 3 && !pitImminentAlarmTriggered) {
+          // Imminent pre-warning alert check & HUD visual alert
+          const isImminent = (pitWarningAlertSec > 0 && remainSec <= pitWarningAlertSec);
+          if (isImminent && remainSec > 3 && !pitImminentAlarmTriggered) {
             pitImminentAlarmTriggered = true;
             playPitAudio('imminent');
+          }
+
+          if (isImminent) {
+            if (hud && !hud.classList.contains('overspeed-alarm')) hud.classList.add('imminent-alarm');
+            const immBanner = document.getElementById('pit-imminent-banner');
+            const immSecSpan = document.getElementById('pit-imminent-banner-sec');
+            if (immBanner) immBanner.style.display = 'block';
+            if (immSecSpan) immSecSpan.innerText = remainSec;
+            if (mainDigit) {
+              mainDigit.style.color = '#ffb703';
+              mainDigit.style.textShadow = '0 0 25px rgba(255, 183, 3, 0.9)';
+            }
+          } else {
+            if (hud) hud.classList.remove('imminent-alarm');
+            const immBanner = document.getElementById('pit-imminent-banner');
+            if (immBanner) immBanner.style.display = 'none';
+            if (mainDigit && pitState !== 'RELEASE_READY') {
+              mainDigit.style.color = '#fff';
+              mainDigit.style.textShadow = '0 0 20px rgba(255,255,255,0.3)';
+            }
           }
 
           // Audible 3-2-1 countdown ticks
@@ -12654,33 +12711,52 @@
 
           if (mainLabel) mainLabel.innerText = `COUNTDOWN TO GO (${remainSec}s)`;
           if (mainBadge) {
-            if (pitWarningAlertSec > 0 && remainSec <= pitWarningAlertSec) {
+            if (isImminent) {
               mainBadge.innerText = `⚠️ 출발 준비 임박 (${remainSec}s 남음)`;
+              mainBadge.style.background = 'rgba(255,145,0,0.35)';
+              mainBadge.style.color = '#ff9100';
+              mainBadge.style.borderColor = 'rgba(255,145,0,0.6)';
             } else {
               mainBadge.innerText = `🛑 박스 정차중 (${remainSec}s 남음)`;
+              mainBadge.style.background = (remainSec <= 5) ? 'rgba(255,42,75,0.25)' : 'rgba(255,145,0,0.2)';
+              mainBadge.style.color = (remainSec <= 5) ? '#ff2a4b' : 'var(--accent-orange)';
+              mainBadge.style.borderColor = 'rgba(255,145,0,0.3)';
             }
-            mainBadge.style.background = (remainSec <= 5) ? 'rgba(255,42,75,0.25)' : 'rgba(255,145,0,0.2)';
-            mainBadge.style.color = (remainSec <= 5) ? '#ff2a4b' : 'var(--accent-orange)';
           }
           mainDigit.innerText = msToLapStr(remainMs);
         }
       } else if (pitState === 'RELEASE_READY') {
+        const immBanner = document.getElementById('pit-imminent-banner');
+        if (immBanner) immBanner.style.display = 'none';
+        if (hud) {
+          hud.classList.remove('imminent-alarm');
+          hud.classList.add('release-ready');
+        }
+
         if (mainLabel) mainLabel.innerText = '🟢 RELEASE NOW (출발 진행)';
         if (mainBadge) {
           mainBadge.innerText = '🟢 규정 충족 (출발)';
           mainBadge.style.color = '#00ff88';
+          mainBadge.style.borderColor = 'rgba(0,255,136,0.6)';
         }
         mainDigit.innerText = msToLapStr(totalElapsedMs);
         mainDigit.style.color = '#00ff88';
+        mainDigit.style.textShadow = '0 0 25px rgba(0,255,136,0.9)';
       } else if (pitState === 'COMPLETED') {
+        const immBanner = document.getElementById('pit-imminent-banner');
+        if (immBanner) immBanner.style.display = 'none';
+        if (hud) hud.classList.remove('imminent-alarm');
+
         if (mainLabel) mainLabel.innerText = 'PIT STOP COMPLETED';
         if (mainBadge) {
           mainBadge.innerText = '🏁 피트 출구 통과 완료';
           mainBadge.style.background = 'rgba(0,240,255,0.2)';
           mainBadge.style.color = 'var(--accent-cyan)';
+          mainBadge.style.borderColor = 'rgba(0,240,255,0.4)';
         }
         mainDigit.innerText = msToLapStr(totalElapsedMs);
         mainDigit.style.color = '#fff';
+        mainDigit.style.textShadow = '0 0 20px rgba(255,255,255,0.3)';
       }
     }
 
@@ -12769,7 +12845,7 @@
       }
 
       isPitSimulating = true;
-      const alertSec = (pitWarningAlertSec > 0) ? pitWarningAlertSec : 10;
+      const alertSec = (pitWarningAlertSec > 0) ? pitWarningAlertSec : 30;
       pitSimTargetSec = Math.max(14, alertSec + 4);
 
       if (!isPitTracking) startPitTracking();
