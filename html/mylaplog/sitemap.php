@@ -1,13 +1,16 @@
 <?php
 /**
  * MyLapLog Dynamic Sitemap Generator
- * - Generates XML Sitemap with hreflang alternate URLs for KO/EN
+ * - Generates W3C & Google Search Console compliant XML Sitemap with hreflang alternate URLs
  * - Auto-includes all PUBLISHED guides from DB
- * - Served at /sitemap.xml via .htaccess rewrite
+ * - Serves at /sitemap.xml (and /sitemap.php)
+ * - Auto-syncs static sitemap.xml file on disk for 100% crawler reliability
  */
 
+// Strict XML headers
 header('Content-Type: application/xml; charset=UTF-8');
 header('Cache-Control: public, max-age=3600');
+header('X-Robots-Tag: all');
 
 $DB_HOST = 'localhost';
 $DB_NAME = 'mylaplog';
@@ -27,43 +30,41 @@ try {
     // Fallback: empty guides list
 }
 
+function xmlEscape($str) {
+    return htmlspecialchars($str, ENT_QUOTES | ENT_XML1, 'UTF-8');
+}
+
+ob_start();
 echo '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
 ?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
         xmlns:xhtml="http://www.w3.org/1999/xhtml">
 
-  <!-- === Static Pages === -->
+  <!-- === App Main Dashboard (Canonical 200 OK) === -->
   <url>
-    <loc><?= $BASE ?>/</loc>
+    <loc><?= xmlEscape($BASE . '/app/') ?></loc>
     <lastmod><?= $TODAY ?></lastmod>
-    <changefreq>weekly</changefreq>
+    <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
 
+  <!-- === Guides Catalog (Korean) === -->
   <url>
-    <loc><?= $BASE ?>/app/</loc>
+    <loc><?= xmlEscape($BASE . '/guides') ?></loc>
+    <xhtml:link rel="alternate" hreflang="ko" href="<?= xmlEscape($BASE . '/guides') ?>"/>
+    <xhtml:link rel="alternate" hreflang="en" href="<?= xmlEscape($BASE . '/guides?lang=en') ?>"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="<?= xmlEscape($BASE . '/guides') ?>"/>
     <lastmod><?= $TODAY ?></lastmod>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>
 
-  <!-- Guides Catalog (Korean) -->
+  <!-- === Guides Catalog (English) === -->
   <url>
-    <loc><?= $BASE ?>/guides</loc>
-    <xhtml:link rel="alternate" hreflang="ko" href="<?= $BASE ?>/guides"/>
-    <xhtml:link rel="alternate" hreflang="en" href="<?= $BASE ?>/guides?lang=en"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="<?= $BASE ?>/guides"/>
-    <lastmod><?= $TODAY ?></lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.9</priority>
-  </url>
-
-  <!-- Guides Catalog (English) -->
-  <url>
-    <loc><?= $BASE ?>/guides?lang=en</loc>
-    <xhtml:link rel="alternate" hreflang="ko" href="<?= $BASE ?>/guides"/>
-    <xhtml:link rel="alternate" hreflang="en" href="<?= $BASE ?>/guides?lang=en"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="<?= $BASE ?>/guides"/>
+    <loc><?= xmlEscape($BASE . '/guides?lang=en') ?></loc>
+    <xhtml:link rel="alternate" hreflang="ko" href="<?= xmlEscape($BASE . '/guides') ?>"/>
+    <xhtml:link rel="alternate" hreflang="en" href="<?= xmlEscape($BASE . '/guides?lang=en') ?>"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="<?= xmlEscape($BASE . '/guides') ?>"/>
     <lastmod><?= $TODAY ?></lastmod>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
@@ -73,25 +74,25 @@ echo '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
 <?php foreach ($guides as $g): ?>
 <?php
     $slug    = rawurlencode($g['slug']);
-    $lastmod = date('Y-m-d', strtotime($g['updated_at'] ?? $g['created_at']));
+    $lastmod = date('Y-m-d', strtotime($g['updated_at'] ?? $g['created_at'] ?? 'now'));
     $koUrl   = $BASE . '/guides/' . $slug;
     $enUrl   = $BASE . '/guides/' . $slug . '?lang=en';
 ?>
   <url>
-    <loc><?= $koUrl ?></loc>
-    <xhtml:link rel="alternate" hreflang="ko"        href="<?= $koUrl ?>"/>
-    <xhtml:link rel="alternate" hreflang="en"        href="<?= $enUrl ?>"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="<?= $koUrl ?>"/>
+    <loc><?= xmlEscape($koUrl) ?></loc>
+    <xhtml:link rel="alternate" hreflang="ko"        href="<?= xmlEscape($koUrl) ?>"/>
+    <xhtml:link rel="alternate" hreflang="en"        href="<?= xmlEscape($enUrl) ?>"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="<?= xmlEscape($koUrl) ?>"/>
     <lastmod><?= $lastmod ?></lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
 
   <url>
-    <loc><?= $enUrl ?></loc>
-    <xhtml:link rel="alternate" hreflang="ko"        href="<?= $koUrl ?>"/>
-    <xhtml:link rel="alternate" hreflang="en"        href="<?= $enUrl ?>"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="<?= $koUrl ?>"/>
+    <loc><?= xmlEscape($enUrl) ?></loc>
+    <xhtml:link rel="alternate" hreflang="ko"        href="<?= xmlEscape($koUrl) ?>"/>
+    <xhtml:link rel="alternate" hreflang="en"        href="<?= xmlEscape($enUrl) ?>"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="<?= xmlEscape($koUrl) ?>"/>
     <lastmod><?= $lastmod ?></lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
@@ -99,3 +100,14 @@ echo '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
 <?php endforeach; ?>
 
 </urlset>
+<?php
+$xmlOutput = ob_get_clean();
+
+// Auto-sync static sitemap.xml on disk for guaranteed crawler reliability
+$staticPath = __DIR__ . '/sitemap.xml';
+if (is_writable(__DIR__) || (file_exists($staticPath) && is_writable($staticPath))) {
+    @file_put_contents($staticPath, $xmlOutput);
+}
+
+echo $xmlOutput;
+

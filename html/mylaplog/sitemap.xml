@@ -1,46 +1,132 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url>
-    <loc>https://www.mylaplog.com/</loc>
-    <lastmod>2026-09-10</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>1.0</priority>
-  </url>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xhtml="http://www.w3.org/1999/xhtml">
+
+  <!-- === App Main Dashboard (Canonical 200 OK) === -->
   <url>
     <loc>https://www.mylaplog.com/app/</loc>
     <lastmod>2026-09-10</lastmod>
     <changefreq>daily</changefreq>
-    <priority>0.9</priority>
+    <priority>1.0</priority>
   </url>
+
+  <!-- === Guides Catalog (Korean) === -->
   <url>
     <loc>https://www.mylaplog.com/guides</loc>
+    <xhtml:link rel="alternate" hreflang="ko" href="https://www.mylaplog.com/guides"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.mylaplog.com/guides?lang=en"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.mylaplog.com/guides"/>
     <lastmod>2026-09-10</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>
+
+  <!-- === Guides Catalog (English) === -->
   <url>
-    <loc>https://www.mylaplog.com/guides/injespeedium-racing-guide</loc>
+    <loc>https://www.mylaplog.com/guides?lang=en</loc>
+    <xhtml:link rel="alternate" hreflang="ko" href="https://www.mylaplog.com/guides"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.mylaplog.com/guides?lang=en"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.mylaplog.com/guides"/>
+    <lastmod>2026-09-10</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- === Dynamic Guide Articles (DB-driven) === -->
+  <url>
+    <loc>https://www.mylaplog.com/guides/closer-engine-wheels-better-dynamics</loc>
+    <xhtml:link rel="alternate" hreflang="ko"        href="https://www.mylaplog.com/guides/closer-engine-wheels-better-dynamics"/>
+    <xhtml:link rel="alternate" hreflang="en"        href="https://www.mylaplog.com/guides/closer-engine-wheels-better-dynamics?lang=en"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.mylaplog.com/guides/closer-engine-wheels-better-dynamics"/>
     <lastmod>2026-09-10</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
+
   <url>
-    <loc>https://www.mylaplog.com/guides/tire-cold-hot-pressure-master</loc>
+    <loc>https://www.mylaplog.com/guides/closer-engine-wheels-better-dynamics?lang=en</loc>
+    <xhtml:link rel="alternate" hreflang="ko"        href="https://www.mylaplog.com/guides/closer-engine-wheels-better-dynamics"/>
+    <xhtml:link rel="alternate" hreflang="en"        href="https://www.mylaplog.com/guides/closer-engine-wheels-better-dynamics?lang=en"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.mylaplog.com/guides/closer-engine-wheels-better-dynamics"/>
+    <lastmod>2026-09-10</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.mylaplog.com/guides/how-to-get-faster</loc>
+    <xhtml:link rel="alternate" hreflang="ko"        href="https://www.mylaplog.com/guides/how-to-get-faster"/>
+    <xhtml:link rel="alternate" hreflang="en"        href="https://www.mylaplog.com/guides/how-to-get-faster?lang=en"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.mylaplog.com/guides/how-to-get-faster"/>
     <lastmod>2026-09-10</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
+
   <url>
-    <loc>https://www.mylaplog.com/guides/understeer-camber-damper-setup</loc>
+    <loc>https://www.mylaplog.com/guides/how-to-get-faster?lang=en</loc>
+    <xhtml:link rel="alternate" hreflang="ko"        href="https://www.mylaplog.com/guides/how-to-get-faster"/>
+    <xhtml:link rel="alternate" hreflang="en"        href="https://www.mylaplog.com/guides/how-to-get-faster?lang=en"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.mylaplog.com/guides/how-to-get-faster"/>
     <lastmod>2026-09-10</lastmod>
     <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
+    <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mylaplog.com/guides/trackday-pit-operation-roadmap</loc>
+    <xhtml:link rel="alternate" hreflang="ko"        href="https://www.mylaplog.com/guides/trackday-pit-operation-roadmap"/>
+    <xhtml:link rel="alternate" hreflang="en"        href="https://www.mylaplog.com/guides/trackday-pit-operation-roadmap?lang=en"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.mylaplog.com/guides/trackday-pit-operation-roadmap"/>
     <lastmod>2026-09-10</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
-</urlset>
 
+  <url>
+    <loc>https://www.mylaplog.com/guides/trackday-pit-operation-roadmap?lang=en</loc>
+    <xhtml:link rel="alternate" hreflang="ko"        href="https://www.mylaplog.com/guides/trackday-pit-operation-roadmap"/>
+    <xhtml:link rel="alternate" hreflang="en"        href="https://www.mylaplog.com/guides/trackday-pit-operation-roadmap?lang=en"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.mylaplog.com/guides/trackday-pit-operation-roadmap"/>
+    <lastmod>2026-09-10</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.mylaplog.com/guides/mylaplog-trackday-setup-management</loc>
+    <xhtml:link rel="alternate" hreflang="ko"        href="https://www.mylaplog.com/guides/mylaplog-trackday-setup-management"/>
+    <xhtml:link rel="alternate" hreflang="en"        href="https://www.mylaplog.com/guides/mylaplog-trackday-setup-management?lang=en"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.mylaplog.com/guides/mylaplog-trackday-setup-management"/>
+    <lastmod>2026-09-10</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://www.mylaplog.com/guides/mylaplog-trackday-setup-management?lang=en</loc>
+    <xhtml:link rel="alternate" hreflang="ko"        href="https://www.mylaplog.com/guides/mylaplog-trackday-setup-management"/>
+    <xhtml:link rel="alternate" hreflang="en"        href="https://www.mylaplog.com/guides/mylaplog-trackday-setup-management?lang=en"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.mylaplog.com/guides/mylaplog-trackday-setup-management"/>
+    <lastmod>2026-09-10</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.mylaplog.com/guides/tire-cold-hot-pressure-master</loc>
+    <xhtml:link rel="alternate" hreflang="ko"        href="https://www.mylaplog.com/guides/tire-cold-hot-pressure-master"/>
+    <xhtml:link rel="alternate" hreflang="en"        href="https://www.mylaplog.com/guides/tire-cold-hot-pressure-master?lang=en"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.mylaplog.com/guides/tire-cold-hot-pressure-master"/>
+    <lastmod>2026-09-10</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://www.mylaplog.com/guides/tire-cold-hot-pressure-master?lang=en</loc>
+    <xhtml:link rel="alternate" hreflang="ko"        href="https://www.mylaplog.com/guides/tire-cold-hot-pressure-master"/>
+    <xhtml:link rel="alternate" hreflang="en"        href="https://www.mylaplog.com/guides/tire-cold-hot-pressure-master?lang=en"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.mylaplog.com/guides/tire-cold-hot-pressure-master"/>
+    <lastmod>2026-09-10</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+</urlset>

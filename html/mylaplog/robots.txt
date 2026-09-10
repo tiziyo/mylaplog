@@ -3,6 +3,8 @@ Allow: /
 Allow: /app/
 Allow: /guides/
 Allow: /guides
+Allow: /sitemap.xml
+Allow: /sitemap.php
 Disallow: /db/
 Disallow: /app/api.php
 Disallow: /api/
@@ -11,10 +13,12 @@ User-agent: Googlebot
 Allow: /
 Allow: /guides/
 Allow: /guides
+Allow: /sitemap.xml
 Allow: /sitemap.php
 
-# Sitemaps (dynamic hreflang + static fallback)
-Sitemap: https://www.mylaplog.com/sitemap.php
+# Official XML Sitemap
 Sitemap: https://www.mylaplog.com/sitemap.xml
+Sitemap: https://www.mylaplog.com/sitemap.php
+
 
 
