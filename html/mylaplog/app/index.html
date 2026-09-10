@@ -411,6 +411,44 @@
       color: #ffffff !important;
     }
 
+    /* GPS Lap Timer: Distinct Crimson Fill */
+    .topbar-btn-lap {
+      background: rgba(220, 38, 38, 0.28) !important;
+      border: 1px solid #ef4444 !important;
+      color: #ffffff !important;
+      font-weight: 700 !important;
+      box-shadow: 0 0 8px rgba(239, 68, 68, 0.3) !important;
+    }
+    .topbar-btn-lap:hover {
+      background: rgba(220, 38, 38, 0.55) !important;
+      border-color: #ff6b81 !important;
+      color: #ffffff !important;
+      box-shadow: 0 0 12px rgba(255, 42, 75, 0.5) !important;
+      transform: translateY(-1px);
+    }
+    .topbar-btn-lap i {
+      color: #ff6b81 !important;
+    }
+
+    /* GPS Pit Timer: Distinct Amber/Orange Fill */
+    .topbar-btn-pit {
+      background: rgba(234, 88, 12, 0.28) !important;
+      border: 1px solid #f97316 !important;
+      color: #ffffff !important;
+      font-weight: 700 !important;
+      box-shadow: 0 0 8px rgba(249, 115, 22, 0.3) !important;
+    }
+    .topbar-btn-pit:hover {
+      background: rgba(234, 88, 12, 0.55) !important;
+      border-color: #fb923c !important;
+      color: #ffffff !important;
+      box-shadow: 0 0 12px rgba(249, 115, 22, 0.5) !important;
+      transform: translateY(-1px);
+    }
+    .topbar-btn-pit i {
+      color: #fb923c !important;
+    }
+
     .topbar-btn-racing {
       background: rgba(255, 42, 75, 0.1) !important;
       border: 1px solid rgba(255, 42, 75, 0.35) !important;
@@ -462,6 +500,25 @@
     }
     .topbar-btn-system i {
       color: var(--accent-cyan) !important;
+    }
+
+    /* Login/User Button: Distinct Cyber Cyan Fill */
+    .topbar-btn-auth {
+      background: rgba(8, 145, 178, 0.35) !important;
+      border: 1px solid #06b6d4 !important;
+      color: #ffffff !important;
+      font-weight: 700 !important;
+      box-shadow: 0 0 8px rgba(6, 182, 212, 0.35) !important;
+    }
+    .topbar-btn-auth:hover {
+      background: rgba(8, 145, 178, 0.6) !important;
+      border-color: #22d3ee !important;
+      color: #ffffff !important;
+      box-shadow: 0 0 12px rgba(6, 182, 212, 0.55) !important;
+      transform: translateY(-1px);
+    }
+    .topbar-btn-auth i {
+      color: #22d3ee !important;
     }
     .topbar-actions .btn i {
       width: 13px;
@@ -3446,10 +3503,10 @@
             <button class="btn topbar-btn-racing-primary" onclick="openAddSessionModal()" title="새 트랙 주행 세션 기록 작성">
               <i data-lucide="zap"></i> <span>세션 기록</span>
             </button>
-            <button class="btn topbar-btn-racing" onclick="openGpsLapTimerModal()" title="스마트폰 GPS 기반 실시간 랩타임 & 최고속도 자동 측정">
+            <button class="btn topbar-btn-lap" onclick="openGpsLapTimerModal()" title="스마트폰 GPS 기반 실시간 랩타임 & 최고속도 자동 측정">
               <i data-lucide="crosshair"></i> <span>GPS 랩타이머</span>
             </button>
-            <button class="btn topbar-btn-racing" onclick="openGpsPitLaneTimerModal()" title="GPS 피트레인 타이머 (스피드리밋/정차시간/릴리즈 카운트다운)">
+            <button class="btn topbar-btn-pit" onclick="openGpsPitLaneTimerModal()" title="GPS 피트레인 타이머 (스피드리밋/정차시간/릴리즈 카운트다운)">
               <i data-lucide="traffic-cone"></i> <span>GPS 피트타이머</span>
             </button>
           </div>
@@ -3480,7 +3537,7 @@
               <i data-lucide="globe" style="width:13px; height:13px;"></i>
               <span class="lang-label-text"><strong>KO</strong> / EN</span>
             </button>
-            <button class="btn topbar-btn-system" id="topbar-auth-btn" onclick="handleAuthButtonClick()" title="사용자 로그인 / 프로필">
+            <button class="btn topbar-btn-auth" id="topbar-auth-btn" onclick="handleAuthButtonClick()" title="사용자 로그인 / 프로필">
               <i data-lucide="user"></i> <span>로그인</span>
             </button>
           </div>
