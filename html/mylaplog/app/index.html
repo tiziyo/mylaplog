@@ -379,6 +379,24 @@
     }
 
     /* Category 1: Racing & Live Measurement (Crimson Red Theme) */
+    .topbar-btn-racing-primary {
+      background: linear-gradient(135deg, #ff2a4b, #d81436) !important;
+      border: 1px solid #ff4d6d !important;
+      color: #ffffff !important;
+      font-weight: 800 !important;
+      box-shadow: 0 0 12px rgba(255, 42, 75, 0.45) !important;
+    }
+    .topbar-btn-racing-primary:hover {
+      background: linear-gradient(135deg, #ff4563, #ff1a3c) !important;
+      border-color: #ff6b81 !important;
+      color: #ffffff !important;
+      box-shadow: 0 0 16px rgba(255, 42, 75, 0.65) !important;
+      transform: translateY(-1px);
+    }
+    .topbar-btn-racing-primary i {
+      color: #ffffff !important;
+    }
+
     .topbar-btn-racing {
       background: rgba(255, 42, 75, 0.1) !important;
       border: 1px solid rgba(255, 42, 75, 0.35) !important;
@@ -3411,14 +3429,14 @@
           
           <!-- Category 1: 주행 & 세션 계측 액션 (Racing & Telemetry Hub - Crimson Red) -->
           <div class="topbar-action-group group-racing" title="실시간 주행 및 랩 계측">
-            <button class="btn topbar-btn-racing" onclick="openAddSessionModal()" title="새 트랙 주행 세션 기록 작성">
+            <button class="btn topbar-btn-racing-primary" onclick="openAddSessionModal()" title="새 트랙 주행 세션 기록 작성">
               <i data-lucide="zap"></i> <span>세션 기록</span>
             </button>
             <button class="btn topbar-btn-racing" onclick="openGpsLapTimerModal()" title="스마트폰 GPS 기반 실시간 랩타임 & 최고속도 자동 측정">
-              <i data-lucide="crosshair"></i> <span>🛰️ GPS 랩타이머</span>
+              <span>GPS 랩타이머</span>
             </button>
             <button class="btn topbar-btn-racing" onclick="openGpsPitLaneTimerModal()" title="GPS 피트레인 타이머 (스피드리밋/정차시간/릴리즈 카운트다운)">
-              <i data-lucide="traffic-cone"></i> <span>🛑 GPS 피트타이머</span>
+              <span>GPS 피트타이머</span>
             </button>
           </div>
 
