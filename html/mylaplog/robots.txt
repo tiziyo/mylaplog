@@ -1,9 +1,17 @@
-﻿User-agent: *
+User-agent: *
 Allow: /
 Allow: /app/
+Allow: /guides/
+Allow: /guides
 Disallow: /db/
 Disallow: /app/api.php
 Disallow: /api/
 
+User-agent: Googlebot
+Allow: /
+Allow: /guides/
+Allow: /guides
+
 # Sitemap
 Sitemap: https://www.mylaplog.com/sitemap.xml
+

@@ -1923,6 +1923,65 @@ if ($method === 'GET' && preg_match('#^/leaderboard/(\d+)$#', $uri, $m)) {
 }
 
 // =====================
+// GUIDES & INSIGHTS PUBLIC ROUTES
+// =====================
+
+// GET /guides (공개 인사이트 가이드 목록)
+if ($method === 'GET' && $uri === '/guides') {
+    $category = trim($_GET['category'] ?? '');
+    $search = trim($_GET['q'] ?? '');
+
+    $sql = '
+        SELECT id, slug, title, category, excerpt, cover_image, author_name, read_time, status, views, is_featured, created_at, updated_at
+        FROM guides
+        WHERE status = "PUBLISHED"
+    ';
+    $params = [];
+
+    if ($category !== '' && $category !== 'ALL') {
+        $sql .= ' AND category = ?';
+        $params[] = $category;
+    }
+    if ($search !== '') {
+        $sql .= ' AND (title LIKE ? OR excerpt LIKE ? OR category LIKE ?)';
+        $term = "%{$search}%";
+        $params[] = $term;
+        $params[] = $term;
+        $params[] = $term;
+    }
+
+    $sql .= ' ORDER BY is_featured DESC, id DESC';
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute($params);
+    $guides = $stmt->fetchAll();
+
+    jsonResponse(200, ['guides' => $guides]);
+}
+
+// GET /guides/:slugOrId (공개 인사이트 가이드 상세 조회 및 조회수 증가)
+if ($method === 'GET' && preg_match('#^/guides/([^/]+)$#', $uri, $m)) {
+    $slugOrId = rawurldecode($m[1]);
+
+    $stmt = $pdo->prepare('
+        SELECT * FROM guides
+        WHERE (slug = ? OR id = ?) AND status = "PUBLISHED"
+        LIMIT 1
+    ');
+    $stmt->execute([$slugOrId, is_numeric($slugOrId) ? (int)$slugOrId : 0]);
+    $guide = $stmt->fetch();
+
+    if (!$guide) {
+        jsonResponse(404, ['error' => '요청하신 가이드 글을 찾을 수 없습니다.']);
+    }
+
+    // Increase view count
+    $pdo->prepare('UPDATE guides SET views = views + 1 WHERE id = ?')->execute([$guide['id']]);
+    $guide['views'] = (int)$guide['views'] + 1;
+
+    jsonResponse(200, ['guide' => $guide]);
+}
+
+// =====================
 // FEEDBACK & FEATURE REQUEST ROUTES
 // =====================
 
@@ -2235,6 +2294,164 @@ if ($method === 'DELETE' && preg_match('#^/admin/feedbacks/(\d+)$#', $uri, $m)) 
     $stmt->execute([$feedbackId]);
 
     jsonResponse(200, ['message' => "피드백(ID: {$feedbackId})이 삭제되었습니다."]);
+}
+
+// =====================
+// ADMIN FILE & IMAGE UPLOAD ROUTE
+// =====================
+
+// POST /admin/upload-image (커버 이미지 및 첨부 파일 업로드)
+if ($method === 'POST' && $uri === '/admin/upload-image') {
+    requireAdminAuth();
+
+    if (empty($_FILES['image']) && empty($_FILES['file'])) {
+        jsonResponse(400, ['error' => '업로드할 이미지 파일을 선택해주세요.']);
+    }
+
+    $file = $_FILES['image'] ?? $_FILES['file'];
+
+    if ($file['error'] !== UPLOAD_ERR_OK) {
+        $uploadErrors = [
+            UPLOAD_ERR_INI_SIZE   => '파일 크기가 서버 허용 한도(php.ini)를 초과했습니다.',
+            UPLOAD_ERR_FORM_SIZE  => '파일 크기가 폼 허용 한도를 초과했습니다.',
+            UPLOAD_ERR_PARTIAL    => '파일이 일부만 업로드되었습니다.',
+            UPLOAD_ERR_NO_FILE    => '업로드된 파일이 없습니다.',
+            UPLOAD_ERR_NO_TMP_DIR => '서버의 임시 디렉토리가 누락되었습니다.',
+            UPLOAD_ERR_CANT_WRITE => '디스크에 파일을 쓸 수 없습니다.',
+            UPLOAD_ERR_EXTENSION  => 'PHP 확장에 의해 파일 업로드가 중단되었습니다.'
+        ];
+        $msg = $uploadErrors[$file['error']] ?? ('업로드 오류 코드: ' . $file['error']);
+        jsonResponse(400, ['error' => $msg]);
+    }
+
+    // Max file size: 10MB
+    $maxBytes = 10 * 1024 * 1024;
+    if ($file['size'] > $maxBytes) {
+        jsonResponse(400, ['error' => '이미지 파일 크기는 최대 10MB 이하만 업로드 가능합니다.']);
+    }
+
+    // Check extension & MIME
+    $origName = $file['name'];
+    $ext = strtolower(pathinfo($origName, PATHINFO_EXTENSION));
+    $allowedExts = ['jpg', 'jpeg', 'png', 'webp', 'gif', 'svg'];
+    if (!in_array($ext, $allowedExts)) {
+        jsonResponse(400, ['error' => '지원하지 않는 파일 형식입니다. (jpg, jpeg, png, webp, gif, svg 만 허용)']);
+    }
+
+    $finfo = finfo_open(FILEINFO_MIME_TYPE);
+    $mime = finfo_file($finfo, $file['tmp_name']);
+    finfo_close($finfo);
+
+    $allowedMimes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/svg+xml', 'image/x-icon', 'image/svg'];
+    if (!in_array($mime, $allowedMimes)) {
+        jsonResponse(400, ['error' => '유효하지 않은 이미지 파일입니다. (MIME: ' . $mime . ')']);
+    }
+
+    // Target upload directory: html/mylaplog/uploads/
+    $uploadDir = dirname(__DIR__) . '/uploads';
+    if (!is_dir($uploadDir)) {
+        @mkdir($uploadDir, 0775, true);
+    }
+
+    if (!is_dir($uploadDir) || !is_writable($uploadDir)) {
+        // Fallback to app/uploads if root/uploads is not writable
+        $uploadDir = __DIR__ . '/uploads';
+        if (!is_dir($uploadDir)) {
+            @mkdir($uploadDir, 0775, true);
+        }
+    }
+
+    $tmpPath = $file['tmp_name'];
+    $origSize = (int)$file['size'];
+    $outExt = $ext;
+    $outMime = $mime;
+    $targetWidth = 0;
+    $targetHeight = 0;
+
+    // Web Optimization with PHP GD (Resize to max 1600px & Compress to WebP/JPEG)
+    $processed = false;
+    if ($ext !== 'svg' && extension_loaded('gd') && function_exists('imagecreatefromstring')) {
+        $imgData = @file_get_contents($tmpPath);
+        if ($imgData !== false) {
+            $srcImg = @imagecreatefromstring($imgData);
+            if ($srcImg !== false) {
+                $srcW = imagesx($srcImg);
+                $srcH = imagesy($srcImg);
+
+                // Calculate target dimensions (Max 1600px width/height maintaining aspect ratio)
+                $maxDim = 1600;
+                $dstW = $srcW;
+                $dstH = $srcH;
+
+                if ($srcW > $maxDim || $srcH > $maxDim) {
+                    if ($srcW >= $srcH) {
+                        $dstW = $maxDim;
+                        $dstH = (int)round(($srcH / $srcW) * $maxDim);
+                    } else {
+                        $dstH = $maxDim;
+                        $dstW = (int)round(($srcW / $srcH) * $maxDim);
+                    }
+                }
+
+                // Scale image if needed
+                if ($dstW !== $srcW || $dstH !== $srcH) {
+                    $scaledImg = imagescale($srcImg, $dstW, $dstH, IMG_BICUBIC);
+                    if ($scaledImg !== false) {
+                        imagedestroy($srcImg);
+                        $srcImg = $scaledImg;
+                    }
+                }
+
+                $targetWidth = imagesx($srcImg);
+                $targetHeight = imagesy($srcImg);
+
+                // Preserve transparency
+                imagealphablending($srcImg, false);
+                imagesavealpha($srcImg, true);
+
+                // Prefer modern WebP format if supported, otherwise High-Quality JPEG
+                if (function_exists('imagewebp')) {
+                    $outExt = 'webp';
+                    $outMime = 'image/webp';
+                    $safeName = 'guide_cover_' . date('Ymd_His') . '_' . bin2hex(random_bytes(4)) . '.webp';
+                    $targetPath = $uploadDir . '/' . $safeName;
+                    $processed = @imagewebp($srcImg, $targetPath, 85);
+                } else {
+                    $outExt = 'jpg';
+                    $outMime = 'image/jpeg';
+                    $safeName = 'guide_cover_' . date('Ymd_His') . '_' . bin2hex(random_bytes(4)) . '.jpg';
+                    $targetPath = $uploadDir . '/' . $safeName;
+                    $processed = @imagejpeg($srcImg, $targetPath, 85);
+                }
+
+                imagedestroy($srcImg);
+            }
+        }
+    }
+
+    // Fallback if GD is unavailable or failed (e.g. SVG or raw upload)
+    if (!$processed) {
+        $safeName = 'guide_cover_' . date('Ymd_His') . '_' . bin2hex(random_bytes(4)) . '.' . $ext;
+        $targetPath = $uploadDir . '/' . $safeName;
+        if (!move_uploaded_file($tmpPath, $targetPath)) {
+            jsonResponse(500, ['error' => '서버에 파일을 저장하는 도중 오류가 발생했습니다. 권한을 확인해주세요.']);
+        }
+    }
+
+    $finalSize = file_exists($targetPath) ? (int)filesize($targetPath) : $origSize;
+    $isAppDir = (strpos($targetPath, '/app/uploads') !== false);
+    $publicUrl = $isAppDir ? ('/app/uploads/' . $safeName) : ('/uploads/' . $safeName);
+
+    jsonResponse(200, [
+        'message' => '웹 최적화 커버 이미지가 성공적으로 업로드되었습니다.',
+        'url' => $publicUrl,
+        'filename' => $safeName,
+        'original_size' => $origSize,
+        'final_size' => $finalSize,
+        'width' => $targetWidth,
+        'height' => $targetHeight,
+        'format' => $outExt
+    ]);
 }
 
 // =====================

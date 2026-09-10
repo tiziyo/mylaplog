@@ -1,20 +1,28 @@
 RewriteEngine On
 
-# 0. Redirect root / to /app/
+# 0. Redirect root (/) and /index.html to /app/ for all domains (mylaplog.com, www.mylaplog.com, app.mylaplog.com)
 RewriteRule ^$ /app/ [R=301,L]
+RewriteRule ^index\.html$ /app/ [R=301,L]
 
-# 1. API routing: /api/* -> /app/api.php
+# 1. Dynamic Sitemap: /sitemap.xml -> /sitemap.php
+RewriteRule ^sitemap\.xml$ /sitemap.php [L]
+
+# 2. SEO Guides & Insights SSR Routing: /guides/* -> /guides.php
+RewriteRule ^guides/([^/]+)/?$ /guides.php?slug=$1 [L,QSA]
+RewriteRule ^guides/?$ /guides.php [L,QSA]
+
+# 3. API routing: /api/* -> /app/api.php
 RewriteCond %{REQUEST_URI} ^/api/
 RewriteRule ^api/(.*)$ /app/api.php/$1 [L,QSA]
 
-# 2. If the request is for an existing file or directory, serve it directly
+# 4. If the request is for an existing file or directory, serve it directly
 RewriteCond %{REQUEST_FILENAME} -f [OR]
 RewriteCond %{REQUEST_FILENAME} -d
 RewriteRule ^ - [L]
 
-# 3. SPA Fallback for /app/ subpaths
+# 5. SPA Fallback for /app/ subpaths
 RewriteRule ^app(/.*)?$ /app/index.html [L]
 
-# 4. Fallback for all other non-existing subpaths -> /app/index.html
+# 6. Fallback for all other non-existing subpaths -> /app/index.html
 RewriteRule ^(.*)$ /app/index.html [L]
 

@@ -3,6 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
   <title>MyLapLog Admin | 통합 관리자 센터</title>
   <link rel="icon" type="image/x-icon" href="/favicon.ico">
   <link rel="icon" type="image/png" sizes="192x192" href="/app/icon-192.png">
@@ -1082,10 +1085,61 @@
           <textarea class="form-control" id="modal-guide-excerpt" rows="2" placeholder="드라이버의 흥미를 유발할 1~2줄 핵심 요약을 입력하세요..."></textarea>
         </div>
 
-        <!-- Cover Image URL -->
-        <div class="form-group">
-          <label style="font-size:0.8rem; font-weight:600; color:var(--text-main); display:block; margin-bottom:0.35rem;">커버 이미지 URL (선택)</label>
-          <input type="url" class="form-control" id="modal-guide-cover" placeholder="https://example.com/cover.jpg (미입력 시 기본 서킷 그래픽 적용)">
+        <!-- Cover Image URL & File Upload Section -->
+        <div class="form-group" style="background:rgba(0,240,255,0.03); border:1px solid rgba(0,240,255,0.2); border-radius:10px; padding:0.9rem 1rem; margin-bottom:1rem;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.6rem;">
+            <label style="font-size:0.84rem; font-weight:700; color:#fff; display:flex; align-items:center; gap:0.4rem; margin:0;">
+              <i data-lucide="image" style="width:16px; height:16px; color:var(--accent-cyan);"></i> 커버 이미지 설정 (선택)
+            </label>
+            <span style="font-size:0.72rem; color:var(--text-muted);">JPG, PNG, WebP, GIF (최대 10MB)</span>
+          </div>
+
+          <!-- Hidden File Input -->
+          <input type="file" id="modal-guide-cover-file" accept="image/png, image/jpeg, image/webp, image/gif, image/svg+xml" style="display:none;" onchange="handleCoverImageUpload(this)">
+
+          <!-- Action Buttons & URL Input -->
+          <div style="display:flex; gap:0.6rem; align-items:center; flex-wrap:wrap;">
+            <!-- Big Visible Upload Button -->
+            <button type="button" class="btn btn-cyan" id="btn-trigger-cover-upload" onclick="triggerCoverFileInput()" style="padding:0.5rem 1rem; font-size:0.82rem; font-weight:700; display:inline-flex; align-items:center; gap:0.4rem;">
+              <i data-lucide="upload-cloud" style="width:16px; height:16px;"></i> 📁 내 PC에서 파일 선택 / 업로드
+            </button>
+
+            <span style="font-size:0.78rem; color:var(--text-muted); font-weight:600;">또는</span>
+
+            <!-- Direct URL input -->
+            <div style="flex:1; min-width:240px; position:relative;">
+              <input type="url" class="form-control" id="modal-guide-cover" placeholder="외부 이미지 URL 직접 입력 (https://...)" style="width:100%; font-size:0.8rem;" oninput="onCoverUrlInput(this.value)">
+            </div>
+          </div>
+
+          <!-- Upload Loading Status Indicator -->
+          <div id="cover-upload-loading" style="display:none; margin-top:0.6rem; padding:0.4rem 0.6rem; border-radius:6px; background:rgba(0,240,255,0.1); font-size:0.8rem; color:var(--accent-cyan); align-items:center; gap:0.4rem;">
+            <i data-lucide="loader" class="animate-spin" style="width:14px; height:14px;"></i> <strong>이미지를 서버에 업로드하는 중입니다... 잠시만 기다려주세요.</strong>
+          </div>
+
+          <!-- Cover Image Live Preview Box -->
+          <div id="modal-guide-cover-preview-wrapper" style="display:none; margin-top:0.75rem; padding:0.75rem; border-radius:8px; background:rgba(0,0,0,0.5); border:1px solid rgba(0,255,136,0.3);">
+            <div style="display:flex; align-items:center; justify-content:space-between; gap:0.75rem; flex-wrap:wrap;">
+              <div style="display:flex; align-items:center; gap:0.85rem; min-width:0; flex:1;">
+                <img id="modal-guide-cover-img" src="" alt="Cover Preview" style="width:80px; height:52px; object-fit:cover; border-radius:6px; border:1px solid rgba(0,255,136,0.4); background:#05070c; flex-shrink:0;" onerror="onCoverImgLoadError()">
+                <div style="min-width:0; overflow:hidden;">
+                  <div style="font-size:0.8rem; font-weight:700; color:var(--accent-green); display:flex; align-items:center; gap:0.35rem; margin-bottom:0.2rem;">
+                    <span>✓ 적용된 커버 이미지</span>
+                    <span id="modal-guide-cover-name" style="color:var(--text-muted); font-size:0.75rem; font-weight:400; text-overflow:ellipsis; overflow:hidden; white-space:nowrap;"></span>
+                  </div>
+                  <div id="modal-guide-cover-url-text" style="font-size:0.72rem; color:var(--accent-cyan); text-overflow:ellipsis; overflow:hidden; white-space:nowrap; font-family:var(--font-mono);"></div>
+                </div>
+              </div>
+              <div style="display:flex; gap:0.4rem; flex-shrink:0;">
+                <a id="btn-view-cover-full" href="#" target="_blank" class="btn btn-secondary btn-sm" style="padding:0.3rem 0.6rem; font-size:0.75rem;">
+                  <i data-lucide="external-link" style="width:12px; height:12px;"></i> 원본 보기
+                </a>
+                <button type="button" class="btn btn-danger btn-sm" style="padding:0.3rem 0.6rem; font-size:0.75rem;" onclick="removeCoverImage()">
+                  <i data-lucide="trash-2" style="width:12px; height:12px;"></i> 이미지 제거
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
 
         <!-- Content Editor with Toolbar & Preview -->
@@ -1836,9 +1890,11 @@
       document.getElementById('modal-guide-featured').checked = false;
       document.getElementById('modal-guide-excerpt').value = '';
       document.getElementById('modal-guide-cover').value = '';
+      document.getElementById('modal-guide-cover-file').value = '';
       document.getElementById('modal-guide-content').value = '';
       document.getElementById('btn-delete-guide').style.display = 'none';
 
+      updateCoverPreview('');
       toggleGuideEditorTab('edit');
       openAdminModal('guide-modal');
       lucide.createIcons();
@@ -1861,12 +1917,173 @@
       document.getElementById('modal-guide-featured').checked = (guide.is_featured == 1 || guide.is_featured === true);
       document.getElementById('modal-guide-excerpt').value = guide.excerpt || '';
       document.getElementById('modal-guide-cover').value = guide.cover_image || '';
+      document.getElementById('modal-guide-cover-file').value = '';
       document.getElementById('modal-guide-content').value = guide.content || '';
       document.getElementById('btn-delete-guide').style.display = 'inline-flex';
 
+      updateCoverPreview(guide.cover_image || '');
       toggleGuideEditorTab('edit');
       openAdminModal('guide-modal');
       lucide.createIcons();
+    }
+
+    // =============================================
+    // COVER IMAGE UPLOAD & PREVIEW HANDLERS
+    // =============================================
+    function triggerCoverFileInput() {
+      const fileInput = document.getElementById('modal-guide-cover-file');
+      if (fileInput) fileInput.click();
+    }
+
+    async function handleCoverImageUpload(input) {
+      if (!input.files || !input.files[0]) return;
+      const originalFile = input.files[0];
+
+      const triggerBtn = document.getElementById('btn-trigger-cover-upload');
+      const loadingEl = document.getElementById('cover-upload-loading');
+
+      if (triggerBtn) triggerBtn.disabled = true;
+      if (loadingEl) {
+        loadingEl.style.display = 'flex';
+        loadingEl.innerHTML = `<i data-lucide="loader" class="animate-spin" style="width:14px; height:14px;"></i> <strong>웹용 자동 리사이징 & 압축 최적화 진행 중...</strong>`;
+      }
+      lucide.createIcons();
+
+      try {
+        // 1. Client-Side Web Optimization (Max 1600px & WebP 85% Compression)
+        const optimizedFile = await optimizeImageForWeb(originalFile, 1600, 0.85);
+
+        const formData = new FormData();
+        formData.append('image', optimizedFile);
+        formData.append('original_name', originalFile.name);
+
+        // 2. Upload to backend
+        const res = await fetch('/api/admin/upload-image', {
+          method: 'POST',
+          body: formData,
+          credentials: 'include'
+        });
+        const data = await res.json();
+
+        if (res.ok && data.url) {
+          document.getElementById('modal-guide-cover').value = data.url;
+
+          // Format file size metrics
+          const origKb = Math.round(originalFile.size / 1024);
+          const finalKb = Math.round((data.final_size || optimizedFile.size) / 1024);
+          const ratio = origKb > 0 ? Math.max(0, Math.round((1 - finalKb / origKb) * 100)) : 0;
+          const metaInfo = `${finalKb}KB (${ratio}% 절감${data.width ? ` / ${data.width}×${data.height}px` : ''})`;
+
+          updateCoverPreview(data.url, originalFile.name, metaInfo);
+          showToast(`웹 최적화 완료! (${origKb}KB ➔ ${finalKb}KB, ${ratio}% 용량 절감) 🚀`);
+        } else {
+          alert(data.error || '이미지 업로드에 실패했습니다.');
+        }
+      } catch (err) {
+        console.error('Image upload error:', err);
+        alert('이미지 최적화 및 업로드 중 오류가 발생했습니다: ' + err.message);
+      } finally {
+        if (triggerBtn) triggerBtn.disabled = false;
+        if (loadingEl) loadingEl.style.display = 'none';
+        input.value = '';
+      }
+    }
+
+    // Helper: Client-side High Quality Resizer & Compressor (Canvas API)
+    function optimizeImageForWeb(file, maxDim = 1600, quality = 0.85) {
+      return new Promise((resolve) => {
+        // SVG or small files skip canvas
+        if (file.type === 'image/svg+xml' || file.name.toLowerCase().endsWith('.svg')) {
+          return resolve(file);
+        }
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const img = new Image();
+          img.onload = () => {
+            let w = img.width;
+            let h = img.height;
+
+            if (w > maxDim || h > maxDim) {
+              if (w >= h) {
+                h = Math.round((h / w) * maxDim);
+                w = maxDim;
+              } else {
+                w = Math.round((w / h) * maxDim);
+                h = maxDim;
+              }
+            }
+
+            const canvas = document.createElement('canvas');
+            canvas.width = w;
+            canvas.height = h;
+            const ctx = canvas.getContext('2d');
+            ctx.imageSmoothingEnabled = true;
+            ctx.imageSmoothingQuality = 'high';
+            ctx.drawImage(img, 0, 0, w, h);
+
+            // Attempt WebP first, fallback to JPEG
+            canvas.toBlob((blob) => {
+              if (!blob) {
+                return resolve(file);
+              }
+              const ext = blob.type === 'image/webp' ? '.webp' : '.jpg';
+              const baseName = file.name.replace(/\.[^/.]+$/, '');
+              const optimizedFile = new File([blob], baseName + ext, { type: blob.type });
+              resolve(optimizedFile);
+            }, 'image/webp', quality);
+          };
+          img.onerror = () => resolve(file);
+          img.src = e.target.result;
+        };
+        reader.onerror = () => resolve(file);
+        reader.readAsDataURL(file);
+      });
+    }
+
+    function onCoverUrlInput(val) {
+      updateCoverPreview((val || '').trim());
+    }
+
+    function updateCoverPreview(url, fileName = '', metaInfo = '') {
+      const wrapper = document.getElementById('modal-guide-cover-preview-wrapper');
+      const img = document.getElementById('modal-guide-cover-img');
+      const fullLink = document.getElementById('btn-view-cover-full');
+      const urlText = document.getElementById('modal-guide-cover-url-text');
+      const nameText = document.getElementById('modal-guide-cover-name');
+
+      if (!wrapper || !img) return;
+
+      if (url) {
+        img.src = url;
+        if (fullLink) fullLink.href = url;
+        if (urlText) urlText.innerText = url;
+        if (nameText) {
+          const displayMeta = metaInfo ? ` • ${metaInfo}` : '';
+          nameText.innerText = fileName ? `(${fileName}${displayMeta})` : (displayMeta || url.split('/').pop() || '');
+        }
+        wrapper.style.display = 'block';
+        lucide.createIcons();
+      } else {
+        wrapper.style.display = 'none';
+        img.src = '';
+        if (fullLink) fullLink.href = '#';
+        if (urlText) urlText.innerText = '';
+        if (nameText) nameText.innerText = '';
+      }
+    }
+
+    function onCoverImgLoadError() {
+      const wrapper = document.getElementById('modal-guide-cover-preview-wrapper');
+      if (wrapper) wrapper.style.display = 'none';
+    }
+
+    function removeCoverImage() {
+      document.getElementById('modal-guide-cover').value = '';
+      const fileInput = document.getElementById('modal-guide-cover-file');
+      if (fileInput) fileInput.value = '';
+      updateCoverPreview('');
+      showToast('커버 이미지를 제거했습니다.');
     }
 
     function autoGenerateSlugIfEmpty() {
