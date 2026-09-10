@@ -9,6 +9,7 @@
 connection_info.txt
 credentials.log
 application_credentials
+lightsail_info.md
 .env
 .env.*
 
