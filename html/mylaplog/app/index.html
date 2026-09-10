@@ -299,17 +299,28 @@
 
     /* Top Bar */
     .topbar {
-      height: 70px;
+      min-height: 54px;
+      height: auto;
       border-bottom: 1px solid var(--border-subtle);
-      background: rgba(7, 9, 14, 0.75);
+      background: rgba(7, 9, 14, 0.92);
       backdrop-filter: blur(15px);
-      padding: 0 1.75rem;
+      -webkit-backdrop-filter: blur(15px);
+      padding: 0.4rem 1.25rem;
       display: flex;
       align-items: center;
       justify-content: space-between;
+      gap: 0.5rem;
+      flex-wrap: wrap;
       position: sticky;
       top: 0;
       z-index: 40;
+      box-sizing: border-box;
+    }
+    .topbar-left-cluster {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      flex-shrink: 0;
     }
 
     .topbar-left-cluster {
@@ -336,8 +347,11 @@
     .topbar-actions {
       display: flex;
       align-items: center;
+      justify-content: flex-end;
       gap: 0.25rem;
+      row-gap: 0.3rem;
       flex-wrap: wrap;
+      min-width: 0;
     }
 
     /* Topbar Grouped Clusters & Spacing Optimization */
