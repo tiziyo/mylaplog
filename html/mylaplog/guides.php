@@ -196,9 +196,33 @@ function parseInlineStyles($text) {
 $slug = trim($_GET['slug'] ?? '');
 $activeCategory = trim($_GET['category'] ?? '');
 
+// ============================================
+// SERVER-SIDE LANGUAGE DETECTION (i18n)
+// Priority: ?lang=en URL param > Accept-Language header
+// ============================================
+$reqLang = strtolower(trim($_GET['lang'] ?? ''));
+if ($reqLang === 'en') {
+    $lang = 'en';
+} elseif ($reqLang === 'ko') {
+    $lang = 'ko';
+} else {
+    // Auto-detect from Accept-Language header
+    $acceptLang = strtolower($_SERVER['HTTP_ACCEPT_LANGUAGE'] ?? '');
+    $lang = (strpos($acceptLang, 'en') !== false && strpos($acceptLang, 'ko') === false) ? 'en' : 'ko';
+    if (strpos($acceptLang, 'ko') !== false) $lang = 'ko'; // KO wins if present
+}
+$isEn = ($lang === 'en');
+
 $baseUrl = 'https://www.mylaplog.com';
-$pageTitle = 'MyLapLog 인사이트 - 서킷 공략 & 레이싱 셋업 가이드';
-$pageDescription = '모터스포츠 기술 아카이브. 레이싱 드라이빙과 엔지니어링 정보를 다룹니다. 서킷 주행 라인, 레이싱 기록, 실전 트랙 세팅 등 랩타임 단축을 위한 데이터와 메커니즘을 제공합니다.';
+
+// Language-aware defaults
+$pageTitle = $isEn
+    ? 'MyLapLog Insights — Circuit Guide & Racing Setup'
+    : 'MyLapLog 인사이트 - 서킷 공략 & 레이싱 셋업 가이드';
+$pageDescription = $isEn
+    ? 'Motorsport technical archive. Track driving lines, racing setups, tire pressure, damper tuning, and lap time optimization data from real track days.'
+    : '모터스포츠 기술 아카이브. 레이싱 드라이빙과 엔지니어링 정보를 다룹니다. 서킷 주행 라인, 레이싱 기록, 실전 트랙 세팅 등 랩타임 단축을 위한 데이터와 메커니즘을 제공합니다.';
+
 $canonicalUrl = $baseUrl . '/guides';
 $ogImage = $baseUrl . '/app/icon-512.png';
 $guide = null;
@@ -215,27 +239,32 @@ if ($slug !== '') {
             $pdo->prepare('UPDATE guides SET views = views + 1 WHERE id = ?')->execute([$guide['id']]);
             $guide['views'] = (int)$guide['views'] + 1;
 
-            $rStmt = $pdo->prepare('SELECT id, slug, title, category, read_time, views, created_at, cover_image FROM guides WHERE status = "PUBLISHED" AND id != ? ORDER BY id DESC LIMIT 3');
+            $rStmt = $pdo->prepare('SELECT id, slug, title, title_en, category, read_time, views, created_at, cover_image FROM guides WHERE status = "PUBLISHED" AND id != ? ORDER BY id DESC LIMIT 3');
             $rStmt->execute([$guide['id']]);
             $relatedGuides = $rStmt->fetchAll();
         }
     }
 
     if ($guide) {
-        $pageTitle = htmlspecialchars($guide['title']) . ' | MyLapLog 인사이트';
-        $pageDescription = htmlspecialchars($guide['excerpt'] ?: mb_substr(strip_tags($guide['content']), 0, 160));
+        // Pick language-aware title/content
+        $displayTitle   = ($isEn && !empty($guide['title_en']))   ? $guide['title_en']   : $guide['title'];
+        $displayExcerpt = ($isEn && !empty($guide['excerpt_en'])) ? $guide['excerpt_en'] : $guide['excerpt'];
+        $displayContent = ($isEn && !empty($guide['content_en'])) ? $guide['content_en'] : $guide['content'];
+
+        $pageTitle = htmlspecialchars($displayTitle) . ($isEn ? ' | MyLapLog Insights' : ' | MyLapLog 인사이트');
+        $pageDescription = htmlspecialchars($displayExcerpt ?: mb_substr(strip_tags($displayContent), 0, 160));
         $canonicalUrl = $baseUrl . '/guides/' . rawurlencode($guide['slug']);
         if (!empty($guide['cover_image'])) {
             $ogImage = (strpos($guide['cover_image'], 'http') === 0) ? $guide['cover_image'] : ($baseUrl . $guide['cover_image']);
         }
     } else {
         http_response_code(404);
-        $pageTitle = '가이드를 찾을 수 없습니다 | MyLapLog';
+        $pageTitle = $isEn ? 'Guide Not Found | MyLapLog' : '가이드를 찾을 수 없습니다 | MyLapLog';
     }
 } else {
     // Guide Catalog List Mode
     if ($pdo) {
-        $q = 'SELECT id, slug, title, category, excerpt, author_name, read_time, views, is_featured, created_at, cover_image FROM guides WHERE status = "PUBLISHED"';
+        $q = 'SELECT id, slug, title, title_en, category, excerpt, excerpt_en, author_name, read_time, views, is_featured, created_at, cover_image FROM guides WHERE status = "PUBLISHED"';
         $p = [];
         if ($activeCategory !== '') {
             $q .= ' AND category = ?';
@@ -251,7 +280,7 @@ if ($slug !== '') {
 }
 ?>
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="<?= $lang ?>">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
@@ -260,10 +289,21 @@ if ($slug !== '') {
   <title><?= $pageTitle ?></title>
   <meta name="title" content="<?= $pageTitle ?>">
   <meta name="description" content="<?= $pageDescription ?>">
-  <meta name="keywords" content="서킷 공략, 인제스피디움, 영암서킷, 타이어 공기압, 열간 공기압, 캠버 셋업, 댐퍼 감쇠력, 모터스포츠, 랩타이머, 트랙데이, MyLapLog, circuit guide, lap timer, racing setup">
+  <meta name="keywords" content="<?= $isEn ? 'circuit guide, lap timer, racing setup, track day, tire pressure, camber setup, damper tuning, motorsport, MyLapLog' : '서킷 공략, 인제스피디움, 영암서킷, 타이어 공기압, 열간 공기압, 캠버 셋업, 댐퍼 감쇠력, 모터스포츠, 랩타이머, 트랙데이, MyLapLog, circuit guide, lap timer, racing setup' ?>">
   <meta name="author" content="<?= $guide ? htmlspecialchars($guide['author_name']) : 'MyLapLog' ?>">
   <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
-  <link rel="canonical" href="<?= $canonicalUrl ?>">
+  <link rel="canonical" href="<?= $canonicalUrl ?><?= $isEn ? '?lang=en' : '' ?>">
+
+  <!-- hreflang: Multilingual SEO for English & Korean audiences -->
+<?php if ($guide): ?>
+  <link rel="alternate" hreflang="ko" href="<?= $baseUrl . '/guides/' . rawurlencode($guide['slug']) ?>">
+  <link rel="alternate" hreflang="en" href="<?= $baseUrl . '/guides/' . rawurlencode($guide['slug']) ?>?lang=en">
+  <link rel="alternate" hreflang="x-default" href="<?= $baseUrl . '/guides/' . rawurlencode($guide['slug']) ?>">
+<?php else: ?>
+  <link rel="alternate" hreflang="ko" href="<?= $baseUrl ?>/guides">
+  <link rel="alternate" hreflang="en" href="<?= $baseUrl ?>/guides?lang=en">
+  <link rel="alternate" hreflang="x-default" href="<?= $baseUrl ?>/guides">
+<?php endif; ?>
 
   <!-- Open Graph / Facebook / Kakao -->
   <meta property="og:type" content="<?= $guide ? 'article' : 'website' ?>">
@@ -271,8 +311,9 @@ if ($slug !== '') {
   <meta property="og:title" content="<?= $pageTitle ?>">
   <meta property="og:description" content="<?= $pageDescription ?>">
   <meta property="og:image" content="<?= $ogImage ?>">
-  <meta property="og:site_name" content="MyLapLog - 모터스포츠 인텔리전스">
-  <meta property="og:locale" content="ko_KR">
+  <meta property="og:site_name" content="MyLapLog — Motorsport Intelligence">
+  <meta property="og:locale" content="<?= $isEn ? 'en_US' : 'ko_KR' ?>">
+  <meta property="og:locale:alternate" content="<?= $isEn ? 'ko_KR' : 'en_US' ?>">
   <?php if ($guide): ?>
   <meta property="article:published_time" content="<?= date('c', strtotime($guide['created_at'])) ?>">
   <meta property="article:modified_time" content="<?= date('c', strtotime($guide['updated_at'] ?? $guide['created_at'])) ?>">
@@ -309,10 +350,10 @@ if ($slug !== '') {
     "@type": "TechArticle",
     "mainEntityOfPage": {
       "@type": "WebPage",
-      "@id": "<?= $canonicalUrl ?>"
+      "@id": "<?= $canonicalUrl . ($isEn ? '?lang=en' : '') ?>"
     },
-    "headline": <?= json_encode($guide['title'], JSON_UNESCAPED_UNICODE) ?>,
-    "description": <?= json_encode($guide['excerpt'] ?: mb_substr(strip_tags($guide['content']), 0, 160), JSON_UNESCAPED_UNICODE) ?>,
+    "headline": <?= json_encode(($isEn && !empty($guide['title_en'])) ? $guide['title_en'] : $guide['title'], JSON_UNESCAPED_UNICODE) ?>,
+    "description": <?= json_encode(($isEn && !empty($guide['excerpt_en'])) ? $guide['excerpt_en'] : ($guide['excerpt'] ?: mb_substr(strip_tags($guide['content']), 0, 160)), JSON_UNESCAPED_UNICODE) ?>,
     "image": [
       <?= json_encode($ogImage) ?>
     ],
@@ -320,7 +361,7 @@ if ($slug !== '') {
     "dateModified": "<?= date('c', strtotime($guide['updated_at'] ?? $guide['created_at'])) ?>",
     "author": {
       "@type": "Person",
-      "name": <?= json_encode($guide['author_name'] ?: 'MyLapLog 인텔리전스', JSON_UNESCAPED_UNICODE) ?>,
+      "name": <?= json_encode($guide['author_name'] ?: ($isEn ? 'MyLapLog Intelligence' : 'MyLapLog 인텔리전스'), JSON_UNESCAPED_UNICODE) ?>,
       "url": "https://www.mylaplog.com"
     },
     "publisher": {
@@ -331,8 +372,8 @@ if ($slug !== '') {
         "url": "https://www.mylaplog.com/app/icon-512.png"
       }
     },
-    "articleSection": <?= json_encode($guide['category'] ?: '모터스포츠 셋업', JSON_UNESCAPED_UNICODE) ?>,
-    "inLanguage": "ko-KR"
+    "articleSection": <?= json_encode($guide['category'] ?: ($isEn ? 'Motorsport Setup' : '모터스포츠 셋업'), JSON_UNESCAPED_UNICODE) ?>,
+    "inLanguage": "<?= $isEn ? 'en-US' : 'ko-KR' ?>"
   }
   </script>
   <?php else: ?>
@@ -340,9 +381,10 @@ if ($slug !== '') {
   {
     "@context": "https://schema.org",
     "@type": "CollectionPage",
-    "name": "MyLapLog 인사이트 & 가이드",
-    "url": "https://www.mylaplog.com/guides",
-    "description": "모터스포츠 기술 아카이브. 레이싱 드라이빙과 엔지니어링 정보를 다룹니다. 서킷 주행 라인, 레이싱 기록, 실전 트랙 세팅 등 랩타임 단축을 위한 데이터와 메커니즘을 제공합니다.",
+    "name": "<?= $isEn ? 'MyLapLog Insights & Guides' : 'MyLapLog 인사이트 & 가이드' ?>",
+    "url": "https://www.mylaplog.com/guides<?= $isEn ? '?lang=en' : '' ?>",
+    "description": "<?= $isEn ? 'Motorsport technical archive covering racing driving and vehicle engineering. Real-world track setup data, racing lines, and lap time optimization guides.' : '모터스포츠 기술 아카이브. 레이싱 드라이빙과 엔지니어링 정보를 다룹니다.' ?>",
+    "inLanguage": "<?= $isEn ? 'en-US' : 'ko-KR' ?>",
     "publisher": {
       "@type": "Organization",
       "name": "MyLapLog",
@@ -1119,7 +1161,7 @@ if ($slug !== '') {
         <span class="i18n-cat" data-cat="<?= htmlspecialchars($guide['category']) ?>"><?= htmlspecialchars($guide['category']) ?></span>
       </nav>
 
-      <article lang="ko">
+      <article lang="<?= $lang ?>">
         <header class="article-header">
           <div class="article-meta-badges">
             <span class="badge badge-cyan i18n-cat" data-cat="<?= htmlspecialchars($guide['category']) ?>"><?= htmlspecialchars($guide['category']) ?></span>
@@ -1134,7 +1176,7 @@ if ($slug !== '') {
             </span>
           </div>
 
-          <h1 class="article-title" lang="ko"><?= htmlspecialchars($guide['title']) ?></h1>
+          <h1 class="article-title" lang="<?= $lang ?>"><?= htmlspecialchars(($isEn && !empty($guide['title_en'])) ? $guide['title_en'] : $guide['title']) ?></h1>
 
           <div class="article-author-row">
             <div class="author-info">
@@ -1161,8 +1203,11 @@ if ($slug !== '') {
         <?php endif; ?>
 
         <!-- Article Content (SEO Markdown to Semantic HTML) -->
-        <section class="article-body" lang="ko">
-          <?= parseGuideMarkdown($guide['content']) ?>
+        <section class="article-body" lang="<?= $lang ?>">
+          <?php
+            $renderContent = ($isEn && !empty($guide['content_en'])) ? $guide['content_en'] : $guide['content'];
+            echo parseGuideMarkdown($renderContent);
+          ?>
         </section>
 
         <!-- Share & Actions Card -->
@@ -1225,7 +1270,7 @@ if ($slug !== '') {
       <!-- GUIDES CATALOG VIEW (인사이트 전체 목록 SSR) -->
       <!-- ============================================== -->
       <section class="catalog-hero">
-        <h1>MyLapLog <span data-i18n="hero_title_highlight">인사이트 &amp; 가이드</span></h1>
+        <h1>MyLapLog <span data-i18n="hero_title_highlight"><?= $isEn ? 'Insights &amp; Guides' : '인사이트 &amp; 가이드' ?></span></h1>
         <p data-i18n="hero_desc">모터스포츠 기술 아카이브. 레이싱 드라이빙과 엔지니어링 정보를 다룹니다. 서킷 주행 라인, 레이싱 기록, 실전 트랙 세팅 등 랩타임 단축을 위한 데이터와 메커니즘을 제공합니다.</p>
       </section>
 
@@ -1244,18 +1289,24 @@ if ($slug !== '') {
       <div class="guides-grid">
         <?php if (!empty($allGuides)): ?>
           <?php foreach ($allGuides as $g): ?>
-          <a href="/guides/<?= rawurlencode($g['slug']) ?>" class="guide-card">
+          <?php
+            $cardLangSuffix = $isEn ? '?lang=en' : '';
+            $cardTitle   = ($isEn && !empty($g['title_en']))   ? $g['title_en']   : $g['title'];
+            $cardExcerpt = ($isEn && !empty($g['excerpt_en'])) ? $g['excerpt_en'] : $g['excerpt'];
+            $cardReadTime = $g['read_time'] ?: ($isEn ? '3 min' : '3분');
+          ?>
+          <a href="/guides/<?= rawurlencode($g['slug']) . $cardLangSuffix ?>" class="guide-card">
             <?php if (!empty($g['cover_image'])): ?>
-            <img src="<?= htmlspecialchars($g['cover_image']) ?>" alt="<?= htmlspecialchars($g['title']) ?>" class="card-thumb" loading="lazy">
+            <img src="<?= htmlspecialchars($g['cover_image']) ?>" alt="<?= htmlspecialchars($cardTitle) ?>" class="card-thumb" loading="lazy">
             <?php endif; ?>
             <div class="card-meta">
               <span class="badge badge-cyan i18n-cat" data-cat="<?= htmlspecialchars($g['category']) ?>"><?= htmlspecialchars($g['category']) ?></span>
               <span style="font-size:0.72rem; color:var(--text-muted); display:inline-flex; align-items:center; gap:0.25rem;">
-                <i data-lucide="clock" style="width:11px; height:11px;"></i> <?= htmlspecialchars($g['read_time'] ?: '3분') ?>
+                <i data-lucide="clock" style="width:11px; height:11px;"></i> <?= htmlspecialchars($cardReadTime) ?>
               </span>
             </div>
-            <h2 class="card-title" lang="ko"><?= htmlspecialchars($g['title']) ?></h2>
-            <p class="card-excerpt" lang="ko"><?= htmlspecialchars($g['excerpt'] ?: '') ?></p>
+            <h2 class="card-title" lang="<?= $lang ?>"><?= htmlspecialchars($cardTitle) ?></h2>
+            <p class="card-excerpt" lang="<?= $lang ?>"><?= htmlspecialchars($cardExcerpt ?: '') ?></p>
             <div class="card-footer">
               <span><?= date('Y-m-d', strtotime($g['created_at'])) ?></span>
               <span><i data-lucide="eye" style="width:11px; height:11px; vertical-align:middle;"></i> <?= number_format($g['views']) ?></span>

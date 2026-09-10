@@ -1,81 +1,101 @@
 <?php
 /**
- * Dynamic XML Sitemap Generator for MyLapLog
- * - Google Search Console / Googlebot / Naver / Bing Sitemap Standard (sitemaps.org)
- * - Automatically fetches all published guides from MariaDB
+ * MyLapLog Dynamic Sitemap Generator
+ * - Generates XML Sitemap with hreflang alternate URLs for KO/EN
+ * - Auto-includes all PUBLISHED guides from DB
+ * - Served at /sitemap.xml via .htaccess rewrite
  */
 
-header('Content-Type: application/xml; charset=utf-8');
+header('Content-Type: application/xml; charset=UTF-8');
+header('Cache-Control: public, max-age=3600');
 
 $DB_HOST = 'localhost';
 $DB_NAME = 'mylaplog';
 $DB_USER = 'admin';
 $DB_PASS = 'StnXoa2w4DO8KE9V';
+$BASE    = 'https://www.mylaplog.com';
+$TODAY   = date('Y-m-d');
 
-$baseUrl = 'https://www.mylaplog.com';
 $guides = [];
-
 try {
     $pdo = new PDO("mysql:host=$DB_HOST;dbname=$DB_NAME;charset=utf8mb4", $DB_USER, $DB_PASS, [
         PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC
     ]);
-
-    $stmt = $pdo->query('
-        SELECT slug, updated_at, created_at
-        FROM guides
-        WHERE status = "PUBLISHED"
-        ORDER BY id DESC
-    ');
-    $guides = $stmt->fetchAll();
+    $stmt = $pdo->query("SELECT slug, updated_at, created_at FROM guides WHERE status = 'PUBLISHED' ORDER BY id DESC");
+    $guides = $stmt->fetchAll(PDO::FETCH_ASSOC);
 } catch (Exception $e) {
-    // Fallback seed list if DB error occurs
-    $guides = [
-        ['slug' => 'injespeedium-racing-guide', 'updated_at' => '2026-09-09 10:00:00'],
-        ['slug' => 'tire-cold-hot-pressure-master', 'updated_at' => '2026-09-09 14:30:00'],
-        ['slug' => 'understeer-camber-damper-setup', 'updated_at' => '2026-09-09 09:15:00'],
-        ['slug' => 'trackday-pit-operation-roadmap', 'updated_at' => '2026-09-09 13:45:00']
-    ];
+    // Fallback: empty guides list
 }
-
-$today = date('Y-m-d');
 
 echo '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
 ?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <!-- Main Home Page -->
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xhtml="http://www.w3.org/1999/xhtml">
+
+  <!-- === Static Pages === -->
   <url>
-    <loc><?= $baseUrl ?>/</loc>
-    <lastmod><?= $today ?></lastmod>
+    <loc><?= $BASE ?>/</loc>
+    <lastmod><?= $TODAY ?></lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
 
-  <!-- PWA Web App Dashboard -->
   <url>
-    <loc><?= $baseUrl ?>/app/</loc>
-    <lastmod><?= $today ?></lastmod>
+    <loc><?= $BASE ?>/app/</loc>
+    <lastmod><?= $TODAY ?></lastmod>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>
 
-  <!-- Insights & Guides Catalog -->
+  <!-- Guides Catalog (Korean) -->
   <url>
-    <loc><?= $baseUrl ?>/guides</loc>
-    <lastmod><?= $today ?></lastmod>
+    <loc><?= $BASE ?>/guides</loc>
+    <xhtml:link rel="alternate" hreflang="ko" href="<?= $BASE ?>/guides"/>
+    <xhtml:link rel="alternate" hreflang="en" href="<?= $BASE ?>/guides?lang=en"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="<?= $BASE ?>/guides"/>
+    <lastmod><?= $TODAY ?></lastmod>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>
 
-  <!-- Published Insight Articles (Clean SSR URLs for Googlebot) -->
-  <?php foreach ($guides as $g): 
-    $lastModDate = !empty($g['updated_at']) ? date('Y-m-d', strtotime($g['updated_at'])) : (!empty($g['created_at']) ? date('Y-m-d', strtotime($g['created_at'])) : $today);
-  ?>
+  <!-- Guides Catalog (English) -->
   <url>
-    <loc><?= $baseUrl ?>/guides/<?= htmlspecialchars($g['slug'], ENT_XML1, 'UTF-8') ?></loc>
-    <lastmod><?= $lastModDate ?></lastmod>
+    <loc><?= $BASE ?>/guides?lang=en</loc>
+    <xhtml:link rel="alternate" hreflang="ko" href="<?= $BASE ?>/guides"/>
+    <xhtml:link rel="alternate" hreflang="en" href="<?= $BASE ?>/guides?lang=en"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="<?= $BASE ?>/guides"/>
+    <lastmod><?= $TODAY ?></lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- === Dynamic Guide Articles (DB-driven) === -->
+<?php foreach ($guides as $g): ?>
+<?php
+    $slug    = rawurlencode($g['slug']);
+    $lastmod = date('Y-m-d', strtotime($g['updated_at'] ?? $g['created_at']));
+    $koUrl   = $BASE . '/guides/' . $slug;
+    $enUrl   = $BASE . '/guides/' . $slug . '?lang=en';
+?>
+  <url>
+    <loc><?= $koUrl ?></loc>
+    <xhtml:link rel="alternate" hreflang="ko"        href="<?= $koUrl ?>"/>
+    <xhtml:link rel="alternate" hreflang="en"        href="<?= $enUrl ?>"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="<?= $koUrl ?>"/>
+    <lastmod><?= $lastmod ?></lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
-  <?php endforeach; ?>
+
+  <url>
+    <loc><?= $enUrl ?></loc>
+    <xhtml:link rel="alternate" hreflang="ko"        href="<?= $koUrl ?>"/>
+    <xhtml:link rel="alternate" hreflang="en"        href="<?= $enUrl ?>"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="<?= $koUrl ?>"/>
+    <lastmod><?= $lastmod ?></lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+<?php endforeach; ?>
+
 </urlset>

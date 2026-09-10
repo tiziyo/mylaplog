@@ -11,7 +11,10 @@ User-agent: Googlebot
 Allow: /
 Allow: /guides/
 Allow: /guides
+Allow: /sitemap.php
 
-# Sitemap
+# Sitemaps (dynamic hreflang + static fallback)
+Sitemap: https://www.mylaplog.com/sitemap.php
 Sitemap: https://www.mylaplog.com/sitemap.xml
+
 
