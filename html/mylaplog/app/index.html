@@ -91,43 +91,6 @@
       z-index: 0;
     }
 
-    /* Google Translate Integration & Layout Shift Prevention */
-    .goog-te-banner-frame.skiptranslate,
-    .goog-te-banner-frame,
-    iframe.goog-te-banner-frame,
-    iframe.skiptranslate {
-      display: none !important;
-      visibility: hidden !important;
-      height: 0 !important;
-      width: 0 !important;
-      border: none !important;
-      margin: 0 !important;
-      padding: 0 !important;
-    }
-    body {
-      top: 0px !important;
-      position: static !important;
-    }
-    #google_translate_element {
-      display: none !important;
-      visibility: hidden !important;
-      width: 0 !important;
-      height: 0 !important;
-    }
-    .skiptranslate:not(.goog-te-combo) {
-      display: none !important;
-    }
-    .goog-tooltip, .goog-tooltip:hover {
-      display: none !important;
-    }
-    .goog-text-highlight {
-      background-color: transparent !important;
-      box-shadow: none !important;
-    }
-    .notranslate {
-      -webkit-font-smoothing: antialiased;
-    }
-
     /* Layout: Sidebar + Main Content Area */
     .app-layout {
       display: flex;
@@ -336,35 +299,26 @@
 
     /* Top Bar */
     .topbar {
-      min-height: 64px;
-      height: auto;
+      height: 70px;
       border-bottom: 1px solid var(--border-subtle);
-      background: rgba(7, 9, 14, 0.85);
+      background: rgba(7, 9, 14, 0.75);
       backdrop-filter: blur(15px);
-      -webkit-backdrop-filter: blur(15px);
-      padding: 0.55rem 1.5rem;
+      padding: 0 1.75rem;
       display: flex;
       align-items: center;
       justify-content: space-between;
       position: sticky;
       top: 0;
       z-index: 40;
-      gap: 0.75rem;
-      row-gap: 0.45rem;
     }
 
     .topbar-left-cluster {
       display: flex;
       align-items: center;
       gap: 1rem;
-      flex-shrink: 0;
     }
 
     .mobile-brand-logo {
-      display: none;
-    }
-
-    .mobile-top-utility {
       display: none;
     }
 
@@ -382,19 +336,17 @@
     .topbar-actions {
       display: flex;
       align-items: center;
-      gap: 0.4rem;
-      row-gap: 0.35rem;
+      gap: 0.55rem;
       flex-wrap: wrap;
-      justify-content: flex-end;
     }
 
     /* Topbar Grouped Clusters & Spacing Optimization */
     .topbar-action-group {
       display: inline-flex;
       align-items: center;
-      gap: 0.28rem;
+      gap: 0.35rem;
       background: rgba(16, 21, 33, 0.45);
-      padding: 0.18rem 0.28rem;
+      padding: 0.22rem 0.35rem;
       border-radius: 8px;
       border: 1px solid rgba(255, 255, 255, 0.06);
     }
@@ -412,16 +364,16 @@
     }
     .topbar-divider {
       width: 1px;
-      height: 20px;
+      height: 22px;
       background: rgba(255, 255, 255, 0.12);
-      margin: 0 0.1rem;
+      margin: 0 0.15rem;
       flex-shrink: 0;
     }
     .topbar-actions .btn {
-      padding: 0.36rem 0.62rem;
-      font-size: 0.78rem;
+      padding: 0.42rem 0.75rem;
+      font-size: 0.8rem;
       font-weight: 700;
-      gap: 0.32rem;
+      gap: 0.35rem;
       border-radius: 6px;
       white-space: nowrap;
     }
@@ -2189,14 +2141,14 @@
         left: 0 !important;
         right: 0 !important;
         width: 100% !important;
-        height: calc(56px + env(safe-area-inset-bottom, 0px)) !important;
-        max-height: calc(56px + env(safe-area-inset-bottom, 0px)) !important;
+        height: calc(58px + env(safe-area-inset-bottom, 0px)) !important;
+        max-height: calc(58px + env(safe-area-inset-bottom, 0px)) !important;
         z-index: 1000 !important;
         display: flex !important;
         flex-direction: row !important;
         justify-content: space-around !important;
         align-items: center !important;
-        padding: 0.2rem 0.25rem calc(0.25rem + env(safe-area-inset-bottom, 0px)) 0.25rem !important;
+        padding: 0.25rem 0.35rem calc(0.35rem + env(safe-area-inset-bottom, 0px)) 0.35rem !important;
         background: rgba(10, 14, 24, 0.98) !important;
         backdrop-filter: blur(20px) !important;
         -webkit-backdrop-filter: blur(20px) !important;
@@ -2221,7 +2173,7 @@
       }
       .sidebar .nav-item {
         flex: 1 !important;
-        min-width: 0 !important;
+        min-width: 44px !important;
         margin: 0 !important;
         padding: 0 !important;
         text-align: center !important;
@@ -2232,31 +2184,30 @@
         align-items: center !important;
         justify-content: center !important;
         gap: 2px !important;
-        padding: 0.3rem 0.05rem !important;
+        padding: 0.35rem 0.1rem !important;
         border-radius: 8px !important;
         color: var(--text-muted) !important;
         border-left: none !important;
         text-decoration: none !important;
         transition: all 0.2s ease !important;
-        width: 100% !important;
       }
       .sidebar .nav-item a:active {
         transform: scale(0.92) !important;
       }
       .sidebar .nav-item a i {
-        width: 18px !important;
-        height: 18px !important;
+        width: 19px !important;
+        height: 19px !important;
         stroke-width: 2.2 !important;
       }
       .sidebar .nav-item span {
         display: block !important;
-        font-size: clamp(0.56rem, 1.9vw, 0.64rem) !important;
-        font-weight: 700 !important;
+        font-size: 0.63rem !important;
+        font-weight: 600 !important;
         letter-spacing: -0.4px !important;
         white-space: nowrap !important;
         overflow: hidden !important;
         text-overflow: ellipsis !important;
-        max-width: 100% !important;
+        max-width: 58px !important;
       }
       .sidebar .nav-item.active a {
         color: var(--accent-cyan) !important;
@@ -2289,20 +2240,20 @@
         overflow-x: hidden !important;
       }
 
-      /* 3. Slim & Ergonomic Mobile Top Action Bar */
+      /* 3. Slim Top Action Bar */
       .topbar {
         position: sticky !important;
         top: 0 !important;
         z-index: 900 !important;
         height: auto !important;
-        padding: 0.45rem 0.65rem 0.35rem 0.65rem !important;
+        padding: 0.55rem 0.85rem 0.5rem 0.85rem !important;
         flex-direction: column !important;
         align-items: stretch !important;
-        gap: 0.35rem !important;
+        gap: 0.4rem !important;
         background: rgba(7, 9, 14, 0.96) !important;
         backdrop-filter: blur(24px) !important;
         -webkit-backdrop-filter: blur(24px) !important;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.12) !important;
         box-shadow: 0 4px 20px rgba(0, 0, 0, 0.7) !important;
       }
       .topbar-left-cluster {
@@ -2311,19 +2262,16 @@
         justify-content: space-between !important;
         width: 100% !important;
       }
-      .desktop-only {
-        display: none !important;
-      }
       .mobile-brand-logo {
         display: inline-flex !important;
         align-items: center !important;
-        gap: 0.45rem !important;
+        gap: 0.5rem !important;
         cursor: pointer !important;
         user-select: none !important;
       }
       .mobile-logo-img {
-        width: 26px !important;
-        height: 26px !important;
+        width: 28px !important;
+        height: 28px !important;
         border-radius: 7px !important;
         object-fit: cover !important;
         box-shadow: 0 0 10px rgba(0, 240, 255, 0.45) !important;
@@ -2336,10 +2284,26 @@
       .mobile-brand-logo:active .mobile-logo-img {
         transform: scale(0.92) !important;
       }
+      .logo-badge-sm {
+        background: linear-gradient(135deg, var(--accent-red), #d90429) !important;
+        color: #fff !important;
+        font-family: var(--font-mono) !important;
+        font-size: 0.68rem !important;
+        font-weight: 900 !important;
+        font-style: italic !important;
+        padding: 0.15rem 0.42rem !important;
+        border-radius: 5px !important;
+        letter-spacing: 0.5px !important;
+        box-shadow: 0 0 10px rgba(255, 42, 75, 0.45) !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        line-height: 1.2 !important;
+      }
       .logo-brand-text {
         font-family: var(--font-display) !important;
         font-weight: 800 !important;
-        font-size: 1.05rem !important;
+        font-size: 1.15rem !important;
         letter-spacing: 0.4px !important;
         font-style: italic !important;
         color: #ffffff !important;
@@ -2347,32 +2311,26 @@
         -webkit-background-clip: text !important;
         -webkit-text-fill-color: transparent !important;
       }
-      .mobile-top-utility {
-        display: flex !important;
-        align-items: center !important;
-        gap: 0.3rem !important;
-      }
-      .btn-mobile-util {
-        padding: 0.22rem 0.5rem !important;
-        font-size: 0.72rem !important;
-        font-weight: 700 !important;
-        border-radius: 14px !important;
-        height: 28px !important;
+      .topbar .page-title h1 {
+        font-size: 0.85rem !important;
+        color: var(--text-muted) !important;
+        font-weight: 600 !important;
         display: inline-flex !important;
         align-items: center !important;
-        gap: 0.25rem !important;
-        background: rgba(255, 255, 255, 0.06) !important;
-        border: 1px solid rgba(255, 255, 255, 0.12) !important;
+        gap: 0.35rem !important;
+        background: rgba(255, 255, 255, 0.05) !important;
+        padding: 0.2rem 0.55rem !important;
+        border-radius: 6px !important;
+        border: 1px solid var(--border-subtle) !important;
       }
       .topbar-actions {
         display: flex !important;
         flex-direction: row !important;
-        flex-wrap: nowrap !important;
         overflow-x: auto !important;
         -webkit-overflow-scrolling: touch !important;
         white-space: nowrap !important;
         gap: 0.35rem !important;
-        padding: 0.05rem 0.1rem 0.15rem 0.1rem !important;
+        padding-bottom: 0.2rem !important;
         scrollbar-width: none !important;
         width: 100% !important;
       }
@@ -2383,28 +2341,25 @@
       }
       .topbar-action-group {
         display: inline-flex !important;
-        flex-wrap: nowrap !important;
-        gap: 0.35rem !important;
-        padding: 0 !important;
-        background: transparent !important;
-        border: none !important;
+        gap: 0.25rem !important;
+        padding: 0.15rem 0.25rem !important;
+        border-radius: 20px !important;
       }
       .topbar-divider {
         display: none !important;
       }
       .topbar-actions .btn {
         flex-shrink: 0 !important;
-        padding: 0.38rem 0.72rem !important;
-        font-size: 0.76rem !important;
+        padding: 0.38rem 0.65rem !important;
+        font-size: 0.74rem !important;
         white-space: nowrap !important;
-        border-radius: 20px !important;
+        border-radius: 16px !important;
         font-weight: 700 !important;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.3) !important;
       }
 
       /* 4. Body Content Layout */
       .content-body {
-        padding: 0.75rem 0.6rem calc(76px + env(safe-area-inset-bottom, 0px)) 0.6rem !important;
+        padding: 0.85rem 0.65rem calc(80px + env(safe-area-inset-bottom, 0px)) 0.65rem !important;
         max-width: 100% !important;
         box-sizing: border-box !important;
       }
@@ -2414,8 +2369,8 @@
       }
 
       .card {
-        margin-bottom: 0.75rem !important;
-        padding: 0.75rem 0.6rem !important;
+        margin-bottom: 0.85rem !important;
+        padding: 0.85rem 0.65rem !important;
         border-radius: 10px !important;
         width: 100% !important;
         max-width: 100% !important;
@@ -2424,34 +2379,34 @@
 
       .stats-grid {
         grid-template-columns: repeat(2, 1fr) !important;
-        gap: 0.5rem !important;
-        margin-bottom: 1rem !important;
+        gap: 0.55rem !important;
+        margin-bottom: 1.15rem !important;
       }
       .stat-card {
-        padding: 0.65rem 0.55rem !important;
+        padding: 0.75rem 0.65rem !important;
         border-radius: 8px !important;
       }
       .stat-card .stat-val {
-        font-size: 1.2rem !important;
+        font-size: 1.25rem !important;
         letter-spacing: -0.5px !important;
       }
       .stat-card .stat-label {
-        font-size: 0.7rem !important;
+        font-size: 0.72rem !important;
       }
       .stat-card .stat-sub {
-        font-size: 0.65rem !important;
+        font-size: 0.68rem !important;
       }
 
       /* 5. Mobile Cards Grids (1 Column) */
       .session-list-grid {
         grid-template-columns: 1fr !important;
-        gap: 0.6rem !important;
+        gap: 0.65rem !important;
         width: 100% !important;
         max-width: 100% !important;
         box-sizing: border-box !important;
       }
       .session-card {
-        padding: 0.75rem 0.6rem !important;
+        padding: 0.75rem 0.65rem !important;
         border-radius: 10px !important;
         width: 100% !important;
         max-width: 100% !important;
@@ -2463,32 +2418,32 @@
       }
       .garage-grid {
         grid-template-columns: 1fr !important;
-        gap: 0.75rem !important;
+        gap: 0.85rem !important;
       }
       .form-grid {
         grid-template-columns: 1fr !important;
-        gap: 0.7rem !important;
+        gap: 0.75rem !important;
       }
       .my-teams-grid {
         grid-template-columns: 1fr !important;
-        gap: 0.75rem !important;
+        gap: 0.85rem !important;
       }
       .team-hub-grid {
         grid-template-columns: 1fr !important;
-        gap: 0.75rem !important;
+        gap: 0.85rem !important;
       }
       .telemetry-cards-grid {
         grid-template-columns: 1fr !important;
-        gap: 0.6rem !important;
+        gap: 0.65rem !important;
       }
       .telemetry-chart-box {
-        height: 250px !important;
-        padding: 0.35rem !important;
+        height: 260px !important;
+        padding: 0.4rem !important;
       }
       .telemetry-filters-box {
         width: 100% !important;
         flex-direction: column !important;
-        gap: 0.45rem !important;
+        gap: 0.5rem !important;
       }
       .telemetry-filters-box > div,
       .telemetry-filters-box select {
@@ -2503,7 +2458,7 @@
         width: 100% !important;
         padding-bottom: 0.35rem !important;
         scrollbar-width: none !important;
-        gap: 0.35rem !important;
+        gap: 0.4rem !important;
       }
       .leaderboard-track-chips::-webkit-scrollbar {
         display: none !important;
@@ -2513,39 +2468,39 @@
       .leaderboard-track-chips button {
         flex-shrink: 0 !important;
         white-space: nowrap !important;
-        padding: 0.35rem 0.65rem !important;
-        font-size: 0.76rem !important;
+        padding: 0.4rem 0.75rem !important;
+        font-size: 0.78rem !important;
       }
 
       /* 6. Modal General Mobile Layout */
       .modal-overlay {
-        padding: 0.2rem 0.2rem !important;
+        padding: 0.25rem 0.25rem !important;
       }
       .modal-content {
         width: 100% !important;
         max-width: 100% !important;
         max-height: 94vh !important;
-        padding: 0.85rem 0.6rem !important;
+        padding: 1rem 0.65rem !important;
         border-radius: 12px !important;
         margin: auto !important;
         overflow-y: auto !important;
         -webkit-overflow-scrolling: touch !important;
       }
       .modal-header {
-        margin-bottom: 0.65rem !important;
-        padding-bottom: 0.4rem !important;
+        margin-bottom: 0.75rem !important;
+        padding-bottom: 0.45rem !important;
       }
       .modal-header h3 {
-        font-size: 1rem !important;
+        font-size: 1.05rem !important;
       }
 
       /* Floating Toast above Mobile Bottom Nav */
       .toast {
-        bottom: calc(68px + env(safe-area-inset-bottom, 0px)) !important;
-        right: 0.75rem !important;
-        left: 0.75rem !important;
-        padding: 0.65rem 0.85rem !important;
-        font-size: 0.82rem !important;
+        bottom: calc(70px + env(safe-area-inset-bottom, 0px)) !important;
+        right: 0.85rem !important;
+        left: 0.85rem !important;
+        padding: 0.75rem 1rem !important;
+        font-size: 0.85rem !important;
       }
 
       /* Mobile Input Font Size (prevents iOS auto-zoom) */
@@ -2751,23 +2706,22 @@
       .gps-status-badge {
         display: inline-flex;
         align-items: center;
-        gap: 0.3rem;
-        font-size: 0.65rem;
-        font-weight: 700;
-        padding: 0.12rem 0.45rem;
+        gap: 0.35rem;
+        font-size: 0.68rem;
+        font-weight: 800;
+        padding: 0.15rem 0.45rem;
         border-radius: 4px;
         background: rgba(0, 255, 136, 0.15);
         color: #00ff88;
         border: 1px solid rgba(0, 255, 136, 0.4);
+        margin-left: 0.4rem;
         vertical-align: middle;
         transition: all 0.25s ease;
         white-space: nowrap;
-        max-width: 100%;
       }
       .gps-modal-title {
         margin: 0;
-        font-size: clamp(0.95rem, 3.8vw, 1.15rem);
-        font-weight: 800;
+        font-size: 1.05rem;
         display: flex;
         align-items: center;
         gap: 0.4rem;
@@ -2836,6 +2790,10 @@
         font-weight: 800 !important;
         color: #fff !important;
         margin: 0 !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        gap: 0.35rem !important;
+        white-space: nowrap !important;
       }
       #gps-timer-modal .gps-status-badge {
         font-size: 0.65rem !important;
@@ -2901,7 +2859,7 @@
     }
 
       /* ============================================================ */
-      /* GPS Pit Lane Timer HUD & OLED Cockpit Styling                */
+      /* VBOX Pit Lane Timer HUD & OLED Cockpit Styling               */
       /* ============================================================ */
       #gps-pitlane-modal.modal-overlay {
         position: fixed !important;
@@ -2926,7 +2884,7 @@
         padding: 0.85rem 0.65rem calc(2rem + env(safe-area-inset-bottom, 20px)) 0.65rem !important;
         border-radius: 14px !important;
       }
-      .pit-vbox-hud, .pit-hud {
+      .pit-vbox-hud {
         background: radial-gradient(circle at 50% 30%, rgba(35, 20, 5, 0.95), #06070a);
         border: 2px solid rgba(255, 145, 0, 0.45);
         border-radius: 12px;
@@ -2935,17 +2893,12 @@
         box-shadow: inset 0 0 30px rgba(0,0,0,0.85), 0 0 20px rgba(255, 145, 0, 0.15);
         transition: border-color 0.25s ease, box-shadow 0.25s ease;
       }
-      .pit-vbox-hud.overspeed-alarm, .pit-hud.overspeed-alarm {
+      .pit-vbox-hud.overspeed-alarm {
         border-color: #ff2a4b !important;
         box-shadow: inset 0 0 35px rgba(255, 42, 75, 0.6), 0 0 25px rgba(255, 42, 75, 0.5) !important;
         animation: pit-alarm-pulse 0.4s infinite alternate;
       }
-      .pit-vbox-hud.imminent-alarm, .pit-hud.imminent-alarm {
-        border-color: #ff9100 !important;
-        box-shadow: inset 0 0 35px rgba(255, 145, 0, 0.6), 0 0 25px rgba(255, 145, 0, 0.5) !important;
-        animation: pit-imminent-pulse 0.6s infinite alternate;
-      }
-      .pit-vbox-hud.release-ready, .pit-hud.release-ready {
+      .pit-vbox-hud.release-ready {
         border-color: #00ff88 !important;
         box-shadow: inset 0 0 35px rgba(0, 255, 136, 0.4), 0 0 25px rgba(0, 255, 136, 0.4) !important;
       }
@@ -2953,27 +2906,15 @@
         0% { background: radial-gradient(circle at 50% 30%, rgba(60, 10, 20, 0.95), #06070a); }
         100% { background: radial-gradient(circle at 50% 30%, rgba(120, 15, 30, 0.95), #1a0508); }
       }
-      @keyframes pit-imminent-pulse {
-        0% { background: radial-gradient(circle at 50% 30%, rgba(65, 35, 5, 0.95), #06070a); }
-        100% { background: radial-gradient(circle at 50% 30%, rgba(125, 68, 10, 0.95), #1a0e02); }
-      }
       .pit-stage-pills {
         display: flex;
-        gap: 0.25rem;
+        gap: 0.3rem;
         margin-bottom: 0.6rem;
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
-        scrollbar-width: none;
-        padding-bottom: 2px;
-      }
-      .pit-stage-pills::-webkit-scrollbar {
-        display: none;
       }
       .pit-stage-pill {
-        flex: 1 0 auto;
-        min-width: 0;
+        flex: 1;
         text-align: center;
-        padding: 0.25rem 0.35rem;
+        padding: 0.25rem 0.2rem;
         border-radius: 4px;
         font-size: 0.65rem;
         font-weight: 800;
@@ -3022,27 +2963,11 @@
       #gps-timer-modal.modal-overlay,
       #gps-pitlane-modal.modal-overlay {
         padding: 0.35rem 0.25rem calc(6.5rem + env(safe-area-inset-bottom, 35px)) 0.25rem !important;
-        overflow-x: hidden !important;
       }
       #gps-timer-modal .modal-content,
       #gps-pitlane-modal .modal-content {
         padding: 0.65rem 0.45rem calc(2.2rem + env(safe-area-inset-bottom, 25px)) 0.45rem !important;
         border-radius: 12px !important;
-        overflow-x: hidden !important;
-        box-sizing: border-box !important;
-        max-width: 100% !important;
-      }
-      .gps-main-action-grid {
-        grid-template-columns: 1fr !important;
-        gap: 0.45rem !important;
-      }
-      .gps-main-action-grid button {
-        width: 100% !important;
-        justify-content: center !important;
-        white-space: normal !important;
-        word-break: keep-all !important;
-        text-align: center !important;
-        padding: 0.65rem 0.5rem !important;
       }
       #gps-timer-modal .gps-toolbar-row,
       #gps-pitlane-modal .gps-toolbar-row {
@@ -3076,23 +3001,15 @@
       #gps-pitlane-modal .gps-bottom-actions button {
         width: 100% !important;
         justify-content: center !important;
-        white-space: normal !important;
-        word-break: keep-all !important;
       }
       .pit-stage-pills {
-        gap: 0.25rem !important;
+        gap: 2px !important;
         margin-bottom: 0.5rem !important;
-        overflow-x: auto !important;
-        -webkit-overflow-scrolling: touch !important;
-        scrollbar-width: none !important;
       }
       .pit-stage-pill {
-        padding: 0.22rem 0.35rem !important;
-        font-size: 0.65rem !important;
-        flex: 0 0 auto !important;
-        white-space: nowrap !important;
+        padding: 0.25rem 0.1rem !important;
+        font-size: clamp(0.55rem, 2.2vw, 0.65rem) !important;
       }
-      #btn-gps-toggle,
       #btn-pit-toggle {
         min-height: 48px !important;
         font-size: 0.95rem !important;
@@ -3430,22 +3347,8 @@
             <span class="logo-brand-text">MyLapLog</span>
           </div>
 
-          <div class="page-title desktop-only">
+          <div class="page-title">
             <h1 id="current-page-title"><i data-lucide="layout-dashboard"></i> 대시보드</h1>
-          </div>
-
-          <!-- Mobile Utility Cluster (Language, Install, Auth) -->
-          <div class="mobile-top-utility">
-            <button type="button" class="btn btn-lang-toggle btn-mobile-util" id="app-lang-toggle-btn-m" onclick="toggleLanguage()" title="한국어 / English 번역 전환">
-              <i data-lucide="globe" style="width:12px; height:12px; color:var(--accent-cyan);"></i>
-              <span class="lang-label-text"><strong>KO</strong>/EN</span>
-            </button>
-            <button class="btn btn-outline-install btn-mobile-util" id="btn-pwa-install-m" onclick="handleInstallAppClick()" title="홈 화면 바로가기 추가">
-              <i data-lucide="download-cloud" style="width:12px; height:12px;"></i> <span>설치</span>
-            </button>
-            <button class="btn btn-cyan btn-mobile-util" id="topbar-auth-btn-m" onclick="handleAuthButtonClick()" title="사용자 로그인 / 프로필">
-              <i data-lucide="user" style="width:12px; height:12px;"></i> <span>로그인</span>
-            </button>
           </div>
         </div>
         <div class="topbar-actions">
@@ -3478,10 +3381,10 @@
             </button>
           </div>
 
-          <div class="topbar-divider desktop-only"></div>
+          <div class="topbar-divider"></div>
 
-          <!-- Category 3: 데스크탑 시스템 유틸리티 & 계정 (Desktop Only) -->
-          <div class="topbar-action-group group-system desktop-only" title="시스템 및 계정">
+          <!-- Category 3: 시스템 유틸리티 & 계정 (Utility & Account) -->
+          <div class="topbar-action-group group-system" title="시스템 및 계정">
             <button class="btn btn-outline-install" id="btn-pwa-install" onclick="handleInstallAppClick()" title="바탕화면 / 스마트폰 홈 화면에 바로가기 아이콘 생성">
               <i data-lucide="download-cloud"></i> <span>앱 설치</span>
             </button>
@@ -4789,7 +4692,7 @@
                 <label style="font-size:0.75rem; color:var(--text-muted);">외기 기온 (°C)</label>
                 <div class="stepper-group">
                   <button type="button" class="stepper-btn" onclick="adjustStepper('sess-air-temp', -0.5, 1, -20, 60)">-</button>
-                  <input type="number" step="0.5" class="form-control compact-input" id="sess-air-temp" placeholder="25.0" inputmode="decimal">
+                  <input type="number" step="0.1" class="form-control compact-input" id="sess-air-temp" placeholder="25.0" inputmode="decimal">
                   <button type="button" class="stepper-btn" onclick="adjustStepper('sess-air-temp', 0.5, 1, -20, 60)">+</button>
                 </div>
               </div>
@@ -4797,7 +4700,7 @@
                 <label style="font-size:0.75rem; color:var(--accent-orange);">아스팔트 노면온도 (°C)</label>
                 <div class="stepper-group">
                   <button type="button" class="stepper-btn" onclick="adjustStepper('sess-track-temp', -1.0, 1, -10, 80)">-</button>
-                  <input type="number" step="0.5" class="form-control compact-input" id="sess-track-temp" placeholder="40.0" inputmode="decimal">
+                  <input type="number" step="0.1" class="form-control compact-input" id="sess-track-temp" placeholder="40.0" inputmode="decimal">
                   <button type="button" class="stepper-btn" onclick="adjustStepper('sess-track-temp', 1.0, 1, -10, 80)">+</button>
                 </div>
               </div>
@@ -5254,30 +5157,23 @@
     <div class="modal-content" style="max-width: 680px; width: 96%; background: #07090e; border: 1px solid rgba(0,240,255,0.4); box-shadow: 0 0 35px rgba(0,240,255,0.25); padding: 1rem 1.1rem; border-radius: 14px;">
       
       <!-- Modal Header -->
-      <div class="modal-header" style="border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 0.65rem; margin-bottom: 0.75rem; display:flex; justify-content:space-between; align-items:flex-start; gap:0.5rem;">
-        <div style="display:flex; align-items:flex-start; gap:0.5rem; min-width:0; flex:1;">
-          <div style="width:30px; height:30px; border-radius:6px; background:rgba(0,240,255,0.15); display:flex; align-items:center; justify-content:center; color:var(--accent-cyan); flex-shrink:0; margin-top:2px;">
+      <div class="modal-header" style="border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 0.65rem; margin-bottom: 0.75rem; display:flex; justify-content:space-between; align-items:center;">
+        <div style="display:flex; align-items:center; gap:0.5rem; min-width:0;">
+          <div style="width:30px; height:30px; border-radius:6px; background:rgba(0,240,255,0.15); display:flex; align-items:center; justify-content:center; color:var(--accent-cyan); flex-shrink:0;">
             <i data-lucide="crosshair" style="width:18px; height:18px;"></i>
           </div>
-          <div style="min-width:0; flex:1;">
-            <h3 class="gps-modal-title" style="margin:0; font-size:clamp(0.95rem, 3.8vw, 1.15rem); font-weight:800; color:#fff; display:flex; align-items:center; gap:0.4rem; flex-wrap:wrap;">
-              <span>GPS 실시간 랩타이머</span>
-            </h3>
-            <div style="display:flex; align-items:center; gap:0.35rem; flex-wrap:wrap; margin-top:0.25rem;">
-              <span id="gps-status-badge" class="gps-status-badge" style="margin-left:0;">
+          <div style="min-width:0;">
+            <h3 class="gps-modal-title">
+              <span class="gps-nowrap">GPS 실시간 랩타이머</span>
+              <span id="gps-status-badge" class="gps-status-badge">
                 <span class="gps-radar-pulse" id="gps-header-dot"></span>
                 <span id="gps-header-status-text">대기중</span>
               </span>
-              <span style="font-size:0.68rem; color:var(--text-muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%;">스마트폰 GPS 랩타임 & 최고속도 실시간 계측</span>
-            </div>
+            </h3>
+            <span style="font-size:0.7rem; color:var(--text-muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; display:block;">스마트폰 GPS 랩타임 & 최고속도 실시간 계측</span>
           </div>
         </div>
-        <div style="display:flex; align-items:center; gap:0.35rem; flex-shrink:0; margin-top:2px;">
-          <button type="button" class="btn btn-secondary btn-sm gps-nowrap" onclick="copyGpsTimerDirectLink()" style="font-size:0.68rem; padding:0.22rem 0.45rem; background:rgba(0,240,255,0.1); border-color:rgba(0,240,255,0.3); color:var(--accent-cyan);" title="이 랩타이머 화면으로 즉시 열리는 바로가기 링크를 복사합니다.">
-            <i data-lucide="link" style="width:11px; height:11px;"></i> <span>바로가기 복사</span>
-          </button>
-          <button class="modal-close" onclick="closeGpsLapTimerModal()" style="font-size:1.4rem; color:var(--text-muted); background:transparent; border:none; cursor:pointer; line-height:1; padding:0 0.15rem;">&times;</button>
-        </div>
+        <button class="modal-close" onclick="closeGpsLapTimerModal()" style="font-size:1.4rem; color:var(--text-muted); background:transparent; border:none; cursor:pointer; flex-shrink:0;">&times;</button>
       </div>
 
       <!-- Top Toolbar: Circuit Selection & Start/Finish Gate Options -->
@@ -5301,11 +5197,11 @@
       <div style="background: radial-gradient(circle at 50% 30%, rgba(15,25,45,0.95), #05070c); border: 2px solid rgba(0,240,255,0.35); border-radius: 12px; padding: 0.85rem 1rem; margin-bottom: 0.75rem; box-shadow: inset 0 0 25px rgba(0,0,0,0.8);">
         
         <!-- Speedometer & Top Speed Row -->
-        <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 0.55rem; align-items:stretch; margin-bottom:0.75rem;">
+        <div style="display:grid; grid-template-columns: 1.1fr 1fr; gap: 0.75rem; align-items:center; margin-bottom:0.75rem;">
           <!-- Speedometer -->
-          <div style="background:rgba(0,0,0,0.5); padding:0.65rem 0.75rem; border-radius:8px; border:1px solid rgba(255,255,255,0.06); text-align:center; display:flex; flex-direction:column; justify-content:center; min-width:0;">
+          <div style="background:rgba(0,0,0,0.5); padding:0.65rem 0.85rem; border-radius:8px; border:1px solid rgba(255,255,255,0.06); text-align:center;">
             <div style="font-size:0.72rem; color:var(--text-muted); font-family:var(--font-display); letter-spacing:1px; display:flex; justify-content:space-between; align-items:center; white-space:nowrap;">
-              <span class="gps-hud-label">SPEED</span>
+              <span class="gps-hud-label">CURRENT SPEED</span>
               <span id="gps-speed-unit" style="color:var(--accent-cyan); font-weight:700;">KM/H</span>
             </div>
             <div id="gps-current-speed" style="font-family:var(--font-mono); font-size:clamp(2.2rem, 8vw, 3.2rem); font-weight:900; color:#00f0ff; line-height:1.1; margin:0.2rem 0; text-shadow:0 0 15px rgba(0,240,255,0.5);">
@@ -5317,43 +5213,85 @@
           </div>
 
           <!-- Top Speed & Sat Info -->
-          <div style="display:flex; flex-direction:column; gap:0.45rem; min-width:0;">
+          <div style="display:flex; flex-direction:column; gap:0.5rem;">
             <!-- Top Speed Box -->
-            <div style="background:rgba(255,107,129,0.08); padding:0.45rem 0.65rem; border-radius:8px; border:1px solid rgba(255,107,129,0.3); display:flex; justify-content:space-between; align-items:center; overflow:hidden; min-width:0;">
-              <div style="min-width:0;">
-                <div class="gps-hud-label" style="color:var(--text-muted); font-size:0.65rem;">TOP SPEED</div>
-                <div id="gps-top-speed" class="gps-hud-value" style="font-size:1.25rem; font-weight:900; color:#ff6b81; white-space:nowrap;">0.0 <small style="font-size:0.7rem;">km/h</small></div>
+            <div style="background:rgba(255,107,129,0.08); padding:0.5rem 0.75rem; border-radius:8px; border:1px solid rgba(255,107,129,0.3); display:flex; justify-content:space-between; align-items:center; white-space:nowrap;">
+              <div>
+                <div class="gps-hud-label" style="color:var(--text-muted);">TOP SPEED</div>
+                <div id="gps-top-speed" class="gps-hud-value" style="font-size:1.35rem; font-weight:900; color:#ff6b81;">0.0 <small style="font-size:0.75rem;">km/h</small></div>
               </div>
-              <i data-lucide="gauge" style="width:18px; height:18px; color:#ff6b81; opacity:0.8; flex-shrink:0;"></i>
+              <i data-lucide="gauge" style="width:22px; height:22px; color:#ff6b81; opacity:0.8; flex-shrink:0;"></i>
             </div>
 
             <!-- GPS Accuracy & Signal Quality Indicator -->
-            <div id="gps-accuracy-card" style="background:rgba(0,0,0,0.55); padding:0.4rem 0.55rem; border-radius:8px; border:1px solid rgba(0,240,255,0.25); font-size:0.7rem; color:var(--text-muted); display:flex; flex-direction:column; gap:0.3rem; min-width:0; overflow:hidden;">
-              <div style="display:flex; justify-content:space-between; align-items:center; gap:0.25rem; flex-wrap:wrap;">
-                <div style="display:flex; align-items:center; gap:0.25rem; min-width:0;">
+            <div id="gps-accuracy-card" style="background:rgba(0,0,0,0.55); padding:0.45rem 0.65rem; border-radius:8px; border:1px solid rgba(0,240,255,0.25); font-size:0.72rem; color:var(--text-muted); display:flex; flex-direction:column; gap:0.35rem;">
+              <div style="display:flex; justify-content:space-between; align-items:center; white-space:nowrap;">
+                <div style="display:flex; align-items:center; gap:0.35rem;">
                   <span id="gps-pulse-dot" class="gps-radar-pulse"></span>
-                  <span class="gps-hud-label" style="color:#fff; font-size:0.65rem;">GPS 정밀도</span>
+                  <span class="gps-hud-label" style="color:#fff;">GPS 정밀도</span>
                 </div>
-                <div style="display:flex; align-items:center; gap:0.25rem; flex-shrink:0;">
+                <div style="display:flex; align-items:center; gap:0.35rem;">
                   <div class="gps-signal-meter" id="gps-signal-bars" data-level="0" title="GPS 수신 강도 (4단계)">
                     <div class="gps-signal-bar"></div>
                     <div class="gps-signal-bar"></div>
                     <div class="gps-signal-bar"></div>
                     <div class="gps-signal-bar"></div>
                   </div>
-                  <span id="gps-accuracy-badge" class="gps-hud-value" style="font-size:0.62rem; font-weight:800; padding:0.08rem 0.3rem; border-radius:4px; background:rgba(255,255,255,0.08); color:var(--text-muted); border:1px solid rgba(255,255,255,0.12); white-space:nowrap;">대기중</span>
+                  <span id="gps-accuracy-badge" class="gps-hud-value" style="font-size:0.65rem; font-weight:800; padding:0.1rem 0.35rem; border-radius:4px; background:rgba(255,255,255,0.08); color:var(--text-muted); border:1px solid rgba(255,255,255,0.12);">대기중</span>
                 </div>
               </div>
-              <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.68rem; padding-top:0.2rem; border-top:1px solid rgba(255,255,255,0.06); gap:0.2rem;">
-                <span style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">오차: <strong id="gps-accuracy-txt" class="gps-hud-value" style="color:var(--text-muted);">±--m</strong></span>
-                <span style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">게이트: <strong id="gps-gate-dist" class="gps-hud-value" style="color:#fff;">- m</strong></span>
+              <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.7rem; padding-top:0.25rem; border-top:1px solid rgba(255,255,255,0.06); white-space:nowrap;">
+                <span>오차: <strong id="gps-accuracy-txt" class="gps-hud-value" style="color:var(--text-muted);">±--m</strong></span>
+                <span>게이트: <strong id="gps-gate-dist" class="gps-hud-value" style="color:#fff;">- m</strong></span>
               </div>
             </div>
           </div>
         </div>
 
+        <!-- GPS Coordinates & Dynamic Heading Compass Widget -->
+        <div id="gps-coords-heading-bar" style="background:rgba(0,0,0,0.52); padding:0.55rem 0.8rem; border-radius:9px; border:1px solid rgba(0,240,255,0.22); margin-bottom:0.75rem; display:grid; grid-template-columns: 1.15fr 1fr; gap:0.65rem; align-items:center;">
+          
+          <!-- Left: Real-time Compass & Heading Indicator -->
+          <div style="display:flex; align-items:center; gap:0.6rem; min-width:0;">
+            <!-- Compass Dial with Rotating Needle -->
+            <div class="gps-compass-dial" title="진행 방향 나침반 (N: 북쪽 기준)">
+              <span class="gps-compass-n-mark">N</span>
+              <div id="gps-compass-needle" class="gps-compass-needle-wrap" style="transform: rotate(0deg);">
+                <i data-lucide="navigation" style="width:16px; height:16px; color:#00f0ff; fill:rgba(0,240,255,0.7); filter:drop-shadow(0 0 3px #00f0ff);"></i>
+              </div>
+            </div>
+
+            <!-- Heading Angle & 16-Wind Cardinal Text -->
+            <div style="min-width:0;">
+              <div class="gps-hud-label" style="font-size:0.65rem; color:var(--text-muted); display:flex; align-items:center; gap:0.25rem; margin:0;">
+                <i data-lucide="compass" style="width:11px; height:11px; color:var(--accent-cyan);"></i> <span>진행 방향</span>
+              </div>
+              <div style="display:flex; align-items:baseline; gap:0.35rem; margin-top:0.12rem;">
+                <span id="gps-heading-deg" style="font-family:var(--font-mono); font-size:1.02rem; font-weight:900; color:#00f0ff; line-height:1;">--°</span>
+                <span id="gps-heading-cardinal" style="font-size:0.75rem; font-weight:700; color:#e2e8f0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">대기</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right: High-Precision Live Coordinates (Lat/Lon) -->
+          <div style="border-left:1px solid rgba(255,255,255,0.08); padding-left:0.65rem; min-width:0;">
+            <div class="gps-hud-label" style="font-size:0.65rem; color:var(--text-muted); display:flex; align-items:center; gap:0.25rem; margin:0;">
+              <i data-lucide="map-pin" style="width:11px; height:11px; color:var(--accent-green);"></i> <span>현재 좌표 (WGS84)</span>
+            </div>
+            <div style="font-family:var(--font-mono); font-size:0.72rem; color:#f0f4fc; margin-top:0.15rem; display:flex; flex-direction:column; gap:0.12rem;">
+              <div style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+                <span style="color:var(--text-muted); font-size:0.65rem;">위도(LAT):</span> <strong id="gps-coord-lat" style="color:#00ff88; font-weight:800;">--.------°</strong>
+              </div>
+              <div style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+                <span style="color:var(--text-muted); font-size:0.65rem;">경도(LON):</span> <strong id="gps-coord-lon" style="color:#00f0ff; font-weight:800;">--.------°</strong>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
         <!-- Live Lap Timer Display -->
-        <div style="background:rgba(0,0,0,0.6); padding:0.75rem 1rem; border-radius:10px; border:1px solid rgba(0,240,255,0.3); text-align:center; margin-bottom:0.65rem;">
+        <div style="background:rgba(0,0,0,0.6); padding:0.75rem 1rem; border-radius:10px; border:1px solid rgba(0,240,255,0.3); text-align:center; margin-bottom:0.75rem;">
           <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.15rem; gap:0.4rem; white-space:nowrap;">
             <span class="gps-hud-label" style="color:var(--accent-cyan); letter-spacing:1px; font-family:var(--font-display);">
               LIVE LAP TIME <span id="gps-lap-num-badge" style="background:var(--accent-cyan); color:#000; font-size:0.65rem; padding:0.1rem 0.35rem; border-radius:3px; margin-left:0.25rem;">LAP 1</span>
@@ -5366,7 +5304,7 @@
         </div>
 
         <!-- Best Lap & Last Lap 2-Col Grid -->
-        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:0.65rem; margin-bottom:0.65rem;">
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:0.65rem;">
           <!-- Best Lap -->
           <div style="background:rgba(0,255,136,0.08); padding:0.55rem 0.75rem; border-radius:8px; border:1px solid rgba(0,255,136,0.3); white-space:nowrap;">
             <div class="gps-hud-label" style="color:var(--accent-green);">
@@ -5388,48 +5326,14 @@
           </div>
         </div>
 
-        <!-- GPS Coordinates & Dynamic Heading Compass Widget (Bottom of HUD) -->
-        <div id="gps-coords-heading-bar" class="gps-coords-heading-bar" style="background:rgba(0,0,0,0.52); padding:0.5rem 0.65rem; border-radius:9px; border:1px solid rgba(0,240,255,0.22); display:grid; grid-template-columns: 1fr 1fr; gap:0.5rem; align-items:center;">
-          
-          <!-- Left: Real-time Compass & Heading Indicator -->
-          <div style="display:flex; align-items:center; gap:0.5rem; min-width:0;">
-            <!-- Compass Dial with Rotating Needle -->
-            <div class="gps-compass-dial" title="진행 방향 나침반 (N: 북쪽 기준)">
-              <span class="gps-compass-n-mark">N</span>
-              <div id="gps-compass-needle" class="gps-compass-needle-wrap" style="transform: rotate(0deg);">
-                <i data-lucide="navigation" style="width:15px; height:15px; color:#00f0ff; fill:rgba(0,240,255,0.7); filter:drop-shadow(0 0 3px #00f0ff);"></i>
-              </div>
-            </div>
-
-            <!-- Heading Angle & 16-Wind Cardinal Text -->
-            <div style="min-width:0; display:flex; align-items:baseline; gap:0.35rem; flex-wrap:wrap;">
-              <span id="gps-heading-deg" style="font-family:var(--font-mono); font-size:1.05rem; font-weight:900; color:#00f0ff; line-height:1;">--°</span>
-              <span id="gps-heading-cardinal" style="font-size:0.75rem; font-weight:700; color:#e2e8f0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">대기</span>
-            </div>
-          </div>
-
-          <!-- Right: High-Precision Live Coordinates (Lat/Lon) -->
-          <div style="border-left:1px solid rgba(255,255,255,0.08); padding-left:0.5rem; min-width:0; display:flex; flex-direction:column; justify-content:center;">
-            <div style="font-family:var(--font-mono); font-size:0.72rem; color:#f0f4fc; display:flex; flex-direction:column; gap:0.15rem;">
-              <div style="display:flex; justify-content:space-between; align-items:center; gap:0.2rem; white-space:nowrap;">
-                <span style="color:var(--text-muted); font-size:0.65rem;">LAT:</span> <strong id="gps-coord-lat" style="color:#00ff88; font-weight:800; font-size:0.72rem;">--.------°</strong>
-              </div>
-              <div style="display:flex; justify-content:space-between; align-items:center; gap:0.2rem; white-space:nowrap;">
-                <span style="color:var(--text-muted); font-size:0.65rem;">LON:</span> <strong id="gps-coord-lon" style="color:#00f0ff; font-weight:800; font-size:0.72rem;">--.------°</strong>
-              </div>
-            </div>
-          </div>
-
-        </div>
-
       </div>
 
-      <!-- Main Action Controls (2 Vertical Full-Width Rows) -->
-      <div class="gps-main-action-grid" style="display:flex; flex-direction:column; gap:0.5rem; margin-bottom:0.75rem;">
-        <button type="button" id="btn-gps-toggle" class="btn btn-primary" onclick="toggleGpsTracking()" style="width:100%; padding:0.8rem 0.5rem; font-size:clamp(0.92rem, 3.8vw, 1.05rem); font-weight:800; justify-content:center; box-shadow:0 4px 15px rgba(255,42,75,0.4);">
+      <!-- Main Action Controls -->
+      <div style="display:grid; grid-template-columns: 1.4fr 1fr; gap:0.5rem; margin-bottom:0.75rem;">
+        <button type="button" id="btn-gps-toggle" class="btn btn-primary gps-nowrap" onclick="toggleGpsTracking()" style="padding:0.75rem 0.5rem; font-size:clamp(0.85rem, 3.5vw, 0.95rem); font-weight:800; justify-content:center; box-shadow:0 4px 15px rgba(255,42,75,0.4);">
           <i data-lucide="play" id="gps-toggle-icon"></i> <span id="gps-toggle-text">GPS 주행 측정 시작</span>
         </button>
-        <button type="button" class="btn btn-secondary" onclick="resetGpsSession()" style="width:100%; padding:0.65rem 0.5rem; font-size:0.88rem; justify-content:center;">
+        <button type="button" class="btn btn-secondary gps-nowrap" onclick="resetGpsSession()" style="padding:0.75rem 0.5rem; font-size:0.85rem; justify-content:center;">
           <i data-lucide="rotate-ccw"></i> 계측 초기화
         </button>
       </div>
@@ -5440,7 +5344,7 @@
           <button type="button" class="btn btn-secondary btn-sm gps-nowrap" onclick="simulateGpsLap()" style="font-size:0.72rem; padding:0.3rem 0.55rem; background:rgba(255,145,0,0.1); border-color:rgba(255,145,0,0.3); color:var(--accent-orange);" title="실내에서 GPS 랩타이머 동작을 체험해보는 가상 주행 모드">
             <i data-lucide="play-circle" style="width:12px; height:12px;"></i> 가상 주행 시뮬레이션
           </button>
-          <button type="button" class="btn btn-secondary btn-sm gps-nowrap" onclick="switchGpsModalToPitLane()" style="font-size:0.72rem; padding:0.3rem 0.55rem; background:rgba(255,145,0,0.1); border-color:rgba(255,145,0,0.3); color:var(--accent-orange);" title="GPS 피트레인 타이머로 바로 전환">
+          <button type="button" class="btn btn-secondary btn-sm gps-nowrap" onclick="switchGpsModalToPitLane()" style="font-size:0.72rem; padding:0.3rem 0.55rem; background:rgba(255,145,0,0.1); border-color:rgba(255,145,0,0.3); color:var(--accent-orange);" title="피트레인 타이머로 바로 전환">
             <i data-lucide="traffic-cone" style="width:12px; height:12px;"></i> 🛑 피트타이머 전환
           </button>
         </div>
@@ -5465,46 +5369,35 @@
     </div>
   </div>
 
-  <!-- GPS Pit Lane Timer Cockpit HUD Modal -->
+  <!-- VBOX GPS Pit Lane Timer Cockpit HUD Modal -->
   <div class="modal-overlay" id="gps-pitlane-modal" style="display:none; z-index: 1051;">
     <div class="modal-content" style="max-width: 680px; width: 96%; background: #07090e; border: 1px solid rgba(255,145,0,0.45); box-shadow: 0 0 35px rgba(255,145,0,0.25); padding: 1rem 1.1rem; border-radius: 14px;">
       
       <!-- Modal Header -->
-      <div class="modal-header" style="border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 0.65rem; margin-bottom: 0.75rem; display:flex; justify-content:space-between; align-items:flex-start; gap:0.5rem;">
-        <div style="display:flex; align-items:flex-start; gap:0.5rem; min-width:0; flex:1;">
-          <div style="width:30px; height:30px; border-radius:6px; background:rgba(255,145,0,0.15); display:flex; align-items:center; justify-content:center; color:var(--accent-orange); flex-shrink:0; margin-top:2px;">
+      <div class="modal-header" style="border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 0.65rem; margin-bottom: 0.75rem; display:flex; justify-content:space-between; align-items:center;">
+        <div style="display:flex; align-items:center; gap:0.5rem; min-width:0;">
+          <div style="width:30px; height:30px; border-radius:6px; background:rgba(255,145,0,0.15); display:flex; align-items:center; justify-content:center; color:var(--accent-orange); flex-shrink:0;">
             <i data-lucide="traffic-cone" style="width:18px; height:18px;"></i>
           </div>
-          <div style="min-width:0; flex:1;">
-            <h3 class="gps-modal-title" style="margin:0; font-size:clamp(0.95rem, 3.8vw, 1.15rem); font-weight:800; color:#fff; display:flex; align-items:center; gap:0.4rem; flex-wrap:wrap;">
-              <span>GPS 피트레인 타이머</span>
-            </h3>
-            <div style="display:flex; align-items:center; gap:0.35rem; flex-wrap:wrap; margin-top:0.25rem;">
-              <span id="pit-status-badge" class="gps-status-badge" style="background:rgba(255,145,0,0.15); color:var(--accent-orange); border-color:rgba(255,145,0,0.4); margin-left:0;">
+          <div style="min-width:0;">
+            <h3 class="gps-modal-title">
+              <span class="gps-nowrap">GPS 피트레인 타이머</span>
+              <span id="pit-status-badge" class="gps-status-badge" style="background:rgba(255,145,0,0.15); color:var(--accent-orange); border-color:rgba(255,145,0,0.4);">
                 <span class="gps-radar-pulse active-orange" id="pit-header-dot"></span>
                 <span id="pit-header-status-text">대기중</span>
               </span>
-              <span style="font-size:0.68rem; color:var(--text-muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%;">정밀 스피드리밋 · 정차 카운트다운 · 릴리즈 델타 감시</span>
-            </div>
+            </h3>
+            <span style="font-size:0.7rem; color:var(--text-muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; display:block;">피트 스피드리밋 · 정차 카운트다운 · 릴리즈 델타 감시</span>
           </div>
         </div>
-        <div style="display:flex; align-items:center; gap:0.35rem; flex-shrink:0; margin-top:2px;">
-          <button type="button" class="btn btn-secondary btn-sm gps-nowrap" onclick="copyPitTimerDirectLink()" style="font-size:0.68rem; padding:0.22rem 0.45rem; background:rgba(255,145,0,0.1); border-color:rgba(255,145,0,0.3); color:var(--accent-orange);" title="이 피트타이머 화면으로 즉시 열리는 바로가기 링크를 복사합니다.">
-            <i data-lucide="link" style="width:11px; height:11px;"></i> <span>바로가기 복사</span>
-          </button>
-          <button class="modal-close" onclick="closeGpsPitLaneTimerModal()" style="font-size:1.4rem; color:var(--text-muted); background:transparent; border:none; cursor:pointer; line-height:1; padding:0 0.15rem;">&times;</button>
-        </div>
+        <button class="modal-close" onclick="closeGpsPitLaneTimerModal()" style="font-size:1.4rem; color:var(--text-muted); background:transparent; border:none; cursor:pointer; flex-shrink:0;">&times;</button>
       </div>
 
-      <!-- Toolbar: Circuit, Speed Limit, Target Rule & Imminent Alert Config -->
-      <div class="pit-toolbar-grid" style="background: rgba(16,21,33,0.85); padding: 0.6rem 0.65rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.08); margin-bottom: 0.75rem; display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.5rem 0.55rem; align-items: end;">
-        
-        <!-- 1. 서킷 선택 -->
-        <div style="display: flex; flex-direction: column; gap: 0.2rem; min-width: 0;">
-          <label style="font-size: 0.7rem; font-weight: 700; color: var(--text-muted); margin: 0; display: flex; align-items: center; gap: 0.25rem; white-space: nowrap;">
-            <i data-lucide="flag" style="width: 11px; height: 11px; color: var(--accent-orange);"></i> 서킷
-          </label>
-          <select id="pit-track-select" class="form-control compact-input" style="width: 100%; font-size: 0.76rem; padding: 0.35rem 1.1rem 0.35rem 0.45rem; height: auto; background: rgba(0,0,0,0.6); text-overflow: ellipsis; white-space: nowrap;" onchange="onPitTrackSelectChange()">
+      <!-- Toolbar: Circuit, Speed Limit & Target Rule Config -->
+      <div class="gps-toolbar-row" style="background: rgba(16,21,33,0.85); padding: 0.6rem 0.75rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.08); margin-bottom: 0.75rem; display:flex; gap:0.5rem; flex-wrap:wrap;">
+        <div class="gps-toolbar-select-wrap" style="flex:1.2; min-width:140px;">
+          <label style="font-size:0.72rem; color:var(--text-muted); margin:0; white-space:nowrap; flex-shrink:0;"><i data-lucide="flag" style="width:11px; height:11px;"></i> 서킷:</label>
+          <select id="pit-track-select" class="form-control compact-input" style="font-size:0.78rem; padding:0.3rem 0.5rem; height:auto; background:rgba(0,0,0,0.6);" onchange="onPitTrackSelectChange()">
             <option value="1">인제 스피디움</option>
             <option value="2">영암 KIC</option>
             <option value="3">용인 에버랜드</option>
@@ -5513,50 +5406,41 @@
           </select>
         </div>
 
-        <!-- 2. 제한속도 -->
-        <div style="display: flex; flex-direction: column; gap: 0.2rem; min-width: 0;">
-          <label style="font-size: 0.7rem; font-weight: 700; color: var(--text-muted); margin: 0; display: flex; align-items: center; gap: 0.25rem; white-space: nowrap;">
-            <i data-lucide="gauge" style="width: 11px; height: 11px; color: var(--accent-orange);"></i> 제한속도
-          </label>
-          <select id="pit-limit-select" class="form-control compact-input" style="width: 100%; font-size: 0.76rem; padding: 0.35rem 1.1rem 0.35rem 0.45rem; height: auto; background: rgba(0,0,0,0.6); white-space: nowrap;" onchange="onPitLimitChange()">
+        <div style="display:flex; align-items:center; gap:0.35rem;">
+          <label style="font-size:0.72rem; color:var(--text-muted); margin:0; white-space:nowrap;"><i data-lucide="gauge" style="width:11px; height:11px;"></i> 제한속도:</label>
+          <select id="pit-limit-select" class="form-control compact-input" style="font-size:0.78rem; padding:0.3rem 0.4rem; height:auto; background:rgba(0,0,0,0.6); width:76px;" onchange="onPitLimitChange()">
             <option value="60" selected>60 km/h</option>
             <option value="50">50 km/h</option>
             <option value="40">40 km/h</option>
+            <option value="80">80 km/h</option>
           </select>
         </div>
 
-        <!-- 3. 규정시간 -->
-        <div style="display: flex; flex-direction: column; gap: 0.2rem; min-width: 0;">
-          <label style="font-size: 0.7rem; font-weight: 700; color: var(--text-muted); margin: 0; display: flex; align-items: center; gap: 0.25rem; white-space: nowrap;">
-            <i data-lucide="hourglass" style="width: 11px; height: 11px; color: var(--accent-orange);"></i> 규정시간
-          </label>
-          <select id="pit-target-rule-select" class="form-control compact-input" style="width: 100%; font-size: 0.76rem; padding: 0.35rem 1.1rem 0.35rem 0.45rem; height: auto; background: rgba(0,0,0,0.6); text-overflow: ellipsis; white-space: nowrap;" onchange="onPitTargetRuleChange()">
+        <div style="display:flex; align-items:center; gap:0.35rem;">
+          <label style="font-size:0.72rem; color:var(--text-muted); margin:0; white-space:nowrap;"><i data-lucide="hourglass" style="width:11px; height:11px;"></i> 규정시간:</label>
+          <select id="pit-target-rule-select" class="form-control compact-input" style="font-size:0.78rem; padding:0.3rem 0.4rem; height:auto; background:rgba(0,0,0,0.6); width:100px;" onchange="onPitTargetRuleChange()">
             <option value="300" selected>총 피트 5분</option>
             <option value="60">총 피트 60s</option>
+            <option value="75">총 피트 75s</option>
             <option value="45">정차 45s</option>
             <option value="30">정차 30s</option>
             <option value="0">자유 (규정없음)</option>
           </select>
         </div>
 
-        <!-- 4. 임박알람 -->
-        <div style="display: flex; flex-direction: column; gap: 0.2rem; min-width: 0;">
-          <label style="font-size: 0.7rem; font-weight: 700; color: var(--text-muted); margin: 0; display: flex; align-items: center; gap: 0.25rem; white-space: nowrap;">
-            <i data-lucide="bell-ring" style="width: 11px; height: 11px; color: var(--accent-orange);"></i> 임박알람
-          </label>
-          <select id="pit-warning-alert-select" class="form-control compact-input" style="width: 100%; font-size: 0.76rem; padding: 0.35rem 1.1rem 0.35rem 0.45rem; height: auto; background: rgba(0,0,0,0.6); white-space: nowrap;" onchange="onPitWarningAlertChange()" title="설정한 잔여 시간 도달 시 준비 알람 차임 및 시각 경고 발생">
-            <option value="50">50초 전</option>
-            <option value="40">40초 전</option>
-            <option value="30" selected>30초 전</option>
-            <option value="20">20초 전</option>
-            <option value="0">사용 안 함</option>
+        <div style="display:flex; align-items:center; gap:0.35rem;">
+          <label style="font-size:0.72rem; color:var(--text-muted); margin:0; white-space:nowrap;"><i data-lucide="bell" style="width:11px; height:11px;"></i> 임박알람:</label>
+          <select id="pit-alarm-select" class="form-control compact-input" style="font-size:0.78rem; padding:0.3rem 0.4rem; height:auto; background:rgba(0,0,0,0.6); width:95px;" onchange="onPitAlarmChange()">
+            <option value="5" selected>5초 전 (기본)</option>
+            <option value="3">3초 전</option>
+            <option value="10">10초 전</option>
+            <option value="0">알람 끔</option>
           </select>
         </div>
-
       </div>
 
-      <!-- Live Pit Lane AMOLED HUD Display -->
-      <div id="pit-vbox-hud" class="pit-vbox-hud pit-hud">
+      <!-- Live VBOX Pit Lane AMOLED HUD Display -->
+      <div id="pit-vbox-hud" class="pit-vbox-hud">
         
         <!-- Pit Stage Tracker Pills -->
         <div class="pit-stage-pills">
@@ -5570,11 +5454,6 @@
         <!-- Over-speed Warning Banner (Hidden by default, flashes red when speed > limit) -->
         <div id="pit-overspeed-banner" style="display:none; background:#ff2a4b; color:#fff; text-align:center; font-weight:900; font-size:0.9rem; padding:0.3rem; border-radius:6px; margin-bottom:0.6rem; animation:radar-ping 0.6s infinite alternate;">
           🚨 PIT SPEED LIMIT EXCEEDED! (과속 경고 - 감속하세요!)
-        </div>
-
-        <!-- Imminent Alert Warning Banner (Hidden by default, flashes bright amber when countdown is imminent) -->
-        <div id="pit-imminent-banner" style="display:none; background:linear-gradient(90deg, #ff9100, #ff6b00); color:#000; text-align:center; font-weight:900; font-size:0.92rem; padding:0.35rem 0.5rem; border-radius:6px; margin-bottom:0.6rem; letter-spacing:0.5px; animation:radar-ping 0.8s infinite alternate; box-shadow:0 0 18px rgba(255,145,0,0.65);">
-          ⚠️ [출발 준비 임박] 잔여 <span id="pit-imminent-banner-sec">30</span>초 - 드라이버 출발 준비!
         </div>
 
         <!-- Speedometer & Pit Speed Supervision Bar -->
@@ -5595,14 +5474,14 @@
           </div>
         </div>
 
-        <!-- Central Big Display: Countdown / Elapsed Time / Release Chime -->
+        <!-- Central Big VBOX Display: Countdown / Elapsed Time / Release Chime -->
         <div id="pit-main-timer-box" style="background:rgba(0,0,0,0.7); padding:0.85rem 1rem; border-radius:10px; border:1.5px solid rgba(255,145,0,0.4); text-align:center; margin-bottom:0.75rem;">
-          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.2rem; gap:0.35rem; flex-wrap:wrap;">
-            <span id="pit-main-timer-label" class="gps-hud-label" style="color:var(--accent-orange); letter-spacing:1px; font-family:var(--font-display); font-size:0.72rem;">
-              Time to go
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.2rem;">
+            <span id="pit-main-timer-label" class="gps-hud-label" style="color:var(--accent-orange); letter-spacing:1px; font-family:var(--font-display);">
+              TIME TO GO (남은 시간)
             </span>
-            <span id="pit-main-timer-badge" style="font-size:0.68rem; font-weight:800; padding:0.1rem 0.45rem; border-radius:4px; background:rgba(255,145,0,0.18); color:var(--accent-orange); white-space:nowrap;">
-              Waiting for entry
+            <span id="pit-main-timer-badge" style="font-size:0.7rem; font-weight:800; padding:0.1rem 0.45rem; border-radius:4px; background:rgba(255,145,0,0.18); color:var(--accent-orange);">
+              피트 진입 대기
             </span>
           </div>
           <div id="pit-main-timer-digit" style="font-family:var(--font-mono); font-size:clamp(2.8rem, 10vw, 4.2rem); font-weight:900; color:#fff; letter-spacing:2px; line-height:1; margin:0.25rem 0; text-shadow:0 0 20px rgba(255,255,255,0.3);">
@@ -5639,11 +5518,11 @@
       </div>
 
       <!-- Main Action Controls -->
-      <div class="gps-main-action-grid" style="display:grid; grid-template-columns: 1.4fr 1fr; gap:0.5rem; margin-bottom:0.75rem;">
-        <button type="button" id="btn-pit-toggle" class="btn btn-primary" onclick="togglePitTracking()" style="padding:0.75rem 0.5rem; font-size:clamp(0.85rem, 3.5vw, 0.95rem); font-weight:800; justify-content:center; background:linear-gradient(135deg, #ff9100, #ff6b00); border:none; box-shadow:0 4px 15px rgba(255,145,0,0.4);">
+      <div style="display:grid; grid-template-columns: 1.4fr 1fr; gap:0.5rem; margin-bottom:0.75rem;">
+        <button type="button" id="btn-pit-toggle" class="btn btn-primary gps-nowrap" onclick="togglePitTracking()" style="padding:0.75rem 0.5rem; font-size:clamp(0.85rem, 3.5vw, 0.95rem); font-weight:800; justify-content:center; background:linear-gradient(135deg, #ff9100, #ff6b00); border:none; box-shadow:0 4px 15px rgba(255,145,0,0.4);">
           <i data-lucide="play" id="pit-toggle-icon"></i> <span id="pit-toggle-text">피트 계측 시작</span>
         </button>
-        <button type="button" class="btn btn-secondary" onclick="resetPitSession()" style="padding:0.75rem 0.5rem; font-size:0.85rem; justify-content:center;">
+        <button type="button" class="btn btn-secondary gps-nowrap" onclick="resetPitSession()" style="padding:0.75rem 0.5rem; font-size:0.85rem; justify-content:center;">
           <i data-lucide="rotate-ccw"></i> 피트 초기화
         </button>
       </div>
@@ -5672,7 +5551,7 @@
       <div style="background:rgba(0,0,0,0.35); padding:0.65rem 0.75rem; border-radius:8px; border:1px solid var(--border-subtle); max-height:200px; overflow-y:auto; -webkit-overflow-scrolling:touch; margin-bottom:0.5rem;">
         <div style="font-size:0.74rem; color:var(--text-muted); font-weight:700; margin-bottom:0.4rem; display:flex; justify-content:space-between; align-items:center; white-space:nowrap; gap:0.4rem;">
           <span class="gps-nowrap">피트스탑 기록 (<span id="pit-stop-count">0</span>회)</span>
-          <span class="gps-nowrap" style="font-size:0.68rem; color:var(--accent-orange); flex-shrink:0;">* 정밀 델타 분석</span>
+          <span class="gps-nowrap" style="font-size:0.68rem; color:var(--accent-orange); flex-shrink:0;">* 피트레인 정밀 델타 분석</span>
         </div>
         <div id="pit-stops-table-body">
           <div style="text-align:center; color:var(--text-muted); font-size:0.75rem; padding:0.75rem 0;">
@@ -5773,7 +5652,183 @@
     // =============================================
     // SAMPLE DEMO DATA (For Logged-out / Guest Mode In-Memory Experience)
     // =============================================
-    const GUEST_USER = {
+
+    // =============================================
+    // HAVERSINE DISTANCE HELPER
+    // =============================================
+    function haversineDistMeters(lat1, lon1, lat2, lon2) {
+      const R = 6371000;
+      const dLat = (lat2 - lat1) * Math.PI / 180;
+      const dLon = (lon2 - lon1) * Math.PI / 180;
+      const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                Math.sin(dLon / 2) * Math.sin(dLon / 2);
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+      return R * c;
+    }
+
+    // =============================================
+    // GLOBAL 41 WORLDWIDE CIRCUITS & GPS GATES
+    // =============================================
+    function buildLapGateVectors(centerLat, centerLon, headingDeg, widthMeters = 25.0, minLapSec = 30, simLap1Ms = 114820, simBestLapMs = 112450, simMaxSpeedKmh = 218.4, simMinSpeedKmh = 68.0) {
+      const halfWidth = widthMeters / 2.0;
+      const latDegPerMeter = 1.0 / 111320.0;
+      const lonDegPerMeter = 1.0 / (111320.0 * Math.cos(centerLat * Math.PI / 180.0));
+      const perpDeg = (headingDeg + 90.0) % 360.0;
+      const perpRad = perpDeg * Math.PI / 180.0;
+      const dLat = halfWidth * Math.cos(perpRad) * latDegPerMeter;
+      const dLon = halfWidth * Math.sin(perpRad) * lonDegPerMeter;
+      return {
+        centerLat,
+        centerLon,
+        gateA: { lat: centerLat - dLat, lon: centerLon - dLon },
+        gateB: { lat: centerLat + dLat, lon: centerLon + dLon },
+        gateWidth: widthMeters,
+        trackHeadingDeg: headingDeg,
+        gateBearingDeg: perpDeg,
+        minLapSec,
+        simLap1Ms,
+        simBestLapMs,
+        simMaxSpeedKmh,
+        simMinSpeedKmh
+      };
+    }
+
+    const GLOBAL_CIRCUIT_GATES = {
+      // 🇰🇷 대한민국 (Korea)
+      1: { id: 1, name: "인제 스피디움", nameEn: "Inje Speedium", countryFlag: "🇰🇷", country: "대한민국", region: "KR", ...buildLapGateVectors(38.01518, 128.30467, 42.7, 25.0, 40, 114820, 112450, 218.4, 68.0) },
+      2: { id: 2, name: "영암 KIC", nameEn: "Korea International Circuit", countryFlag: "🇰🇷", country: "대한민국", region: "KR", ...buildLapGateVectors(34.73510, 126.69505, 34.1, 25.0, 50, 151340, 148120, 258.6, 75.0) },
+      3: { id: 3, name: "용인 에버랜드 스피드웨이", nameEn: "Everland Speedway", countryFlag: "🇰🇷", country: "대한민국", region: "KR", ...buildLapGateVectors(37.29375, 127.20140, 34.9, 25.0, 45, 133280, 130350, 232.1, 70.0) },
+      4: { id: 4, name: "태백 레이싱파크", nameEn: "Taebaek Racing Park", countryFlag: "🇰🇷", country: "대한민국", region: "KR", ...buildLapGateVectors(37.18880, 128.93170, 43.3, 25.0, 30, 67900, 65820, 202.5, 62.0) },
+      5: { id: 5, name: "한국앤컴퍼니 테크노링", nameEn: "Hankook Technoring (Taean)", countryFlag: "🇰🇷", country: "대한민국", region: "KR", ...buildLapGateVectors(36.63425, 126.31350, 90.0, 25.0, 35, 108500, 105200, 245.0, 72.0) },
+      6: { id: 6, name: "포천 레이스웨이", nameEn: "Pocheon Raceway", countryFlag: "🇰🇷", country: "대한민국", region: "KR", ...buildLapGateVectors(37.95460, 127.24210, 120.0, 22.0, 25, 58400, 56200, 175.0, 55.0) },
+
+      // 🇯🇵 아시아 & 일본 (Asia & Japan)
+      101: { id: 101, name: "스즈카 서킷 (Suzuka)", nameEn: "Suzuka International Racing Course", countryFlag: "🇯🇵", country: "일본", region: "ASIA", ...buildLapGateVectors(34.84380, 136.54010, 38.0, 25.0, 50, 125400, 122100, 275.0, 78.0) },
+      102: { id: 102, name: "후지 스피드웨이 (Fuji)", nameEn: "Fuji Speedway", countryFlag: "🇯🇵", country: "일본", region: "ASIA", ...buildLapGateVectors(35.37180, 138.92850, 52.0, 25.0, 45, 108300, 105800, 288.0, 70.0) },
+      103: { id: 103, name: "츠쿠바 서킷 (Tsukuba)", nameEn: "Tsukuba Circuit", countryFlag: "🇯🇵", country: "일본", region: "ASIA", ...buildLapGateVectors(36.15100, 139.92100, 175.0, 24.0, 25, 59800, 57400, 205.0, 58.0) },
+      104: { id: 104, name: "모빌리티 리조트 모테기 (Motegi)", nameEn: "Mobility Resort Motegi", countryFlag: "🇯🇵", country: "일본", region: "ASIA", ...buildLapGateVectors(36.53330, 140.22690, 85.0, 25.0, 45, 115200, 112800, 260.0, 68.0) },
+      105: { id: 105, name: "오토폴리스 (Autopolis)", nameEn: "Autopolis International Racing Course", countryFlag: "🇯🇵", country: "일본", region: "ASIA", ...buildLapGateVectors(33.03610, 130.97220, 110.0, 25.0, 45, 112500, 109800, 252.0, 66.0) },
+      106: { id: 106, name: "오카야마 인터내셔널 서킷", nameEn: "Okayama International Circuit", countryFlag: "🇯🇵", country: "일본", region: "ASIA", ...buildLapGateVectors(34.91470, 134.22110, 135.0, 24.0, 40, 98400, 95900, 238.0, 64.0) },
+      107: { id: 107, name: "스포츠랜드 SUGO", nameEn: "Sportsland SUGO", countryFlag: "🇯🇵", country: "일본", region: "ASIA", ...buildLapGateVectors(38.14080, 140.77830, 70.0, 24.0, 40, 92300, 89700, 235.0, 62.0) },
+      108: { id: 108, name: "세팡 인터내셔널 서킷 (Sepang)", nameEn: "Sepang International Circuit", countryFlag: "🇲🇾", country: "말레이시아", region: "ASIA", ...buildLapGateVectors(2.76070, 101.73810, 25.0, 26.0, 50, 132400, 128900, 280.0, 75.0) },
+      109: { id: 109, name: "창 인터내셔널 서킷 (Buriram)", nameEn: "Chang International Circuit (Buriram)", countryFlag: "🇹🇭", country: "태국", region: "ASIA", ...buildLapGateVectors(14.96080, 103.08720, 60.0, 25.0, 45, 114200, 111500, 270.0, 72.0) },
+      110: { id: 110, name: "상하이 인터내셔널 서킷 (Shanghai)", nameEn: "Shanghai International Circuit", countryFlag: "🇨🇳", country: "중국", region: "ASIA", ...buildLapGateVectors(31.33890, 121.22030, 140.0, 26.0, 50, 128600, 125100, 290.0, 74.0) },
+      111: { id: 111, name: "마리나 베이 스트리트 서킷", nameEn: "Marina Bay Street Circuit", countryFlag: "🇸🇬", country: "싱가포르", region: "ASIA", ...buildLapGateVectors(1.29140, 103.86390, 65.0, 22.0, 45, 118400, 114900, 275.0, 65.0) },
+
+      // 🇪🇺 유럽 (Europe)
+      201: { id: 201, name: "뉘르부르크링 (Nürburgring GP)", nameEn: "Nürburgring GP", countryFlag: "🇩🇪", country: "독일", region: "EU", ...buildLapGateVectors(50.33420, 6.94280, 45.0, 25.0, 45, 118900, 115600, 265.0, 68.0) },
+      202: { id: 202, name: "스파-프랑코샹 (Spa-Francorchamps)", nameEn: "Circuit de Spa-Francorchamps", countryFlag: "🇧🇪", country: "벨기에", region: "EU", ...buildLapGateVectors(50.43720, 5.97140, 150.0, 26.0, 60, 148200, 144500, 305.0, 78.0) },
+      203: { id: 203, name: "몬차 국립 서킷 (Monza)", nameEn: "Autodromo Nazionale Monza", countryFlag: "🇮🇹", country: "이탈리아", region: "EU", ...buildLapGateVectors(45.61890, 9.28110, 35.0, 26.0, 45, 112800, 109400, 320.0, 80.0) },
+      204: { id: 204, name: "실버스톤 서킷 (Silverstone)", nameEn: "Silverstone Circuit", countryFlag: "🇬🇧", country: "영국", region: "EU", ...buildLapGateVectors(52.07860, -1.01690, 140.0, 26.0, 50, 120500, 117200, 290.0, 76.0) },
+      205: { id: 205, name: "르망 사르트 / 부가티 (Le Mans)", nameEn: "Circuit de la Sarthe / Bugatti", countryFlag: "🇫🇷", country: "프랑스", region: "EU", ...buildLapGateVectors(47.95470, 0.20750, 40.0, 26.0, 60, 155000, 150200, 325.0, 82.0) },
+      206: { id: 206, name: "잔드보르트 (Zandvoort)", nameEn: "Circuit Zandvoort", countryFlag: "🇳🇱", country: "네덜란드", region: "EU", ...buildLapGateVectors(52.38880, 4.54090, 15.0, 24.0, 40, 94200, 91500, 265.0, 70.0) },
+      207: { id: 207, name: "레드불 링 (Red Bull Ring)", nameEn: "Red Bull Ring (Spielberg)", countryFlag: "🇦🇹", country: "오스트리아", region: "EU", ...buildLapGateVectors(47.21970, 14.76470, 75.0, 25.0, 35, 88500, 85800, 295.0, 75.0) },
+      208: { id: 208, name: "헝가로링 (Hungaroring)", nameEn: "Hungaroring (Budapest)", countryFlag: "🇭🇺", country: "헝가리", region: "EU", ...buildLapGateVectors(47.58170, 19.25080, 85.0, 24.0, 45, 102400, 99800, 260.0, 66.0) },
+      209: { id: 209, name: "바르셀로나-카탈루냐 (Catalunya)", nameEn: "Circuit de Barcelona-Catalunya", countryFlag: "🇪🇸", country: "스페인", region: "EU", ...buildLapGateVectors(41.57000, 2.26110, 55.0, 25.0, 45, 109800, 106900, 285.0, 72.0) },
+      210: { id: 210, name: "이몰라 서킷 (Imola)", nameEn: "Autodromo Enzo e Dino Ferrari", countryFlag: "🇮🇹", country: "이탈리아", region: "EU", ...buildLapGateVectors(44.34390, 11.71670, 105.0, 25.0, 45, 106200, 103500, 280.0, 70.0) },
+      211: { id: 211, name: "무겔로 서킷 (Mugello)", nameEn: "Autodromo Internazionale del Mugello", countryFlag: "🇮🇹", country: "이탈리아", region: "EU", ...buildLapGateVectors(43.99750, 11.37140, 115.0, 25.0, 45, 110400, 107600, 295.0, 74.0) },
+      212: { id: 212, name: "모나코 서킷 (Monaco)", nameEn: "Circuit de Monaco", countryFlag: "🇲🇨", country: "모나코", region: "EU", ...buildLapGateVectors(43.73470, 7.42060, 50.0, 20.0, 40, 92800, 89900, 250.0, 60.0) },
+      213: { id: 213, name: "포르티망 알가르베 (Portimão)", nameEn: "Algarve International Circuit", countryFlag: "🇵🇹", country: "포르투갈", region: "EU", ...buildLapGateVectors(37.22720, -8.62670, 80.0, 25.0, 45, 112300, 109100, 285.0, 70.0) },
+
+      // 🇺🇸 아메리카 & 오세아니아 & 기타 (Americas & Others)
+      301: { id: 301, name: "라구나 세카 (Laguna Seca)", nameEn: "WeatherTech Raceway Laguna Seca", countryFlag: "🇺🇸", country: "미국", region: "AM_OTHER", ...buildLapGateVectors(36.58440, -121.75360, 65.0, 25.0, 40, 94600, 92100, 255.0, 68.0) },
+      302: { id: 302, name: "COTA 서킷 오브 디 아메리카스", nameEn: "Circuit of the Americas (Austin)", countryFlag: "🇺🇸", country: "미국", region: "AM_OTHER", ...buildLapGateVectors(30.13280, -97.64110, 160.0, 26.0, 50, 128400, 124900, 295.0, 74.0) },
+      303: { id: 303, name: "로드 아메리카 (Road America)", nameEn: "Road America (Elkhart Lake)", countryFlag: "🇺🇸", country: "미국", region: "AM_OTHER", ...buildLapGateVectors(43.79970, -87.99440, 175.0, 26.0, 55, 134200, 130800, 290.0, 75.0) },
+      304: { id: 304, name: "왓킨스 글렌 (Watkins Glen)", nameEn: "Watkins Glen International", countryFlag: "🇺🇸", country: "미국", region: "AM_OTHER", ...buildLapGateVectors(42.33690, -76.92720, 125.0, 25.0, 45, 110500, 107400, 280.0, 72.0) },
+      305: { id: 305, name: "데이토나 인터내셔널 (Daytona)", nameEn: "Daytona International Speedway (Road Course)", countryFlag: "🇺🇸", country: "미국", region: "AM_OTHER", ...buildLapGateVectors(29.18560, -81.07060, 55.0, 28.0, 50, 124800, 121500, 310.0, 80.0) },
+      306: { id: 306, name: "세브링 인터내셔널 (Sebring)", nameEn: "Sebring International Raceway", countryFlag: "🇺🇸", country: "미국", region: "AM_OTHER", ...buildLapGateVectors(27.45470, -81.34830, 95.0, 26.0, 55, 132600, 128900, 285.0, 70.0) },
+      307: { id: 307, name: "인테를라고스 (Interlagos)", nameEn: "Autódromo José Carlos Pace (Interlagos)", countryFlag: "🇧🇷", country: "브라질", region: "AM_OTHER", ...buildLapGateVectors(-23.70360, -46.69970, 160.0, 25.0, 45, 104500, 101800, 280.0, 72.0) },
+      308: { id: 308, name: "질 빌뇌브 몬트리올 (Montreal)", nameEn: "Circuit Gilles Villeneuve (Montreal)", countryFlag: "🇨🇦", country: "캐나다", region: "AM_OTHER", ...buildLapGateVectors(45.50000, -73.52280, 145.0, 25.0, 45, 102100, 99400, 290.0, 75.0) },
+      309: { id: 309, name: "야스 마리나 서킷 (Yas Marina)", nameEn: "Yas Marina Circuit (Abu Dhabi)", countryFlag: "🇦🇪", country: "UAE", region: "AM_OTHER", ...buildLapGateVectors(24.46720, 54.60310, 120.0, 26.0, 50, 121500, 118200, 295.0, 75.0) },
+      310: { id: 310, name: "바레인 인터내셔널 (Bahrain)", nameEn: "Bahrain International Circuit (Sakhir)", countryFlag: "🇧🇭", country: "바레인", region: "AM_OTHER", ...buildLapGateVectors(26.03250, 50.51060, 155.0, 26.0, 50, 120800, 117500, 290.0, 74.0) },
+      311: { id: 311, name: "마운트 파노라마 (Bathurst)", nameEn: "Mount Panorama Circuit (Bathurst)", countryFlag: "🇦🇺", country: "호주", region: "AM_OTHER", ...buildLapGateVectors(-33.44735, 149.56110, 85.0, 26.0, 50, 140500, 136800, 290.0, 70.0) }
+    };
+    const CIRCUIT_GATES = GLOBAL_CIRCUIT_GATES;
+
+    // GPS Nearest Circuit State & Helpers
+    let nearestGpsTrackId = 1;
+    let nearestGpsTrackName = "인제 스피디움";
+    let nearestGpsDistanceKm = null;
+    let currentGpsCoords = null;
+
+    function calculateNearestTrackFromCoords(lat, lon) {
+      if (lat === undefined || lon === undefined || lat === null || lon === null) return 1;
+      let minDistance = Infinity;
+      let nearestId = 1;
+      let nearestName = "인제 스피디움";
+
+      if (typeof GLOBAL_CIRCUIT_GATES !== 'undefined') {
+        Object.values(GLOBAL_CIRCUIT_GATES).forEach(trk => {
+          if (trk.centerLat && trk.centerLon) {
+            const d = haversineDistMeters(lat, lon, trk.centerLat, trk.centerLon);
+            if (d < minDistance) {
+              minDistance = d;
+              nearestId = trk.id;
+              nearestName = trk.name;
+            }
+          }
+        });
+      }
+
+      if (Array.isArray(tracks)) {
+        tracks.forEach(t => {
+          if (t.latitude && t.longitude) {
+            const d = haversineDistMeters(lat, lon, parseFloat(t.latitude), parseFloat(t.longitude));
+            if (d < minDistance) {
+              minDistance = d;
+              nearestId = t.id;
+              nearestName = t.name;
+            }
+          }
+        });
+      }
+
+      nearestGpsTrackId = nearestId;
+      nearestGpsTrackName = nearestName;
+      nearestGpsDistanceKm = minDistance !== Infinity ? (minDistance / 1000).toFixed(1) : null;
+      return nearestId;
+    }
+
+    function initGpsNearestTrack(onDone) {
+      if (!navigator.geolocation) {
+        if (onDone) onDone(nearestGpsTrackId);
+        return;
+      }
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          const lat = pos.coords.latitude;
+          const lon = pos.coords.longitude;
+          currentGpsCoords = { lat, lon, acc: pos.coords.accuracy };
+          const nearestId = calculateNearestTrackFromCoords(lat, lon);
+          
+          if (typeof renderDashboardTrackChips === 'function') renderDashboardTrackChips();
+          if (typeof renderSessionsTrackChips === 'function') renderSessionsTrackChips();
+          if (typeof renderLeaderboardTrackButtons === 'function') renderLeaderboardTrackButtons();
+
+          const editIdEl = document.getElementById('edit-session-id');
+          const isEditing = editIdEl && editIdEl.value;
+          const sessTrackEl = document.getElementById('sess-track');
+          if (!isEditing && sessTrackEl && sessTrackEl.options.length > 0 && (!sessTrackEl.value || sessTrackEl.value == '1')) {
+            sessTrackEl.value = nearestId;
+          }
+          const teleTrackEl = document.getElementById('telemetry-track-select');
+          if (teleTrackEl && teleTrackEl.options.length > 0 && (!teleTrackEl.value || teleTrackEl.value == '1')) {
+            teleTrackEl.value = nearestId;
+            selectedTelemetryTrackId = nearestId;
+            if (typeof onTelemetryFilterChange === 'function') onTelemetryFilterChange();
+          }
+          if (onDone) onDone(nearestId);
+        },
+        (err) => {
+          console.log('GPS nearest check fallback:', err.message);
+          if (onDone) onDone(nearestGpsTrackId);
+        },
+        { enableHighAccuracy: false, timeout: 5000, maximumAge: 60000 }
+      );
+    }
+
+        const GUEST_USER = {
       id: null,
       name: '게스트 드라이버',
       email: '',
@@ -6064,10 +6119,6 @@
     // Tab Switching
     // =============================================
     function switchTab(tabId) {
-      // Close any active fullscreen GPS modals when navigating tabs via sidebar/bottom bar
-      closeGpsPitLaneTimerModal();
-      closeGpsLapTimerModal();
-
       document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
       document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
 
@@ -6111,8 +6162,11 @@
     function openModal(id) {
       document.getElementById(id).classList.add('active');
       if (id === 'session-modal') {
-        populateTrackSelect();
-        populateVehicleSelect();
+        const editId = document.getElementById('edit-session-id')?.value;
+        if (!editId) {
+          populateTrackSelect();
+          populateVehicleSelect();
+        }
         const dateInput = document.getElementById('sess-date');
         const timeInput = document.getElementById('sess-time');
         const now = new Date();
@@ -6361,13 +6415,11 @@
       document.getElementById('sidebar-user-role').innerHTML = `<i data-lucide="award" style="width:12px; color:var(--accent-red)"></i> ${user.role || '로그인 필요'}`;
 
       const topbarAuthBtn = document.getElementById('topbar-auth-btn');
-      const topbarAuthBtnM = document.getElementById('topbar-auth-btn-m');
-      const authHtml = user.isLoggedIn
-        ? `<i data-lucide="user-check" style="width:12px; height:12px;"></i> <span>${user.name}</span>`
-        : `<i data-lucide="user" style="width:12px; height:12px;"></i> <span>로그인</span>`;
-
-      if (topbarAuthBtn) topbarAuthBtn.innerHTML = authHtml;
-      if (topbarAuthBtnM) topbarAuthBtnM.innerHTML = authHtml;
+      if (user.isLoggedIn) {
+        topbarAuthBtn.innerHTML = `<i data-lucide="user-check"></i> ${user.name}`;
+      } else {
+        topbarAuthBtn.innerHTML = `<i data-lucide="user"></i> 로그인`;
+      }
 
       // Toggle Guest Mode Notice Banner
       const guestBanner = document.getElementById('guest-mode-notice-banner');
@@ -6405,49 +6457,103 @@
     let dashboardSelectedTrackId = 'ALL';
     let sessionSelectedTrackId = 'ALL';
 
+    let activeDashboardRegionTab = 'ALL';
+    let activeSessionsRegionTab = 'ALL';
+    let activeLeaderboardRegionTab = 'ALL';
+
     function sessionMatchesTrack(s, trackId) {
       if (!trackId || trackId === 'ALL') return true;
       const numId = Number(trackId);
       if (s.trackId && Number(s.trackId) === numId) return true;
       if (s.track_id && Number(s.track_id) === numId) return true;
-      const foundTrack = (tracks || []).find(t => t.id === numId);
+      const foundTrack = (tracks || []).find(t => t.id === numId) || (GLOBAL_CIRCUIT_GATES && GLOBAL_CIRCUIT_GATES[numId]);
       if (foundTrack && s.track) {
-        if (s.track === foundTrack.name || s.track.includes(foundTrack.name) || foundTrack.name.includes(s.track)) return true;
+        const sTrack = s.track.toLowerCase();
+        const tName = (foundTrack.name || '').toLowerCase();
+        const tNameEn = (foundTrack.nameEn || '').toLowerCase();
+        if (s.track === foundTrack.name || sTrack.includes(tName) || tName.includes(sTrack)) return true;
+        if (tNameEn && (sTrack.includes(tNameEn) || tNameEn.includes(sTrack))) return true;
       }
-      if (numId === 1 && s.track && s.track.includes('인제')) return true;
-      if (numId === 2 && s.track && (s.track.includes('영암') || s.track.includes('KIC'))) return true;
-      if (numId === 3 && s.track && (s.track.includes('용인') || s.track.includes('에버랜드'))) return true;
-      if (numId === 4 && s.track && (s.track.includes('태백') || s.track.includes('레이싱파크'))) return true;
+      const sTrackStr = (s.track || '').toLowerCase();
+      if (numId === 1 && sTrackStr.includes('인제')) return true;
+      if (numId === 2 && (sTrackStr.includes('영암') || sTrackStr.includes('kic') || sTrackStr.includes('korea international'))) return true;
+      if (numId === 3 && (sTrackStr.includes('용인') || sTrackStr.includes('에버랜드') || sTrackStr.includes('everland'))) return true;
+      if (numId === 4 && (sTrackStr.includes('태백') || sTrackStr.includes('taebaek'))) return true;
+      if (numId === 5 && (sTrackStr.includes('테크노링') || sTrackStr.includes('technoring'))) return true;
+      if (numId === 6 && (sTrackStr.includes('포천') || sTrackStr.includes('pocheon'))) return true;
+      if (numId === 101 && (sTrackStr.includes('스즈카') || sTrackStr.includes('suzuka'))) return true;
+      if (numId === 102 && (sTrackStr.includes('후지') || sTrackStr.includes('fuji'))) return true;
+      if (numId === 103 && (sTrackStr.includes('츠쿠바') || sTrackStr.includes('tsukuba'))) return true;
+      if (numId === 104 && (sTrackStr.includes('모테기') || sTrackStr.includes('motegi'))) return true;
+      if (numId === 105 && (sTrackStr.includes('오토폴리스') || sTrackStr.includes('autopolis'))) return true;
+      if (numId === 108 && (sTrackStr.includes('세팡') || sTrackStr.includes('sepang'))) return true;
+      if (numId === 110 && (sTrackStr.includes('상하이') || sTrackStr.includes('shanghai'))) return true;
+      if (numId === 201 && (sTrackStr.includes('뉘르부르크링') || sTrackStr.includes('nurburgring') || sTrackStr.includes('nürburgring'))) return true;
+      if (numId === 202 && (sTrackStr.includes('스파') || sTrackStr.includes('spa'))) return true;
+      if (numId === 203 && (sTrackStr.includes('몬차') || sTrackStr.includes('monza'))) return true;
+      if (numId === 204 && (sTrackStr.includes('실버스톤') || sTrackStr.includes('silverstone'))) return true;
+      if (numId === 205 && (sTrackStr.includes('르망') || sTrackStr.includes('le mans'))) return true;
+      if (numId === 207 && (sTrackStr.includes('레드불') || sTrackStr.includes('red bull'))) return true;
+      if (numId === 212 && (sTrackStr.includes('모나코') || sTrackStr.includes('monaco'))) return true;
+      if (numId === 301 && (sTrackStr.includes('라구나') || sTrackStr.includes('laguna'))) return true;
+      if (numId === 302 && (sTrackStr.includes('cota') || sTrackStr.includes('americas'))) return true;
+      if (numId === 311 && (sTrackStr.includes('배서스트') || sTrackStr.includes('bathurst'))) return true;
       return false;
     }
 
     function renderDashboardTrackChips() {
       const container = document.getElementById('dashboard-track-chips');
       if (!container) return;
-      const trackList = (tracks && tracks.length > 0) ? tracks : [
-        { id: 1, name: '인제 스피디움' },
-        { id: 2, name: '영암 KIC' },
-        { id: 3, name: '용인 에버랜드' },
-        { id: 4, name: '태백 레이싱파크' }
-      ];
+      const trackList = (tracks && tracks.length > 0) ? tracks : (typeof GLOBAL_CIRCUIT_GATES !== 'undefined' ? Object.values(GLOBAL_CIRCUIT_GATES) : [
+        { id: 1, name: '인제 스피디움', region: 'KR' },
+        { id: 2, name: '영암 KIC', region: 'KR' },
+        { id: 3, name: '용인 에버랜드', region: 'KR' },
+        { id: 4, name: '태백 레이싱파크', region: 'KR' }
+      ]);
 
-      let html = `
-        <button type="button" class="track-chip-btn ${dashboardSelectedTrackId === 'ALL' ? 'active' : ''}" onclick="selectDashboardTrack('ALL')">
-          전체 서킷
-        </button>
-      `;
-
-      trackList.forEach(t => {
-        const isAct = String(dashboardSelectedTrackId) === String(t.id);
-        const shortName = t.name.replace(' 스피드웨이', '').replace(' 레이싱파크', '');
-        html += `
-          <button type="button" class="track-chip-btn ${isAct ? 'active' : ''}" onclick="selectDashboardTrack(${t.id})">
-            ${shortName}
-          </button>
-        `;
+      // Filter only tracks with recorded driving history (sessions)
+      const historyTracks = trackList.filter(t => {
+        return (sessions || []).some(s => sessionMatchesTrack(s, t.id));
       });
 
+      const totalAll = (sessions || []).length;
+      const displayTracks = historyTracks;
+
+      // If selected track is no longer in displayTracks (and not 'ALL'), reset to 'ALL'
+      if (dashboardSelectedTrackId !== 'ALL' && !displayTracks.some(t => String(t.id) === String(dashboardSelectedTrackId))) {
+        dashboardSelectedTrackId = 'ALL';
+      }
+
+      let html = `
+        <div style="display:flex; gap:0.45rem; overflow-x:auto; width:100%; padding:0.2rem 0; align-items:center; scrollbar-width:none;">
+          <button type="button" class="track-chip-btn ${dashboardSelectedTrackId === 'ALL' ? 'active' : ''}" onclick="selectDashboardTrack('ALL')">
+            🏁 전체 서킷 <span class="track-chip-badge">${totalAll}</span>
+          </button>
+      `;
+
+      if (displayTracks.length === 0) {
+        html += `
+          <span style="font-size:0.75rem; color:var(--text-muted); padding:0.35rem 0.5rem; display:inline-flex; align-items:center; gap:0.3rem;">
+            <i data-lucide="info" style="width:12px; height:12px;"></i> 주행 기록이 등록된 서킷이 여기에 자동 표시됩니다.
+          </span>
+        `;
+      } else {
+        displayTracks.forEach(t => {
+          const isAct = String(dashboardSelectedTrackId) === String(t.id);
+          const count = (sessions || []).filter(s => sessionMatchesTrack(s, t.id)).length;
+          const shortName = (t.name || '').replace(' 스피드웨이', '').replace(' 레이싱파크', '').replace(' 인터내셔널', '').replace(' 서킷', '');
+          const flag = t.country_flag || t.countryFlag || '';
+          html += `
+            <button type="button" class="track-chip-btn ${isAct ? 'active' : ''}" onclick="selectDashboardTrack(${t.id})">
+              ${flag ? flag + ' ' : ''}${shortName} <span class="track-chip-badge">${count}</span>
+            </button>
+          `;
+        });
+      }
+
+      html += `</div>`;
       container.innerHTML = html;
+      if (typeof lucide !== 'undefined') lucide.createIcons();
     }
 
     function selectDashboardTrack(trackId) {
@@ -6461,32 +6567,56 @@
     function renderSessionsTrackChips() {
       const container = document.getElementById('sessions-track-chips');
       if (!container) return;
-      const trackList = (tracks && tracks.length > 0) ? tracks : [
-        { id: 1, name: '인제 스피디움' },
-        { id: 2, name: '영암 KIC' },
-        { id: 3, name: '용인 에버랜드' },
-        { id: 4, name: '태백 레이싱파크' }
-      ];
+      const trackList = (tracks && tracks.length > 0) ? tracks : (typeof GLOBAL_CIRCUIT_GATES !== 'undefined' ? Object.values(GLOBAL_CIRCUIT_GATES) : [
+        { id: 1, name: '인제 스피디움', region: 'KR' },
+        { id: 2, name: '영암 KIC', region: 'KR' },
+        { id: 3, name: '용인 에버랜드', region: 'KR' },
+        { id: 4, name: '태백 레이싱파크', region: 'KR' }
+      ]);
 
-      const totalAll = sessions.length;
-      let html = `
-        <button type="button" class="track-chip-btn ${sessionSelectedTrackId === 'ALL' ? 'active' : ''}" onclick="selectSessionsTrack('ALL')">
-          전체 <span class="track-chip-badge">${totalAll}</span>
-        </button>
-      `;
-
-      trackList.forEach(t => {
-        const isAct = String(sessionSelectedTrackId) === String(t.id);
-        const count = sessions.filter(s => sessionMatchesTrack(s, t.id)).length;
-        const shortName = t.name.replace(' 스피드웨이', '').replace(' 레이싱파크', '');
-        html += `
-          <button type="button" class="track-chip-btn ${isAct ? 'active' : ''}" onclick="selectSessionsTrack(${t.id})">
-            ${shortName} <span class="track-chip-badge">${count}</span>
-          </button>
-        `;
+      // Filter only tracks with recorded driving history (sessions)
+      const historyTracks = trackList.filter(t => {
+        return (sessions || []).some(s => sessionMatchesTrack(s, t.id));
       });
 
+      const totalAll = (sessions || []).length;
+      const displayTracks = historyTracks;
+
+      // If selected track is no longer in displayTracks (and not 'ALL'), reset to 'ALL'
+      if (sessionSelectedTrackId !== 'ALL' && !displayTracks.some(t => String(t.id) === String(sessionSelectedTrackId))) {
+        sessionSelectedTrackId = 'ALL';
+      }
+
+      let html = `
+        <div style="display:flex; gap:0.45rem; overflow-x:auto; width:100%; padding:0.2rem 0; align-items:center; scrollbar-width:none;">
+          <button type="button" class="track-chip-btn ${sessionSelectedTrackId === 'ALL' ? 'active' : ''}" onclick="selectSessionsTrack('ALL')">
+            🏁 전체 <span class="track-chip-badge">${totalAll}</span>
+          </button>
+      `;
+
+      if (displayTracks.length === 0) {
+        html += `
+          <span style="font-size:0.75rem; color:var(--text-muted); padding:0.35rem 0.5rem; display:inline-flex; align-items:center; gap:0.3rem;">
+            <i data-lucide="info" style="width:12px; height:12px;"></i> 주행 기록이 등록된 서킷이 여기에 자동 표시됩니다.
+          </span>
+        `;
+      } else {
+        displayTracks.forEach(t => {
+          const isAct = String(sessionSelectedTrackId) === String(t.id);
+          const count = (sessions || []).filter(s => sessionMatchesTrack(s, t.id)).length;
+          const shortName = (t.name || '').replace(' 스피드웨이', '').replace(' 레이싱파크', '').replace(' 인터내셔널', '').replace(' 서킷', '');
+          const flag = t.country_flag || t.countryFlag || '';
+          html += `
+            <button type="button" class="track-chip-btn ${isAct ? 'active' : ''}" onclick="selectSessionsTrack(${t.id})">
+              ${flag ? flag + ' ' : ''}${shortName} <span class="track-chip-badge">${count}</span>
+            </button>
+          `;
+        });
+      }
+
+      html += `</div>`;
       container.innerHTML = html;
+      if (typeof lucide !== 'undefined') lucide.createIcons();
     }
 
     function selectSessionsTrack(trackId) {
@@ -8211,16 +8341,58 @@
       renderSessionsTrackChips();
     }
 
-    function populateTrackSelect() {
+    function populateTrackSelect(selectedTrackId = null) {
       const select = document.getElementById('sess-track');
+      if (!select) return;
       select.innerHTML = '';
-      tracks.forEach(t => {
-        const opt = document.createElement('option');
-        opt.value = t.id;
-        opt.dataset.name = t.name;
-        opt.innerText = `${t.name} (${t.layout_name} ${(t.length_meters / 1000).toFixed(3)}km)`;
-        select.appendChild(opt);
+
+      const trackList = (tracks && tracks.length > 0) ? tracks : (typeof GLOBAL_CIRCUIT_GATES !== 'undefined' ? Object.values(GLOBAL_CIRCUIT_GATES) : []);
+
+      // Group tracks by region
+      const groups = {
+        'GPS': { label: '📍 GPS 추천 서킷', list: [] },
+        'KR': { label: '🇰🇷 대한민국 서킷 (Korea)', list: [] },
+        'ASIA': { label: '🇯🇵 아시아 & 일본 (Asia & Japan)', list: [] },
+        'EU': { label: '🇪🇺 유럽 (Europe)', list: [] },
+        'AM_OTHER': { label: '🇺🇸 아메리카 / 중동 / 기타 (Global)', list: [] }
+      };
+
+      if (nearestGpsTrackId) {
+        const nTrk = trackList.find(t => t.id == nearestGpsTrackId);
+        if (nTrk) {
+          groups['GPS'].list.push({ ...nTrk, isGpsRecommend: true });
+        }
+      }
+
+      trackList.forEach(t => {
+        const reg = t.region || (t.id <= 6 ? 'KR' : (t.id <= 199 ? 'ASIA' : (t.id <= 299 ? 'EU' : 'AM_OTHER')));
+        if (groups[reg]) groups[reg].list.push(t);
+        else groups['AM_OTHER'].list.push(t);
       });
+
+      const effectiveSelectedId = selectedTrackId || nearestGpsTrackId || 1;
+
+      Object.keys(groups).forEach(k => {
+        const grp = groups[k];
+        if (grp.list.length > 0) {
+          const optGroup = document.createElement('optgroup');
+          optGroup.label = grp.label;
+          grp.list.forEach(t => {
+            const opt = document.createElement('option');
+            opt.value = t.id;
+            opt.dataset.name = t.name;
+            const flag = t.country_flag || t.countryFlag || '';
+            const layoutStr = t.layout_name ? ` (${t.layout_name})` : '';
+            const gpsDistStr = t.isGpsRecommend && nearestGpsDistanceKm ? ` [📍 ${nearestGpsDistanceKm}km 최인접]` : '';
+            opt.innerText = `${flag ? flag + ' ' : ''}${t.name}${layoutStr}${gpsDistStr}`;
+            optGroup.appendChild(opt);
+          });
+          select.appendChild(optGroup);
+        }
+      });
+      if (effectiveSelectedId) {
+        select.value = effectiveSelectedId;
+      }
     }
 
     // =============================================
@@ -8938,13 +9110,29 @@
         return;
       }
 
-      populateVehicleSelect();
-      populateTrackSelect();
-      populateSessionTeamSelect(s.teamId || s.team_id);
-      populateSessionDriverSelect(s.driverId || s.userId || s.user_id, s.teamId || s.team_id);
+      // Determine the session's saved track ID
+      let savedTrackId = s.trackId || s.track_id || null;
+      if (!savedTrackId && s.track) {
+        const trackList = (tracks && tracks.length > 0) ? tracks : (typeof GLOBAL_CIRCUIT_GATES !== 'undefined' ? Object.values(GLOBAL_CIRCUIT_GATES) : []);
+        const found = trackList.find(t => t.name === s.track || (t.name && s.track.includes(t.name)) || (t.nameEn && s.track.includes(t.nameEn)));
+        if (found) savedTrackId = found.id;
+        else if (s.track.includes('인제')) savedTrackId = 1;
+        else if (s.track.includes('영암') || s.track.includes('KIC')) savedTrackId = 2;
+        else if (s.track.includes('용인') || s.track.includes('에버랜드')) savedTrackId = 3;
+        else if (s.track.includes('태백')) savedTrackId = 4;
+        else if (s.track.includes('테크노링')) savedTrackId = 5;
+        else if (s.track.includes('포천')) savedTrackId = 6;
+      }
 
       document.getElementById('edit-session-id').value = s.id;
-      if (s.trackId) document.getElementById('sess-track').value = s.trackId;
+      populateVehicleSelect();
+      populateTrackSelect(savedTrackId);
+      if (savedTrackId) {
+        const sessTrackEl = document.getElementById('sess-track');
+        if (sessTrackEl) sessTrackEl.value = String(savedTrackId);
+      }
+      populateSessionTeamSelect(s.teamId || s.team_id);
+      populateSessionDriverSelect(s.driverId || s.userId || s.user_id, s.teamId || s.team_id);
       if (s.vehicleId) document.getElementById('sess-vehicle').value = s.vehicleId;
       document.getElementById('sess-date').value = s.date || s.session_date || '';
       document.getElementById('sess-time').value = s.time ? s.time.substring(0, 5) : (s.session_time ? s.session_time.substring(0, 5) : '');
@@ -9497,29 +9685,51 @@
     // =============================================
     let activeLeaderboardTrackId = 1;
 
+    function setLeaderboardRegionTab(region) {
+      activeLeaderboardRegionTab = region;
+      renderLeaderboardTrackButtons();
+    }
+
     function renderLeaderboardTrackButtons() {
       const container = document.getElementById('leaderboard-track-buttons');
       if (!container) return;
 
-      const trackList = (tracks && tracks.length > 0) ? tracks : [
-        { id: 1, name: '인제 스피디움', layout_name: 'Full Course', length_meters: 3908 },
-        { id: 2, name: '영암 KIC', layout_name: 'F1 Grand Prix Course', length_meters: 5615 },
-        { id: 3, name: '용인 에버랜드 스피드웨이', layout_name: 'Full Course', length_meters: 4346 },
-        { id: 4, name: '태백 레이싱파크', layout_name: 'Speed Course', length_meters: 2500 }
-      ];
+      const trackList = (tracks && tracks.length > 0) ? tracks : (typeof GLOBAL_CIRCUIT_GATES !== 'undefined' ? Object.values(GLOBAL_CIRCUIT_GATES) : [
+        { id: 1, name: '인제 스피디움', region: 'KR' },
+        { id: 2, name: '영암 KIC', region: 'KR' },
+        { id: 3, name: '용인 에버랜드', region: 'KR' },
+        { id: 4, name: '태백 레이싱파크', region: 'KR' }
+      ]);
 
-      container.innerHTML = '';
-      trackList.forEach(t => {
-        const btn = document.createElement('button');
+      const filteredTracks = activeLeaderboardRegionTab === 'ALL'
+        ? trackList
+        : trackList.filter(t => (t.region || (t.id <= 6 ? 'KR' : (t.id <= 199 ? 'ASIA' : (t.id <= 299 ? 'EU' : 'AM_OTHER')))) === activeLeaderboardRegionTab);
+
+      let html = `
+        <div style="display:flex; gap:0.35rem; width:100%; overflow-x:auto; padding-bottom:0.35rem; margin-bottom:0.4rem; border-bottom:1px solid rgba(255,255,255,0.06);">
+          <button type="button" class="btn btn-sm ${activeLeaderboardRegionTab === 'ALL' ? 'btn-cyan' : 'btn-secondary'}" onclick="setLeaderboardRegionTab('ALL')" style="font-size:0.75rem; padding:0.25rem 0.6rem;">전체</button>
+          <button type="button" class="btn btn-sm ${activeLeaderboardRegionTab === 'KR' ? 'btn-cyan' : 'btn-secondary'}" onclick="setLeaderboardRegionTab('KR')" style="font-size:0.75rem; padding:0.25rem 0.6rem;">🇰🇷 한국</button>
+          <button type="button" class="btn btn-sm ${activeLeaderboardRegionTab === 'ASIA' ? 'btn-cyan' : 'btn-secondary'}" onclick="setLeaderboardRegionTab('ASIA')" style="font-size:0.75rem; padding:0.25rem 0.6rem;">🇯🇵 아시아</button>
+          <button type="button" class="btn btn-sm ${activeLeaderboardRegionTab === 'EU' ? 'btn-cyan' : 'btn-secondary'}" onclick="setLeaderboardRegionTab('EU')" style="font-size:0.75rem; padding:0.25rem 0.6rem;">🇪🇺 유럽</button>
+          <button type="button" class="btn btn-sm ${activeLeaderboardRegionTab === 'AM_OTHER' ? 'btn-cyan' : 'btn-secondary'}" onclick="setLeaderboardRegionTab('AM_OTHER')" style="font-size:0.75rem; padding:0.25rem 0.6rem;">🇺🇸 미주/기타</button>
+          ${nearestGpsTrackId ? `<button type="button" class="btn btn-sm" onclick="selectLeaderboardTrack(${nearestGpsTrackId})" style="font-size:0.75rem; padding:0.25rem 0.6rem; background:rgba(0,255,136,0.12); border:1px solid rgba(0,255,136,0.4); color:var(--accent-green);" title="GPS 최인접 서킷 리더보드">📍 ${nearestGpsTrackName ? nearestGpsTrackName.split(' ')[0] : '주변'}${nearestGpsDistanceKm ? ' (' + nearestGpsDistanceKm + 'km)' : ''}</button>` : ''}
+        </div>
+        <div style="display:flex; gap:0.4rem; overflow-x:auto; width:100%; padding-bottom:0.2rem;">
+      `;
+
+      filteredTracks.forEach(t => {
         const isActive = t.id == activeLeaderboardTrackId;
-        btn.className = `btn ${isActive ? 'btn-cyan active' : 'btn-secondary'}`;
-        btn.style.padding = '0.45rem 0.85rem';
-        btn.style.fontSize = '0.82rem';
-        btn.style.fontWeight = isActive ? '700' : '500';
-        btn.innerHTML = `<i data-lucide="map-pin" style="width:13px; height:13px;"></i> ${t.name}`;
-        btn.onclick = () => selectLeaderboardTrack(t.id);
-        container.appendChild(btn);
+        const shortName = (t.name || '').replace(' 스피드웨이', '').replace(' 레이싱파크', '').replace(' 인터내셔널', '').replace(' 서킷', '');
+        const flag = t.country_flag || t.countryFlag || '';
+        html += `
+          <button type="button" class="btn ${isActive ? 'btn-cyan active' : 'btn-secondary'}" style="padding:0.45rem 0.85rem; font-size:0.82rem; font-weight:${isActive ? '700' : '500'}; white-space:nowrap;" onclick="selectLeaderboardTrack(${t.id})">
+            <i data-lucide="map-pin" style="width:13px; height:13px;"></i> ${flag ? flag + ' ' : ''}${shortName}
+          </button>
+        `;
       });
+
+      html += `</div>`;
+      container.innerHTML = html;
       lucide.createIcons();
     }
 
@@ -9665,10 +9875,46 @@
 
     // 텔레메트리 탭 진입 시 초기화
     async function initAndRenderTop3Telemetry() {
-      // 1. 트랙 셀렉터 초기화
+      // 1. 트랙 셀렉터 초기화 (전세계 41개 글로벌 서킷 그룹화)
       const trackSel = document.getElementById('telemetry-track-select');
-      if (trackSel && tracks.length > 0) {
-        trackSel.innerHTML = tracks.map(t => `<option value="${t.id}" ${t.id == selectedTelemetryTrackId ? 'selected' : ''}>${t.name}</option>`).join('');
+      if (trackSel) {
+        const trackList = (tracks && tracks.length > 0) ? tracks : (typeof GLOBAL_CIRCUIT_GATES !== 'undefined' ? Object.values(GLOBAL_CIRCUIT_GATES) : []);
+        const groups = {
+          'GPS': { label: '📍 GPS 추천 서킷', list: [] },
+          'KR': { label: '🇰🇷 대한민국 서킷 (Korea)', list: [] },
+          'ASIA': { label: '🇯🇵 아시아 & 일본 (Asia & Japan)', list: [] },
+          'EU': { label: '🇪🇺 유럽 (Europe)', list: [] },
+          'AM_OTHER': { label: '🇺🇸 아메리카 / 중동 / 기타 (Global)', list: [] }
+        };
+        if (nearestGpsTrackId) {
+          const nTrk = trackList.find(t => t.id == nearestGpsTrackId);
+          if (nTrk) groups['GPS'].list.push({ ...nTrk, isGpsRecommend: true });
+        }
+        trackList.forEach(t => {
+          const reg = t.region || (t.id <= 6 ? 'KR' : (t.id <= 199 ? 'ASIA' : (t.id <= 299 ? 'EU' : 'AM_OTHER')));
+          if (groups[reg]) groups[reg].list.push(t);
+          else groups['AM_OTHER'].list.push(t);
+        });
+
+        let optsHtml = '';
+        Object.keys(groups).forEach(k => {
+          const grp = groups[k];
+          if (grp.list.length > 0) {
+            optsHtml += `<optgroup label="${grp.label}">`;
+            grp.list.forEach(t => {
+              const flag = t.country_flag || t.countryFlag || '';
+              const isSel = t.id == selectedTelemetryTrackId;
+              const gpsDistStr = t.isGpsRecommend && nearestGpsDistanceKm ? ` [📍 ${nearestGpsDistanceKm}km 최인접]` : '';
+              optsHtml += `<option value="${t.id}" ${isSel ? 'selected' : ''}>${flag ? flag + ' ' : ''}${t.name}${gpsDistStr}</option>`;
+            });
+            optsHtml += `</optgroup>`;
+          }
+        });
+        trackSel.innerHTML = optsHtml;
+        if (!selectedTelemetryTrackId && nearestGpsTrackId) {
+          selectedTelemetryTrackId = nearestGpsTrackId;
+          trackSel.value = nearestGpsTrackId;
+        }
       }
 
       await updateTelemetryVehicleOptionsAndRender();
@@ -10727,6 +10973,7 @@
     async function initApp() {
       initKakaoSDK();
       await loadTracks();
+      initGpsNearestTrack();
 
       // Check if redirected back from Kakao OAuth login
       const callbackHandled = await checkKakaoAuthCallback();
@@ -10840,69 +11087,7 @@
     // =============================================
     // GPS LAP TIMER & REAL-TIME SPEEDOMETER ENGINE
     // =============================================
-    const CIRCUIT_GATES = {
-      1: {
-        name: '인제 스피디움',
-        centerLat: 38.01518,
-        centerLon: 128.30467,
-        gateA: { lat: 38.0152561, lon: 128.3045653 },
-        gateB: { lat: 38.0151039, lon: 128.3047747 },
-        gateWidth: 25.0,
-        trackHeadingDeg: 42.7,
-        gateBearingDeg: 132.7,
-        minLapSec: 40,
-        simLap1Ms: 114820,   // 1:54.820
-        simBestLapMs: 112450, // 1:52.450
-        simMaxSpeedKmh: 218.4,
-        simMinSpeedKmh: 68.0
-      },
-      2: {
-        name: '영암 KIC',
-        centerLat: 34.73510,
-        centerLon: 126.69505,
-        gateA: { lat: 34.7351630, lon: 126.6949369 },
-        gateB: { lat: 34.7350370, lon: 126.6951631 },
-        gateWidth: 25.0,
-        trackHeadingDeg: 34.1,
-        gateBearingDeg: 124.1,
-        minLapSec: 50,
-        simLap1Ms: 151340,   // 2:31.340
-        simBestLapMs: 148120, // 2:28.120
-        simMaxSpeedKmh: 258.6,
-        simMinSpeedKmh: 75.0
-      },
-      3: {
-        name: '용인 에버랜드 스피드웨이',
-        centerLat: 37.29375,
-        centerLon: 127.20140,
-        gateA: { lat: 37.2938142, lon: 127.2012842 },
-        gateB: { lat: 37.2936858, lon: 127.2015158 },
-        gateWidth: 25.0,
-        trackHeadingDeg: 34.9,
-        gateBearingDeg: 124.9,
-        minLapSec: 45,
-        simLap1Ms: 133280,   // 2:13.280
-        simBestLapMs: 130350, // 2:10.350
-        simMaxSpeedKmh: 232.1,
-        simMinSpeedKmh: 70.0
-      },
-      4: {
-        name: '태백 레이싱파크',
-        centerLat: 37.18880,
-        centerLon: 128.93170,
-        gateA: { lat: 37.1888770, lon: 128.9315974 },
-        gateB: { lat: 37.1887230, lon: 128.9318026 },
-        gateWidth: 25.0,
-        trackHeadingDeg: 43.3,
-        gateBearingDeg: 133.3,
-        minLapSec: 30,
-        simLap1Ms: 67900,    // 1:07.900
-        simBestLapMs: 65820,  // 1:05.820
-        simMaxSpeedKmh: 202.5,
-        simMinSpeedKmh: 62.0
-      }
-    };
-
+    // CIRCUIT_GATES is globally defined with 41 tracks at top
     let gpsWatchId = null;
     let gpsWakeLock = null;
     let isGpsTracking = false;
@@ -11009,8 +11194,100 @@
       }
     }
 
+    
+    function populateGpsTrackSelect() {
+      const select = document.getElementById('gps-track-select');
+      if (!select) return;
+      select.innerHTML = '';
+      const trackList = (tracks && tracks.length > 0) ? tracks : (typeof GLOBAL_CIRCUIT_GATES !== 'undefined' ? Object.values(GLOBAL_CIRCUIT_GATES) : []);
+      const groups = {
+        'GPS': { label: '📍 GPS 추천 서킷', list: [] },
+        'KR': { label: '🇰🇷 대한민국 (Korea)', list: [] },
+        'ASIA': { label: '🇯🇵 아시아 & 일본', list: [] },
+        'EU': { label: '🇪🇺 유럽 (Europe)', list: [] },
+        'AM_OTHER': { label: '🇺🇸 아메리카 & 기타', list: [] }
+      };
+      if (nearestGpsTrackId) {
+        const nTrk = trackList.find(t => t.id == nearestGpsTrackId);
+        if (nTrk) groups['GPS'].list.push({ ...nTrk, isGpsRecommend: true });
+      }
+      trackList.forEach(t => {
+        const reg = t.region || (t.id <= 6 ? 'KR' : (t.id <= 199 ? 'ASIA' : (t.id <= 299 ? 'EU' : 'AM_OTHER')));
+        if (groups[reg]) groups[reg].list.push(t);
+        else groups['AM_OTHER'].list.push(t);
+      });
+      Object.keys(groups).forEach(k => {
+        const grp = groups[k];
+        if (grp.list.length > 0) {
+          const optGroup = document.createElement('optgroup');
+          optGroup.label = grp.label;
+          grp.list.forEach(t => {
+            const opt = document.createElement('option');
+            opt.value = t.id;
+            const flag = t.country_flag || t.countryFlag || '';
+            const gpsDistStr = t.isGpsRecommend && nearestGpsDistanceKm ? ` [📍 ${nearestGpsDistanceKm}km 최인접]` : '';
+            opt.innerText = `${flag ? flag + ' ' : ''}${t.name}${gpsDistStr}`;
+            if (t.id == nearestGpsTrackId && !select.value) opt.selected = true;
+            optGroup.appendChild(opt);
+          });
+          select.appendChild(optGroup);
+        }
+      });
+      const customOpt = document.createElement('option');
+      customOpt.value = 'custom';
+      customOpt.innerText = '📍 사용자 지정 게이트 (현재 위치)';
+      select.appendChild(customOpt);
+      if (nearestGpsTrackId) select.value = nearestGpsTrackId;
+    }
+
+    function populatePitTrackSelect() {
+      const select = document.getElementById('pit-track-select');
+      if (!select) return;
+      select.innerHTML = '';
+      const trackList = (tracks && tracks.length > 0) ? tracks : (typeof GLOBAL_CIRCUIT_GATES !== 'undefined' ? Object.values(GLOBAL_CIRCUIT_GATES) : []);
+      const groups = {
+        'GPS': { label: '📍 GPS 추천 서킷', list: [] },
+        'KR': { label: '🇰🇷 대한민국 (Korea)', list: [] },
+        'ASIA': { label: '🇯🇵 아시아 & 일본', list: [] },
+        'EU': { label: '🇪🇺 유럽 (Europe)', list: [] },
+        'AM_OTHER': { label: '🇺🇸 아메리카 & 기타', list: [] }
+      };
+      if (nearestGpsTrackId) {
+        const nTrk = trackList.find(t => t.id == nearestGpsTrackId);
+        if (nTrk) groups['GPS'].list.push({ ...nTrk, isGpsRecommend: true });
+      }
+      trackList.forEach(t => {
+        const reg = t.region || (t.id <= 6 ? 'KR' : (t.id <= 199 ? 'ASIA' : (t.id <= 299 ? 'EU' : 'AM_OTHER')));
+        if (groups[reg]) groups[reg].list.push(t);
+        else groups['AM_OTHER'].list.push(t);
+      });
+      Object.keys(groups).forEach(k => {
+        const grp = groups[k];
+        if (grp.list.length > 0) {
+          const optGroup = document.createElement('optgroup');
+          optGroup.label = grp.label;
+          grp.list.forEach(t => {
+            const opt = document.createElement('option');
+            opt.value = t.id;
+            const flag = t.country_flag || t.countryFlag || '';
+            const gpsDistStr = t.isGpsRecommend && nearestGpsDistanceKm ? ` [📍 ${nearestGpsDistanceKm}km 최인접]` : '';
+            opt.innerText = `${flag ? flag + ' ' : ''}${t.name}${gpsDistStr}`;
+            if (t.id == nearestGpsTrackId && !select.value) opt.selected = true;
+            optGroup.appendChild(opt);
+          });
+          select.appendChild(optGroup);
+        }
+      });
+      const customOpt = document.createElement('option');
+      customOpt.value = 'custom';
+      customOpt.innerText = '📍 사용자 지정 피트 게이트';
+      select.appendChild(customOpt);
+      if (nearestGpsTrackId) select.value = nearestGpsTrackId;
+    }
+
     function openGpsLapTimerModal(isFromSessionModal = false) {
       openSessionAfterGps = isFromSessionModal;
+      populateGpsTrackSelect();
       const modal = document.getElementById('gps-timer-modal');
       if (modal) {
         modal.style.display = 'flex';
@@ -12092,7 +12369,7 @@
     }
 
     // =========================================================================
-    // GPS PIT LANE TIMER ENGINE
+    // VBOX GPS PIT LANE TIMER ENGINE (Racelogic VBOX Pit Lane Timer Specification)
     // =========================================================================
     const CIRCUIT_PIT_GATES = {
       1: {
@@ -12102,18 +12379,16 @@
         entryGate: {
           centerLat: 38.01452,
           centerLon: 128.30398,
-          gateA: { lat: 38.01460, lon: 128.30388 },
-          gateB: { lat: 38.01444, lon: 128.30408 },
-          trackHeadingDeg: 45.0,
-          gateWidthMeters: 24.0
+          gateA: { lat: 38.01458, lon: 128.30390 },
+          gateB: { lat: 38.01446, lon: 128.30406 },
+          trackHeadingDeg: 45.0
         },
         exitGate: {
           centerLat: 38.01595,
           centerLon: 128.30560,
-          gateA: { lat: 38.01603, lon: 128.30550 },
-          gateB: { lat: 38.01587, lon: 128.30570 },
-          trackHeadingDeg: 42.0,
-          gateWidthMeters: 24.0
+          gateA: { lat: 38.01601, lon: 128.30552 },
+          gateB: { lat: 38.01589, lon: 128.30568 },
+          trackHeadingDeg: 42.0
         }
       },
       2: {
@@ -12123,18 +12398,16 @@
         entryGate: {
           centerLat: 34.73440,
           centerLon: 126.69420,
-          gateA: { lat: 34.73448, lon: 126.69410 },
-          gateB: { lat: 34.73432, lon: 126.69430 },
-          trackHeadingDeg: 35.0,
-          gateWidthMeters: 25.0
+          gateA: { lat: 34.73446, lon: 126.69412 },
+          gateB: { lat: 34.73434, lon: 126.69428 },
+          trackHeadingDeg: 35.0
         },
         exitGate: {
           centerLat: 34.73620,
           centerLon: 126.69610,
-          gateA: { lat: 34.73628, lon: 126.69600 },
-          gateB: { lat: 34.73612, lon: 126.69620 },
-          trackHeadingDeg: 34.0,
-          gateWidthMeters: 25.0
+          gateA: { lat: 34.73626, lon: 126.69602 },
+          gateB: { lat: 34.73614, lon: 126.69618 },
+          trackHeadingDeg: 34.0
         }
       },
       3: {
@@ -12144,18 +12417,16 @@
         entryGate: {
           centerLat: 37.29310,
           centerLon: 127.20080,
-          gateA: { lat: 37.29318, lon: 127.20070 },
-          gateB: { lat: 37.29302, lon: 127.20090 },
-          trackHeadingDeg: 35.0,
-          gateWidthMeters: 22.0
+          gateA: { lat: 37.29316, lon: 127.20072 },
+          gateB: { lat: 37.29304, lon: 127.20088 },
+          trackHeadingDeg: 35.0
         },
         exitGate: {
           centerLat: 37.29440,
           centerLon: 127.20210,
-          gateA: { lat: 37.29448, lon: 127.20200 },
-          gateB: { lat: 37.29432, lon: 127.20220 },
-          trackHeadingDeg: 35.0,
-          gateWidthMeters: 22.0
+          gateA: { lat: 37.29446, lon: 127.20202 },
+          gateB: { lat: 37.29434, lon: 127.20218 },
+          trackHeadingDeg: 35.0
         }
       },
       4: {
@@ -12165,37 +12436,28 @@
         entryGate: {
           centerLat: 37.18820,
           centerLon: 128.93120,
-          gateA: { lat: 37.18828, lon: 128.93110 },
-          gateB: { lat: 37.18812, lon: 128.93130 },
-          trackHeadingDeg: 43.0,
-          gateWidthMeters: 22.0
+          gateA: { lat: 37.18826, lon: 128.93112 },
+          gateB: { lat: 37.18814, lon: 128.93128 },
+          trackHeadingDeg: 43.0
         },
         exitGate: {
           centerLat: 37.18940,
           centerLon: 128.93220,
-          gateA: { lat: 37.18948, lon: 128.93210 },
-          gateB: { lat: 37.18932, lon: 128.93230 },
-          trackHeadingDeg: 43.0,
-          gateWidthMeters: 22.0
+          gateA: { lat: 37.18946, lon: 128.93212 },
+          gateB: { lat: 37.18934, lon: 128.93228 },
+          trackHeadingDeg: 43.0
         }
       }
     };
-
-    const pitSpeedKalman = new GpsSpeedKalmanFilter();
-    let pitLastEntryCrossTime = null;
-    let pitLastExitCrossTime = null;
 
     let isPitTracking = false;
     let pitWatchId = null;
     let pitTimerInterval = null;
     let pitSimInterval = null;
-    let isPitSimulating = false;
     let pitCurrentTrackId = 1;
     let pitSpeedLimitKmh = 60;
     let pitTargetSec = 300;
     let pitTargetRuleMode = 'total'; // 'total' | 'stationary' | 'none'
-    let pitWarningAlertSec = 30;
-    let pitImminentAlarmTriggered = false;
 
     let pitState = 'WAITING'; // 'WAITING' -> 'TRANSIT' -> 'STATIONARY' -> 'RELEASE_READY' -> 'COMPLETED'
     let pitEntryTimestamp = null;
@@ -12210,8 +12472,18 @@
     let pitCustomExitGate = null;
     let pitStopHistory = [];
     let pitLastBeepSec = -1;
+    let pitAlarmSec = 5;
+
+    function onPitAlarmChange() {
+      const sel = document.getElementById('pit-alarm-select');
+      if (sel) {
+        pitAlarmSec = parseInt(sel.value, 10);
+        if (isNaN(pitAlarmSec)) pitAlarmSec = 5;
+      }
+    }
 
     function openGpsPitLaneTimerModal() {
+      populatePitTrackSelect();
       const modal = document.getElementById('gps-pitlane-modal');
       if (modal) {
         modal.style.display = 'flex';
@@ -12223,11 +12495,6 @@
         ruleSel.value = '300';
       }
       onPitTargetRuleChange();
-      const alertSel = document.getElementById('pit-warning-alert-select');
-      if (alertSel && !alertSel.value) {
-        alertSel.value = '30';
-      }
-      onPitWarningAlertChange();
       updatePitHudUI();
       lucide.createIcons();
 
@@ -12292,12 +12559,6 @@
         pitTargetSec = val;
       }
       updatePitHudUI();
-    }
-
-    function onPitWarningAlertChange() {
-      const alertSel = document.getElementById('pit-warning-alert-select');
-      if (!alertSel) return;
-      pitWarningAlertSec = parseInt(alertSel.value, 10) || 0;
     }
 
     function setPitCustomGate(type) {
@@ -12373,13 +12634,12 @@
         { enableHighAccuracy: true, maximumAge: 0, timeout: 6000 }
       );
 
-      showToast('🛑 GPS 피트레인 실시간 계측이 시작되었습니다! (스피드리밋 & 정차 카운트다운 가동)');
+      showToast('🛑 피트레인 실시간 계측이 시작되었습니다! (스피드리밋 & 정차 카운트다운 가동)');
       lucide.createIcons();
     }
 
     function stopPitTracking() {
       isPitTracking = false;
-      isPitSimulating = false;
       if (pitWatchId !== null) {
         navigator.geolocation.clearWatch(pitWatchId);
         pitWatchId = null;
@@ -12415,10 +12675,6 @@
     function resetPitSession() {
       if (isPitTracking) stopPitTracking();
 
-      isPitSimulating = false;
-      pitSpeedKalman.reset();
-      pitLastEntryCrossTime = null;
-      pitLastExitCrossTime = null;
       pitState = 'WAITING';
       pitEntryTimestamp = null;
       pitStopTimestamp = null;
@@ -12429,7 +12685,6 @@
       pitTopSpeedKmh = 0.0;
       pitPreviousPos = null;
       pitLastBeepSec = -1;
-      pitImminentAlarmTriggered = false;
       pitStopHistory = [];
 
       const mainTimer = document.getElementById('pit-main-timer-digit');
@@ -12443,17 +12698,10 @@
 
       const hud = document.getElementById('pit-vbox-hud');
       if (hud) {
-        hud.classList.remove('overspeed-alarm', 'release-ready', 'imminent-alarm');
+        hud.classList.remove('overspeed-alarm', 'release-ready');
       }
       const banner = document.getElementById('pit-overspeed-banner');
       if (banner) banner.style.display = 'none';
-      const immBanner = document.getElementById('pit-imminent-banner');
-      if (immBanner) immBanner.style.display = 'none';
-      const mainDigit = document.getElementById('pit-main-timer-digit');
-      if (mainDigit) {
-        mainDigit.style.color = '#fff';
-        mainDigit.style.textShadow = '0 0 20px rgba(255,255,255,0.3)';
-      }
 
       updatePitStagePills(1);
       updatePitHudUI();
@@ -12509,20 +12757,6 @@
           gain.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
           osc.connect(gain); gain.connect(ctx.destination);
           osc.start(now); osc.stop(now + 0.2);
-        } else if (type === 'imminent') {
-          // Imminent pre-warning energetic multi-harmonic alert with vibration
-          if (navigator.vibrate) {
-            try { navigator.vibrate([300, 100, 300]); } catch(e){}
-          }
-          [740, 932, 1174, 1480].forEach((freq, idx) => {
-            const osc = ctx.createOscillator();
-            const gain = ctx.createGain();
-            osc.frequency.setValueAtTime(freq, now + idx * 0.08);
-            gain.gain.setValueAtTime(0.42, now + idx * 0.08);
-            gain.gain.exponentialRampToValueAtTime(0.01, now + idx * 0.08 + 0.22);
-            osc.connect(gain); gain.connect(ctx.destination);
-            osc.start(now + idx * 0.08); osc.stop(now + idx * 0.08 + 0.22);
-          });
         } else if (type === 'countdown') {
           // Crisp 3-2-1 tick
           const osc = ctx.createOscillator();
@@ -12557,94 +12791,12 @@
       } catch (e) {}
     }
 
-    function calculateExactPitGateCrossing(p1, p2, gate, lastCrossTime) {
-      if (!p1 || !p2 || !gate) return { crossed: false };
-      const now = p2.time;
-
-      // Pit Gate Anti-retrigger Cooldown (6.0s)
-      if (lastCrossTime && (now - lastCrossTime < 6000)) {
-        return { crossed: false };
-      }
-
-      // 1. Calculate vehicle movement vector and heading
-      const dLatM = (p2.lat - p1.lat) * 111320.0;
-      const midLatRad = ((p1.lat + p2.lat) / 2.0) * Math.PI / 180.0;
-      const dLonM = (p2.lon - p1.lon) * (111320.0 * Math.cos(midLatRad));
-      const moveDistM = Math.hypot(dLatM, dLonM);
-
-      let moveHeadingDeg = null;
-      if (moveDistM > 0.35) {
-        let h = Math.atan2(dLonM, dLatM) * 180.0 / Math.PI;
-        if (h < 0) h += 360.0;
-        moveHeadingDeg = h;
-      } else if (p2.heading !== undefined && p2.heading !== null && !isNaN(p2.heading) && p2.heading >= 0) {
-        moveHeadingDeg = p2.heading;
-      }
-
-      // Directional validation (strict +/-55 deg tolerance to filter main-straight flybys & reverse driving)
-      if (gate.trackHeadingDeg != null && moveHeadingDeg != null) {
-        const headingDiff = Math.abs((moveHeadingDeg - gate.trackHeadingDeg + 180.0) % 360.0 - 180.0);
-        if (headingDiff > 55.0) {
-          return { crossed: false };
-        }
-      }
-
-      // 2. High-precision vector line segment intersection (p1->p2 with gateA->gateB)
-      if (gate.gateA && gate.gateB) {
-        const x1 = p1.lon, y1 = p1.lat;
-        const x2 = p2.lon, y2 = p2.lat;
-        const x3 = gate.gateA.lon, y3 = gate.gateA.lat;
-        const x4 = gate.gateB.lon, y4 = gate.gateB.lat;
-
-        const dx12 = x2 - x1;
-        const dy12 = y2 - y1;
-        const dx34 = x4 - x3;
-        const dy34 = y4 - y3;
-
-        const denom = dx12 * dy34 - dy12 * dx34;
-        if (Math.abs(denom) > 1e-14) {
-          const t = ((x3 - x1) * dy34 - (y3 - y1) * dx34) / denom;
-          const u = ((x3 - x1) * dy12 - (y3 - y1) * dx12) / denom;
-
-          // t in [-0.02, 1.02] (crossed during step) and u in [-0.08, 1.08] (within gate corridor)
-          if (t >= -0.02 && t <= 1.02 && u >= -0.08 && u <= 1.08) {
-            const clampedT = Math.max(0.0, Math.min(1.0, t));
-            const exactTime = p1.time + clampedT * (p2.time - p1.time);
-            const s1 = p1.speedKmh || 0;
-            const s2 = p2.speedKmh || 0;
-            const exactSpeed = s1 + clampedT * (s2 - s1);
-            return {
-              crossed: true,
-              exactTime: Math.round(exactTime),
-              exactSpeed: Math.round(exactSpeed * 10) / 10
-            };
-          }
-        }
-      }
-
-      // 3. Proximity Perpendicular Plane Crossing Fallback (if within 14m of gate center)
-      if (gate.centerLat && gate.centerLon) {
-        const dCenter = haversineDistMeters(p2.lat, p2.lon, gate.centerLat, gate.centerLon);
-        if (dCenter <= 14.0 && moveDistM > 0.4) {
-          return {
-            crossed: true,
-            exactTime: p2.time,
-            exactSpeed: p2.speedKmh || 0
-          };
-        }
-      }
-
-      return { crossed: false };
-    }
-
     function onPitPositionSuccess(pos) {
       const coords = pos.coords;
       const now = pos.timestamp || Date.now();
       const lat = coords.latitude;
       const lon = coords.longitude;
-      const acc = (coords.accuracy !== null && !isNaN(coords.accuracy)) ? coords.accuracy : 8.0;
 
-      // 1. Raw Speed calculation (Doppler Radar speed if available, otherwise GPS position difference)
       let rawSpeedKmh = 0;
       if (coords.speed !== null && coords.speed !== undefined && !isNaN(coords.speed) && coords.speed >= 0) {
         rawSpeedKmh = coords.speed * 3.6;
@@ -12656,52 +12808,43 @@
         }
       }
 
-      // 2. Kalman Filter Speed Smoothing (removes GPS speed jitters, precise standstill & launch detection)
-      const filteredSpeedKmh = pitSpeedKalman.update(rawSpeedKmh, acc, now);
-      pitCurrentSpeedKmh = filteredSpeedKmh;
-
+      pitCurrentSpeedKmh = Math.round(rawSpeedKmh * 10) / 10;
       if (pitCurrentSpeedKmh > pitTopSpeedKmh && pitState !== 'WAITING') {
         pitTopSpeedKmh = pitCurrentSpeedKmh;
       }
 
-      const curPos = { lat, lon, time: now, speedKmh: filteredSpeedKmh, heading: coords.heading };
-
-      // 3. Check Pit Gates (Entry / Exit)
+      // Check Pit Entry Gate
       const trk = CIRCUIT_PIT_GATES[pitCurrentTrackId] || CIRCUIT_PIT_GATES[1];
       const entryGate = pitCustomEntryGate || trk.entryGate;
       const exitGate = pitCustomExitGate || trk.exitGate;
 
       if (pitState === 'WAITING' && entryGate) {
-        if (pitPreviousPos) {
-          const crossInfo = calculateExactPitGateCrossing(pitPreviousPos, curPos, entryGate, pitLastEntryCrossTime);
-          if (crossInfo.crossed) {
-            pitLastEntryCrossTime = crossInfo.exactTime;
-            triggerPitEntry(crossInfo.exactTime);
-          }
+        const distEntry = haversineDistMeters(lat, lon, entryGate.centerLat, entryGate.centerLon);
+        if (distEntry <= 18.0 || (pitPreviousPos && calculateExactGateCrossing(pitPreviousPos, { lat, lon, time: now }, entryGate).crossed)) {
+          // Cross Pit Entry!
+          triggerPitEntry(now);
         }
       } else if (pitState === 'TRANSIT') {
-        // Vehicle stopped in Pit Box (Speed <= 2.2 km/h)
-        if (filteredSpeedKmh <= 2.2) {
+        if (pitCurrentSpeedKmh <= 2.5) {
+          // Vehicle stopped in Pit Box!
           triggerPitStop(now);
         }
       } else if (pitState === 'STATIONARY' || pitState === 'RELEASE_READY') {
-        // Vehicle launched from pit box towards pit exit (Speed >= 4.5 km/h)
-        if (filteredSpeedKmh >= 4.5) {
+        if (pitCurrentSpeedKmh >= 6.0) {
+          // Vehicle launched from pit box towards pit exit
           triggerPitLaunch(now);
         }
       }
 
       if ((pitState === 'TRANSIT' || pitState === 'RELEASE_READY' || pitState === 'STATIONARY') && exitGate) {
-        if (pitPreviousPos) {
-          const crossInfo = calculateExactPitGateCrossing(pitPreviousPos, curPos, exitGate, pitLastExitCrossTime);
-          if (crossInfo.crossed) {
-            pitLastExitCrossTime = crossInfo.exactTime;
-            triggerPitExit(crossInfo.exactTime);
-          }
+        const distExit = haversineDistMeters(lat, lon, exitGate.centerLat, exitGate.centerLon);
+        if (distExit <= 18.0 || (pitPreviousPos && calculateExactGateCrossing(pitPreviousPos, { lat, lon, time: now }, exitGate).crossed)) {
+          // Cross Pit Exit!
+          triggerPitExit(now);
         }
       }
 
-      pitPreviousPos = curPos;
+      pitPreviousPos = { lat, lon, time: now, speedKmh: pitCurrentSpeedKmh };
       updatePitHudUI();
     }
 
@@ -12714,7 +12857,6 @@
       pitExitTimestamp = null;
       pitTopSpeedKmh = pitCurrentSpeedKmh;
       pitLastBeepSec = -1;
-      pitImminentAlarmTriggered = false;
 
       updatePitStagePills(2);
       playPitAudio('entry');
@@ -12724,7 +12866,6 @@
     function triggerPitStop(timestamp) {
       pitState = 'STATIONARY';
       pitStopTimestamp = timestamp;
-      pitImminentAlarmTriggered = false;
       updatePitStagePills(3);
       showToast('🛑 피트 박스 정차 감지! 정차 작업 시간 계측 시작');
     }
@@ -12752,9 +12893,6 @@
       } else if (pitTargetRuleMode === 'stationary' && pitTargetSec > 0) {
         deltaSec = Math.round((statMs / 1000 - pitTargetSec) * 10) / 10;
         isCompliant = deltaSec >= 0;
-      } else {
-        deltaSec = 0.0;
-        isCompliant = true;
       }
 
       const newStop = {
@@ -12801,218 +12939,90 @@
       if (statTimeEl) statTimeEl.innerText = msToLapStr(currentStatMs);
 
       if (pitState === 'WAITING') {
-        const immBanner = document.getElementById('pit-imminent-banner');
-        if (immBanner) immBanner.style.display = 'none';
-        if (hud) hud.classList.remove('imminent-alarm', 'release-ready');
-
-        if (mainLabel) mainLabel.innerText = 'Time to go';
+        if (mainLabel) mainLabel.innerText = 'TIME TO GO (남은 시간)';
         if (mainBadge) {
-          mainBadge.innerText = 'Waiting for entry';
+          mainBadge.innerText = '피트 진입 대기';
           mainBadge.style.background = 'rgba(255,145,0,0.18)';
           mainBadge.style.color = 'var(--accent-orange)';
         }
         mainDigit.innerText = '00:00.00';
-        mainDigit.style.color = '#fff';
-        mainDigit.style.textShadow = '0 0 20px rgba(255,255,255,0.3)';
       } else if (pitState === 'TRANSIT') {
         if (pitTargetRuleMode === 'total' && pitTargetSec > 0) {
           const remainMs = Math.max(0, (pitTargetSec * 1000) - totalElapsedMs);
-          const remainSec = Math.ceil(remainMs / 1000);
-          const isImminent = (pitWarningAlertSec > 0 && remainSec <= pitWarningAlertSec && remainSec > 0);
-
-          // Imminent alert trigger in transit if total pit time is ticking down
-          if (isImminent && remainSec > 3 && !pitImminentAlarmTriggered) {
-            pitImminentAlarmTriggered = true;
-            playPitAudio('imminent');
-          }
-
-          if (isImminent) {
-            if (hud && !hud.classList.contains('overspeed-alarm')) hud.classList.add('imminent-alarm');
-            const immBanner = document.getElementById('pit-imminent-banner');
-            const immSecSpan = document.getElementById('pit-imminent-banner-sec');
-            if (immBanner) immBanner.style.display = 'block';
-            if (immSecSpan) immSecSpan.innerText = remainSec;
-            if (mainDigit) {
-              mainDigit.style.color = '#ffb703';
-              mainDigit.style.textShadow = '0 0 25px rgba(255, 183, 3, 0.9)';
-            }
-          } else {
-            if (hud) hud.classList.remove('imminent-alarm', 'release-ready');
-            const immBanner = document.getElementById('pit-imminent-banner');
-            if (immBanner) immBanner.style.display = 'none';
-            if (mainDigit) {
-              mainDigit.style.color = '#fff';
-              mainDigit.style.textShadow = '0 0 20px rgba(255,255,255,0.3)';
-            }
-          }
-
           if (mainLabel) mainLabel.innerText = 'MIN PIT TIME COUNTDOWN';
-          if (mainBadge) {
-            if (isImminent) {
-              mainBadge.innerText = `⚠️ 출발 준비 임박 (${remainSec}s 남음)`;
-              mainBadge.style.background = 'rgba(255,145,0,0.35)';
-              mainBadge.style.color = '#ff9100';
-              mainBadge.style.borderColor = 'rgba(255,145,0,0.6)';
-            } else {
-              mainBadge.innerText = '피트레인 주행중';
-              mainBadge.style.background = 'rgba(255,145,0,0.18)';
-              mainBadge.style.color = 'var(--accent-orange)';
-              mainBadge.style.borderColor = 'rgba(255,145,0,0.3)';
-            }
-          }
-          mainDigit.innerText = msToLapStr(remainMs);
-        } else {
-          const immBanner = document.getElementById('pit-imminent-banner');
-          if (immBanner) immBanner.style.display = 'none';
-          if (hud) hud.classList.remove('imminent-alarm', 'release-ready');
-
-          if (mainLabel) mainLabel.innerText = 'TOTAL PIT ELAPSED';
           if (mainBadge) {
             mainBadge.innerText = '피트레인 주행중';
             mainBadge.style.background = 'rgba(255,145,0,0.18)';
             mainBadge.style.color = 'var(--accent-orange)';
-            mainBadge.style.borderColor = 'rgba(255,145,0,0.3)';
           }
+          mainDigit.innerText = msToLapStr(remainMs);
+        } else {
+          if (mainLabel) mainLabel.innerText = 'TOTAL PIT ELAPSED';
+          if (mainBadge) mainBadge.innerText = '피트레인 주행중';
           mainDigit.innerText = msToLapStr(totalElapsedMs);
-          mainDigit.style.color = '#fff';
-          mainDigit.style.textShadow = '0 0 20px rgba(255,255,255,0.3)';
         }
       } else if (pitState === 'STATIONARY') {
         let targetMs = 0;
         let elapsedMs = 0;
 
-        if (pitTargetRuleMode === 'stationary' && pitTargetSec > 0) {
+        if (pitTargetRuleMode === 'stationary') {
           targetMs = pitTargetSec * 1000;
           elapsedMs = currentStatMs;
-        } else if (pitTargetRuleMode === 'total' && pitTargetSec > 0) {
+        } else if (pitTargetRuleMode === 'total') {
           targetMs = pitTargetSec * 1000;
           elapsedMs = totalElapsedMs;
-        } else {
-          targetMs = 0;
-          elapsedMs = currentStatMs;
         }
 
-        if (pitTargetRuleMode === 'none') {
-          // Free measurement mode
-          if (mainLabel) mainLabel.innerText = 'STATIONARY WORK TIME';
+        const remainMs = Math.max(0, targetMs - elapsedMs);
+        const remainSec = Math.ceil(remainMs / 1000);
+
+        if (remainMs <= 0) {
+          // Ready to Release!
+          pitState = 'RELEASE_READY';
+          updatePitStagePills(4);
+          if (hud) hud.classList.add('release-ready');
+          playPitAudio('release');
           if (mainBadge) {
-            mainBadge.innerText = '🛑 피트 작업중 (자유 계측)';
-            mainBadge.style.background = 'rgba(255,145,0,0.2)';
-            mainBadge.style.color = 'var(--accent-orange)';
-            mainBadge.style.borderColor = 'rgba(255,145,0,0.3)';
+            mainBadge.innerText = '🟢 출발 릴리즈 (RELEASE GO!)';
+            mainBadge.style.background = 'rgba(0,255,136,0.3)';
+            mainBadge.style.color = '#00ff88';
           }
-          mainDigit.innerText = msToLapStr(currentStatMs);
-          mainDigit.style.color = '#fff';
-          mainDigit.style.textShadow = '0 0 20px rgba(255,255,255,0.3)';
+          if (mainLabel) mainLabel.innerText = 'RELEASE READY (출발 가능)';
+          mainDigit.innerText = '00:00.00';
+          mainDigit.style.color = '#00ff88';
         } else {
-          const remainMs = Math.max(0, targetMs - elapsedMs);
-          const remainSec = Math.ceil(remainMs / 1000);
-
-          if (remainMs <= 0) {
-            // Ready to Release!
-            pitState = 'RELEASE_READY';
-            updatePitStagePills(4);
-            if (hud) {
-              hud.classList.remove('imminent-alarm');
-              hud.classList.add('release-ready');
-            }
-            const immBanner = document.getElementById('pit-imminent-banner');
-            if (immBanner) immBanner.style.display = 'none';
-
-            playPitAudio('release');
-            if (mainBadge) {
-              mainBadge.innerText = '🟢 출발 릴리즈 (RELEASE GO!)';
-              mainBadge.style.background = 'rgba(0,255,136,0.3)';
-              mainBadge.style.color = '#00ff88';
-              mainBadge.style.borderColor = 'rgba(0,255,136,0.6)';
-            }
-            if (mainLabel) mainLabel.innerText = 'RELEASE READY (출발 가능)';
-            mainDigit.innerText = '00:00.00';
-            mainDigit.style.color = '#00ff88';
-            mainDigit.style.textShadow = '0 0 25px rgba(0,255,136,0.9)';
-          } else {
-            // Imminent pre-warning alert check & HUD visual alert
-            const isImminent = (pitWarningAlertSec > 0 && remainSec <= pitWarningAlertSec);
-            if (isImminent && remainSec > 3 && !pitImminentAlarmTriggered) {
-              pitImminentAlarmTriggered = true;
-              playPitAudio('imminent');
-            }
-
-            if (isImminent) {
-              if (hud && !hud.classList.contains('overspeed-alarm')) hud.classList.add('imminent-alarm');
-              const immBanner = document.getElementById('pit-imminent-banner');
-              const immSecSpan = document.getElementById('pit-imminent-banner-sec');
-              if (immBanner) immBanner.style.display = 'block';
-              if (immSecSpan) immSecSpan.innerText = remainSec;
-              if (mainDigit) {
-                mainDigit.style.color = '#ffb703';
-                mainDigit.style.textShadow = '0 0 25px rgba(255, 183, 3, 0.9)';
-              }
-            } else {
-              if (hud) hud.classList.remove('imminent-alarm');
-              const immBanner = document.getElementById('pit-imminent-banner');
-              if (immBanner) immBanner.style.display = 'none';
-              if (mainDigit && pitState !== 'RELEASE_READY') {
-                mainDigit.style.color = '#fff';
-                mainDigit.style.textShadow = '0 0 20px rgba(255,255,255,0.3)';
-              }
-            }
-
-            // Audible 3-2-1 countdown ticks
-            if (remainSec <= 3 && remainSec > 0 && remainSec !== pitLastBeepSec) {
-              pitLastBeepSec = remainSec;
-              playPitAudio('countdown');
-            }
-
-            if (mainLabel) mainLabel.innerText = `COUNTDOWN TO GO (${remainSec}s)`;
-            if (mainBadge) {
-              if (isImminent) {
-                mainBadge.innerText = `⚠️ 출발 준비 임박 (${remainSec}s 남음)`;
-                mainBadge.style.background = 'rgba(255,145,0,0.35)';
-                mainBadge.style.color = '#ff9100';
-                mainBadge.style.borderColor = 'rgba(255,145,0,0.6)';
-              } else {
-                mainBadge.innerText = `🛑 박스 정차중 (${remainSec}s 남음)`;
-                mainBadge.style.background = (remainSec <= 5) ? 'rgba(255,42,75,0.25)' : 'rgba(255,145,0,0.2)';
-                mainBadge.style.color = (remainSec <= 5) ? '#ff2a4b' : 'var(--accent-orange)';
-                mainBadge.style.borderColor = 'rgba(255,145,0,0.3)';
-              }
-            }
-            mainDigit.innerText = msToLapStr(remainMs);
+          // Audible countdown ticks based on pitAlarmSec
+          if (pitAlarmSec > 0 && remainSec <= pitAlarmSec && remainSec > 0 && remainSec !== pitLastBeepSec) {
+            pitLastBeepSec = remainSec;
+            playPitAudio('countdown');
           }
+
+          if (mainLabel) mainLabel.innerText = `COUNTDOWN TO GO (${remainSec}s)`;
+          if (mainBadge) {
+            mainBadge.innerText = `🛑 박스 정차중 (${remainSec}s 남음)`;
+            const isAlarming = (pitAlarmSec > 0 && remainSec <= pitAlarmSec) || (remainSec <= 5);
+            mainBadge.style.background = isAlarming ? 'rgba(255,42,75,0.25)' : 'rgba(255,145,0,0.2)';
+            mainBadge.style.color = isAlarming ? '#ff2a4b' : 'var(--accent-orange)';
+          }
+          mainDigit.innerText = msToLapStr(remainMs);
         }
       } else if (pitState === 'RELEASE_READY') {
-        const immBanner = document.getElementById('pit-imminent-banner');
-        if (immBanner) immBanner.style.display = 'none';
-        if (hud) {
-          hud.classList.remove('imminent-alarm');
-          hud.classList.add('release-ready');
-        }
-
         if (mainLabel) mainLabel.innerText = '🟢 RELEASE NOW (출발 진행)';
         if (mainBadge) {
           mainBadge.innerText = '🟢 규정 충족 (출발)';
           mainBadge.style.color = '#00ff88';
-          mainBadge.style.borderColor = 'rgba(0,255,136,0.6)';
         }
         mainDigit.innerText = msToLapStr(totalElapsedMs);
         mainDigit.style.color = '#00ff88';
-        mainDigit.style.textShadow = '0 0 25px rgba(0,255,136,0.9)';
       } else if (pitState === 'COMPLETED') {
-        const immBanner = document.getElementById('pit-imminent-banner');
-        if (immBanner) immBanner.style.display = 'none';
-        if (hud) hud.classList.remove('imminent-alarm');
-
         if (mainLabel) mainLabel.innerText = 'PIT STOP COMPLETED';
         if (mainBadge) {
           mainBadge.innerText = '🏁 피트 출구 통과 완료';
           mainBadge.style.background = 'rgba(0,240,255,0.2)';
           mainBadge.style.color = 'var(--accent-cyan)';
-          mainBadge.style.borderColor = 'rgba(0,240,255,0.4)';
         }
         mainDigit.innerText = msToLapStr(totalElapsedMs);
         mainDigit.style.color = '#fff';
-        mainDigit.style.textShadow = '0 0 20px rgba(255,255,255,0.3)';
       }
     }
 
@@ -13095,139 +13105,76 @@
       if (pitSimInterval) {
         clearInterval(pitSimInterval);
         pitSimInterval = null;
-        isPitSimulating = false;
         showToast('가상 피트스탑 시뮬레이션을 정지했습니다.');
         return;
       }
 
-      isPitSimulating = true;
-
-      // Read current active target and warning settings
-      const targetSec = pitTargetSec;
-      const ruleMode = pitTargetRuleMode;
-      const alertSec = pitWarningAlertSec;
-
-      let ruleDesc = '규정없음 (자유)';
-      if (ruleMode === 'total') {
-        ruleDesc = targetSec >= 60 ? `총 피트 ${(targetSec / 60).toFixed(0)}분 (${targetSec}s)` : `총 피트 ${targetSec}s`;
-      } else if (ruleMode === 'stationary') {
-        ruleDesc = `정차 ${targetSec}s`;
-      }
-      const alertDesc = alertSec > 0 ? `${alertSec}초 전 임박알람` : '알람 OFF';
-
+      showToast('🛑 [피트스탑 시뮬레이션] 시작! (피트 진입 -> 55km/h 주행 -> 박스 정차 -> 카운트다운 -> 릴리즈 -> 출구 통과)');
       if (!isPitTracking) startPitTracking();
 
-      // Reset to Waiting stage
-      pitState = 'WAITING';
-      pitEntryTimestamp = null;
-      pitStopTimestamp = null;
-      pitStationaryDurationMs = 0;
-      pitReleaseTimestamp = null;
-      pitExitTimestamp = null;
-      pitLastBeepSec = -1;
-      pitImminentAlarmTriggered = false;
-      pitCurrentSpeedKmh = 95.0;
-      updatePitStagePills(1);
-      updatePitHudUI();
-
-      showToast(`🛑 [가상 피트스탑 실시간 체험] ${ruleDesc} / ${alertDesc} (실제 1:1 실시간 시간 진행)`);
-
-      let simPhase = 'waiting'; // 'waiting' -> 'entry' -> 'transit1' -> 'stopping' -> 'stationary' -> 'launch' -> 'transit2' -> 'exit' -> 'finish'
+      let simPhase = 'entry'; // 'entry' -> 'transit1' -> 'stopping' -> 'stationary' -> 'launch' -> 'transit2' -> 'exit'
       let phaseStart = Date.now();
-      let releaseDetectedTime = 0;
+      triggerPitEntry(Date.now());
 
       pitSimInterval = setInterval(() => {
         const now = Date.now();
         const elapsed = now - phaseStart;
+
         let simSpeed = 0;
 
-        if (simPhase === 'waiting') {
-          // 1. Approaching pit entry line in real time (95 -> 60 km/h in 2.5s)
-          simSpeed = 95.0 - Math.min(1, elapsed / 2500) * 35.0;
-
-          if (elapsed >= 2500) {
-            simPhase = 'entry';
-            phaseStart = Date.now();
-            triggerPitEntry(Date.now());
-          }
-        } else if (simPhase === 'entry') {
-          // 2. Passing pit entry line into pit lane (60 -> 55 km/h in 1.2s)
-          simSpeed = 60.0 - Math.min(1, elapsed / 1200) * 5.0;
-
+        if (simPhase === 'entry') {
+          // Decelerating into pit lane (80 -> 56 km/h)
+          simSpeed = 80 - Math.min(1, elapsed / 1200) * 24;
           if (elapsed >= 1200) {
             simPhase = 'transit1';
             phaseStart = Date.now();
           }
         } else if (simPhase === 'transit1') {
-          // 3. Driving along pit lane to pit box at ~55 km/h (2.5s real time)
-          simSpeed = 55.0 + Math.sin(elapsed / 300) * 1.0;
-
+          // Driving in pit lane at 55.5 km/h
+          simSpeed = 55.0 + Math.sin(elapsed / 300) * 1.8;
           if (elapsed >= 2500) {
             simPhase = 'stopping';
             phaseStart = Date.now();
           }
         } else if (simPhase === 'stopping') {
-          // 4. Braking into pit box (55 -> 0 km/h in 1.3s)
-          const brakeProgress = Math.min(1, elapsed / 1300);
-          simSpeed = Math.max(0, 55.0 * (1 - brakeProgress));
-
-          if (brakeProgress >= 1.0) {
+          // Braking into pit box (55 -> 0 km/h)
+          simSpeed = Math.max(0, 55 - (elapsed / 1200) * 55);
+          if (simSpeed <= 1.0) {
             simSpeed = 0.0;
             simPhase = 'stationary';
             phaseStart = Date.now();
-            releaseDetectedTime = 0;
             triggerPitStop(Date.now());
           }
         } else if (simPhase === 'stationary') {
-          // 5. Stationary in Pit Box: 100% 1:1 real-time countdown / work
+          // Car stationary in box for 12.0s simulation
           simSpeed = 0.0;
-
-          if (ruleMode === 'none') {
-            // Free mode: 10s stationary work then release
-            if (elapsed >= 10000 && pitState !== 'RELEASE_READY') {
-              pitState = 'RELEASE_READY';
-              updatePitStagePills(4);
-              playPitAudio('release');
-            }
-          }
-
-          // Once RELEASE_READY is reached, driver reacts and launches after 1.5s
-          if (pitState === 'RELEASE_READY') {
-            if (releaseDetectedTime === 0) releaseDetectedTime = now;
-            if (now - releaseDetectedTime >= 1500) {
-              simPhase = 'launch';
-              phaseStart = Date.now();
-              triggerPitLaunch(Date.now());
-            }
+          if (elapsed >= 12000) {
+            simPhase = 'launch';
+            phaseStart = Date.now();
+            triggerPitLaunch(Date.now());
           }
         } else if (simPhase === 'launch') {
-          // 6. Accelerating out of box (0 -> 58 km/h in 1.5s real time)
-          const launchProgress = Math.min(1, elapsed / 1500);
-          simSpeed = launchProgress * 58.0;
-
+          // Accelerating out of box (0 -> 58 km/h)
+          simSpeed = Math.min(58.0, (elapsed / 1500) * 58);
           if (elapsed >= 1500) {
             simPhase = 'transit2';
             phaseStart = Date.now();
           }
         } else if (simPhase === 'transit2') {
-          // 7. Cruising towards pit exit line at 58 km/h (2.0s real time)
-          simSpeed = 58.0 + Math.sin(elapsed / 250) * 0.8;
-
-          if (elapsed >= 2000) {
+          // Cruising towards pit exit line at 58 km/h
+          simSpeed = 58.0 + Math.sin(elapsed / 250) * 1.5;
+          if (elapsed >= 2500) {
             simPhase = 'exit';
             phaseStart = Date.now();
             triggerPitExit(Date.now());
           }
         } else if (simPhase === 'exit') {
-          // 8. Accelerating back onto circuit (58 -> 135 km/h in 2.0s real time)
-          const fullGasProgress = Math.min(1, elapsed / 2000);
-          simSpeed = 58.0 + fullGasProgress * 77.0;
-
-          if (elapsed >= 2000) {
+          // Accelerating back on track (58 -> 140 km/h)
+          simSpeed = 58 + Math.min(85, (elapsed / 2000) * 85);
+          if (elapsed >= 2200) {
             clearInterval(pitSimInterval);
             pitSimInterval = null;
-            isPitSimulating = false;
-            showToast('🏁 가상 피트스탑 실시간 체험이 완료되었습니다!');
+            showToast('🏁 가상 피트스탑 시뮬레이션 완료!');
           }
         }
 
@@ -13235,116 +13182,8 @@
         if (pitCurrentSpeedKmh > pitTopSpeedKmh) pitTopSpeedKmh = pitCurrentSpeedKmh;
 
         updatePitHudUI();
-      }, 60);
+      }, 80);
     }
-
-    // =========================================================================
-    // DIRECT MODAL DEEP-LINKS & CLIPBOARD LINK SHARING
-    // =========================================================================
-    function getDirectAppUrl(paramKey, paramVal) {
-      const origin = window.location.origin;
-      const pathname = window.location.pathname;
-      return `${origin}${pathname}?${paramKey}=${paramVal}`;
-    }
-
-    function copyPitTimerDirectLink() {
-      const url = getDirectAppUrl('view', 'pit');
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(url).then(() => {
-          showToast('🔗 GPS 피트타이머 바로가기 링크가 복사되었습니다! 홈 화면 바로가기나 즐겨찾기에 추가하세요.');
-        }).catch(() => {
-          prompt('GPS 피트타이머 바로가기 링크:', url);
-        });
-      } else {
-        prompt('GPS 피트타이머 바로가기 링크:', url);
-      }
-    }
-
-    function copyGpsTimerDirectLink() {
-      const url = getDirectAppUrl('view', 'gps');
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(url).then(() => {
-          showToast('🔗 GPS 랩타이머 바로가기 링크가 복사되었습니다! 홈 화면 바로가기나 즐겨찾기에 추가하세요.');
-        }).catch(() => {
-          prompt('GPS 랩타이머 바로가기 링크:', url);
-        });
-      } else {
-        prompt('GPS 랩타이머 바로가기 링크:', url);
-      }
-    }
-
-    let hasHandledInitialDeepLink = false;
-
-    function checkDirectModalDeepLinks() {
-      if (hasHandledInitialDeepLink) return;
-      try {
-        const urlParams = new URLSearchParams(window.location.search);
-        const hash = (window.location.hash || '').toLowerCase();
-        const viewParam = (urlParams.get('view') || urlParams.get('modal') || '').toLowerCase();
-
-        // Clean up URL query parameters so subsequent tab clicks don't re-trigger modal
-        if (viewParam || urlParams.has('pit') || urlParams.has('gps')) {
-          try {
-            const cleanUrl = window.location.pathname + (window.location.hash || '');
-            window.history.replaceState(null, '', cleanUrl);
-          } catch(e) {}
-        }
-
-        // 1. Pit Timer Direct Trigger (?view=pit, ?modal=pit, ?pit, #pit, #pittimer, #pitlane)
-        if (viewParam === 'pit' || viewParam === 'pittimer' || viewParam === 'pitlane' || hash === '#pit' || hash === '#pittimer' || hash === '#pitlane' || urlParams.has('pit')) {
-          hasHandledInitialDeepLink = true;
-          setTimeout(() => {
-            openGpsPitLaneTimerModal();
-          }, 150);
-          return;
-        }
-        // 2. Lap Timer Direct Trigger (?view=gps, ?view=lap, ?modal=gps, ?gps, #gps, #lap, #laptimer)
-        else if (viewParam === 'gps' || viewParam === 'lap' || viewParam === 'laptimer' || hash === '#gps' || hash === '#lap' || hash === '#laptimer' || urlParams.has('gps')) {
-          hasHandledInitialDeepLink = true;
-          setTimeout(() => {
-            openGpsLapTimerModal();
-          }, 150);
-          return;
-        }
-
-        // 3. Tab Direct Trigger via hash (#sessions, #garage, #analytics, #team, #leaderboard, #guides, #feedback)
-        if (hash) {
-          const tabName = hash.replace('#', '');
-          const knownTabs = ['dashboard', 'sessions', 'garage', 'analytics', 'team', 'leaderboard', 'guides', 'feedback'];
-          if (knownTabs.includes(tabName)) {
-            hasHandledInitialDeepLink = true;
-            setTimeout(() => {
-              switchTab(tabName);
-            }, 100);
-          }
-        }
-      } catch (e) {
-        console.warn('Deep link parsing error:', e);
-      }
-    }
-
-    // Auto-execute deep-link check on startup
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', checkDirectModalDeepLinks);
-    } else {
-      checkDirectModalDeepLinks();
-    }
-
-    // Handle hash change for navigation
-    window.addEventListener('hashchange', () => {
-      const hash = (window.location.hash || '').toLowerCase();
-      if (hash === '#pit' || hash === '#pittimer' || hash === '#pitlane') {
-        openGpsPitLaneTimerModal();
-      } else if (hash === '#gps' || hash === '#lap' || hash === '#laptimer') {
-        openGpsLapTimerModal();
-      } else if (hash) {
-        const tabName = hash.replace('#', '');
-        const knownTabs = ['dashboard', 'sessions', 'garage', 'analytics', 'team', 'leaderboard', 'guides', 'feedback'];
-        if (knownTabs.includes(tabName)) {
-          switchTab(tabName);
-        }
-      }
-    });
   </script>
 </body>
 </html>

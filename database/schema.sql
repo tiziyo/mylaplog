@@ -138,13 +138,61 @@ CREATE TABLE IF NOT EXISTS lap_times (
     FOREIGN KEY (session_id) REFERENCES track_sessions(id) ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
--- Seed Data: Tracks
+-- Seed Data: Tracks (전세계 40+ 공인 서킷)
 INSERT INTO tracks (id, name, layout_name, length_meters, sector_count) VALUES
+-- 🇰🇷 대한민국 (Korea)
 (1, '인제 스피디움', 'Full Course', 3908, 3),
 (2, '영암 KIC', 'F1 Grand Prix Course', 5615, 3),
 (3, '용인 에버랜드 스피드웨이', 'Full Course', 4346, 3),
-(4, '태백 레이싱파크', 'Speed Course', 2500, 3)
-ON DUPLICATE KEY UPDATE name=VALUES(name);
+(4, '태백 레이싱파크', 'Speed Course', 2500, 3),
+(5, '한국앤컴퍼니 테크노링', 'High Speed Circuit', 4500, 3),
+(6, '포천 레이스웨이', 'Main Track', 3159, 3),
+
+-- 🇯🇵 아시아 & 일본 (Asia / Japan)
+(101, '스즈카 서킷 (Suzuka)', 'Grand Prix Circuit', 5807, 3),
+(102, '후지 스피드웨이 (Fuji)', 'Grand Prix Course', 4563, 3),
+(103, '츠쿠바 서킷 (Tsukuba)', 'Course 2000', 2045, 3),
+(104, '모빌리티 리조트 모테기 (Motegi)', 'Road Course', 4801, 3),
+(105, '오토폴리스 (Autopolis)', 'International Racing Course', 4674, 3),
+(106, '오카야마 인터내셔널 서킷', 'Full Course', 3703, 3),
+(107, '스포츠랜드 SUGO', 'International Road Course', 3586, 3),
+(108, '세팡 인터내셔널 서킷 (Sepang)', 'Grand Prix Circuit', 5543, 3),
+(109, '창 인터내셔널 서킷 (Buriram)', 'Grand Prix Circuit', 4554, 3),
+(110, '상하이 인터내셔널 서킷 (Shanghai)', 'Grand Prix Circuit', 5451, 3),
+(111, '마리나 베이 스트리트 서킷', 'Street Circuit', 4940, 3),
+
+-- 🇪🇺 유럽 (Europe)
+(201, '뉘르부르크링 (Nürburgring GP)', 'Grand-Prix-Strecke', 5148, 3),
+(202, '스파-프랑코샹 (Spa-Francorchamps)', 'Grand Prix Circuit', 7004, 3),
+(203, '몬차 국립 서킷 (Monza)', 'Autodromo Nazionale', 5793, 3),
+(204, '실버스톤 서킷 (Silverstone)', 'Grand Prix Circuit', 5891, 3),
+(205, '르망 사르트/부가티 (Le Mans)', 'Circuit de la Sarthe', 13626, 3),
+(206, '잔드보르트 (Zandvoort)', 'Grand Prix Circuit', 4259, 3),
+(207, '레드불 링 (Red Bull Ring)', 'Grand Prix Circuit', 4318, 3),
+(208, '헝가로링 (Hungaroring)', 'Grand Prix Circuit', 4381, 3),
+(209, '바르셀로나-카탈루냐 (Catalunya)', 'Grand Prix Circuit', 4657, 3),
+(210, '이몰라 서킷 (Imola)', 'Autodromo Enzo e Dino Ferrari', 4909, 3),
+(211, '무겔로 서킷 (Mugello)', 'Autodromo Internazionale', 5245, 3),
+(212, '모나코 서킷 (Monaco)', 'Circuit de Monaco', 3337, 3),
+(213, '포르티망 알가르베 (Portimão)', 'Algarve International Circuit', 4653, 3),
+
+-- 🇺🇸 아메리카 / 중동 / 대양주 (Americas / Middle East / Oceania)
+(301, '라구나 세카 (Laguna Seca)', 'WeatherTech Raceway', 3602, 3),
+(302, 'COTA 서킷 오브 디 아메리카스', 'Grand Prix Circuit', 5513, 3),
+(303, '로드 아메리카 (Road America)', 'Road Course', 6515, 3),
+(304, '왓킨스 글렌 (Watkins Glen)', 'Grand Prix Course', 5430, 3),
+(305, '데이토나 인터내셔널 (Daytona)', 'Road Course', 5729, 3),
+(306, '세브링 인터내셔널 (Sebring)', 'Full Course', 6019, 3),
+(307, '인테를라고스 (Interlagos)', 'Autódromo José Carlos Pace', 4309, 3),
+(308, '질 빌뇌브 몬트리올 (Montreal)', 'Circuit Gilles Villeneuve', 4361, 3),
+(309, '야스 마리나 서킷 (Yas Marina)', 'Grand Prix Circuit', 5281, 3),
+(310, '바레인 인터내셔널 (Bahrain)', 'Grand Prix Circuit', 5412, 3),
+(311, '마운트 파노라마 (Bathurst)', 'Mount Panorama Circuit', 6213, 3)
+ON DUPLICATE KEY UPDATE 
+  name=VALUES(name),
+  layout_name=VALUES(layout_name),
+  length_meters=VALUES(length_meters),
+  sector_count=VALUES(sector_count);
 
 -- Seed Data: Users
 INSERT INTO users (id, email, password_hash, name, kara_license, driver_class, avatar) VALUES
