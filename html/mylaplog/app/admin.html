@@ -1142,37 +1142,82 @@
           </div>
         </div>
 
-        <!-- Content Editor with Toolbar & Preview -->
-        <div class="form-group">
-          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.4rem; flex-wrap:wrap; gap:0.5rem;">
-            <label style="font-size:0.8rem; font-weight:700; color:var(--text-main); margin:0;">
-              본문 내용 (Markdown 문법 지원) <span style="color:var(--accent-red)">*</span>
-            </label>
-            
-            <div style="display:flex; gap:0.3rem;">
-              <button type="button" class="btn btn-secondary btn-sm active" id="btn-tab-editor" onclick="toggleGuideEditorTab('edit')" style="padding:0.25rem 0.65rem; font-size:0.75rem;">에디터</button>
-              <button type="button" class="btn btn-secondary btn-sm" id="btn-tab-preview" onclick="toggleGuideEditorTab('preview')" style="padding:0.25rem 0.65rem; font-size:0.75rem;"><i data-lucide="eye" style="width:12px; height:12px;"></i> 실시간 미리보기</button>
+        <!-- =========================================== -->
+        <!-- CONTENT LANGUAGE TABS: KO / EN              -->
+        <!-- =========================================== -->
+        <div style="border:1px solid rgba(0,240,255,0.2); border-radius:10px; overflow:hidden;">
+
+          <!-- Tab Header -->
+          <div style="display:flex; background:rgba(0,0,0,0.35); border-bottom:1px solid rgba(0,240,255,0.15);">
+            <button type="button" id="btn-lang-tab-ko" onclick="switchContentLangTab('ko')" style="flex:1; padding:0.5rem 1rem; font-size:0.8rem; font-weight:700; border:none; background:rgba(0,240,255,0.15); color:var(--accent-cyan); cursor:pointer; display:flex; align-items:center; justify-content:center; gap:0.4rem; border-right:1px solid rgba(0,240,255,0.15);">
+              🇰🇷 한국어 (KO)
+            </button>
+            <button type="button" id="btn-lang-tab-en" onclick="switchContentLangTab('en')" style="flex:1; padding:0.5rem 1rem; font-size:0.8rem; font-weight:700; border:none; background:transparent; color:var(--text-muted); cursor:pointer; display:flex; align-items:center; justify-content:center; gap:0.4rem;">
+              🇺🇸 영문 (EN) — Google 영문 인덱싱 대상
+            </button>
+          </div>
+
+          <!-- KO Panel -->
+          <div id="content-panel-ko" style="padding:0.9rem; display:flex; flex-direction:column; gap:0.75rem;">
+            <div class="form-group" style="margin:0;">
+              <label style="font-size:0.78rem; font-weight:700; color:var(--text-main); display:block; margin-bottom:0.35rem;">본문 내용 (한국어 Markdown) <span style="color:var(--accent-red)">*</span></label>
+
+              <div style="display:flex; justify-content:flex-end; margin-bottom:0.35rem; gap:0.3rem;">
+                <button type="button" class="btn btn-secondary btn-sm active" id="btn-tab-editor" onclick="toggleGuideEditorTab('edit')" style="padding:0.25rem 0.65rem; font-size:0.75rem;">에디터</button>
+                <button type="button" class="btn btn-secondary btn-sm" id="btn-tab-preview" onclick="toggleGuideEditorTab('preview')" style="padding:0.25rem 0.65rem; font-size:0.75rem;"><i data-lucide="eye" style="width:12px; height:12px;"></i> 미리보기</button>
+              </div>
+
+              <!-- Quick Markdown Toolbar -->
+              <div id="editor-toolbar" style="display:flex; flex-wrap:wrap; gap:0.35rem; background:rgba(0,0,0,0.35); border:1px solid var(--border-subtle); border-radius:6px; padding:0.4rem; margin-bottom:0.45rem;">
+                <button type="button" class="btn btn-secondary btn-sm" onclick="insertMarkdownSnippet('## ')" title="대제목">H2</button>
+                <button type="button" class="btn btn-secondary btn-sm" onclick="insertMarkdownSnippet('### ')" title="중제목">H3</button>
+                <button type="button" class="btn btn-secondary btn-sm" onclick="insertMarkdownSnippet('**', '**')" title="굵게"><b>B</b></button>
+                <button type="button" class="btn btn-secondary btn-sm" onclick="insertMarkdownSnippet('*', '*')" title="기울임"><i>I</i></button>
+                <button type="button" class="btn btn-secondary btn-sm" onclick="insertMarkdownSnippet('- ')" title="목록">• List</button>
+                <button type="button" class="btn btn-secondary btn-sm" onclick="insertMarkdownSnippet('> 💡 **팁**: ')" title="팁 콜아웃">💡 Tip</button>
+                <button type="button" class="btn btn-secondary btn-sm" onclick="insertMarkdownSnippet('> ⚠️ **주의**: ')" title="주의 경고">⚠️ Warning</button>
+                <button type="button" class="btn btn-secondary btn-sm" onclick="insertMarkdownSnippet('```\n[SETUP DATA]\nCold: 28 PSI | Hot: 34 PSI | Camber: -3.0°\n```\n')" title="셋업 코드 블록">🏎️ 셋업 블록</button>
+                <button type="button" class="btn btn-secondary btn-sm" onclick="insertMarkdownSnippet('[링크 텍스트](https://...)')" title="하이퍼링크">🔗 링크</button>
+                <button type="button" class="btn btn-secondary btn-sm" onclick="insertMarkdownSnippet('\n---\n')" title="구분선">— Line</button>
+              </div>
+
+              <textarea class="form-control" id="modal-guide-content" rows="10" placeholder="마크다운(Markdown) 문법을 자유롭게 작성하세요...&#10;&#10;## 1. 개요&#10;본문 내용 작성..." required style="font-family:var(--font-main); font-size:0.85rem; line-height:1.6;"></textarea>
+
+              <div id="modal-guide-preview-box" style="display:none; min-height:240px; max-height:380px; overflow-y:auto; background:rgba(7,9,14,0.95); border:1px solid var(--border-subtle); border-radius:6px; padding:1.25rem; font-size:0.88rem; line-height:1.75;"></div>
             </div>
           </div>
 
-          <!-- Quick Markdown Toolbar -->
-          <div id="editor-toolbar" style="display:flex; flex-wrap:wrap; gap:0.35rem; background:rgba(0,0,0,0.35); border:1px solid var(--border-subtle); border-radius:6px; padding:0.4rem; margin-bottom:0.45rem;">
-            <button type="button" class="btn btn-secondary btn-sm" onclick="insertMarkdownSnippet('## ')" title="대제목">H2</button>
-            <button type="button" class="btn btn-secondary btn-sm" onclick="insertMarkdownSnippet('### ')" title="중제목">H3</button>
-            <button type="button" class="btn btn-secondary btn-sm" onclick="insertMarkdownSnippet('**', '**')" title="굵게"><b>B</b></button>
-            <button type="button" class="btn btn-secondary btn-sm" onclick="insertMarkdownSnippet('*', '*')" title="기울임"><i>I</i></button>
-            <button type="button" class="btn btn-secondary btn-sm" onclick="insertMarkdownSnippet('- ')" title="목록">• List</button>
-            <button type="button" class="btn btn-secondary btn-sm" onclick="insertMarkdownSnippet('> 💡 **팁**: ')" title="팁 콜아웃">💡 Tip</button>
-            <button type="button" class="btn btn-secondary btn-sm" onclick="insertMarkdownSnippet('> ⚠️ **주의**: ')" title="주의 경고">⚠️ Warning</button>
-            <button type="button" class="btn btn-secondary btn-sm" onclick="insertMarkdownSnippet('```\n[SETUP DATA]\nCold: 28 PSI | Hot: 34 PSI | Camber: -3.0°\n```\n')" title="셋업 코드 블록">🏎️ 셋업 블록</button>
-            <button type="button" class="btn btn-secondary btn-sm" onclick="insertMarkdownSnippet('[링크 텍스트](https://...)')" title="하이퍼링크">🔗 링크</button>
-            <button type="button" class="btn btn-secondary btn-sm" onclick="insertMarkdownSnippet('\n---\n')" title="구분선">— Line</button>
-          </div>
+          <!-- EN Panel -->
+          <div id="content-panel-en" style="padding:0.9rem; display:none; flex-direction:column; gap:0.75rem;">
+            <div style="background:rgba(0,240,255,0.06); border:1px solid rgba(0,240,255,0.2); border-radius:8px; padding:0.6rem 0.85rem; font-size:0.8rem; color:var(--accent-cyan); display:flex; align-items:center; gap:0.5rem;">
+              <i data-lucide="globe" style="width:15px; height:15px; flex-shrink:0;"></i>
+              <span><strong>Google 영문 SEO 인덱싱</strong> — 이 섹션의 내용이 <code>?lang=en</code> URL로 서빙되며 영어권 Google 검색에 노출됩니다. 비워두면 한국어 콘텐츠가 영문 URL에도 적용됩니다.</span>
+            </div>
 
-          <textarea class="form-control" id="modal-guide-content" rows="12" placeholder="마크다운(Markdown) 문법을 자유롭게 작성하세요...&#10;&#10;## 1. 개요&#10;본문 내용 작성...&#10;&#10;> 💡 **팁**: 유용한 정보를 입력하세요." required style="font-family:var(--font-main); font-size:0.85rem; line-height:1.6;"></textarea>
-          
-          <div id="modal-guide-preview-box" style="display:none; min-height:280px; max-height:420px; overflow-y:auto; background:rgba(7,9,14,0.95); border:1px solid var(--border-subtle); border-radius:6px; padding:1.25rem; font-size:0.88rem; line-height:1.75;">
-            <!-- Live Preview -->
+            <!-- EN Title -->
+            <div class="form-group" style="margin:0;">
+              <label style="font-size:0.78rem; font-weight:700; color:var(--text-main); display:block; margin-bottom:0.35rem;">🇺🇸 영문 제목 (title_en)</label>
+              <input type="text" class="form-control" id="modal-guide-title-en" placeholder="e.g. Tire Pressure Guide: Cold vs Hot Setup for Track Days">
+            </div>
+
+            <!-- EN Excerpt -->
+            <div class="form-group" style="margin:0;">
+              <label style="font-size:0.78rem; font-weight:700; color:var(--text-main); display:block; margin-bottom:0.35rem;">🇺🇸 영문 요약문 (excerpt_en)</label>
+              <textarea class="form-control" id="modal-guide-excerpt-en" rows="2" placeholder="e.g. Learn how cold and hot tire pressure affects grip, camber geometry, and lap times on track day..."></textarea>
+            </div>
+
+            <!-- EN Content -->
+            <div class="form-group" style="margin:0;">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.35rem; flex-wrap:wrap; gap:0.5rem;">
+                <label style="font-size:0.78rem; font-weight:700; color:var(--text-main); margin:0;">🇺🇸 영문 본문 (content_en) — Markdown</label>
+                <div style="display:flex; gap:0.3rem;">
+                  <button type="button" class="btn btn-secondary btn-sm active" id="btn-tab-editor-en" onclick="toggleGuideEditorTabEn('edit')" style="padding:0.25rem 0.65rem; font-size:0.75rem;">에디터</button>
+                  <button type="button" class="btn btn-secondary btn-sm" id="btn-tab-preview-en" onclick="toggleGuideEditorTabEn('preview')" style="padding:0.25rem 0.65rem; font-size:0.75rem;"><i data-lucide="eye" style="width:12px; height:12px;"></i> 미리보기</button>
+                </div>
+              </div>
+              <textarea class="form-control" id="modal-guide-content-en" rows="10" placeholder="Write English content in Markdown format...&#10;&#10;## Overview&#10;..." style="font-family:var(--font-main); font-size:0.85rem; line-height:1.6;"></textarea>
+              <div id="modal-guide-preview-box-en" style="display:none; min-height:240px; max-height:380px; overflow-y:auto; background:rgba(7,9,14,0.95); border:1px solid var(--border-subtle); border-radius:6px; padding:1.25rem; font-size:0.88rem; line-height:1.75;"></div>
+            </div>
           </div>
         </div>
 
@@ -1814,6 +1859,10 @@
           ? `<span style="color:var(--accent-cyan); font-size:0.72rem; font-weight:700; background:rgba(0,240,255,0.12); padding:0.1rem 0.35rem; border-radius:4px; margin-right:0.35rem; border:1px solid rgba(0,240,255,0.3);">⭐ 추천</span>` 
           : '';
 
+        const enBadge = g.title_en
+          ? `<span style="color:#4ade80; font-size:0.68rem; font-weight:700; background:rgba(74,222,128,0.12); padding:0.1rem 0.35rem; border-radius:4px; margin-right:0.35rem; border:1px solid rgba(74,222,128,0.3);">🇺🇸 EN</span>`
+          : `<span style="color:var(--text-muted); font-size:0.68rem; font-weight:600; background:rgba(255,255,255,0.05); padding:0.1rem 0.35rem; border-radius:4px; margin-right:0.35rem; border:1px solid rgba(255,255,255,0.1);">EN ✗</span>`;
+
         const dateStr = g.created_at ? g.created_at.substring(0, 10) : '-';
 
         return `
@@ -1823,8 +1872,8 @@
               <span class="badge" style="background:rgba(0,240,255,0.12); color:var(--accent-cyan); border:1px solid rgba(0,240,255,0.3); font-size:0.75rem;">${escapeHtml(g.category || '셋업 노하우')}</span>
             </td>
             <td>
-              <div style="font-weight:600; color:#fff; font-size:0.88rem; display:flex; align-items:center;">
-                ${featuredBadge}${escapeHtml(g.title)}
+              <div style="font-weight:600; color:#fff; font-size:0.88rem; display:flex; align-items:center; flex-wrap:wrap; gap:0.2rem;">
+                ${featuredBadge}${enBadge}${escapeHtml(g.title)}
               </div>
               <div style="font-size:0.75rem; color:var(--text-muted); font-family:var(--font-mono); margin-top:0.2rem;">
                 /guides/${escapeHtml(g.slug)}
@@ -1892,10 +1941,15 @@
       document.getElementById('modal-guide-cover').value = '';
       document.getElementById('modal-guide-cover-file').value = '';
       document.getElementById('modal-guide-content').value = '';
+      // EN fields
+      document.getElementById('modal-guide-title-en').value = '';
+      document.getElementById('modal-guide-excerpt-en').value = '';
+      document.getElementById('modal-guide-content-en').value = '';
       document.getElementById('btn-delete-guide').style.display = 'none';
 
       updateCoverPreview('');
       toggleGuideEditorTab('edit');
+      switchContentLangTab('ko');
       openAdminModal('guide-modal');
       lucide.createIcons();
     }
@@ -1919,10 +1973,16 @@
       document.getElementById('modal-guide-cover').value = guide.cover_image || '';
       document.getElementById('modal-guide-cover-file').value = '';
       document.getElementById('modal-guide-content').value = guide.content || '';
+      // EN fields
+      document.getElementById('modal-guide-title-en').value = guide.title_en || '';
+      document.getElementById('modal-guide-excerpt-en').value = guide.excerpt_en || '';
+      document.getElementById('modal-guide-content-en').value = guide.content_en || '';
       document.getElementById('btn-delete-guide').style.display = 'inline-flex';
 
       updateCoverPreview(guide.cover_image || '');
       toggleGuideEditorTab('edit');
+      toggleGuideEditorTabEn('edit');
+      switchContentLangTab('ko');
       openAdminModal('guide-modal');
       lucide.createIcons();
     }
@@ -2108,6 +2168,29 @@
       document.getElementById('modal-guide-slug').value = slug;
     }
 
+    function switchContentLangTab(lang) {
+      const btnKo = document.getElementById('btn-lang-tab-ko');
+      const btnEn = document.getElementById('btn-lang-tab-en');
+      const panelKo = document.getElementById('content-panel-ko');
+      const panelEn = document.getElementById('content-panel-en');
+      if (lang === 'en') {
+        btnKo.style.background = 'transparent';
+        btnKo.style.color = 'var(--text-muted)';
+        btnEn.style.background = 'rgba(0,240,255,0.15)';
+        btnEn.style.color = 'var(--accent-cyan)';
+        panelKo.style.display = 'none';
+        panelEn.style.display = 'flex';
+      } else {
+        btnEn.style.background = 'transparent';
+        btnEn.style.color = 'var(--text-muted)';
+        btnKo.style.background = 'rgba(0,240,255,0.15)';
+        btnKo.style.color = 'var(--accent-cyan)';
+        panelEn.style.display = 'none';
+        panelKo.style.display = 'flex';
+      }
+      lucide.createIcons();
+    }
+
     function toggleGuideEditorTab(mode) {
       const btnEdit = document.getElementById('btn-tab-editor');
       const btnPrev = document.getElementById('btn-tab-preview');
@@ -2120,6 +2203,27 @@
         textarea.style.display = 'none';
         previewBox.style.display = 'block';
         previewBox.innerHTML = renderMarkdown(textarea.value || '*작성된 내용이 없습니다.*');
+      } else {
+        btnPrev.classList.remove('active');
+        btnEdit.classList.add('active');
+        previewBox.style.display = 'none';
+        textarea.style.display = 'block';
+      }
+    }
+
+    function toggleGuideEditorTabEn(mode) {
+      const btnEdit = document.getElementById('btn-tab-editor-en');
+      const btnPrev = document.getElementById('btn-tab-preview-en');
+      const textarea = document.getElementById('modal-guide-content-en');
+      const previewBox = document.getElementById('modal-guide-preview-box-en');
+      if (!btnEdit) return;
+
+      if (mode === 'preview') {
+        btnEdit.classList.remove('active');
+        btnPrev.classList.add('active');
+        textarea.style.display = 'none';
+        previewBox.style.display = 'block';
+        previewBox.innerHTML = renderMarkdown(textarea.value || '*No English content written yet.*');
       } else {
         btnPrev.classList.remove('active');
         btnEdit.classList.add('active');
@@ -2159,6 +2263,10 @@
       const excerpt = document.getElementById('modal-guide-excerpt').value.trim();
       const cover_image = document.getElementById('modal-guide-cover').value.trim();
       const content = document.getElementById('modal-guide-content').value.trim();
+      // EN fields
+      const title_en   = document.getElementById('modal-guide-title-en').value.trim();
+      const excerpt_en = document.getElementById('modal-guide-excerpt-en').value.trim();
+      const content_en = document.getElementById('modal-guide-content-en').value.trim();
 
       if (!title || !content) {
         alert('제목과 본문 내용은 필수 입력 항목입니다.');
@@ -2166,7 +2274,8 @@
       }
 
       const payload = {
-        title, slug, category, read_time, status, author_name, is_featured, excerpt, cover_image, content
+        title, slug, category, read_time, status, author_name, is_featured, excerpt, cover_image, content,
+        title_en, excerpt_en, content_en
       };
 
       saveBtn.disabled = true;

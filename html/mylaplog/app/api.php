@@ -2590,7 +2590,7 @@ if ($method === 'GET' && $uri === '/admin/guides') {
     requireAdminAuth();
 
     $stmt = $pdo->query('
-        SELECT id, slug, title, category, excerpt, content, cover_image, author_name, read_time, status, views, is_featured, created_at, updated_at
+        SELECT id, slug, title, title_en, category, excerpt, excerpt_en, content, content_en, cover_image, author_name, read_time, status, views, is_featured, created_at, updated_at
         FROM guides
         ORDER BY id DESC
     ');
@@ -2611,6 +2611,10 @@ if ($method === 'POST' && $uri === '/admin/guides') {
     if ($content === '') {
         jsonResponse(400, ['error' => '가이드 본문 내용을 입력해주세요.']);
     }
+
+    $title_en = trim($body['title_en'] ?? '');
+    $excerpt_en = trim($body['excerpt_en'] ?? '');
+    $content_en = trim($body['content_en'] ?? '');
 
     $slug = trim($body['slug'] ?? '');
     if ($slug === '') {
@@ -2637,10 +2641,10 @@ if ($method === 'POST' && $uri === '/admin/guides') {
     $isFeatured = !empty($body['is_featured']) ? 1 : 0;
 
     $stmt = $pdo->prepare('
-        INSERT INTO guides (slug, title, category, excerpt, content, cover_image, author_name, read_time, status, is_featured)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        INSERT INTO guides (slug, title, title_en, category, excerpt, excerpt_en, content, content_en, cover_image, author_name, read_time, status, is_featured)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     ');
-    $stmt->execute([$slug, $title, $category, $excerpt, $content, $coverImage, $authorName, $readTime, $status, $isFeatured]);
+    $stmt->execute([$slug, $title, $title_en, $category, $excerpt, $excerpt_en, $content, $content_en, $coverImage, $authorName, $readTime, $status, $isFeatured]);
     $newId = (int)$pdo->lastInsertId();
 
     $stmt = $pdo->prepare('SELECT * FROM guides WHERE id = ?');
@@ -2665,6 +2669,9 @@ if (($method === 'PUT' || $method === 'POST') && preg_match('#^/admin/guides/(\d
     $body = getBody();
     $title = trim($body['title'] ?? $existing['title']);
     $content = trim($body['content'] ?? $existing['content']);
+    $title_en = isset($body['title_en']) ? trim($body['title_en']) : ($existing['title_en'] ?? '');
+    $excerpt_en = isset($body['excerpt_en']) ? trim($body['excerpt_en']) : ($existing['excerpt_en'] ?? '');
+    $content_en = isset($body['content_en']) ? trim($body['content_en']) : ($existing['content_en'] ?? '');
     $slug = trim($body['slug'] ?? $existing['slug']);
     $category = trim($body['category'] ?? $existing['category']);
     $excerpt = trim($body['excerpt'] ?? $existing['excerpt']);
@@ -2688,11 +2695,11 @@ if (($method === 'PUT' || $method === 'POST') && preg_match('#^/admin/guides/(\d
 
     $stmt = $pdo->prepare('
         UPDATE guides
-        SET slug = ?, title = ?, category = ?, excerpt = ?, content = ?, cover_image = ?,
+        SET slug = ?, title = ?, title_en = ?, category = ?, excerpt = ?, excerpt_en = ?, content = ?, content_en = ?, cover_image = ?,
             author_name = ?, read_time = ?, status = ?, is_featured = ?
         WHERE id = ?
     ');
-    $stmt->execute([$slug, $title, $category, $excerpt, $content, $coverImage, $authorName, $readTime, $status, $isFeatured, $guideId]);
+    $stmt->execute([$slug, $title, $title_en, $category, $excerpt, $excerpt_en, $content, $content_en, $coverImage, $authorName, $readTime, $status, $isFeatured, $guideId]);
 
     $stmt = $pdo->prepare('SELECT * FROM guides WHERE id = ?');
     $stmt->execute([$guideId]);
