@@ -3057,21 +3057,27 @@
       }
       .pit-stage-pills {
         display: flex;
-        gap: 0.3rem;
+        gap: 0.2rem;
         margin-bottom: 0.6rem;
+        width: 100%;
+        box-sizing: border-box;
       }
       .pit-stage-pill {
-        flex: 1;
+        flex: 1 1 0;
+        min-width: 0;
         text-align: center;
-        padding: 0.25rem 0.2rem;
+        padding: 0.25rem 0.1rem;
         border-radius: 4px;
-        font-size: 0.65rem;
+        font-size: 0.63rem;
         font-weight: 800;
         background: rgba(255, 255, 255, 0.05);
         color: var(--text-muted);
         border: 1px solid rgba(255, 255, 255, 0.08);
         transition: all 0.25s ease;
         white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        box-sizing: border-box;
       }
       .pit-stage-pill.active {
         background: rgba(255, 145, 0, 0.2);
@@ -3154,10 +3160,16 @@
       .pit-stage-pills {
         gap: 2px !important;
         margin-bottom: 0.5rem !important;
+        width: 100% !important;
       }
       .pit-stage-pill {
-        padding: 0.25rem 0.1rem !important;
-        font-size: clamp(0.55rem, 2.2vw, 0.65rem) !important;
+        flex: 1 1 0 !important;
+        min-width: 0 !important;
+        padding: 0.22rem 0.05rem !important;
+        font-size: clamp(0.5rem, 2vw, 0.62rem) !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
       }
       #btn-pit-toggle {
         min-height: 48px !important;
