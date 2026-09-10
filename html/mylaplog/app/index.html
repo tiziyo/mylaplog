@@ -351,16 +351,16 @@
       border: 1px solid rgba(255, 255, 255, 0.06);
     }
     .topbar-action-group.group-racing {
-      background: rgba(255, 42, 75, 0.05);
-      border-color: rgba(255, 42, 75, 0.22);
+      background: rgba(255, 42, 75, 0.06);
+      border-color: rgba(255, 42, 75, 0.28);
     }
     .topbar-action-group.group-manage {
-      background: rgba(0, 240, 255, 0.03);
-      border-color: rgba(0, 240, 255, 0.12);
+      background: rgba(0, 255, 136, 0.04);
+      border-color: rgba(0, 255, 136, 0.22);
     }
     .topbar-action-group.group-system {
-      background: rgba(255, 255, 255, 0.03);
-      border-color: rgba(255, 255, 255, 0.08);
+      background: rgba(0, 240, 255, 0.04);
+      border-color: rgba(0, 240, 255, 0.22);
     }
     .topbar-divider {
       width: 1px;
@@ -376,6 +376,60 @@
       gap: 0.22rem;
       border-radius: 5px;
       white-space: nowrap;
+    }
+
+    /* Category 1: Racing & Live Measurement (Crimson Red Theme) */
+    .topbar-btn-racing {
+      background: rgba(255, 42, 75, 0.1) !important;
+      border: 1px solid rgba(255, 42, 75, 0.35) !important;
+      color: #ff6b81 !important;
+      font-weight: 700 !important;
+    }
+    .topbar-btn-racing:hover {
+      background: rgba(255, 42, 75, 0.25) !important;
+      border-color: #ff2a4b !important;
+      color: #fff !important;
+      box-shadow: 0 0 10px rgba(255, 42, 75, 0.35) !important;
+      transform: translateY(-1px);
+    }
+    .topbar-btn-racing i {
+      color: #ff4d6d !important;
+    }
+
+    /* Category 2: Garage & Team Management (Emerald Green Theme) */
+    .topbar-btn-manage {
+      background: rgba(0, 255, 136, 0.08) !important;
+      border: 1px solid rgba(0, 255, 136, 0.3) !important;
+      color: var(--accent-green) !important;
+      font-weight: 700 !important;
+    }
+    .topbar-btn-manage:hover {
+      background: rgba(0, 255, 136, 0.22) !important;
+      border-color: var(--accent-green) !important;
+      color: #fff !important;
+      box-shadow: 0 0 10px rgba(0, 255, 136, 0.35) !important;
+      transform: translateY(-1px);
+    }
+    .topbar-btn-manage i {
+      color: var(--accent-green) !important;
+    }
+
+    /* Category 3: System Utilities & Account (Cyber Cyan Theme) */
+    .topbar-btn-system {
+      background: rgba(0, 240, 255, 0.08) !important;
+      border: 1px solid rgba(0, 240, 255, 0.3) !important;
+      color: var(--accent-cyan) !important;
+      font-weight: 700 !important;
+    }
+    .topbar-btn-system:hover {
+      background: rgba(0, 240, 255, 0.22) !important;
+      border-color: var(--accent-cyan) !important;
+      color: #fff !important;
+      box-shadow: 0 0 10px rgba(0, 240, 255, 0.35) !important;
+      transform: translateY(-1px);
+    }
+    .topbar-btn-system i {
+      color: var(--accent-cyan) !important;
     }
     .topbar-actions .btn i {
       width: 13px;
@@ -3355,46 +3409,46 @@
         </div>
         <div class="topbar-actions">
           
-          <!-- Category 1: 주행 & 세션 계측 액션 (Racing & Telemetry Hub) -->
+          <!-- Category 1: 주행 & 세션 계측 액션 (Racing & Telemetry Hub - Crimson Red) -->
           <div class="topbar-action-group group-racing" title="실시간 주행 및 랩 계측">
-            <button class="btn btn-primary topbar-btn-glow" onclick="openAddSessionModal()" title="새 트랙 주행 세션 기록 작성">
+            <button class="btn topbar-btn-racing" onclick="openAddSessionModal()" title="새 트랙 주행 세션 기록 작성">
               <i data-lucide="zap"></i> <span>세션 기록</span>
             </button>
-            <button class="btn btn-outline-cyan topbar-btn-cyan" onclick="openGpsLapTimerModal()" title="스마트폰 GPS 기반 실시간 랩타임 & 최고속도 자동 측정">
+            <button class="btn topbar-btn-racing" onclick="openGpsLapTimerModal()" title="스마트폰 GPS 기반 실시간 랩타임 & 최고속도 자동 측정">
               <i data-lucide="crosshair"></i> <span>🛰️ GPS 랩타이머</span>
             </button>
-            <button class="btn btn-outline-orange topbar-btn-orange" onclick="openGpsPitLaneTimerModal()" title="GPS 피트레인 타이머 (스피드리밋/정차시간/릴리즈 카운트다운)">
+            <button class="btn topbar-btn-racing" onclick="openGpsPitLaneTimerModal()" title="GPS 피트레인 타이머 (스피드리밋/정차시간/릴리즈 카운트다운)">
               <i data-lucide="traffic-cone"></i> <span>🛑 GPS 피트타이머</span>
             </button>
           </div>
 
           <div class="topbar-divider"></div>
 
-          <!-- Category 2: 머신 & 팀 등록 관리 (Garage & Team Management) -->
+          <!-- Category 2: 머신 & 팀 등록 관리 (Garage & Team Management - Emerald Green) -->
           <div class="topbar-action-group group-manage" title="머신 및 팀 관리">
-            <button class="btn btn-secondary" onclick="openAddVehicleModal()" title="내 서킷 차량 / 머신 등록">
+            <button class="btn topbar-btn-manage" onclick="openAddVehicleModal()" title="내 서킷 차량 / 머신 등록">
               <i data-lucide="plus-circle"></i> <span>머신 등록</span>
             </button>
-            <button class="btn btn-outline-green" onclick="openCreateTeamModal()" title="새 레이싱 팀 창단">
+            <button class="btn topbar-btn-manage" onclick="openCreateTeamModal()" title="새 레이싱 팀 창단">
               <i data-lucide="shield-plus"></i> <span>팀 등록</span>
             </button>
-            <button class="btn btn-secondary" onclick="openJoinTeamModal()" title="기존 레이싱 팀 가입">
+            <button class="btn topbar-btn-manage" onclick="openJoinTeamModal()" title="기존 레이싱 팀 가입">
               <i data-lucide="user-plus"></i> <span>팀 가입</span>
             </button>
           </div>
 
           <div class="topbar-divider"></div>
 
-          <!-- Category 3: 시스템 유틸리티 & 계정 (Utility & Account) -->
+          <!-- Category 3: 시스템 유틸리티 & 계정 (Utility & Account - Cyber Cyan) -->
           <div class="topbar-action-group group-system" title="시스템 및 계정">
-            <button class="btn btn-outline-install" id="btn-pwa-install" onclick="handleInstallAppClick()" title="바탕화면 / 스마트폰 홈 화면에 바로가기 아이콘 생성">
+            <button class="btn topbar-btn-system" id="btn-pwa-install" onclick="handleInstallAppClick()" title="바탕화면 / 스마트폰 홈 화면에 바로가기 아이콘 생성">
               <i data-lucide="download-cloud"></i> <span>앱 설치</span>
             </button>
-            <button type="button" class="btn btn-lang-toggle" id="app-lang-toggle-btn" onclick="toggleLanguage()" title="한국어 / English 번역 전환">
-              <i data-lucide="globe" style="width:13px; height:13px; color:var(--accent-cyan);"></i>
+            <button type="button" class="btn topbar-btn-system" id="app-lang-toggle-btn" onclick="toggleLanguage()" title="한국어 / English 번역 전환">
+              <i data-lucide="globe" style="width:13px; height:13px;"></i>
               <span class="lang-label-text"><strong>KO</strong> / EN</span>
             </button>
-            <button class="btn btn-cyan" id="topbar-auth-btn" onclick="handleAuthButtonClick()" title="사용자 로그인 / 프로필">
+            <button class="btn topbar-btn-system" id="topbar-auth-btn" onclick="handleAuthButtonClick()" title="사용자 로그인 / 프로필">
               <i data-lucide="user"></i> <span>로그인</span>
             </button>
           </div>
