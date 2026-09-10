@@ -5535,7 +5535,7 @@
                 <span id="pit-header-status-text">대기중</span>
               </span>
             </h3>
-            <span style="font-size:0.7rem; color:var(--text-muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; display:block;">피트 스피드리밋 · 정차 카운트다운 · 릴리즈 델타 감시</span>
+            
           </div>
         </div>
         <button class="modal-close" onclick="closeGpsPitLaneTimerModal()" style="font-size:1.4rem; color:var(--text-muted); background:transparent; border:none; cursor:pointer; flex-shrink:0;">&times;</button>
@@ -5641,10 +5641,10 @@
         <div id="pit-main-timer-box" style="background:rgba(0,0,0,0.7); padding:0.85rem 1rem; border-radius:10px; border:1.5px solid rgba(255,145,0,0.4); text-align:center; margin-bottom:0.75rem;">
           <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.2rem;">
             <span id="pit-main-timer-label" class="gps-hud-label" style="color:var(--accent-orange); letter-spacing:1px; font-family:var(--font-display);">
-              TIME TO GO (남은 시간)
+              TIME TO GO
             </span>
             <span id="pit-main-timer-badge" style="font-size:0.7rem; font-weight:800; padding:0.1rem 0.45rem; border-radius:4px; background:rgba(255,145,0,0.18); color:var(--accent-orange);">
-              피트 진입 대기
+              STANDBY
             </span>
           </div>
           <div id="pit-main-timer-digit" style="font-family:var(--font-mono); font-size:clamp(2.8rem, 10vw, 4.2rem); font-weight:900; color:#fff; letter-spacing:2px; line-height:1; margin:0.25rem 0; text-shadow:0 0 20px rgba(255,255,255,0.3);">
@@ -13178,9 +13178,9 @@
       if (statTimeEl) statTimeEl.innerText = msToLapStr(currentStatMs);
 
       if (pitState === 'WAITING') {
-        if (mainLabel) mainLabel.innerText = 'TIME TO GO (남은 시간)';
+        if (mainLabel) mainLabel.innerText = 'TIME TO GO';
         if (mainBadge) {
-          mainBadge.innerText = '피트 진입 대기';
+          mainBadge.innerText = 'STANDBY';
           mainBadge.style.background = 'rgba(255,145,0,0.18)';
           mainBadge.style.color = 'var(--accent-orange)';
         }
@@ -13190,7 +13190,7 @@
           const remainMs = Math.max(0, (pitTargetSec * 1000) - totalElapsedMs);
           if (mainLabel) mainLabel.innerText = 'MIN PIT TIME COUNTDOWN';
           if (mainBadge) {
-            mainBadge.innerText = '피트레인 주행중';
+            mainBadge.innerText = 'IN PIT LANE';
             mainBadge.style.background = 'rgba(255,145,0,0.18)';
             mainBadge.style.color = 'var(--accent-orange)';
           }
@@ -13222,11 +13222,11 @@
           if (hud) hud.classList.add('release-ready');
           playPitAudio('release');
           if (mainBadge) {
-            mainBadge.innerText = '🟢 출발 릴리즈 (RELEASE GO!)';
+            mainBadge.innerText = '🟢 RELEASE GO!';
             mainBadge.style.background = 'rgba(0,255,136,0.3)';
             mainBadge.style.color = '#00ff88';
           }
-          if (mainLabel) mainLabel.innerText = 'RELEASE READY (출발 가능)';
+          if (mainLabel) mainLabel.innerText = 'RELEASE READY';
           mainDigit.innerText = '00:00.00';
           mainDigit.style.color = '#00ff88';
         } else {
@@ -13238,7 +13238,7 @@
 
           if (mainLabel) mainLabel.innerText = `COUNTDOWN TO GO (${remainSec}s)`;
           if (mainBadge) {
-            mainBadge.innerText = `🛑 박스 정차중 (${remainSec}s 남음)`;
+            mainBadge.innerText = `🛑 PIT STOP (${remainSec}s)`;
             const isAlarming = (pitAlarmSec > 0 && remainSec <= pitAlarmSec) || (remainSec <= 5);
             mainBadge.style.background = isAlarming ? 'rgba(255,42,75,0.25)' : 'rgba(255,145,0,0.2)';
             mainBadge.style.color = isAlarming ? '#ff2a4b' : 'var(--accent-orange)';
@@ -13246,9 +13246,9 @@
           mainDigit.innerText = msToLapStr(remainMs);
         }
       } else if (pitState === 'RELEASE_READY') {
-        if (mainLabel) mainLabel.innerText = '🟢 RELEASE NOW (출발 진행)';
+        if (mainLabel) mainLabel.innerText = '🟢 RELEASE NOW';
         if (mainBadge) {
-          mainBadge.innerText = '🟢 규정 충족 (출발)';
+          mainBadge.innerText = '🟢 RELEASE GO!';
           mainBadge.style.color = '#00ff88';
         }
         mainDigit.innerText = msToLapStr(totalElapsedMs);
@@ -13256,7 +13256,7 @@
       } else if (pitState === 'COMPLETED') {
         if (mainLabel) mainLabel.innerText = 'PIT STOP COMPLETED';
         if (mainBadge) {
-          mainBadge.innerText = '🏁 피트 출구 통과 완료';
+          mainBadge.innerText = '🏁 PIT COMPLETED';
           mainBadge.style.background = 'rgba(0,240,255,0.2)';
           mainBadge.style.color = 'var(--accent-cyan)';
         }
