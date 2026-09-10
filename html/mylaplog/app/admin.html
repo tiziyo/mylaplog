@@ -435,9 +435,31 @@
       border-radius: 4px;
       border: 1px solid rgba(0, 240, 255, 0.2);
     }
-    #form-guide-scroll-body::-webkit-scrollbar-thumb:hover,
-    .modal-overlay::-webkit-scrollbar-thumb:hover {
-      background: rgba(0, 240, 255, 0.7);
+    #modal-guide-preview-box::-webkit-scrollbar,
+    #modal-guide-preview-box-en::-webkit-scrollbar,
+    #modal-guide-content::-webkit-scrollbar,
+    #modal-guide-content-en::-webkit-scrollbar {
+      width: 8px;
+    }
+    #modal-guide-preview-box::-webkit-scrollbar-track,
+    #modal-guide-preview-box-en::-webkit-scrollbar-track,
+    #modal-guide-content::-webkit-scrollbar-track,
+    #modal-guide-content-en::-webkit-scrollbar-track {
+      background: rgba(0, 0, 0, 0.4);
+      border-radius: 4px;
+    }
+    #modal-guide-preview-box::-webkit-scrollbar-thumb,
+    #modal-guide-preview-box-en::-webkit-scrollbar-thumb,
+    #modal-guide-content::-webkit-scrollbar-thumb,
+    #modal-guide-content-en::-webkit-scrollbar-thumb {
+      background: rgba(0, 240, 255, 0.35);
+      border-radius: 4px;
+    }
+
+    #modal-guide-content:focus,
+    #modal-guide-content-en:focus {
+      border-color: var(--accent-cyan) !important;
+      box-shadow: 0 0 16px rgba(0, 240, 255, 0.3) !important;
     }
 
     .modal-box-header {
@@ -1029,295 +1051,340 @@
     </div>
   </div>
 
-  <!-- Guide Editor Modal -->
+  <!-- Guide Editor Modal (전면 개편된 풀와이드 다국어 CMS 에디터) -->
   <div class="modal-overlay" id="guide-modal">
-    <div class="modal-box" style="max-width: 900px; height: 90vh; max-height: 90vh; display: flex; flex-direction: column; overflow: hidden; padding: 1.25rem 1.5rem; gap: 0;">
-      <div class="modal-box-header" style="flex-shrink: 0; padding-bottom: 0.75rem; margin-bottom: 0.75rem;">
-        <div class="modal-title" id="guide-modal-title">
-          <i data-lucide="file-edit" style="color:var(--accent-cyan)"></i>
+    <div class="modal-box" style="max-width: 1100px; width: 95vw; height: 90vh; max-height: 90vh; display: flex; flex-direction: column; overflow: hidden; padding: 0; border: 1px solid rgba(0, 240, 255, 0.3); border-radius: 14px; background: var(--bg-card); box-shadow: 0 20px 60px rgba(0, 0, 0, 0.85);">
+      
+      <!-- Modal Header -->
+      <div class="modal-box-header" style="padding: 1rem 1.5rem; background: rgba(10, 14, 24, 0.95); border-bottom: 1px solid var(--border-subtle); display: flex; justify-content: space-between; align-items: center; flex-shrink: 0;">
+        <div class="modal-title" id="guide-modal-title" style="font-size: 1.1rem; display: flex; align-items: center; gap: 0.6rem;">
+          <i data-lucide="file-edit" style="color:var(--accent-cyan); width: 20px; height: 20px;"></i>
           <span>새 인사이트 가이드 작성</span>
         </div>
-        <button type="button" class="btn btn-secondary btn-sm" onclick="closeAdminModal('guide-modal')"><i data-lucide="x"></i></button>
+        <button type="button" class="btn btn-secondary btn-sm" onclick="closeAdminModal('guide-modal')" style="padding: 0.35rem 0.65rem;">
+          <i data-lucide="x" style="width: 16px; height: 16px;"></i>
+        </button>
       </div>
 
+      <!-- Top Level Navigation Tabs -->
+      <div style="display: flex; background: rgba(5, 8, 15, 0.95); border-bottom: 1px solid var(--border-subtle); flex-shrink: 0; padding: 0 1rem;">
+        <button type="button" id="guide-tab-btn-ko" class="tab-btn active" onclick="switchGuideTopTab('ko')" style="border-radius: 8px 8px 0 0; border-bottom: 2px solid var(--accent-cyan); padding: 0.75rem 1.25rem; font-size: 0.85rem; font-weight: 700; display: flex; align-items: center; gap: 0.5rem; color: #fff;">
+          <span>🇰🇷 한국어 콘텐츠 (기본)</span>
+        </button>
+        <button type="button" id="guide-tab-btn-en" class="tab-btn" onclick="switchGuideTopTab('en')" style="border-radius: 8px 8px 0 0; padding: 0.75rem 1.25rem; font-size: 0.85rem; font-weight: 700; display: flex; align-items: center; gap: 0.5rem; color: var(--text-muted);">
+          <span>🇺🇸 English Global SEO</span>
+          <span id="tab-en-status-pill" style="font-size: 0.68rem; padding: 0.1rem 0.45rem; border-radius: 10px; font-weight: 700; background: rgba(255,255,255,0.06); color: var(--text-muted); border: 1px solid rgba(255,255,255,0.1);">미작성</span>
+        </button>
+        <button type="button" id="guide-tab-btn-meta" class="tab-btn" onclick="switchGuideTopTab('meta')" style="border-radius: 8px 8px 0 0; padding: 0.75rem 1.25rem; font-size: 0.85rem; font-weight: 700; display: flex; align-items: center; gap: 0.5rem; color: var(--text-muted);">
+          <i data-lucide="sliders" style="width: 14px; height: 14px;"></i>
+          <span>⚙️ 아티클 설정 / 커버 / 카테고리</span>
+        </button>
+      </div>
+
+      <!-- Main Form with Flex Body -->
       <form id="form-guide" onsubmit="handleGuideFormSubmit(event)" style="flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; overflow: hidden;">
         <input type="hidden" id="modal-guide-id">
 
-        <!-- Scrollable Form Body with dedicated smooth scrollbar -->
-        <div id="form-guide-scroll-body" style="flex: 1 1 auto; min-height: 0; overflow-y: auto; overflow-x: hidden; padding-right: 0.6rem; display: flex; flex-direction: column; gap: 0.9rem;">
-          <!-- Title -->
-          <div class="form-group">
-            <label style="font-size:0.8rem; font-weight:700; color:var(--text-main); display:block; margin-bottom:0.35rem;">
-              아티클 제목 <span style="color:var(--accent-red)">*</span>
-            </label>
-            <input type="text" class="form-control" id="modal-guide-title" placeholder="예: [서킷 공략] 인제 스피디움 1번 코너 하드 브레이킹 비법" required oninput="autoGenerateSlugIfEmpty()">
-          </div>
-
-          <!-- Row: Slug & Category -->
-          <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+        <!-- Scrollable Tab Content Container -->
+        <div id="form-guide-scroll-body" style="flex: 1 1 auto; min-height: 0; overflow-y: auto; overflow-x: hidden; padding: 1.25rem 1.5rem; display: flex; flex-direction: column;">
+          
+          <!-- ========================================================= -->
+          <!-- TAB 1: 🇰🇷 한국어 콘텐츠 (기본) -->
+          <!-- ========================================================= -->
+          <div id="guide-tab-panel-ko" style="display: flex; flex-direction: column; gap: 1rem; width: 100%;">
+            <!-- Title -->
             <div class="form-group">
-              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.35rem;">
-                <label style="font-size:0.8rem; font-weight:600; color:var(--text-main);">URL 식별자 (Slug)</label>
-                <button type="button" class="btn btn-secondary btn-sm" style="padding: 0.1rem 0.4rem; font-size: 0.7rem;" onclick="generateSlugFromTitle()">제목에서 생성</button>
-              </div>
-              <input type="text" class="form-control" id="modal-guide-slug" placeholder="injespeedium-corner-guide" required style="font-family:var(--font-mono); font-size:0.82rem;">
-            </div>
-
-            <div class="form-group">
-              <label style="font-size:0.8rem; font-weight:600; color:var(--text-main); display:block; margin-bottom:0.35rem;">카테고리</label>
-              <select class="form-control" id="modal-guide-category">
-                <option value="서킷 공략">🏁 서킷 공략</option>
-                <option value="타이어/공기압">🛞 타이어/공기압</option>
-                <option value="셋업 노하우" selected>⚙️ 셋업 노하우</option>
-                <option value="레이싱 철학">🧠 레이싱 철학</option>
-                <option value="트랙데이 팁">📋 트랙데이 팁</option>
-              </select>
-            </div>
-          </div>
-
-          <!-- Row: Read Time, Status, Featured, Author -->
-          <div style="display:grid; grid-template-columns: 1fr 1fr 1fr 1.2fr; gap: 0.75rem; align-items: flex-end;">
-            <div class="form-group">
-              <label style="font-size:0.8rem; font-weight:600; color:var(--text-main); display:block; margin-bottom:0.35rem;">예상 소요시간</label>
-              <input type="text" class="form-control" id="modal-guide-read-time" value="3분" placeholder="예: 3분, 5분">
-            </div>
-
-            <div class="form-group">
-              <label style="font-size:0.8rem; font-weight:600; color:var(--text-main); display:block; margin-bottom:0.35rem;">발행 상태</label>
-              <select class="form-control" id="modal-guide-status">
-                <option value="PUBLISHED">🟢 즉시 공개 (PUBLISHED)</option>
-                <option value="DRAFT">⚪ 임시저장 (DRAFT)</option>
-              </select>
-            </div>
-
-            <div class="form-group">
-              <label style="font-size:0.8rem; font-weight:600; color:var(--text-main); display:block; margin-bottom:0.35rem;">작성자 명칭</label>
-              <input type="text" class="form-control" id="modal-guide-author" value="MyLapLog 인텔리전스">
-            </div>
-
-            <div class="form-group" style="padding-bottom: 0.5rem;">
-              <label style="display:flex; align-items:center; gap:0.5rem; font-size:0.82rem; cursor:pointer; color:var(--text-main); user-select:none;">
-                <input type="checkbox" id="modal-guide-featured" style="width:16px; height:16px; accent-color:var(--accent-cyan);">
-                <span>⭐ 추천글 (상단 배너)</span>
+              <label style="font-size: 0.84rem; font-weight: 700; color: #fff; display: flex; align-items: center; justify-content: space-between;">
+                <span>한국어 아티클 제목 <span style="color:var(--accent-red)">*</span></span>
+                <span id="cnt-title-ko" style="font-size: 0.72rem; color: var(--text-muted); font-family: var(--font-mono); font-weight: normal;">0자</span>
               </label>
+              <input type="text" class="form-control" id="modal-guide-title" placeholder="예: [서킷 공략] 인제 스피디움 1번 코너 하드 브레이킹 비법" required oninput="autoGenerateSlugIfEmpty(); updateKoreanFieldsStats();" style="font-size: 0.95rem; font-weight: 600; padding: 0.65rem 0.85rem; border-color: rgba(0, 240, 255, 0.3);">
             </div>
-          </div>
 
-          <!-- Excerpt -->
-          <div class="form-group">
-            <label style="font-size:0.8rem; font-weight:600; color:var(--text-main); display:block; margin-bottom:0.35rem;">간략한 요약문 (Excerpt - 리스트 및 검색 결과에 노출)</label>
-            <textarea class="form-control" id="modal-guide-excerpt" rows="2" placeholder="드라이버의 흥미를 유발할 1~2줄 핵심 요약을 입력하세요..."></textarea>
-          </div>
-
-          <!-- Cover Image URL & File Upload Section -->
-          <div class="form-group" style="background:rgba(0,240,255,0.03); border:1px solid rgba(0,240,255,0.2); border-radius:10px; padding:0.9rem 1rem; margin-bottom:0.5rem;">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.6rem;">
-              <label style="font-size:0.84rem; font-weight:700; color:#fff; display:flex; align-items:center; gap:0.4rem; margin:0;">
-                <i data-lucide="image" style="width:16px; height:16px; color:var(--accent-cyan);"></i> 커버 이미지 설정 (선택)
+            <!-- Excerpt -->
+            <div class="form-group">
+              <label style="font-size: 0.82rem; font-weight: 600; color: var(--text-muted); display: flex; align-items: center; justify-content: space-between;">
+                <span>간략한 요약문 (Excerpt - 리스트 및 검색결과 요약)</span>
+                <span id="cnt-excerpt-ko" style="font-size: 0.72rem; color: var(--text-muted); font-family: var(--font-mono);">0자</span>
               </label>
-              <span style="font-size:0.72rem; color:var(--text-muted);">JPG, PNG, WebP, GIF (최대 10MB)</span>
+              <textarea class="form-control" id="modal-guide-excerpt" rows="2" placeholder="드라이버의 흥미를 유발할 1~2줄 핵심 요약을 입력하세요..." oninput="updateKoreanFieldsStats()" style="font-size: 0.85rem; line-height: 1.5;"></textarea>
             </div>
 
-            <!-- Hidden File Input -->
-            <input type="file" id="modal-guide-cover-file" accept="image/png, image/jpeg, image/webp, image/gif, image/svg+xml" style="display:none;" onchange="handleCoverImageUpload(this)">
-
-            <!-- Action Buttons & URL Input -->
-            <div style="display:flex; gap:0.6rem; align-items:center; flex-wrap:wrap;">
-              <!-- Big Visible Upload Button -->
-              <button type="button" class="btn btn-cyan" id="btn-trigger-cover-upload" onclick="triggerCoverFileInput()" style="padding:0.5rem 1rem; font-size:0.82rem; font-weight:700; display:inline-flex; align-items:center; gap:0.4rem;">
-                <i data-lucide="upload-cloud" style="width:16px; height:16px;"></i> 📁 내 PC에서 파일 선택 / 업로드
-              </button>
-
-              <span style="font-size:0.78rem; color:var(--text-muted); font-weight:600;">또는</span>
-
-              <!-- Direct URL input -->
-              <div style="flex:1; min-width:240px; position:relative;">
-                <input type="url" class="form-control" id="modal-guide-cover" placeholder="외부 이미지 URL 직접 입력 (https://...)" style="width:100%; font-size:0.8rem;" oninput="onCoverUrlInput(this.value)">
-              </div>
-            </div>
-
-            <!-- Upload Loading Status Indicator -->
-            <div id="cover-upload-loading" style="display:none; margin-top:0.6rem; padding:0.4rem 0.6rem; border-radius:6px; background:rgba(0,240,255,0.1); font-size:0.8rem; color:var(--accent-cyan); align-items:center; gap:0.4rem;">
-              <i data-lucide="loader" class="animate-spin" style="width:14px; height:14px;"></i> <strong>이미지를 서버에 업로드하는 중입니다... 잠시만 기다려주세요.</strong>
-            </div>
-
-            <!-- Cover Image Live Preview Box -->
-            <div id="modal-guide-cover-preview-wrapper" style="display:none; margin-top:0.75rem; padding:0.75rem; border-radius:8px; background:rgba(0,0,0,0.5); border:1px solid rgba(0,255,136,0.3);">
-              <div style="display:flex; align-items:center; justify-content:space-between; gap:0.75rem; flex-wrap:wrap;">
-                <div style="display:flex; align-items:center; gap:0.85rem; min-width:0; flex:1;">
-                  <img id="modal-guide-cover-img" src="" alt="Cover Preview" style="width:80px; height:52px; object-fit:cover; border-radius:6px; border:1px solid rgba(0,255,136,0.4); background:#05070c; flex-shrink:0;" onerror="onCoverImgLoadError()">
-                  <div style="min-width:0; overflow:hidden;">
-                    <div style="font-size:0.8rem; font-weight:700; color:var(--accent-green); display:flex; align-items:center; gap:0.35rem; margin-bottom:0.2rem;">
-                      <span>✓ 적용된 커버 이미지</span>
-                      <span id="modal-guide-cover-name" style="color:var(--text-muted); font-size:0.75rem; font-weight:400; text-overflow:ellipsis; overflow:hidden; white-space:nowrap;"></span>
-                    </div>
-                    <div id="modal-guide-cover-url-text" style="font-size:0.72rem; color:var(--accent-cyan); text-overflow:ellipsis; overflow:hidden; white-space:nowrap; font-family:var(--font-mono);"></div>
-                  </div>
+            <!-- Markdown Content Editor Section -->
+            <div class="form-group" style="display: flex; flex-direction: column; gap: 0.4rem; margin-top: 0.2rem;">
+              <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
+                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                  <label style="font-size: 0.84rem; font-weight: 700; color: #fff; margin: 0;">
+                    한국어 마크다운 본문 (Content) <span style="color:var(--accent-red)">*</span>
+                  </label>
+                  <span id="cnt-content-ko" style="font-size: 0.75rem; color: var(--accent-cyan); font-family: var(--font-mono); background: rgba(0,240,255,0.08); padding: 0.1rem 0.45rem; border-radius: 4px;">0 단어 · 0자</span>
                 </div>
-                <div style="display:flex; gap:0.4rem; flex-shrink:0;">
-                  <a id="btn-view-cover-full" href="#" target="_blank" class="btn btn-secondary btn-sm" style="padding:0.3rem 0.6rem; font-size:0.75rem;">
-                    <i data-lucide="external-link" style="width:12px; height:12px;"></i> 원본 보기
-                  </a>
-                  <button type="button" class="btn btn-danger btn-sm" style="padding:0.3rem 0.6rem; font-size:0.75rem;" onclick="removeCoverImage()">
-                    <i data-lucide="trash-2" style="width:12px; height:12px;"></i> 이미지 제거
+                <div style="display: flex; gap: 0.35rem;">
+                  <button type="button" class="btn btn-secondary btn-sm active" id="btn-tab-editor" onclick="toggleGuideEditorTab('edit')" style="padding: 0.3rem 0.75rem; font-size: 0.78rem; font-weight: 700;">
+                    <i data-lucide="edit-3" style="width: 13px; height: 13px;"></i> 에디터
+                  </button>
+                  <button type="button" class="btn btn-secondary btn-sm" id="btn-tab-preview" onclick="toggleGuideEditorTab('preview')" style="padding: 0.3rem 0.75rem; font-size: 0.78rem; font-weight: 700;">
+                    <i data-lucide="eye" style="width: 13px; height: 13px;"></i> 실시간 미리보기
                   </button>
                 </div>
               </div>
+
+              <!-- Quick Markdown Toolbar (KO) -->
+              <div id="editor-toolbar-ko" style="display: flex; flex-wrap: wrap; gap: 0.35rem; background: rgba(0, 0, 0, 0.4); border: 1px solid var(--border-subtle); border-radius: 8px; padding: 0.45rem 0.6rem;">
+                <button type="button" class="btn btn-secondary btn-sm" onclick="insertMarkdownSnippet('## ')" title="대제목">H2</button>
+                <button type="button" class="btn btn-secondary btn-sm" onclick="insertMarkdownSnippet('### ')" title="중제목">H3</button>
+                <button type="button" class="btn btn-secondary btn-sm" onclick="insertMarkdownSnippet('**', '**')" title="굵게"><b>B</b></button>
+                <button type="button" class="btn btn-secondary btn-sm" onclick="insertMarkdownSnippet('*', '*')" title="기울임"><i>I</i></button>
+                <button type="button" class="btn btn-secondary btn-sm" onclick="insertMarkdownSnippet('- ')" title="목록">• List</button>
+                <button type="button" class="btn btn-secondary btn-sm" onclick="insertMarkdownSnippet('> 💡 **팁**: ')" title="팁 콜아웃">💡 Tip</button>
+                <button type="button" class="btn btn-secondary btn-sm" onclick="insertMarkdownSnippet('> ⚠️ **주의**: ')" title="주의 경고">⚠️ Warning</button>
+                <button type="button" class="btn btn-secondary btn-sm" onclick="insertMarkdownSnippet('```\n[SETUP DATA]\nCold: 28 PSI | Hot: 34 PSI | Camber: -3.0°\n```\n')" title="셋업 코드 블록">🏎️ 셋업 블록</button>
+                <button type="button" class="btn btn-secondary btn-sm" onclick="insertMarkdownSnippet('[링크 텍스트](https://...)')" title="하이퍼링크">🔗 링크</button>
+                <button type="button" class="btn btn-secondary btn-sm" onclick="insertMarkdownSnippet('\n---\n')" title="구분선">— Line</button>
+              </div>
+
+              <!-- Editor Textarea -->
+              <textarea class="form-control" id="modal-guide-content" rows="16" placeholder="마크다운(Markdown) 문법을 자유롭게 작성하세요...&#10;&#10;## 1. 개요&#10;본문 내용 작성...&#10;&#10;---\n\n## 2. 서킷 상세 공략 & 셋업&#10;..." required oninput="updateKoreanFieldsStats()" style="display: block; width: 100%; min-height: 380px; height: 420px; font-family: var(--font-main); font-size: 0.88rem; line-height: 1.7; background: #060911; color: #f8fafc; padding: 1rem; border: 1px solid rgba(0, 240, 255, 0.25); border-radius: 8px; resize: vertical;"></textarea>
+
+              <!-- Live Preview Container -->
+              <div id="modal-guide-preview-box" style="display: none; width: 100%; min-height: 380px; max-height: 550px; overflow-y: auto; background: rgba(6, 9, 17, 0.95); border: 1px solid rgba(0, 240, 255, 0.3); border-radius: 8px; padding: 1.5rem; font-size: 0.92rem; line-height: 1.8; color: #e2e8f0;"></div>
             </div>
           </div>
 
-          <!-- =========================================== -->
-          <!-- CONTENT LANGUAGE TABS: KO / EN              -->
-          <!-- =========================================== -->
-          <div style="border:1px solid rgba(0,240,255,0.25); border-radius:12px; overflow:hidden; background:rgba(14,18,30,0.6);">
-
-            <!-- Tab Header -->
-            <div style="display:flex; background:rgba(0,0,0,0.4); border-bottom:1px solid rgba(0,240,255,0.18);">
-              <button type="button" id="btn-lang-tab-ko" onclick="switchContentLangTab('ko')" style="flex:1; padding:0.65rem 1rem; font-size:0.84rem; font-weight:700; border:none; background:rgba(0,240,255,0.15); color:var(--accent-cyan); cursor:pointer; display:flex; align-items:center; justify-content:center; gap:0.5rem; border-right:1px solid rgba(0,240,255,0.15); transition:all 0.2s ease;">
-                <span>🇰🇷 한국어 콘텐츠 (기본)</span>
-              </button>
-              <button type="button" id="btn-lang-tab-en" onclick="switchContentLangTab('en')" style="flex:1; padding:0.65rem 1rem; font-size:0.84rem; font-weight:700; border:none; background:transparent; color:var(--text-muted); cursor:pointer; display:flex; align-items:center; justify-content:center; gap:0.5rem; transition:all 0.2s ease;">
-                <span>🇺🇸 English Global SEO</span>
-                <span id="tab-en-status-pill" style="font-size:0.68rem; padding:0.12rem 0.45rem; border-radius:10px; font-weight:700; background:rgba(255,255,255,0.06); color:var(--text-muted); border:1px solid rgba(255,255,255,0.1);">미작성</span>
-              </button>
+          <!-- ========================================================= -->
+          <!-- TAB 2: 🇺🇸 English Global SEO (영문) -->
+          <!-- ========================================================= -->
+          <div id="guide-tab-panel-en" style="display: none; flex-direction: column; gap: 1rem; width: 100%;">
+            
+            <!-- Guidance & AI Action Banner -->
+            <div style="background: rgba(0, 240, 255, 0.05); border: 1px solid rgba(0, 240, 255, 0.25); border-radius: 10px; padding: 0.85rem 1.1rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem;">
+              <div style="display: flex; align-items: center; gap: 0.6rem; font-size: 0.82rem; color: #fff;">
+                <i data-lucide="globe" style="width: 18px; height: 18px; color: var(--accent-cyan); flex-shrink: 0;"></i>
+                <div>
+                  <strong>Google Global SEO 색인 최적화</strong>
+                  <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.1rem;">
+                    영문 제목, 요약문, 본문이 <code>?lang=en</code> 파라미터를 통해 글로벌 Google 검색엔진에 직접 크롤링/인덱싱됩니다.
+                  </div>
+                </div>
+              </div>
+              <div style="display: flex; gap: 0.45rem;">
+                <button type="button" class="btn btn-cyan btn-sm" onclick="scaffoldEnglishDraft()" title="한국어 제목/본문 구조를 바탕으로 영문 초안 서식을 생성합니다" style="font-size: 0.78rem; font-weight: 700; padding: 0.35rem 0.75rem;">
+                  <i data-lucide="wand-2" style="width: 13px; height: 13px;"></i> 🪄 영문 초안 서식 생성
+                </button>
+                <button type="button" class="btn btn-secondary btn-sm" onclick="clearEnglishFields()" title="영문 필드 비우기" style="font-size: 0.78rem; padding: 0.35rem 0.65rem; color: var(--text-muted);">
+                  <i data-lucide="rotate-ccw" style="width: 13px; height: 13px;"></i> 초기화
+                </button>
+              </div>
             </div>
 
-            <!-- KO Panel -->
-            <div id="content-panel-ko" style="padding:1rem; display:flex; flex-direction:column; gap:0.85rem;">
-              <div class="form-group" style="margin:0;">
-                <label style="font-size:0.8rem; font-weight:700; color:var(--text-main); display:block; margin-bottom:0.35rem;">
-                  한국어 본문 내용 (Markdown) <span style="color:var(--accent-red)">*</span>
+            <!-- Field 1: EN Title -->
+            <div class="form-group">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.2rem;">
+                <label style="font-size: 0.84rem; font-weight: 700; color: #fff; margin: 0;">
+                  🇺🇸 영문 아티클 제목 (title_en)
                 </label>
+                <span id="cnt-title-en" style="font-size: 0.72rem; color: var(--text-muted); font-family: var(--font-mono);">0 / 65자 (권장 50~65자)</span>
+              </div>
+              <input type="text" class="form-control" id="modal-guide-title-en" placeholder="e.g. Tire Pressure Master Guide: Cold vs Hot Setup for Track Days" oninput="updateEnglishFieldsStats()" style="font-size: 0.92rem; font-weight: 600; padding: 0.6rem 0.8rem;">
+            </div>
 
-                <div style="display:flex; justify-content:flex-end; margin-bottom:0.35rem; gap:0.3rem;">
-                  <button type="button" class="btn btn-secondary btn-sm active" id="btn-tab-editor" onclick="toggleGuideEditorTab('edit')" style="padding:0.25rem 0.65rem; font-size:0.75rem;">에디터</button>
-                  <button type="button" class="btn btn-secondary btn-sm" id="btn-tab-preview" onclick="toggleGuideEditorTab('preview')" style="padding:0.25rem 0.65rem; font-size:0.75rem;"><i data-lucide="eye" style="width:12px; height:12px;"></i> 미리보기</button>
-                </div>
+            <!-- Field 2: EN Excerpt -->
+            <div class="form-group">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.2rem;">
+                <label style="font-size: 0.82rem; font-weight: 700; color: #fff; margin: 0;">
+                  🇺🇸 영문 요약문 (excerpt_en — Google Meta Description)
+                </label>
+                <span id="cnt-excerpt-en" style="font-size: 0.72rem; color: var(--text-muted); font-family: var(--font-mono);">0 / 160자 (권장 120~160자)</span>
+              </div>
+              <textarea class="form-control" id="modal-guide-excerpt-en" rows="2" placeholder="e.g. Master tire cold vs hot pressure setups for track days to eliminate understeer and optimize lap times on technical circuits..." oninput="updateEnglishFieldsStats()" style="font-size: 0.85rem; line-height: 1.5;"></textarea>
+            </div>
 
-                <!-- Quick Markdown Toolbar (KO) -->
-                <div id="editor-toolbar" style="display:flex; flex-wrap:wrap; gap:0.35rem; background:rgba(0,0,0,0.35); border:1px solid var(--border-subtle); border-radius:6px; padding:0.4rem; margin-bottom:0.45rem;">
-                  <button type="button" class="btn btn-secondary btn-sm" onclick="insertMarkdownSnippet('## ')" title="대제목">H2</button>
-                  <button type="button" class="btn btn-secondary btn-sm" onclick="insertMarkdownSnippet('### ')" title="중제목">H3</button>
-                  <button type="button" class="btn btn-secondary btn-sm" onclick="insertMarkdownSnippet('**', '**')" title="굵게"><b>B</b></button>
-                  <button type="button" class="btn btn-secondary btn-sm" onclick="insertMarkdownSnippet('*', '*')" title="기울임"><i>I</i></button>
-                  <button type="button" class="btn btn-secondary btn-sm" onclick="insertMarkdownSnippet('- ')" title="목록">• List</button>
-                  <button type="button" class="btn btn-secondary btn-sm" onclick="insertMarkdownSnippet('> 💡 **팁**: ')" title="팁 콜아웃">💡 Tip</button>
-                  <button type="button" class="btn btn-secondary btn-sm" onclick="insertMarkdownSnippet('> ⚠️ **주의**: ')" title="주의 경고">⚠️ Warning</button>
-                  <button type="button" class="btn btn-secondary btn-sm" onclick="insertMarkdownSnippet('```\n[SETUP DATA]\nCold: 28 PSI | Hot: 34 PSI | Camber: -3.0°\n```\n')" title="셋업 코드 블록">🏎️ 셋업 블록</button>
-                  <button type="button" class="btn btn-secondary btn-sm" onclick="insertMarkdownSnippet('[링크 텍스트](https://...)')" title="하이퍼링크">🔗 링크</button>
-                  <button type="button" class="btn btn-secondary btn-sm" onclick="insertMarkdownSnippet('\n---\n')" title="구분선">— Line</button>
-                </div>
-
-                <textarea class="form-control" id="modal-guide-content" rows="10" placeholder="마크다운(Markdown) 문법을 자유롭게 작성하세요...&#10;&#10;## 1. 개요&#10;본문 내용 작성..." required style="font-family:var(--font-main); font-size:0.85rem; line-height:1.6;"></textarea>
-
-                <div id="modal-guide-preview-box" style="display:none; min-height:240px; max-height:380px; overflow-y:auto; background:rgba(7,9,14,0.95); border:1px solid var(--border-subtle); border-radius:6px; padding:1.25rem; font-size:0.88rem; line-height:1.75;"></div>
+            <!-- Google Search Snippet Live Preview -->
+            <div style="background: #111625; border: 1px solid rgba(0, 240, 255, 0.2); border-radius: 10px; padding: 1rem 1.25rem;">
+              <div style="display: flex; align-items: center; gap: 0.45rem; margin-bottom: 0.6rem; font-size: 0.74rem; color: var(--accent-cyan); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">
+                <i data-lucide="search" style="width: 14px; height: 14px;"></i>
+                <span>Google Search SERP Live Preview (구글 검색결과 실시간 미리보기)</span>
+              </div>
+              <div style="font-size: 0.78rem; color: #8ab4f8; font-family: var(--font-mono); margin-bottom: 0.3rem; display: flex; align-items: center; gap: 0.4rem;">
+                <img src="/app/favicon.ico" alt="icon" style="width: 14px; height: 14px; border-radius: 2px;">
+                <span id="serp-preview-url">https://www.mylaplog.com > guides > guide-slug?lang=en</span>
+              </div>
+              <div id="serp-preview-title" style="font-size: 1.05rem; font-weight: 600; color: #8ab4f8; text-decoration: underline; cursor: pointer; margin-bottom: 0.35rem; line-height: 1.35;">
+                Tire Pressure Master Guide: Cold vs Hot Setup for Track Days — MyLapLog Insights
+              </div>
+              <div id="serp-preview-desc" style="font-size: 0.84rem; color: #bdc1c6; line-height: 1.5;">
+                Master tire cold vs hot pressure setups for track days to eliminate understeer and optimize lap times on technical circuits...
               </div>
             </div>
 
-            <!-- EN Panel -->
-            <div id="content-panel-en" style="padding:1rem; display:none; flex-direction:column; gap:0.9rem;">
-              <!-- Guidance & Action Banner -->
-              <div style="background:rgba(0,240,255,0.06); border:1px solid rgba(0,240,255,0.22); border-radius:8px; padding:0.75rem 0.9rem; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.6rem;">
-                <div style="display:flex; align-items:center; gap:0.5rem; font-size:0.8rem; color:var(--text-main);">
-                  <i data-lucide="globe" style="width:16px; height:16px; color:var(--accent-cyan); flex-shrink:0;"></i>
-                  <span><strong>Google Global SEO 인덱싱</strong> — <code>?lang=en</code> 파라미터로 영문 메타태그와 본문이 Google 글로벌에 색인됩니다.</span>
-                </div>
-                <div style="display:flex; gap:0.4rem;">
-                  <button type="button" class="btn btn-secondary btn-sm" onclick="scaffoldEnglishDraft()" title="한국어 제목/본문 구조를 바탕으로 영문 초안 서식을 생성합니다" style="font-size:0.75rem; padding:0.25rem 0.6rem;">
-                    <i data-lucide="wand-2" style="width:12px; height:12px;"></i> 영문 초안 서식 생성
-                  </button>
-                  <button type="button" class="btn btn-secondary btn-sm" onclick="clearEnglishFields()" title="영문 필드 비우기" style="font-size:0.75rem; padding:0.25rem 0.6rem; color:var(--text-muted);">
-                    <i data-lucide="rotate-ccw" style="width:12px; height:12px;"></i> 초기화
-                  </button>
-                </div>
-              </div>
-
-              <!-- Field 1: EN Title (title_en) -->
-              <div class="form-group" style="margin:0;">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.35rem;">
-                  <label style="font-size:0.8rem; font-weight:700; color:var(--text-main); margin:0;">
-                    🇺🇸 영문 아티클 제목 (title_en)
+            <!-- Field 3: EN Content -->
+            <div class="form-group" style="display: flex; flex-direction: column; gap: 0.4rem; margin-top: 0.2rem;">
+              <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
+                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                  <label style="font-size: 0.84rem; font-weight: 700; color: #fff; margin: 0;">
+                    🇺🇸 영문 마크다운 본문 (content_en)
                   </label>
-                  <span id="cnt-title-en" style="font-size:0.72rem; color:var(--text-muted); font-family:var(--font-mono);">0 / 65자 (권장 50~65자)</span>
+                  <span id="cnt-content-en" style="font-size: 0.75rem; color: var(--accent-cyan); font-family: var(--font-mono); background: rgba(0,240,255,0.08); padding: 0.1rem 0.45rem; border-radius: 4px;">0 단어 · 0자</span>
                 </div>
-                <input type="text" class="form-control" id="modal-guide-title-en" placeholder="e.g. Tire Pressure Master Guide: Cold vs Hot Setup for Track Days" oninput="updateEnglishFieldsStats()">
-              </div>
-
-              <!-- Field 2: EN Excerpt (excerpt_en) -->
-              <div class="form-group" style="margin:0;">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.35rem;">
-                  <label style="font-size:0.8rem; font-weight:700; color:var(--text-main); margin:0;">
-                    🇺🇸 영문 요약문 (excerpt_en — Google Meta Description)
-                  </label>
-                  <span id="cnt-excerpt-en" style="font-size:0.72rem; color:var(--text-muted); font-family:var(--font-mono);">0 / 160자 (권장 120~160자)</span>
-                </div>
-                <textarea class="form-control" id="modal-guide-excerpt-en" rows="2" placeholder="e.g. Master tire cold vs hot pressure setups for track days to eliminate understeer and optimize lap times on technical circuits..." oninput="updateEnglishFieldsStats()"></textarea>
-              </div>
-
-              <!-- Google Search Snippet Live Preview -->
-              <div style="background:#131722; border:1px solid rgba(255,255,255,0.1); border-radius:8px; padding:0.85rem 1rem;">
-                <div style="display:flex; align-items:center; gap:0.4rem; margin-bottom:0.5rem; font-size:0.72rem; color:var(--text-muted); font-weight:700; text-transform:uppercase; letter-spacing:0.5px;">
-                  <i data-lucide="search" style="width:12px; height:12px; color:var(--accent-cyan);"></i>
-                  <span>Google Search SERP Live Preview (Google 글로벌 검색결과 미리보기)</span>
-                </div>
-                <div style="font-size:0.78rem; color:#8ab4f8; font-family:var(--font-mono); margin-bottom:0.2rem; display:flex; align-items:center; gap:0.4rem;">
-                  <img src="/app/favicon.ico" alt="icon" style="width:14px; height:14px; border-radius:2px;">
-                  <span id="serp-preview-url">https://www.mylaplog.com > guides > guide-slug?lang=en</span>
-                </div>
-                <div id="serp-preview-title" style="font-size:1.02rem; font-weight:600; color:#8ab4f8; text-decoration:underline; cursor:pointer; margin-bottom:0.3rem; line-height:1.35;">
-                  Tire Pressure Master Guide: Cold vs Hot Setup for Track Days — MyLapLog Insights
-                </div>
-                <div id="serp-preview-desc" style="font-size:0.82rem; color:#bdc1c6; line-height:1.45;">
-                  Master tire cold vs hot pressure setups for track days to eliminate understeer and optimize lap times on technical circuits...
+                <div style="display: flex; gap: 0.35rem;">
+                  <button type="button" class="btn btn-secondary btn-sm active" id="btn-tab-editor-en" onclick="toggleGuideEditorTabEn('edit')" style="padding: 0.3rem 0.75rem; font-size: 0.78rem; font-weight: 700;">
+                    <i data-lucide="edit-3" style="width: 13px; height: 13px;"></i> Editor
+                  </button>
+                  <button type="button" class="btn btn-secondary btn-sm" id="btn-tab-preview-en" onclick="toggleGuideEditorTabEn('preview')" style="padding: 0.3rem 0.75rem; font-size: 0.78rem; font-weight: 700;">
+                    <i data-lucide="eye" style="width: 13px; height: 13px;"></i> Live Preview
+                  </button>
                 </div>
               </div>
 
-              <!-- Field 3: EN Content (content_en) -->
-              <div class="form-group" style="margin:0;">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.35rem; flex-wrap:wrap; gap:0.5rem;">
-                  <div style="display:flex; align-items:center; gap:0.5rem;">
-                    <label style="font-size:0.8rem; font-weight:700; color:var(--text-main); margin:0;">
-                      🇺🇸 영문 마크다운 본문 (content_en)
-                    </label>
-                    <span id="cnt-content-en" style="font-size:0.72rem; color:var(--text-muted); font-family:var(--font-mono);">0 단어 · 0자</span>
-                  </div>
-                  <div style="display:flex; gap:0.3rem;">
-                    <button type="button" class="btn btn-secondary btn-sm active" id="btn-tab-editor-en" onclick="toggleGuideEditorTabEn('edit')" style="padding:0.25rem 0.65rem; font-size:0.75rem;">에디터</button>
-                    <button type="button" class="btn btn-secondary btn-sm" id="btn-tab-preview-en" onclick="toggleGuideEditorTabEn('preview')" style="padding:0.25rem 0.65rem; font-size:0.75rem;"><i data-lucide="eye" style="width:12px; height:12px;"></i> 미리보기</button>
-                  </div>
-                </div>
-
-                <!-- Quick Markdown Toolbar (EN) -->
-                <div id="editor-toolbar-en" style="display:flex; flex-wrap:wrap; gap:0.35rem; background:rgba(0,0,0,0.35); border:1px solid var(--border-subtle); border-radius:6px; padding:0.4rem; margin-bottom:0.45rem;">
-                  <button type="button" class="btn btn-secondary btn-sm" onclick="insertMarkdownSnippetEn('## ')" title="Heading 2">H2</button>
-                  <button type="button" class="btn btn-secondary btn-sm" onclick="insertMarkdownSnippetEn('### ')" title="Heading 3">H3</button>
-                  <button type="button" class="btn btn-secondary btn-sm" onclick="insertMarkdownSnippetEn('**', '**')" title="Bold"><b>B</b></button>
-                  <button type="button" class="btn btn-secondary btn-sm" onclick="insertMarkdownSnippetEn('*', '*')" title="Italic"><i>I</i></button>
-                  <button type="button" class="btn btn-secondary btn-sm" onclick="insertMarkdownSnippetEn('- ')" title="List">• List</button>
-                  <button type="button" class="btn btn-secondary btn-sm" onclick="insertMarkdownSnippetEn('> 💡 **Pro Tip**: ')" title="Pro Tip Callout">💡 Tip</button>
-                  <button type="button" class="btn btn-secondary btn-sm" onclick="insertMarkdownSnippetEn('> ⚠️ **Warning**: ')" title="Warning Callout">⚠️ Warning</button>
-                  <button type="button" class="btn btn-secondary btn-sm" onclick="insertMarkdownSnippetEn('```\n[SETUP DATA]\nCold: 28 PSI | Hot: 34 PSI | Camber: -3.0°\n```\n')" title="Setup Code Block">🏎️ Setup Block</button>
-                  <button type="button" class="btn btn-secondary btn-sm" onclick="insertMarkdownSnippetEn('[Link Text](https://...)')" title="Hyperlink">🔗 Link</button>
-                  <button type="button" class="btn btn-secondary btn-sm" onclick="insertMarkdownSnippetEn('\n---\n')" title="Divider Line">— Line</button>
-                </div>
-
-                <textarea class="form-control" id="modal-guide-content-en" rows="10" placeholder="Write English technical guide in Markdown format...&#10;&#10;## 1. Overview&#10;Explain the technical motorsport concept...&#10;&#10;## 2. Track Setup Advice&#10;..." oninput="updateEnglishFieldsStats()" style="font-family:var(--font-main); font-size:0.85rem; line-height:1.6;"></textarea>
-                <div id="modal-guide-preview-box-en" style="display:none; min-height:240px; max-height:380px; overflow-y:auto; background:rgba(7,9,14,0.95); border:1px solid var(--border-subtle); border-radius:6px; padding:1.25rem; font-size:0.88rem; line-height:1.75;"></div>
+              <!-- Quick Markdown Toolbar (EN) -->
+              <div id="editor-toolbar-en" style="display: flex; flex-wrap: wrap; gap: 0.35rem; background: rgba(0, 0, 0, 0.4); border: 1px solid var(--border-subtle); border-radius: 8px; padding: 0.45rem 0.6rem;">
+                <button type="button" class="btn btn-secondary btn-sm" onclick="insertMarkdownSnippetEn('## ')" title="Heading 2">H2</button>
+                <button type="button" class="btn btn-secondary btn-sm" onclick="insertMarkdownSnippetEn('### ')" title="Heading 3">H3</button>
+                <button type="button" class="btn btn-secondary btn-sm" onclick="insertMarkdownSnippetEn('**', '**')" title="Bold"><b>B</b></button>
+                <button type="button" class="btn btn-secondary btn-sm" onclick="insertMarkdownSnippetEn('*', '*')" title="Italic"><i>I</i></button>
+                <button type="button" class="btn btn-secondary btn-sm" onclick="insertMarkdownSnippetEn('- ')" title="List">• List</button>
+                <button type="button" class="btn btn-secondary btn-sm" onclick="insertMarkdownSnippetEn('> 💡 **Pro Tip**: ')" title="Pro Tip Callout">💡 Tip</button>
+                <button type="button" class="btn btn-secondary btn-sm" onclick="insertMarkdownSnippetEn('> ⚠️ **Warning**: ')" title="Warning Callout">⚠️ Warning</button>
+                <button type="button" class="btn btn-secondary btn-sm" onclick="insertMarkdownSnippetEn('```\n[SETUP DATA]\nCold: 28 PSI | Hot: 34 PSI | Camber: -3.0°\n```\n')" title="Setup Code Block">🏎️ Setup Block</button>
+                <button type="button" class="btn btn-secondary btn-sm" onclick="insertMarkdownSnippetEn('[Link Text](https://...)')" title="Hyperlink">🔗 Link</button>
+                <button type="button" class="btn btn-secondary btn-sm" onclick="insertMarkdownSnippetEn('\n---\n')" title="Divider Line">— Line</button>
               </div>
+
+              <!-- Editor Textarea EN -->
+              <textarea class="form-control" id="modal-guide-content-en" rows="16" placeholder="Write English technical guide in Markdown format...&#10;&#10;## 1. Overview&#10;Explain the technical motorsport concept...&#10;&#10;## 2. Track Setup Advice&#10;..." oninput="updateEnglishFieldsStats()" style="display: block; width: 100%; min-height: 380px; height: 420px; font-family: var(--font-main); font-size: 0.88rem; line-height: 1.7; background: #060911; color: #f8fafc; padding: 1rem; border: 1px solid rgba(0, 240, 255, 0.25); border-radius: 8px; resize: vertical;"></textarea>
+
+              <!-- Live Preview Container EN -->
+              <div id="modal-guide-preview-box-en" style="display: none; width: 100%; min-height: 380px; max-height: 550px; overflow-y: auto; background: rgba(6, 9, 17, 0.95); border: 1px solid rgba(0, 240, 255, 0.3); border-radius: 8px; padding: 1.5rem; font-size: 0.92rem; line-height: 1.8; color: #e2e8f0;"></div>
             </div>
           </div>
+
+          <!-- ========================================================= -->
+          <!-- TAB 3: ⚙️ 아티클 설정 / 커버 / 카테고리 -->
+          <!-- ========================================================= -->
+          <div id="guide-tab-panel-meta" style="display: none; flex-direction: column; gap: 1.25rem; width: 100%;">
+            
+            <!-- Row 1: Slug & Category -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+              <div class="form-group">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+                  <label style="font-size: 0.84rem; font-weight: 700; color: #fff;">URL 식별자 (Slug) <span style="color:var(--accent-red)">*</span></label>
+                  <button type="button" class="btn btn-secondary btn-sm" style="padding: 0.15rem 0.5rem; font-size: 0.72rem;" onclick="generateSlugFromTitle()">제목에서 자동생성</button>
+                </div>
+                <input type="text" class="form-control" id="modal-guide-slug" placeholder="injespeedium-corner-guide" required style="font-family: var(--font-mono); font-size: 0.85rem;" oninput="updateEnglishFieldsStats()">
+                <small style="color: var(--text-muted); font-size: 0.72rem;">공개 URL: https://mylaplog.com/guides/{slug}</small>
+              </div>
+
+              <div class="form-group">
+                <label style="font-size: 0.84rem; font-weight: 700; color: #fff; margin-bottom: 0.35rem;">카테고리</label>
+                <select class="form-control" id="modal-guide-category" style="font-size: 0.85rem;">
+                  <option value="서킷 공략">🏁 서킷 공략</option>
+                  <option value="타이어/공기압">🛞 타이어/공기압</option>
+                  <option value="셋업 노하우" selected>⚙️ 셋업 노하우</option>
+                  <option value="레이싱 철학">🧠 레이싱 철학</option>
+                  <option value="트랙데이 팁">📋 트랙데이 팁</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Row 2: Read Time, Status, Author, Featured -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1.2fr 1.2fr; gap: 1rem; align-items: flex-end;">
+              <div class="form-group">
+                <label style="font-size: 0.82rem; font-weight: 600; color: var(--text-muted); margin-bottom: 0.35rem;">예상 소요시간</label>
+                <input type="text" class="form-control" id="modal-guide-read-time" value="3분" placeholder="예: 3분, 5분">
+              </div>
+
+              <div class="form-group">
+                <label style="font-size: 0.82rem; font-weight: 600; color: var(--text-muted); margin-bottom: 0.35rem;">발행 상태</label>
+                <select class="form-control" id="modal-guide-status" style="font-weight: 700;">
+                  <option value="PUBLISHED">🟢 즉시 공개 (PUBLISHED)</option>
+                  <option value="DRAFT">⚪ 임시저장 (DRAFT)</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label style="font-size: 0.82rem; font-weight: 600; color: var(--text-muted); margin-bottom: 0.35rem;">작성자 명칭</label>
+                <input type="text" class="form-control" id="modal-guide-author" value="MyLapLog 인텔리전스">
+              </div>
+
+              <div class="form-group" style="padding-bottom: 0.4rem;">
+                <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.84rem; font-weight: 700; cursor: pointer; color: #fff; user-select: none; background: rgba(0,240,255,0.06); border: 1px solid rgba(0,240,255,0.2); padding: 0.5rem 0.75rem; border-radius: 6px;">
+                  <input type="checkbox" id="modal-guide-featured" style="width: 17px; height: 17px; accent-color: var(--accent-cyan);">
+                  <span>⭐ 추천글 (상단 배너)</span>
+                </label>
+              </div>
+            </div>
+
+            <!-- Cover Image URL & File Upload Section -->
+            <div class="form-group" style="background: rgba(0, 240, 255, 0.03); border: 1px solid rgba(0, 240, 255, 0.25); border-radius: 10px; padding: 1.1rem 1.25rem;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                <label style="font-size: 0.86rem; font-weight: 700; color: #fff; display: flex; align-items: center; gap: 0.4rem; margin: 0;">
+                  <i data-lucide="image" style="width: 17px; height: 17px; color: var(--accent-cyan);"></i>
+                  <span>커버 이미지 설정 (선택)</span>
+                </label>
+                <span style="font-size: 0.74rem; color: var(--text-muted);">JPG, PNG, WebP, GIF (최대 10MB 자동 최적화)</span>
+              </div>
+
+              <!-- Hidden File Input -->
+              <input type="file" id="modal-guide-cover-file" accept="image/png, image/jpeg, image/webp, image/gif, image/svg+xml" style="display: none;" onchange="handleCoverImageUpload(this)">
+
+              <!-- Action Buttons & URL Input -->
+              <div style="display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap;">
+                <button type="button" class="btn btn-cyan" id="btn-trigger-cover-upload" onclick="triggerCoverFileInput()" style="padding: 0.55rem 1.1rem; font-size: 0.84rem; font-weight: 700; display: inline-flex; align-items: center; gap: 0.45rem;">
+                  <i data-lucide="upload-cloud" style="width: 16px; height: 16px;"></i> 📁 내 PC에서 파일 선택 / 업로드
+                </button>
+
+                <span style="font-size: 0.78rem; color: var(--text-muted); font-weight: 600;">또는</span>
+
+                <div style="flex: 1; min-width: 260px; position: relative;">
+                  <input type="url" class="form-control" id="modal-guide-cover" placeholder="외부 이미지 URL 직접 입력 (https://...)" style="width: 100%; font-size: 0.82rem;" oninput="onCoverUrlInput(this.value)">
+                </div>
+              </div>
+
+              <!-- Upload Loading Status Indicator -->
+              <div id="cover-upload-loading" style="display: none; margin-top: 0.75rem; padding: 0.5rem 0.75rem; border-radius: 6px; background: rgba(0,240,255,0.12); font-size: 0.82rem; color: var(--accent-cyan); align-items: center; gap: 0.5rem;">
+                <i data-lucide="loader" class="animate-spin" style="width: 15px; height: 15px;"></i>
+                <strong>이미지를 서버에 업로드하는 중입니다... 잠시만 기다려주세요.</strong>
+              </div>
+
+              <!-- Cover Image Live Preview Box -->
+              <div id="modal-guide-cover-preview-wrapper" style="display: none; margin-top: 0.9rem; padding: 0.85rem 1rem; border-radius: 8px; background: rgba(0,0,0,0.5); border: 1px solid rgba(0,255,136,0.35);">
+                <div style="display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap;">
+                  <div style="display: flex; align-items: center; gap: 1rem; min-width: 0; flex: 1;">
+                    <img id="modal-guide-cover-img" src="" alt="Cover Preview" style="width: 90px; height: 58px; object-fit: cover; border-radius: 6px; border: 1px solid rgba(0,255,136,0.4); background: #05070c; flex-shrink: 0;" onerror="onCoverImgLoadError()">
+                    <div style="min-width: 0; overflow: hidden;">
+                      <div style="font-size: 0.82rem; font-weight: 700; color: var(--accent-green); display: flex; align-items: center; gap: 0.35rem; margin-bottom: 0.25rem;">
+                        <span>✓ 적용된 커버 이미지</span>
+                        <span id="modal-guide-cover-name" style="color: var(--text-muted); font-size: 0.76rem; font-weight: 400; text-overflow: ellipsis; overflow: hidden; white-space: nowrap;"></span>
+                      </div>
+                      <div id="modal-guide-cover-url-text" style="font-size: 0.74rem; color: var(--accent-cyan); text-overflow: ellipsis; overflow: hidden; white-space: nowrap; font-family: var(--font-mono);"></div>
+                    </div>
+                  </div>
+                  <div style="display: flex; gap: 0.5rem; flex-shrink: 0;">
+                    <a id="btn-view-cover-full" href="#" target="_blank" class="btn btn-secondary btn-sm" style="padding: 0.35rem 0.65rem; font-size: 0.78rem;">
+                      <i data-lucide="external-link" style="width: 13px; height: 13px;"></i> 원본 보기
+                    </a>
+                    <button type="button" class="btn btn-danger btn-sm" style="padding: 0.35rem 0.65rem; font-size: 0.78rem;" onclick="removeCoverImage()">
+                      <i data-lucide="trash-2" style="width: 13px; height: 13px;"></i> 이미지 제거
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
         </div>
 
-        <!-- Sticky Bottom Actions Bar (ALWAYS VISIBLE & ACCESSIBLE) -->
-        <div class="modal-actions" style="flex-shrink: 0; padding-top: 0.9rem; margin-top: 0.6rem; border-top: 1px solid var(--border-subtle); display: flex; justify-content: space-between; align-items: center; background: var(--bg-card); z-index: 10;">
+        <!-- Sticky Bottom Actions Bar -->
+        <div class="modal-actions" style="flex-shrink: 0; padding: 0.9rem 1.5rem; border-top: 1px solid var(--border-subtle); display: flex; justify-content: space-between; align-items: center; background: rgba(10, 14, 24, 0.95); z-index: 10;">
           <div>
-            <button type="button" class="btn btn-danger btn-sm" id="btn-delete-guide" style="display:none;" onclick="handleDeleteCurrentGuide()">
-              <i data-lucide="trash-2"></i> 삭제하기
+            <button type="button" class="btn btn-danger btn-sm" id="btn-delete-guide" style="display: none; padding: 0.45rem 0.85rem;" onclick="handleDeleteCurrentGuide()">
+              <i data-lucide="trash-2"></i> 아티클 삭제
             </button>
           </div>
-          <div style="display:flex; gap:0.6rem;">
-            <button type="button" class="btn btn-secondary" onclick="closeAdminModal('guide-modal')">취소</button>
-            <button type="submit" class="btn btn-primary" id="btn-save-guide">
+          <div style="display: flex; gap: 0.65rem; align-items: center;">
+            <button type="button" class="btn btn-secondary" onclick="closeAdminModal('guide-modal')" style="padding: 0.5rem 1rem;">취소</button>
+            <button type="submit" class="btn btn-cyan" id="btn-save-guide" style="padding: 0.5rem 1.25rem; font-weight: 700;">
               <i data-lucide="check"></i> 인사이트 저장 및 발행
             </button>
           </div>
@@ -2061,9 +2128,10 @@
       document.getElementById('btn-delete-guide').style.display = 'none';
 
       updateCoverPreview('');
+      switchGuideTopTab('ko');
       toggleGuideEditorTab('edit');
       toggleGuideEditorTabEn('edit');
-      switchContentLangTab('ko');
+      updateKoreanFieldsStats();
       updateEnglishFieldsStats();
       openAdminModal('guide-modal');
       lucide.createIcons();
@@ -2095,12 +2163,70 @@
       document.getElementById('btn-delete-guide').style.display = 'inline-flex';
 
       updateCoverPreview(guide.cover_image || '');
+      switchGuideTopTab('ko');
       toggleGuideEditorTab('edit');
       toggleGuideEditorTabEn('edit');
-      switchContentLangTab('ko');
+      updateKoreanFieldsStats();
       updateEnglishFieldsStats();
       openAdminModal('guide-modal');
       lucide.createIcons();
+    }
+
+    // Top Level Tabs Switching (KO / EN / META)
+    function switchGuideTopTab(tab) {
+      const tabs = ['ko', 'en', 'meta'];
+      tabs.forEach(t => {
+        const btn = document.getElementById(`guide-tab-btn-${t}`);
+        const panel = document.getElementById(`guide-tab-panel-${t}`);
+        if (btn) {
+          if (t === tab) {
+            btn.classList.add('active');
+            btn.style.color = '#fff';
+            btn.style.borderBottom = '2px solid var(--accent-cyan)';
+            btn.style.background = 'rgba(0, 240, 255, 0.1)';
+          } else {
+            btn.classList.remove('active');
+            btn.style.color = 'var(--text-muted)';
+            btn.style.borderBottom = '2px solid transparent';
+            btn.style.background = 'transparent';
+          }
+        }
+        if (panel) {
+          panel.style.display = (t === tab) ? 'flex' : 'none';
+        }
+      });
+
+      // When switching to EN or KO, trigger stats & preview sync
+      if (tab === 'en') {
+        updateEnglishFieldsStats();
+      } else if (tab === 'ko') {
+        updateKoreanFieldsStats();
+      }
+
+      // Reset scroll of modal body when switching tab
+      const scrollBody = document.getElementById('form-guide-scroll-body');
+      if (scrollBody) scrollBody.scrollTop = 0;
+
+      lucide.createIcons();
+    }
+
+    // Update Korean counters
+    function updateKoreanFieldsStats() {
+      const title = (document.getElementById('modal-guide-title').value || '').trim();
+      const excerpt = (document.getElementById('modal-guide-excerpt').value || '').trim();
+      const content = (document.getElementById('modal-guide-content').value || '').trim();
+
+      const cntTitle = document.getElementById('cnt-title-ko');
+      if (cntTitle) cntTitle.innerText = `${title.length}자`;
+
+      const cntExcerpt = document.getElementById('cnt-excerpt-ko');
+      if (cntExcerpt) cntExcerpt.innerText = `${excerpt.length}자`;
+
+      const cntContent = document.getElementById('cnt-content-ko');
+      if (cntContent) {
+        const words = content ? content.split(/\s+/).filter(Boolean).length : 0;
+        cntContent.innerText = `${words} 단어 · ${content.length}자`;
+      }
     }
 
     // =============================================
@@ -2284,29 +2410,6 @@
       document.getElementById('modal-guide-slug').value = slug;
     }
 
-    function switchContentLangTab(lang) {
-      const btnKo = document.getElementById('btn-lang-tab-ko');
-      const btnEn = document.getElementById('btn-lang-tab-en');
-      const panelKo = document.getElementById('content-panel-ko');
-      const panelEn = document.getElementById('content-panel-en');
-      if (lang === 'en') {
-        btnKo.style.background = 'transparent';
-        btnKo.style.color = 'var(--text-muted)';
-        btnEn.style.background = 'rgba(0,240,255,0.15)';
-        btnEn.style.color = 'var(--accent-cyan)';
-        panelKo.style.display = 'none';
-        panelEn.style.display = 'flex';
-      } else {
-        btnEn.style.background = 'transparent';
-        btnEn.style.color = 'var(--text-muted)';
-        btnKo.style.background = 'rgba(0,240,255,0.15)';
-        btnKo.style.color = 'var(--accent-cyan)';
-        panelEn.style.display = 'none';
-        panelKo.style.display = 'flex';
-      }
-      lucide.createIcons();
-    }
-
     function toggleGuideEditorTab(mode) {
       const btnEdit = document.getElementById('btn-tab-editor');
       const btnPrev = document.getElementById('btn-tab-preview');
@@ -2364,6 +2467,7 @@
         textarea.selectionStart = textarea.selectionEnd = selStart + start.length;
       }
       textarea.focus();
+      updateKoreanFieldsStats();
     }
 
     function insertMarkdownSnippetEn(start, end = '') {
