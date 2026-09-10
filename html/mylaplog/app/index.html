@@ -6586,6 +6586,9 @@
       activeTeamId = userTeams.length > 0 ? userTeams[0].id : null;
       team = userTeams.length > 0 ? JSON.parse(JSON.stringify(userTeams[0])) : { id: null, name: '소속 팀 없음', desc: '', homeTrack: '', code: '-', members: [], role: 'NONE' };
       
+      receivedInvitations = [];
+      hasUnreadTeamChat = false;
+      updateTeamNavBadge();
       updateUserUI();
       renderAllViews();
     }
@@ -7804,13 +7807,22 @@
     }
 
     function updateTeamNavBadge() {
-      const curTab = document.querySelector('.tab-panel.active');
-      const isTeamTab = curTab && curTab.id === 'tab-team';
       const navBadge = document.getElementById('team-nav-badge') || document.getElementById('sidebar-invitation-badge');
       if (!navBadge) return;
 
+      // 1. Guest Mode: Never display N
+      if (!user || !user.isLoggedIn) {
+        navBadge.style.display = 'none';
+        return;
+      }
+
+      // 2. Pending team invitations received
       const hasInvitations = Array.isArray(receivedInvitations) && receivedInvitations.length > 0;
-      const hasUnread = Boolean(hasUnreadTeamChat);
+
+      // 3. Unread chat messages
+      const curTab = document.querySelector('.tab-panel.active');
+      const isTeamTab = curTab && curTab.id === 'tab-team';
+      const hasUnread = isTeamTab ? false : Boolean(hasUnreadTeamChat);
 
       // Display 'N' ONLY when pending invitations exist OR unread chat messages exist. In all other cases, hide.
       if (hasInvitations || hasUnread) {
@@ -11113,28 +11125,57 @@
     // =============================================
     
     async function checkBackgroundTeamUnread() {
-      const curTab = document.querySelector('.tab-panel.active');
-      const isTeamTab = curTab && curTab.id === 'tab-team';
-      if (isTeamTab) {
+      if (!user || !user.isLoggedIn) {
         hasUnreadTeamChat = false;
-        setTeamChatUnread(false);
+        updateTeamNavBadge();
         return;
       }
+      const curTab = document.querySelector('.tab-panel.active');
+      const isTeamTab = curTab && curTab.id === 'tab-team';
       const tId = activeTeamId || (team ? team.id : null);
-      if (!tId || !user || !user.isLoggedIn) return;
+      if (!tId) return;
+
+      const storageKey = 'mylaplog_last_read_msg_' + tId + '_' + user.id;
+
+      if (isTeamTab) {
+        hasUnreadTeamChat = false;
+        if (teamChatMessages && teamChatMessages.length > 0) {
+          const maxId = teamChatMessages[teamChatMessages.length - 1].id;
+          localStorage.setItem(storageKey, String(maxId));
+        }
+        updateTeamNavBadge();
+        return;
+      }
 
       try {
-        const lastKnownId = (teamChatMessages && teamChatMessages.length > 0) 
-          ? teamChatMessages[teamChatMessages.length - 1].id 
-          : parseInt(localStorage.getItem('mylaplog_team_' + tId + '_last_read_msg_id') || '0', 10);
-        
+        const storedLastId = localStorage.getItem(storageKey);
+        // If user has never recorded last read ID on this device, initialize it to current latest message without false alarm
+        if (storedLastId === null) {
+          const initRes = await api('/teams/' + tId + '/messages');
+          if (initRes.ok && Array.isArray(initRes.messages) && initRes.messages.length > 0) {
+            const latestMsgId = initRes.messages[initRes.messages.length - 1].id;
+            localStorage.setItem(storageKey, String(latestMsgId));
+          } else {
+            localStorage.setItem(storageKey, '0');
+          }
+          hasUnreadTeamChat = false;
+          updateTeamNavBadge();
+          return;
+        }
+
+        const lastKnownId = parseInt(storedLastId, 10) || 0;
         const res = await api('/teams/' + tId + '/messages?after_id=' + lastKnownId);
         if (res.ok && Array.isArray(res.messages) && res.messages.length > 0) {
           const newFromOthers = res.messages.filter(m => !m.is_mine && String(m.user_id) !== String(user.id));
           if (newFromOthers.length > 0) {
-            setTeamChatUnread(true);
+            hasUnreadTeamChat = true;
+          } else {
+            hasUnreadTeamChat = false;
           }
+        } else {
+          hasUnreadTeamChat = false;
         }
+        updateTeamNavBadge();
       } catch (err) {
         // silent check
       }
