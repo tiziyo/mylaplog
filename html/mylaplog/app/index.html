@@ -5541,11 +5541,14 @@
         <button class="modal-close" onclick="closeGpsPitLaneTimerModal()" style="font-size:1.4rem; color:var(--text-muted); background:transparent; border:none; cursor:pointer; flex-shrink:0;">&times;</button>
       </div>
 
-      <!-- Toolbar: Circuit, Speed Limit & Target Rule Config -->
-      <div class="gps-toolbar-row" style="background: rgba(16,21,33,0.85); padding: 0.6rem 0.75rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.08); margin-bottom: 0.75rem; display:flex; gap:0.5rem; flex-wrap:wrap;">
-        <div class="gps-toolbar-select-wrap" style="flex:1.2; min-width:140px;">
-          <label style="font-size:0.72rem; color:var(--text-muted); margin:0; white-space:nowrap; flex-shrink:0;"><i data-lucide="flag" style="width:11px; height:11px;"></i> 서킷:</label>
-          <select id="pit-track-select" class="form-control compact-input" style="font-size:0.78rem; padding:0.3rem 0.5rem; height:auto; background:rgba(0,0,0,0.6);" onchange="onPitTrackSelectChange()">
+      <!-- Toolbar: Circuit, Speed Limit, Target Rule & Imminent Alarm Config -->
+      <div class="pit-toolbar-box" style="background: rgba(16,21,33,0.85); padding: 0.65rem 0.75rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.08); margin-bottom: 0.75rem; display:flex; flex-direction:column; gap:0.5rem;">
+        <!-- Row 1: Circuit Selection (Full width for maximum readability of circuit name & distance info) -->
+        <div style="display:flex; align-items:center; gap:0.45rem; width:100%;">
+          <label style="font-size:0.74rem; color:var(--text-muted); margin:0; white-space:nowrap; flex-shrink:0; display:flex; align-items:center; gap:0.25rem;">
+            <i data-lucide="flag" style="width:12px; height:12px; color:var(--accent-orange);"></i> 서킷:
+          </label>
+          <select id="pit-track-select" class="form-control compact-input" style="flex:1; min-width:0; font-size:0.78rem; padding:0.35rem 0.55rem; height:auto; background:rgba(0,0,0,0.6);" onchange="onPitTrackSelectChange()">
             <option value="1">인제 스피디움</option>
             <option value="2">영암 KIC</option>
             <option value="3">용인 에버랜드</option>
@@ -5554,36 +5557,48 @@
           </select>
         </div>
 
-        <div style="display:flex; align-items:center; gap:0.35rem;">
-          <label style="font-size:0.72rem; color:var(--text-muted); margin:0; white-space:nowrap;"><i data-lucide="gauge" style="width:11px; height:11px;"></i> 제한속도:</label>
-          <select id="pit-limit-select" class="form-control compact-input" style="font-size:0.78rem; padding:0.3rem 0.4rem; height:auto; background:rgba(0,0,0,0.6); width:76px;" onchange="onPitLimitChange()">
-            <option value="60" selected>60 km/h</option>
-            <option value="50">50 km/h</option>
-            <option value="40">40 km/h</option>
-            <option value="80">80 km/h</option>
-          </select>
-        </div>
+        <!-- Row 2: 3 Config Parameters Grid (Speed Limit, Target Rule, Imminent Alarm) -->
+        <div class="pit-toolbar-options-grid" style="display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:0.45rem; width:100%;">
+          <!-- Col 1: Speed Limit -->
+          <div style="display:flex; flex-direction:column; gap:0.2rem; min-width:0;">
+            <label style="font-size:0.7rem; color:var(--text-muted); margin:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; display:flex; align-items:center; gap:0.25rem;">
+              <i data-lucide="gauge" style="width:11px; height:11px; color:var(--accent-orange);"></i> 제한속도:
+            </label>
+            <select id="pit-limit-select" class="form-control compact-input" style="width:100%; min-width:0; font-size:0.75rem; padding:0.32rem 0.35rem; height:auto; background:rgba(0,0,0,0.6);" onchange="onPitLimitChange()">
+              <option value="60" selected>60 km/h</option>
+              <option value="50">50 km/h</option>
+              <option value="40">40 km/h</option>
+              <option value="80">80 km/h</option>
+            </select>
+          </div>
 
-        <div style="display:flex; align-items:center; gap:0.35rem;">
-          <label style="font-size:0.72rem; color:var(--text-muted); margin:0; white-space:nowrap;"><i data-lucide="hourglass" style="width:11px; height:11px;"></i> 규정시간:</label>
-          <select id="pit-target-rule-select" class="form-control compact-input" style="font-size:0.78rem; padding:0.3rem 0.4rem; height:auto; background:rgba(0,0,0,0.6); width:100px;" onchange="onPitTargetRuleChange()">
-            <option value="300" selected>총 피트 5분</option>
-            <option value="60">총 피트 60s</option>
-            <option value="75">총 피트 75s</option>
-            <option value="45">정차 45s</option>
-            <option value="30">정차 30s</option>
-            <option value="0">자유 (규정없음)</option>
-          </select>
-        </div>
+          <!-- Col 2: Target Rule -->
+          <div style="display:flex; flex-direction:column; gap:0.2rem; min-width:0;">
+            <label style="font-size:0.7rem; color:var(--text-muted); margin:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; display:flex; align-items:center; gap:0.25rem;">
+              <i data-lucide="hourglass" style="width:11px; height:11px; color:var(--accent-orange);"></i> 규정시간:
+            </label>
+            <select id="pit-target-rule-select" class="form-control compact-input" style="width:100%; min-width:0; font-size:0.75rem; padding:0.32rem 0.35rem; height:auto; background:rgba(0,0,0,0.6);" onchange="onPitTargetRuleChange()">
+              <option value="300" selected>총 피트 5분</option>
+              <option value="60">총 피트 60s</option>
+              <option value="75">총 피트 75s</option>
+              <option value="45">정차 45s</option>
+              <option value="30">정차 30s</option>
+              <option value="0">자유 (규정없음)</option>
+            </select>
+          </div>
 
-        <div style="display:flex; align-items:center; gap:0.35rem;">
-          <label style="font-size:0.72rem; color:var(--text-muted); margin:0; white-space:nowrap;"><i data-lucide="bell" style="width:11px; height:11px;"></i> 임박알람:</label>
-          <select id="pit-alarm-select" class="form-control compact-input" style="font-size:0.78rem; padding:0.3rem 0.4rem; height:auto; background:rgba(0,0,0,0.6); width:95px;" onchange="onPitAlarmChange()">
-            <option value="5" selected>5초 전 (기본)</option>
-            <option value="3">3초 전</option>
-            <option value="10">10초 전</option>
-            <option value="0">알람 끔</option>
-          </select>
+          <!-- Col 3: Imminent Alarm -->
+          <div style="display:flex; flex-direction:column; gap:0.2rem; min-width:0;">
+            <label style="font-size:0.7rem; color:var(--text-muted); margin:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; display:flex; align-items:center; gap:0.25rem;">
+              <i data-lucide="bell" style="width:11px; height:11px; color:var(--accent-orange);"></i> 임박알람:
+            </label>
+            <select id="pit-alarm-select" class="form-control compact-input" style="width:100%; min-width:0; font-size:0.75rem; padding:0.32rem 0.35rem; height:auto; background:rgba(0,0,0,0.6);" onchange="onPitAlarmChange()">
+              <option value="5" selected>5초 전 (기본)</option>
+              <option value="3">3초 전</option>
+              <option value="10">10초 전</option>
+              <option value="0">알람 끔</option>
+            </select>
+          </div>
         </div>
       </div>
 
