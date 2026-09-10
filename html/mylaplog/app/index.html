@@ -7558,15 +7558,7 @@
       const curTab = document.querySelector('.tab-panel.active');
       const isTeamTab = curTab && curTab.id === 'tab-team';
 
-      const navBadge = document.getElementById('team-nav-badge') || document.getElementById('sidebar-invitation-badge');
-      if (navBadge) {
-        if (isTeamTab || !hasUnreadTeamChat) {
-          navBadge.style.display = 'none';
-        } else {
-          navBadge.innerText = 'N';
-          navBadge.style.display = 'inline-block';
-        }
-      }
+      updateTeamNavBadge();
 
       if (!card || !container) return;
 
@@ -7811,6 +7803,24 @@
       }
     }
 
+    function updateTeamNavBadge() {
+      const curTab = document.querySelector('.tab-panel.active');
+      const isTeamTab = curTab && curTab.id === 'tab-team';
+      const navBadge = document.getElementById('team-nav-badge') || document.getElementById('sidebar-invitation-badge');
+      if (!navBadge) return;
+
+      const hasInvitations = Array.isArray(receivedInvitations) && receivedInvitations.length > 0;
+      const hasUnread = Boolean(hasUnreadTeamChat);
+
+      // Display 'N' ONLY when pending invitations exist OR unread chat messages exist. In all other cases, hide.
+      if (hasInvitations || hasUnread) {
+        navBadge.innerText = 'N';
+        navBadge.style.display = 'inline-block';
+      } else {
+        navBadge.style.display = 'none';
+      }
+    }
+
     function setTeamChatUnread(isUnread) {
       const curTab = document.querySelector('.tab-panel.active');
       const isTeamTab = curTab && curTab.id === 'tab-team';
@@ -7821,15 +7831,7 @@
         hasUnreadTeamChat = true;
       }
 
-      const navBadge = document.getElementById('team-nav-badge') || document.getElementById('sidebar-invitation-badge');
-      if (navBadge) {
-        if (isTeamTab || !hasUnreadTeamChat) {
-          navBadge.style.display = 'none';
-        } else {
-          navBadge.innerText = 'N';
-          navBadge.style.display = 'inline-block';
-        }
-      }
+      updateTeamNavBadge();
     }
 
     const SAMPLE_CHAT_MESSAGES = {
@@ -11151,6 +11153,7 @@
       await loadTracks();
       initGpsNearestTrack();
       startBackgroundTeamChatCheck();
+      updateTeamNavBadge();
 
       // Check if redirected back from Kakao OAuth login
       const callbackHandled = await checkKakaoAuthCallback();
