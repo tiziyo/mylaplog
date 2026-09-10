@@ -1,5 +1,5 @@
 // MyLapLog Service Worker for PWA Installation & Offline Shell Support
-const CACHE_NAME = 'mylaplog-pwa-v2';
+const CACHE_NAME = 'mylaplog-pwa-v3';
 const ASSETS_TO_CACHE = [
   '/',
   '/index.html',
