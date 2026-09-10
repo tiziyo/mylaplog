@@ -1145,29 +1145,32 @@
         <!-- =========================================== -->
         <!-- CONTENT LANGUAGE TABS: KO / EN              -->
         <!-- =========================================== -->
-        <div style="border:1px solid rgba(0,240,255,0.2); border-radius:10px; overflow:hidden;">
+        <div style="border:1px solid rgba(0,240,255,0.25); border-radius:12px; overflow:hidden; background:rgba(14,18,30,0.6);">
 
           <!-- Tab Header -->
-          <div style="display:flex; background:rgba(0,0,0,0.35); border-bottom:1px solid rgba(0,240,255,0.15);">
-            <button type="button" id="btn-lang-tab-ko" onclick="switchContentLangTab('ko')" style="flex:1; padding:0.5rem 1rem; font-size:0.8rem; font-weight:700; border:none; background:rgba(0,240,255,0.15); color:var(--accent-cyan); cursor:pointer; display:flex; align-items:center; justify-content:center; gap:0.4rem; border-right:1px solid rgba(0,240,255,0.15);">
-              🇰🇷 한국어 (KO)
+          <div style="display:flex; background:rgba(0,0,0,0.4); border-bottom:1px solid rgba(0,240,255,0.18);">
+            <button type="button" id="btn-lang-tab-ko" onclick="switchContentLangTab('ko')" style="flex:1; padding:0.65rem 1rem; font-size:0.84rem; font-weight:700; border:none; background:rgba(0,240,255,0.15); color:var(--accent-cyan); cursor:pointer; display:flex; align-items:center; justify-content:center; gap:0.5rem; border-right:1px solid rgba(0,240,255,0.15); transition:all 0.2s ease;">
+              <span>🇰🇷 한국어 콘텐츠 (기본)</span>
             </button>
-            <button type="button" id="btn-lang-tab-en" onclick="switchContentLangTab('en')" style="flex:1; padding:0.5rem 1rem; font-size:0.8rem; font-weight:700; border:none; background:transparent; color:var(--text-muted); cursor:pointer; display:flex; align-items:center; justify-content:center; gap:0.4rem;">
-              🇺🇸 영문 (EN) — Google 영문 인덱싱 대상
+            <button type="button" id="btn-lang-tab-en" onclick="switchContentLangTab('en')" style="flex:1; padding:0.65rem 1rem; font-size:0.84rem; font-weight:700; border:none; background:transparent; color:var(--text-muted); cursor:pointer; display:flex; align-items:center; justify-content:center; gap:0.5rem; transition:all 0.2s ease;">
+              <span>🇺🇸 English Global SEO</span>
+              <span id="tab-en-status-pill" style="font-size:0.68rem; padding:0.12rem 0.45rem; border-radius:10px; font-weight:700; background:rgba(255,255,255,0.06); color:var(--text-muted); border:1px solid rgba(255,255,255,0.1);">미작성</span>
             </button>
           </div>
 
           <!-- KO Panel -->
-          <div id="content-panel-ko" style="padding:0.9rem; display:flex; flex-direction:column; gap:0.75rem;">
+          <div id="content-panel-ko" style="padding:1rem; display:flex; flex-direction:column; gap:0.85rem;">
             <div class="form-group" style="margin:0;">
-              <label style="font-size:0.78rem; font-weight:700; color:var(--text-main); display:block; margin-bottom:0.35rem;">본문 내용 (한국어 Markdown) <span style="color:var(--accent-red)">*</span></label>
+              <label style="font-size:0.8rem; font-weight:700; color:var(--text-main); display:block; margin-bottom:0.35rem;">
+                한국어 본문 내용 (Markdown) <span style="color:var(--accent-red)">*</span>
+              </label>
 
               <div style="display:flex; justify-content:flex-end; margin-bottom:0.35rem; gap:0.3rem;">
                 <button type="button" class="btn btn-secondary btn-sm active" id="btn-tab-editor" onclick="toggleGuideEditorTab('edit')" style="padding:0.25rem 0.65rem; font-size:0.75rem;">에디터</button>
                 <button type="button" class="btn btn-secondary btn-sm" id="btn-tab-preview" onclick="toggleGuideEditorTab('preview')" style="padding:0.25rem 0.65rem; font-size:0.75rem;"><i data-lucide="eye" style="width:12px; height:12px;"></i> 미리보기</button>
               </div>
 
-              <!-- Quick Markdown Toolbar -->
+              <!-- Quick Markdown Toolbar (KO) -->
               <div id="editor-toolbar" style="display:flex; flex-wrap:wrap; gap:0.35rem; background:rgba(0,0,0,0.35); border:1px solid var(--border-subtle); border-radius:6px; padding:0.4rem; margin-bottom:0.45rem;">
                 <button type="button" class="btn btn-secondary btn-sm" onclick="insertMarkdownSnippet('## ')" title="대제목">H2</button>
                 <button type="button" class="btn btn-secondary btn-sm" onclick="insertMarkdownSnippet('### ')" title="중제목">H3</button>
@@ -1188,34 +1191,93 @@
           </div>
 
           <!-- EN Panel -->
-          <div id="content-panel-en" style="padding:0.9rem; display:none; flex-direction:column; gap:0.75rem;">
-            <div style="background:rgba(0,240,255,0.06); border:1px solid rgba(0,240,255,0.2); border-radius:8px; padding:0.6rem 0.85rem; font-size:0.8rem; color:var(--accent-cyan); display:flex; align-items:center; gap:0.5rem;">
-              <i data-lucide="globe" style="width:15px; height:15px; flex-shrink:0;"></i>
-              <span><strong>Google 영문 SEO 인덱싱</strong> — 이 섹션의 내용이 <code>?lang=en</code> URL로 서빙되며 영어권 Google 검색에 노출됩니다. 비워두면 한국어 콘텐츠가 영문 URL에도 적용됩니다.</span>
+          <div id="content-panel-en" style="padding:1rem; display:none; flex-direction:column; gap:0.9rem;">
+            <!-- Guidance & Action Banner -->
+            <div style="background:rgba(0,240,255,0.06); border:1px solid rgba(0,240,255,0.22); border-radius:8px; padding:0.75rem 0.9rem; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.6rem;">
+              <div style="display:flex; align-items:center; gap:0.5rem; font-size:0.8rem; color:var(--text-main);">
+                <i data-lucide="globe" style="width:16px; height:16px; color:var(--accent-cyan); flex-shrink:0;"></i>
+                <span><strong>Google Global SEO 인덱싱</strong> — <code>?lang=en</code> 파라미터로 영문 메타태그와 본문이 Google 글로벌에 색인됩니다.</span>
+              </div>
+              <div style="display:flex; gap:0.4rem;">
+                <button type="button" class="btn btn-secondary btn-sm" onclick="scaffoldEnglishDraft()" title="한국어 제목/본문 구조를 바탕으로 영문 초안 서식을 생성합니다" style="font-size:0.75rem; padding:0.25rem 0.6rem;">
+                  <i data-lucide="wand-2" style="width:12px; height:12px;"></i> 영문 초안 서식 생성
+                </button>
+                <button type="button" class="btn btn-secondary btn-sm" onclick="clearEnglishFields()" title="영문 필드 비우기" style="font-size:0.75rem; padding:0.25rem 0.6rem; color:var(--text-muted);">
+                  <i data-lucide="rotate-ccw" style="width:12px; height:12px;"></i> 초기화
+                </button>
+              </div>
             </div>
 
-            <!-- EN Title -->
+            <!-- Field 1: EN Title (title_en) -->
             <div class="form-group" style="margin:0;">
-              <label style="font-size:0.78rem; font-weight:700; color:var(--text-main); display:block; margin-bottom:0.35rem;">🇺🇸 영문 제목 (title_en)</label>
-              <input type="text" class="form-control" id="modal-guide-title-en" placeholder="e.g. Tire Pressure Guide: Cold vs Hot Setup for Track Days">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.35rem;">
+                <label style="font-size:0.8rem; font-weight:700; color:var(--text-main); margin:0;">
+                  🇺🇸 영문 아티클 제목 (title_en)
+                </label>
+                <span id="cnt-title-en" style="font-size:0.72rem; color:var(--text-muted); font-family:var(--font-mono);">0 / 65자 (권장 50~65자)</span>
+              </div>
+              <input type="text" class="form-control" id="modal-guide-title-en" placeholder="e.g. Tire Pressure Master Guide: Cold vs Hot Setup for Track Days" oninput="updateEnglishFieldsStats()">
             </div>
 
-            <!-- EN Excerpt -->
+            <!-- Field 2: EN Excerpt (excerpt_en) -->
             <div class="form-group" style="margin:0;">
-              <label style="font-size:0.78rem; font-weight:700; color:var(--text-main); display:block; margin-bottom:0.35rem;">🇺🇸 영문 요약문 (excerpt_en)</label>
-              <textarea class="form-control" id="modal-guide-excerpt-en" rows="2" placeholder="e.g. Learn how cold and hot tire pressure affects grip, camber geometry, and lap times on track day..."></textarea>
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.35rem;">
+                <label style="font-size:0.8rem; font-weight:700; color:var(--text-main); margin:0;">
+                  🇺🇸 영문 요약문 (excerpt_en — Google Meta Description)
+                </label>
+                <span id="cnt-excerpt-en" style="font-size:0.72rem; color:var(--text-muted); font-family:var(--font-mono);">0 / 160자 (권장 120~160자)</span>
+              </div>
+              <textarea class="form-control" id="modal-guide-excerpt-en" rows="2" placeholder="e.g. Master tire cold vs hot pressure setups for track days to eliminate understeer and optimize lap times on technical circuits..." oninput="updateEnglishFieldsStats()"></textarea>
             </div>
 
-            <!-- EN Content -->
+            <!-- Google Search Snippet Live Preview -->
+            <div style="background:#131722; border:1px solid rgba(255,255,255,0.1); border-radius:8px; padding:0.85rem 1rem;">
+              <div style="display:flex; align-items:center; gap:0.4rem; margin-bottom:0.5rem; font-size:0.72rem; color:var(--text-muted); font-weight:700; text-transform:uppercase; letter-spacing:0.5px;">
+                <i data-lucide="search" style="width:12px; height:12px; color:var(--accent-cyan);"></i>
+                <span>Google Search SERP Live Preview (Google 글로벌 검색결과 미리보기)</span>
+              </div>
+              <div style="font-size:0.78rem; color:#8ab4f8; font-family:var(--font-mono); margin-bottom:0.2rem; display:flex; align-items:center; gap:0.4rem;">
+                <img src="/app/favicon.ico" alt="icon" style="width:14px; height:14px; border-radius:2px;">
+                <span id="serp-preview-url">https://www.mylaplog.com > guides > guide-slug?lang=en</span>
+              </div>
+              <div id="serp-preview-title" style="font-size:1.02rem; font-weight:600; color:#8ab4f8; text-decoration:underline; cursor:pointer; margin-bottom:0.3rem; line-height:1.35;">
+                Tire Pressure Master Guide: Cold vs Hot Setup for Track Days — MyLapLog Insights
+              </div>
+              <div id="serp-preview-desc" style="font-size:0.82rem; color:#bdc1c6; line-height:1.45;">
+                Master tire cold vs hot pressure setups for track days to eliminate understeer and optimize lap times on technical circuits...
+              </div>
+            </div>
+
+            <!-- Field 3: EN Content (content_en) -->
             <div class="form-group" style="margin:0;">
               <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.35rem; flex-wrap:wrap; gap:0.5rem;">
-                <label style="font-size:0.78rem; font-weight:700; color:var(--text-main); margin:0;">🇺🇸 영문 본문 (content_en) — Markdown</label>
+                <div style="display:flex; align-items:center; gap:0.5rem;">
+                  <label style="font-size:0.8rem; font-weight:700; color:var(--text-main); margin:0;">
+                    🇺🇸 영문 마크다운 본문 (content_en)
+                  </label>
+                  <span id="cnt-content-en" style="font-size:0.72rem; color:var(--text-muted); font-family:var(--font-mono);">0 단어 · 0자</span>
+                </div>
                 <div style="display:flex; gap:0.3rem;">
                   <button type="button" class="btn btn-secondary btn-sm active" id="btn-tab-editor-en" onclick="toggleGuideEditorTabEn('edit')" style="padding:0.25rem 0.65rem; font-size:0.75rem;">에디터</button>
                   <button type="button" class="btn btn-secondary btn-sm" id="btn-tab-preview-en" onclick="toggleGuideEditorTabEn('preview')" style="padding:0.25rem 0.65rem; font-size:0.75rem;"><i data-lucide="eye" style="width:12px; height:12px;"></i> 미리보기</button>
                 </div>
               </div>
-              <textarea class="form-control" id="modal-guide-content-en" rows="10" placeholder="Write English content in Markdown format...&#10;&#10;## Overview&#10;..." style="font-family:var(--font-main); font-size:0.85rem; line-height:1.6;"></textarea>
+
+              <!-- Quick Markdown Toolbar (EN) -->
+              <div id="editor-toolbar-en" style="display:flex; flex-wrap:wrap; gap:0.35rem; background:rgba(0,0,0,0.35); border:1px solid var(--border-subtle); border-radius:6px; padding:0.4rem; margin-bottom:0.45rem;">
+                <button type="button" class="btn btn-secondary btn-sm" onclick="insertMarkdownSnippetEn('## ')" title="Heading 2">H2</button>
+                <button type="button" class="btn btn-secondary btn-sm" onclick="insertMarkdownSnippetEn('### ')" title="Heading 3">H3</button>
+                <button type="button" class="btn btn-secondary btn-sm" onclick="insertMarkdownSnippetEn('**', '**')" title="Bold"><b>B</b></button>
+                <button type="button" class="btn btn-secondary btn-sm" onclick="insertMarkdownSnippetEn('*', '*')" title="Italic"><i>I</i></button>
+                <button type="button" class="btn btn-secondary btn-sm" onclick="insertMarkdownSnippetEn('- ')" title="List">• List</button>
+                <button type="button" class="btn btn-secondary btn-sm" onclick="insertMarkdownSnippetEn('> 💡 **Pro Tip**: ')" title="Pro Tip Callout">💡 Tip</button>
+                <button type="button" class="btn btn-secondary btn-sm" onclick="insertMarkdownSnippetEn('> ⚠️ **Warning**: ')" title="Warning Callout">⚠️ Warning</button>
+                <button type="button" class="btn btn-secondary btn-sm" onclick="insertMarkdownSnippetEn('```\n[SETUP DATA]\nCold: 28 PSI | Hot: 34 PSI | Camber: -3.0°\n```\n')" title="Setup Code Block">🏎️ Setup Block</button>
+                <button type="button" class="btn btn-secondary btn-sm" onclick="insertMarkdownSnippetEn('[Link Text](https://...)')" title="Hyperlink">🔗 Link</button>
+                <button type="button" class="btn btn-secondary btn-sm" onclick="insertMarkdownSnippetEn('\n---\n')" title="Divider Line">— Line</button>
+              </div>
+
+              <textarea class="form-control" id="modal-guide-content-en" rows="10" placeholder="Write English technical guide in Markdown format...&#10;&#10;## 1. Overview&#10;Explain the technical motorsport concept...&#10;&#10;## 2. Track Setup Advice&#10;..." oninput="updateEnglishFieldsStats()" style="font-family:var(--font-main); font-size:0.85rem; line-height:1.6;"></textarea>
               <div id="modal-guide-preview-box-en" style="display:none; min-height:240px; max-height:380px; overflow-y:auto; background:rgba(7,9,14,0.95); border:1px solid var(--border-subtle); border-radius:6px; padding:1.25rem; font-size:0.88rem; line-height:1.75;"></div>
             </div>
           </div>
@@ -1257,9 +1319,12 @@
         id: 1,
         slug: 'injespeedium-racing-guide',
         title: '[서킷 공략] 인제 스피디움 첫 주행: 코너별 기어 단수 & 브레이킹 포인트 기초 가이드',
+        title_en: 'Inje Speedium Circuit Guide: Gear Ratios & Braking Points for Beginners',
         category: '서킷 공략',
         excerpt: '강원도 인제 스피디움(풀코스 3.908km) 첫 입문자를 위한 40m 고저차 대응법, 헤어핀 탈출 기어비, 그리고 1초를 줄이는 1번 코너 하드 브레이킹 포인트를 완벽 정리합니다.',
+        excerpt_en: 'Comprehensive track driving guide for Inje Speedium circuit (3.908km). Master downhill elevation changes, turn-in apex lines, gear ratios, and threshold braking points.',
         content: "## 1. 인제 스피디움 서킷 개요\n인제 스피디움은 총 길이 **3.908km**, 19개의 테크니컬 코너와 **고저차 40m**를 자랑하는 아시아 최고의 롤러코스터 서킷입니다. 오르막과 내리막에 따라 하중 이동 폭이 매우 크므로 브레이킹 안정성과 댐퍼 리바운드 세팅이 승부를 가릅니다.\n\n### 서킷 제원 요약\n- **총 연장**: 3,908m (풀코스 기준)\n- **코너 수**: 19개 (좌 8 / 우 11)\n- **메인 스트레이트**: 약 640m (최고속 190~230km/h 도달)\n\n---\n\n## 2. 주요 코너별 상세 공략법\n\n### ① 1번 ~ 2번 코너 (Main Straight Downhill)\n- **진입 속도**: 4~5단 전개 후 시속 190km 이상\n- **브레이킹 포인트**: 우측 150m 표지판부터 점진적 압력, 100m 지점부터 풀 브레이킹(Threshold Braking)\n- **기어 단수**: 3단 (수동/DCT 공통)\n- **핵심 팁**: 내리막 하중이 앞바퀴로 급격히 쏠리므로 스티어링을 급격히 꺾으면 바로 ABS가 개입하며 언더스티어가 납니다. 브레이크 트레일을 부드럽게 풀면서 에이펙스를 깊게 찍으세요.\n\n### ② 3번 ~ 6번 S자 다운힐 복합 구간\n- **공략 라인**: 3번 코너 탈출 직후 차체를 좌측으로 완전히 붙여 4번 우측 코너 진입 시야를 확보합니다.\n- **하중 이동**: 가속 페달을 살짝 오프(Lift-off)하여 앞바퀴 그립을 회복시키고, 연석을 부드럽게 타고 넘는 리듬감이 중요합니다.\n\n---\n\n## 3. 추천 공기압 & 셋업 체크리스트\n- **타이어 공기압**: 첫 주행 전 냉간(Cold) **26~28 PSI** 시작 추천 (피트인 직후 열간 34~35 PSI 목표)\n- **얼라인먼트**: 프론트 캠버 **-2.5° ~ -3.0°**, 토우(Toe) 0mm 또는 약한 토아웃",
+        content_en: "## 1. Inje Speedium Circuit Overview\nInje Speedium is a premier **3.908 km** Grade 2 FIA circuit featuring **19 technical turns** and an intense **40-meter elevation swing**. Due to steep uphill climbs and blind crest downhills, weight transfer management and damper setup are crucial.\n\n### Key Track Specifications\n- **Track Length**: 3,908 m (Full Course)\n- **Corners**: 19 (8 Left / 11 Right)\n- **Main Straight**: ~640 m (Top speed 190–235 km/h)\n\n---\n\n## 2. Corner-by-Corner Breakdown\n\n### ① Turns 1 & 2 (Main Straight Downhill Hard Braking)\n- **Entry Speed**: Over 190 km/h in 4th/5th gear\n- **Braking Point**: Initial brake application at the 150m board, full threshold braking at 100m\n- **Gear**: 3rd gear\n- **Pro Tip**: Extreme downhill shift increases front axle load. Avoid snapping the steering wheel too early to prevent ABS engagement and mid-corner understeer. Trail brake smoothly towards the deep clipping point.\n\n### ② Turns 3 through 6 (Downhill S-Chicane)\n- **Racing Line**: Hug the extreme left on Turn 3 exit to open up sightlines for Turn 4 right-hander.\n- **Weight Transfer**: Slight lift-off to bite front grip, clipping apex kerbs with rhythmic flow.\n\n---\n\n## 3. Recommended Setup Checklist\n- **Tire Pressure**: Start Cold at **26–28 PSI** (Target Hot: 34–35 PSI)\n- **Alignment**: Front camber **-2.5° to -3.0°**, Toe 0mm",
         cover_image: '',
         author_name: 'MyLapLog 인텔리전스',
         read_time: '4분',
@@ -1272,9 +1337,12 @@
         id: 2,
         slug: 'tire-cold-hot-pressure-master',
         title: '[타이어/공기압] 트랙데이 필수! 냉간(Cold) vs 열간(Hot) 공기압 세팅의 모든 것',
+        title_en: 'Tire Pressure Guide: Cold vs Hot Setup for Track Days',
         category: '타이어/공기압',
         excerpt: '트랙데이에서 가장 저렴하고 확실하게 랩타임을 줄이는 튜닝은 공기압입니다. 왜 일상 36psi로 타면 미끄러지는지, 주행 후 피트인 시 적정 열간 공기압 관리 공식을 공개합니다.',
+        excerpt_en: 'Tire pressure is the single most cost-effective tuning variable on circuit track days. Discover target hot pressures, temperature expansion physics, and how to bleed down between sessions.',
         content: "## 1. 일상 주행 공기압으로 서킷을 타면 안 되는 이유\n대부분의 공도용 차량은 냉간 **34~36 PSI**를 권장합니다. 하지만 이 상태로 서킷에 들어가 3랩 이상 어택을 진행하면 타이어 내부 온도가 **80°C~90°C**까지 치솟으며 공기압이 **42~45 PSI**를 초과하게 됩니다.\n\n---\n\n## 2. 하이그립 타이어별 목표 열간 공기압 (Target Hot PSI)\n\n서킷 피트인 직후 에어게이지로 측정했을 때 나와야 하는 이상적인 수치입니다:\n\n- **금호 V730, 넥센 SUR4G**: 목표 열간 **32 ~ 34 PSI** (초기 냉간 25~27 PSI)\n- **미쉐린 Cup2, 브리지스톤 RE-71RS**: 목표 열간 **33 ~ 35 PSI** (초기 냉간 26~28 PSI)\n\n> 💡 **참고**: 무더운 한여름(노면온도 45°C 이상)에는 팽창 폭이 커지므로 냉간 시 1~2 PSI를 더 낮추어 출발하세요.",
+        content_en: "## 1. Why Street Pressures Fail on Track\nMost road passenger cars recommend **34–36 PSI Cold**. However, pushing 100% on circuit increases internal carcass temperature to **80°C–90°C**, spiking air pressure past **42–45 PSI** and ballooning tire contact patches.\n\n---\n\n## 2. Target Hot Pressure by Tire Compound\nMeasure with a calibrated analog/digital tire gauge immediately after pit-in:\n\n- **Semi-Slick / Extreme Performance (Kumho V730, Nexen SUR4G)**: Target Hot **32–34 PSI** (Start Cold: 25–27 PSI)\n- **Premium Track Day (Michelin Pilot Sport Cup 2, Bridgestone RE-71RS)**: Target Hot **33–35 PSI** (Start Cold: 26–28 PSI)\n\n> 💡 **Pro Tip**: In extreme summer heat (track temp > 45°C), drop cold pressures another 1–2 PSI before Session 1.",
         cover_image: '',
         author_name: 'MyLapLog 인텔리전스',
         read_time: '3분',
@@ -1287,9 +1355,12 @@
         id: 3,
         slug: 'understeer-camber-damper-setup',
         title: '[셋업 노하우] 언더스티어가 심할 때: 프론트 캠버와 댐퍼 감쇠력 조율법',
+        title_en: 'Fixing Understeer: Front Camber & Damper Rebound Tuning',
         category: '셋업 노하우',
         excerpt: '코너 진입 시 앞머리가 바깥으로 밀려나가는 언더스티어! 타이어 바깥쪽 숄더 마모 분석부터 프론트 네거티브 캠버각과 일체형 서스펜션 감쇠력 클릭 조율 순서를 명쾌하게 정리합니다.',
+        excerpt_en: 'Experiencing front-end push into the corner? Step-by-step suspension setup guide for eliminating understeer through front negative camber and coilover damper adjustments.',
         content: "## 1. 언더스티어의 3가지 유형 분석\n1. **진입 언더 (Entry Under)**: 브레이킹을 끝내고 스티어링을 꺾는 순간 발생\n2. **중간 에이펙스 언더 (Mid-Corner Under)**: 횡G가 가장 높은 코너 정점에서 발생\n3. **탈출 파워언더 (Exit Under)**: 가속 페달을 밟으며 코너를 빠져나갈 때 발생\n\n---\n\n## 2. 해결책: 프론트 네거티브 캠버(-2.5° ~ -3.2°) 및 감쇠력 조율\n- **전륜 감쇠력**: 1~2클릭 부드럽게 (Soft) 풀어 앞바퀴 접지력 확보\n- **후륜 감쇠력**: 1~2클릭 단단하게 (Hard) 조여 리어 회두성(Turn-in) 증대",
+        content_en: "## 1. The 3 Types of Corner Understeer\n1. **Entry Understeer**: Occurs when turning in under trail braking or high speed\n2. **Mid-Corner Understeer**: Occurs at peak lateral G through the apex\n3. **Exit Understeer**: Occurs under throttle application upon corner exit\n\n---\n\n## 2. Solution: Front Negative Camber (-2.5° to -3.2°) & Damping\n- **Front Damping**: Soften by 1–2 clicks to maximize mechanical front bite\n- **Rear Damping**: Stiffen by 1–2 clicks to promote rear rotation (Turn-in response)",
         cover_image: '',
         author_name: 'MyLapLog 인텔리전스',
         read_time: '5분',
@@ -1859,9 +1930,14 @@
           ? `<span style="color:var(--accent-cyan); font-size:0.72rem; font-weight:700; background:rgba(0,240,255,0.12); padding:0.1rem 0.35rem; border-radius:4px; margin-right:0.35rem; border:1px solid rgba(0,240,255,0.3);">⭐ 추천</span>` 
           : '';
 
-        const enBadge = g.title_en
-          ? `<span style="color:#4ade80; font-size:0.68rem; font-weight:700; background:rgba(74,222,128,0.12); padding:0.1rem 0.35rem; border-radius:4px; margin-right:0.35rem; border:1px solid rgba(74,222,128,0.3);">🇺🇸 EN</span>`
-          : `<span style="color:var(--text-muted); font-size:0.68rem; font-weight:600; background:rgba(255,255,255,0.05); padding:0.1rem 0.35rem; border-radius:4px; margin-right:0.35rem; border:1px solid rgba(255,255,255,0.1);">EN ✗</span>`;
+        const hasEn = !!(g.title_en && g.title_en.trim());
+        const enBadge = hasEn
+          ? `<span style="color:#4ade80; font-size:0.68rem; font-weight:700; background:rgba(74,222,128,0.12); padding:0.1rem 0.35rem; border-radius:4px; margin-right:0.35rem; border:1px solid rgba(74,222,128,0.3);">🇺🇸 EN 완비</span>`
+          : `<span style="color:var(--text-muted); font-size:0.68rem; font-weight:600; background:rgba(255,255,255,0.05); padding:0.1rem 0.35rem; border-radius:4px; margin-right:0.35rem; border:1px solid rgba(255,255,255,0.1);">EN 미작성</span>`;
+
+        const enTitleSub = hasEn
+          ? `<div style="font-size:0.75rem; color:var(--accent-cyan); opacity:0.85; margin-top:0.2rem; font-weight:500;">🇺🇸 ${escapeHtml(g.title_en)}</div>`
+          : '';
 
         const dateStr = g.created_at ? g.created_at.substring(0, 10) : '-';
 
@@ -1875,7 +1951,8 @@
               <div style="font-weight:600; color:#fff; font-size:0.88rem; display:flex; align-items:center; flex-wrap:wrap; gap:0.2rem;">
                 ${featuredBadge}${enBadge}${escapeHtml(g.title)}
               </div>
-              <div style="font-size:0.75rem; color:var(--text-muted); font-family:var(--font-mono); margin-top:0.2rem;">
+              ${enTitleSub}
+              <div style="font-size:0.72rem; color:var(--text-muted); font-family:var(--font-mono); margin-top:0.25rem;">
                 /guides/${escapeHtml(g.slug)}
               </div>
             </td>
@@ -1884,15 +1961,18 @@
             <td style="color:var(--text-muted); font-size:0.8rem;">${escapeHtml(g.read_time || '3분')}</td>
             <td style="color:var(--text-muted); font-size:0.8rem;">${dateStr}</td>
             <td>
-              <div style="display:flex; gap:0.35rem;">
-                <button type="button" class="btn btn-secondary btn-sm" onclick="openEditGuideModal(${g.id})" title="수정" style="padding:0.3rem 0.5rem;">
-                  <i data-lucide="edit-3" style="width:13px; height:13px;"></i>
+              <div style="display:flex; gap:0.3rem; align-items:center;">
+                <button type="button" class="btn btn-secondary btn-sm" onclick="openEditGuideModal(${g.id})" title="아티클 및 영문 필드 수정" style="padding:0.3rem 0.55rem; font-size:0.75rem;">
+                  <i data-lucide="edit-3" style="width:12px; height:12px;"></i> 수정
                 </button>
-                <button type="button" class="btn btn-secondary btn-sm" onclick="previewGuideInApp('${escapeHtml(g.slug)}')" title="웹앱에서 확인" style="padding:0.3rem 0.5rem;">
-                  <i data-lucide="external-link" style="width:13px; height:13px;"></i>
+                <button type="button" class="btn btn-secondary btn-sm" onclick="previewGuidePublic('${escapeHtml(g.slug)}', 'ko')" title="한국어 공개 페이지 보기" style="padding:0.3rem 0.45rem; font-size:0.75rem;">
+                  🇰🇷
                 </button>
-                <button type="button" class="btn btn-secondary btn-sm" style="color:var(--accent-red); padding:0.3rem 0.5rem;" onclick="deleteGuideAdmin(${g.id})" title="삭제">
-                  <i data-lucide="trash-2" style="width:13px; height:13px;"></i>
+                <button type="button" class="btn btn-secondary btn-sm" onclick="previewGuidePublic('${escapeHtml(g.slug)}', 'en')" title="영문 Google 공개 페이지 보기" style="padding:0.3rem 0.45rem; font-size:0.75rem; color:${hasEn ? '#4ade80' : 'var(--text-muted)'};">
+                  🇺🇸
+                </button>
+                <button type="button" class="btn btn-secondary btn-sm" style="color:var(--accent-red); padding:0.3rem 0.45rem;" onclick="deleteGuideAdmin(${g.id})" title="삭제">
+                  <i data-lucide="trash-2" style="width:12px; height:12px;"></i>
                 </button>
               </div>
             </td>
@@ -1918,8 +1998,10 @@
       if (keyword) {
         filtered = filtered.filter(g => 
           (g.title && g.title.toLowerCase().includes(keyword)) ||
+          (g.title_en && g.title_en.toLowerCase().includes(keyword)) ||
           (g.slug && g.slug.toLowerCase().includes(keyword)) ||
-          (g.excerpt && g.excerpt.toLowerCase().includes(keyword))
+          (g.excerpt && g.excerpt.toLowerCase().includes(keyword)) ||
+          (g.excerpt_en && g.excerpt_en.toLowerCase().includes(keyword))
         );
       }
       renderGuidesTable(filtered);
@@ -1949,7 +2031,9 @@
 
       updateCoverPreview('');
       toggleGuideEditorTab('edit');
+      toggleGuideEditorTabEn('edit');
       switchContentLangTab('ko');
+      updateEnglishFieldsStats();
       openAdminModal('guide-modal');
       lucide.createIcons();
     }
@@ -1983,6 +2067,7 @@
       toggleGuideEditorTab('edit');
       toggleGuideEditorTabEn('edit');
       switchContentLangTab('ko');
+      updateEnglishFieldsStats();
       openAdminModal('guide-modal');
       lucide.createIcons();
     }
@@ -2248,6 +2333,134 @@
         textarea.selectionStart = textarea.selectionEnd = selStart + start.length;
       }
       textarea.focus();
+    }
+
+    function insertMarkdownSnippetEn(start, end = '') {
+      const textarea = document.getElementById('modal-guide-content-en');
+      const selStart = textarea.selectionStart;
+      const selEnd = textarea.selectionEnd;
+      const text = textarea.value;
+
+      if (selStart !== selEnd) {
+        const selected = text.substring(selStart, selEnd);
+        textarea.value = text.substring(0, selStart) + start + selected + end + text.substring(selEnd);
+        textarea.selectionStart = selStart;
+        textarea.selectionEnd = selStart + start.length + selected.length + end.length;
+      } else {
+        textarea.value = text.substring(0, selStart) + start + end + text.substring(selEnd);
+        textarea.selectionStart = textarea.selectionEnd = selStart + start.length;
+      }
+      textarea.focus();
+      updateEnglishFieldsStats();
+    }
+
+    function updateEnglishFieldsStats() {
+      const titleEn = (document.getElementById('modal-guide-title-en').value || '').trim();
+      const excerptEn = (document.getElementById('modal-guide-excerpt-en').value || '').trim();
+      const contentEn = (document.getElementById('modal-guide-content-en').value || '').trim();
+      const slug = (document.getElementById('modal-guide-slug').value || 'guide-url').trim();
+
+      // Update counters
+      const cntTitle = document.getElementById('cnt-title-en');
+      if (cntTitle) {
+        cntTitle.innerText = `${titleEn.length} / 65자 (권장 50~65자)`;
+        cntTitle.style.color = (titleEn.length >= 40 && titleEn.length <= 70) ? 'var(--accent-green)' : 'var(--text-muted)';
+      }
+
+      const cntExcerpt = document.getElementById('cnt-excerpt-en');
+      if (cntExcerpt) {
+        cntExcerpt.innerText = `${excerptEn.length} / 160자 (권장 120~160자)`;
+        cntExcerpt.style.color = (excerptEn.length >= 100 && excerptEn.length <= 170) ? 'var(--accent-green)' : 'var(--text-muted)';
+      }
+
+      const cntContent = document.getElementById('cnt-content-en');
+      if (cntContent) {
+        const words = contentEn ? contentEn.split(/\s+/).filter(Boolean).length : 0;
+        cntContent.innerText = `${words} 단어 · ${contentEn.length}자`;
+      }
+
+      // Update Google SERP snippet preview
+      const serpUrl = document.getElementById('serp-preview-url');
+      if (serpUrl) {
+        serpUrl.innerText = `https://www.mylaplog.com > guides > ${slug}?lang=en`;
+      }
+
+      const serpTitle = document.getElementById('serp-preview-title');
+      if (serpTitle) {
+        serpTitle.innerText = (titleEn || 'Your English Article Title Here') + ' — MyLapLog Insights';
+      }
+
+      const serpDesc = document.getElementById('serp-preview-desc');
+      if (serpDesc) {
+        serpDesc.innerText = excerptEn || (contentEn.substring(0, 160).replace(/[#*`_\[\]]/g, '') + (contentEn.length > 160 ? '...' : '')) || 'Your English meta description summary will appear here in Google Search results...';
+      }
+
+      // Update Tab Pill status
+      const pill = document.getElementById('tab-en-status-pill');
+      if (pill) {
+        if (titleEn && excerptEn && contentEn) {
+          pill.innerText = '작성 완료 (3개 필드 완비)';
+          pill.style.background = 'rgba(74,222,128,0.15)';
+          pill.style.color = '#4ade80';
+          pill.style.border = '1px solid rgba(74,222,128,0.35)';
+        } else if (titleEn || excerptEn || contentEn) {
+          pill.innerText = '작성 중 (일부 필드)';
+          pill.style.background = 'rgba(251,191,36,0.15)';
+          pill.style.color = '#fbbf24';
+          pill.style.border = '1px solid rgba(251,191,36,0.35)';
+        } else {
+          pill.innerText = '미작성';
+          pill.style.background = 'rgba(255,255,255,0.06)';
+          pill.style.color = 'var(--text-muted)';
+          pill.style.border = '1px solid rgba(255,255,255,0.1)';
+        }
+      }
+    }
+
+    function scaffoldEnglishDraft() {
+      const koTitle = document.getElementById('modal-guide-title').value.trim();
+      const koContent = document.getElementById('modal-guide-content').value.trim();
+
+      const titleEnInput = document.getElementById('modal-guide-title-en');
+      const contentEnInput = document.getElementById('modal-guide-content-en');
+
+      if (!titleEnInput.value) {
+        titleEnInput.value = koTitle ? `[EN] ${koTitle}` : '';
+      }
+
+      if (!contentEnInput.value) {
+        // Extract headings from Korean content if available
+        const lines = koContent.split('\n');
+        const headingLines = lines.filter(l => l.startsWith('## ') || l.startsWith('### '));
+
+        let draft = "## 1. Overview\nIntroduce the core motorsport engineering or track driving topic...\n\n---\n\n## 2. Technical Analysis & Setup\nDetailed technical explanation and setup recommendations...\n\n> 💡 **Pro Tip**: Key setup recommendation for optimal lap time.\n\n---\n\n## 3. Summary Checklist\n- **Tire Pressure**: Start Cold at 26–28 PSI\n- **Target Hot Pressure**: 34–35 PSI\n";
+
+        if (headingLines.length > 0) {
+          draft = "## 1. Overview\nIntroduce the track concept...\n\n---\n\n" + 
+            headingLines.map(h => `${h}\nEnglish translation and technical explanation here...\n`).join('\n---\n\n') +
+            "\n---\n\n> 💡 **Pro Tip**: Key takeaway for track drivers.";
+        }
+
+        contentEnInput.value = draft;
+      }
+
+      updateEnglishFieldsStats();
+      showToast('영문 초안 서식이 생성되었습니다.');
+    }
+
+    function clearEnglishFields() {
+      if (!confirm('영문 제목, 요약문, 본문 필드를 모두 초기화하시겠습니까?')) return;
+      document.getElementById('modal-guide-title-en').value = '';
+      document.getElementById('modal-guide-excerpt-en').value = '';
+      document.getElementById('modal-guide-content-en').value = '';
+      updateEnglishFieldsStats();
+      showToast('영문 필드가 초기화되었습니다.');
+    }
+
+    function previewGuidePublic(slug, lang) {
+      if (!slug) return;
+      const url = lang === 'en' ? `/guides/${encodeURIComponent(slug)}?lang=en` : `/guides/${encodeURIComponent(slug)}`;
+      window.open(url, '_blank');
     }
 
     async function handleGuideFormSubmit(e) {
