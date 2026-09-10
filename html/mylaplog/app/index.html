@@ -2278,6 +2278,7 @@
 
     /* Mobile & Tablet App Bottom Navigation Bar (max-width: 768px) */
     @media (max-width: 768px) {
+      .desktop-only-guide-text { display: none !important; }
       /* 1. Bottom App Navigation Bar */
       .sidebar {
         position: fixed !important;
@@ -3460,7 +3461,7 @@
         <li class="nav-item" data-tab="guides">
           <a href="#guides" onclick="switchTab('guides')">
             <i data-lucide="book-open"></i>
-            <span>인사이트 (Guides)</span>
+            <span>인사이트<span class="desktop-only-guide-text"> (Guides)</span></span>
           </a>
         </li>
       </ul>
@@ -6278,7 +6279,7 @@
         analytics: '<i data-lucide="activity"></i> 텔레메트리',
         team: '<i data-lucide="users"></i> 팀 허브',
         leaderboard: '<i data-lucide="trophy"></i> 리더보드',
-        guides: '<i data-lucide="book-open"></i> 인사이트 (Guides)',
+        guides: '<i data-lucide="book-open"></i> 인사이트<span class="desktop-only-guide-text"> (Guides)</span>',
         feedback: '<i data-lucide="message-square-plus"></i> 제안/제보'
       };
       document.getElementById('current-page-title').innerHTML = titles[tabId] || 'MyLapLog';
