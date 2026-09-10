@@ -390,7 +390,7 @@ function makeHttpRequest($url, $method = 'GET', $data = null, $headers = []) {
             curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
         }
         curl_setopt($ch, CURLOPT_TIMEOUT, 8);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
         $res = curl_exec($ch);
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         curl_close($ch);
@@ -405,8 +405,8 @@ function makeHttpRequest($url, $method = 'GET', $data = null, $headers = []) {
             'ignore_errors' => true
         ],
         'ssl' => [
-            'verify_peer' => false,
-            'verify_peer_name' => false
+            'verify_peer' => true,
+            'verify_peer_name' => true
         ]
     ];
     if ($method === 'POST' && $data !== null) {
@@ -697,14 +697,22 @@ if ($method === 'POST' && $uri === '/auth/request-delete-account') {
     }
 
     $isKakaoUser = !empty($user['kakao_id']);
-    if (!$isKakaoUser && $password) {
-        if (!password_verify($password, $user['password_hash'])) {
-            jsonResponse(401, ['error' => '비밀번호가 일치하지 않습니다.']);
+    $isLoggedInAsThisUser = (!empty($_SESSION['user_id']) && (int)$_SESSION['user_id'] === (int)$user['id']);
+
+    if ($isKakaoUser) {
+        // Kakao OAuth accounts have no raw password; user MUST be authenticated in active session
+        if (!$isLoggedInAsThisUser) {
+            jsonResponse(401, ['error' => '카카오 간편 로그인 계정은 보안을 위해 앱/웹에 로그인된 상태에서만 회원 탈퇴가 가능합니다. 먼저 카카오로 로그인 후 탈퇴를 진행해 주세요.']);
         }
-    } else if (!$isKakaoUser && !$password && !empty($_SESSION['user_id']) && (int)$_SESSION['user_id'] === (int)$user['id']) {
-        // Active matching session
-    } else if (!$isKakaoUser && !$password) {
-        jsonResponse(400, ['error' => '계정 확인을 위해 비밀번호를 입력해 주세요.']);
+    } else {
+        // Standard email accounts: require valid password OR active matching session
+        if ($password) {
+            if (!password_verify($password, $user['password_hash'])) {
+                jsonResponse(401, ['error' => '비밀번호가 일치하지 않습니다.']);
+            }
+        } else if (!$isLoggedInAsThisUser) {
+            jsonResponse(400, ['error' => '계정 확인을 위해 비밀번호를 입력해 주세요.']);
+        }
     }
 
     $userId = $user['id'];
@@ -1833,9 +1841,11 @@ if ($method === 'DELETE' && preg_match('#^/sessions/(\d+)$#', $uri, $m)) {
     }
 }
 
-// GET /sessions/:id
+// GET /sessions/:id (세션 상세 조회 - 권한 검증 적용)
 if ($method === 'GET' && preg_match('#^/sessions/(\d+)$#', $uri, $m)) {
-    requireAuth();
+    $userId = requireAuth();
+    $sessionId = (int)$m[1];
+
     $stmt = $pdo->prepare('
         SELECT ts.*, t.name as track_name, CONCAT(v.make, " ", v.model) as vehicle_name,
                vs.*
@@ -1844,15 +1854,25 @@ if ($method === 'GET' && preg_match('#^/sessions/(\d+)$#', $uri, $m)) {
         JOIN vehicles v ON v.id = ts.vehicle_id
         LEFT JOIN vehicle_setups vs ON vs.session_id = ts.id
         WHERE ts.id = ?
+          AND (
+              ts.user_id = ?
+              OR ts.visibility = "PUBLIC"
+              OR (ts.team_id IS NOT NULL AND ts.team_id IN (SELECT tm.team_id FROM team_members tm WHERE tm.user_id = ?))
+              OR (v.team_id IS NOT NULL AND v.team_id IN (SELECT tm.team_id FROM team_members tm WHERE tm.user_id = ?))
+              OR (ts.visibility != "PRIVATE" AND ts.user_id IN (
+                  SELECT tm2.user_id FROM team_members tm2 
+                  WHERE tm2.team_id IN (SELECT tm1.team_id FROM team_members tm1 WHERE tm1.user_id = ?)
+              ))
+          )
     ');
-    $stmt->execute([$m[1]]);
+    $stmt->execute([$sessionId, $userId, $userId, $userId, $userId]);
     $session = $stmt->fetch();
     if (!$session) {
-        jsonResponse(404, ['error' => '세션을 찾을 수 없습니다.']);
+        jsonResponse(404, ['error' => '세션을 찾을 수 없거나 열람 권한이 없습니다.']);
     }
 
     $lstmt = $pdo->prepare('SELECT * FROM lap_times WHERE session_id = ? ORDER BY lap_number');
-    $lstmt->execute([$m[1]]);
+    $lstmt->execute([$sessionId]);
     $session['laps'] = $lstmt->fetchAll();
 
     jsonResponse(200, ['session' => $session]);
