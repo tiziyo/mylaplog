@@ -20,16 +20,6 @@
 - **서비스 상태**: `mariadb.service` (Active / Running)
 - **포트**: `3306`
 
-### 계정 및 패스워드 목록
-
-| 구분 | 사용자(User) | 패스워드(Password) | 호스트(Host) | 기본 DB / 설명 |
-| :--- | :--- | :--- | :--- | :--- |
-| **메인 관리자** | **`admin`** | **`StnXoa2w4DO8KE9V`** | `localhost` | `lampdb` (기본 생성된 데이터베이스) |
-| **시스템 관리자** | `root` | *(패스워드 없음)* | `localhost` | `sudo mariadb` 또는 `sudo mysql`로 직접 접속 |
-| **phpMyAdmin** | `phpmyadmin` | `tVWNHH9TeMGs` | `localhost` | 내부 관리용 계정 |
-
----
-
 ## 4. 접속 명령어
 
 ### SSH 접속 (로컬 PC에서 실행)
