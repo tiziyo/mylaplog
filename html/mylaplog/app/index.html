@@ -36,24 +36,38 @@
 
   <style>
     :root {
+      /* === Surface Dark Elevation === */
       --bg-base: #07090e;
       --bg-sidebar: #0b0e17;
       --bg-card: rgba(16, 21, 33, 0.85);
       --bg-card-elevated: #151b2b;
-      --bg-input: rgba(7, 9, 14, 0.8);
+      --bg-input: rgba(7, 9, 14, 0.80);
+
+      /* === Core Accent System (MyLapLog Official Palette) === */
+      /* 🔴 Apex Racing Red — Primary Brand / CTA */
       --accent-red: #ff2a4b;
       --accent-red-glow: rgba(255, 42, 75, 0.35);
+      /* 🔷 Telemetry Cyan — HUD / GPS / Live Data */
       --accent-cyan: #00f0ff;
-      --accent-cyan-glow: rgba(0, 240, 255, 0.3);
+      --accent-cyan-glow: rgba(0, 240, 255, 0.30);
+      /* 🟢 Sector Podium Green — Best Lap / Active / OK */
       --accent-green: #00ff88;
+      --accent-green-glow: rgba(0, 255, 136, 0.30);
+      /* 🟠 Pit Lane Amber — Pit Timer / Strategy / Caution */
       --accent-orange: #ff9100;
+      --accent-orange-glow: rgba(255, 145, 0, 0.30);
+
+      /* === Typography & Border === */
       --text-main: #f0f4fc;
       --text-muted: #8391a8;
-      --border-subtle: rgba(255, 255, 255, 0.07);
-      --border-focus: rgba(0, 240, 255, 0.5);
+      --border-subtle: rgba(255, 255, 255, 0.08);
+      --border-focus: rgba(0, 240, 255, 0.50);
+
+      /* === Font Families === */
       --font-display: 'Chakra Petch', sans-serif;
       --font-mono: 'Orbitron', monospace;
       --font-body: 'Noto Sans KR', sans-serif;
+
       --sidebar-width: 260px;
     }
 
@@ -418,42 +432,42 @@
       color: #ffffff !important;
     }
 
-    /* GPS Lap Timer: Electric Sapphire Blue Theme */
+    /* GPS Lap Timer: Telemetry Cyan Theme (Official Brand) */
     .topbar-btn-lap {
-      background: linear-gradient(135deg, #0070f3, #0051ba) !important;
-      border: 1px solid #38bdf8 !important;
-      color: #ffffff !important;
+      background: rgba(0, 240, 255, 0.12) !important;
+      border: 1px solid rgba(0, 240, 255, 0.55) !important;
+      color: var(--accent-cyan) !important;
       font-weight: 800 !important;
-      box-shadow: 0 0 10px rgba(0, 112, 243, 0.45) !important;
+      box-shadow: 0 0 12px rgba(0, 240, 255, 0.25) !important;
     }
     .topbar-btn-lap:hover {
-      background: linear-gradient(135deg, #2563eb, #1d4ed8) !important;
-      border-color: #7dd3fc !important;
+      background: rgba(0, 240, 255, 0.22) !important;
+      border-color: var(--accent-cyan) !important;
       color: #ffffff !important;
-      box-shadow: 0 0 14px rgba(0, 112, 243, 0.65) !important;
+      box-shadow: 0 0 18px rgba(0, 240, 255, 0.55) !important;
       transform: translateY(-1px);
     }
     .topbar-btn-lap i {
-      color: #ffffff !important;
+      color: var(--accent-cyan) !important;
     }
 
-    /* GPS Pit Timer: Racing Amber Yellow Theme */
+    /* GPS Pit Timer: Pit Lane Amber Theme (Official Brand) */
     .topbar-btn-pit {
-      background: linear-gradient(135deg, #eab308, #ca8a04) !important;
-      border: 1px solid #fef08a !important;
-      color: #030712 !important;
+      background: rgba(255, 145, 0, 0.12) !important;
+      border: 1px solid rgba(255, 145, 0, 0.55) !important;
+      color: var(--accent-orange) !important;
       font-weight: 800 !important;
-      box-shadow: 0 0 10px rgba(234, 179, 8, 0.4) !important;
+      box-shadow: 0 0 12px rgba(255, 145, 0, 0.25) !important;
     }
     .topbar-btn-pit:hover {
-      background: linear-gradient(135deg, #facc15, #d97706) !important;
-      border-color: #ffffff !important;
-      color: #000000 !important;
-      box-shadow: 0 0 14px rgba(234, 179, 8, 0.6) !important;
+      background: rgba(255, 145, 0, 0.25) !important;
+      border-color: var(--accent-orange) !important;
+      color: #ffffff !important;
+      box-shadow: 0 0 18px rgba(255, 145, 0, 0.55) !important;
       transform: translateY(-1px);
     }
     .topbar-btn-pit i {
-      color: #030712 !important;
+      color: var(--accent-orange) !important;
     }
 
     .topbar-btn-racing {
@@ -509,23 +523,23 @@
       color: var(--accent-cyan) !important;
     }
 
-    /* Login/User Button: Distinct Cyber Cyan Fill */
+    /* Login/User Button: Telemetry Cyan Fill (Official Brand) */
     .topbar-btn-auth {
-      background: rgba(8, 145, 178, 0.35) !important;
-      border: 1px solid #06b6d4 !important;
+      background: rgba(0, 240, 255, 0.15) !important;
+      border: 1px solid rgba(0, 240, 255, 0.55) !important;
       color: #ffffff !important;
       font-weight: 700 !important;
-      box-shadow: 0 0 8px rgba(6, 182, 212, 0.35) !important;
+      box-shadow: 0 0 10px rgba(0, 240, 255, 0.25) !important;
     }
     .topbar-btn-auth:hover {
-      background: rgba(8, 145, 178, 0.6) !important;
-      border-color: #22d3ee !important;
+      background: rgba(0, 240, 255, 0.28) !important;
+      border-color: var(--accent-cyan) !important;
       color: #ffffff !important;
-      box-shadow: 0 0 12px rgba(6, 182, 212, 0.55) !important;
+      box-shadow: 0 0 16px rgba(0, 240, 255, 0.50) !important;
       transform: translateY(-1px);
     }
     .topbar-btn-auth i {
-      color: #22d3ee !important;
+      color: var(--accent-cyan) !important;
     }
     .topbar-actions .btn i {
       width: 13px;
@@ -1666,27 +1680,28 @@
       min-height: 30px;
       height: 30px;
       border-radius: 6px;
-      background: linear-gradient(135deg, #eab308, #ca8a04);
-      border: 1px solid #fef08a;
-      color: #030712;
-      box-shadow: 0 0 10px rgba(234, 179, 8, 0.35);
+      /* Pit Lane Amber — Official Brand Color */
+      background: linear-gradient(135deg, #FF9100, #d97800);
+      border: 1px solid rgba(255, 145, 0, 0.65);
+      color: #07090e;
+      box-shadow: 0 0 10px rgba(255, 145, 0, 0.35);
       cursor: pointer;
       white-space: nowrap;
       transition: all 0.2s ease;
       box-sizing: border-box;
     }
     .session-action-btn:hover {
-      background: linear-gradient(135deg, #facc15, #d97706);
-      border-color: #ffffff;
-      color: #000000;
-      box-shadow: 0 0 14px rgba(234, 179, 8, 0.6);
+      background: linear-gradient(135deg, #ffaa2a, #FF9100);
+      border-color: rgba(255, 145, 0, 0.90);
+      color: #07090e;
+      box-shadow: 0 0 18px rgba(255, 145, 0, 0.60);
       transform: translateY(-1px);
     }
     .session-action-btn:active {
       transform: translateY(0);
     }
     .session-action-btn i {
-      color: #030712 !important;
+      color: #07090e !important;
     }
 
     .session-datetime-grid {
