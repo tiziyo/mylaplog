@@ -107,12 +107,19 @@ try {
     $pdo->exec("UPDATE team_members SET role = 'ADMIN' WHERE role = 'CHIEF'");
     $pdo->exec("UPDATE team_invitations SET role = 'ADMIN' WHERE role = 'CHIEF'");
 
-    // Ensure kakao_id column exists in users table
+    // Ensure kakao_id and google_id columns exist in users table
     try {
         $pdo->exec("ALTER TABLE users ADD COLUMN IF NOT EXISTS kakao_id VARCHAR(100) NULL UNIQUE AFTER email");
     } catch (Exception $e) {
         try {
             $pdo->exec("ALTER TABLE users ADD COLUMN kakao_id VARCHAR(100) NULL UNIQUE AFTER email");
+        } catch (Exception $e2) {}
+    }
+    try {
+        $pdo->exec("ALTER TABLE users ADD COLUMN IF NOT EXISTS google_id VARCHAR(100) NULL UNIQUE AFTER kakao_id");
+    } catch (Exception $e) {
+        try {
+            $pdo->exec("ALTER TABLE users ADD COLUMN google_id VARCHAR(100) NULL UNIQUE AFTER kakao_id");
         } catch (Exception $e2) {}
     }
 
@@ -552,6 +559,126 @@ if ($method === 'POST' && $uri === '/auth/kakao') {
     jsonResponse(200, ['message' => '카카오 로그인 성공', 'user' => $user]);
 }
 
+// POST /auth/google
+if ($method === 'POST' && $uri === '/auth/google') {
+    $body = getBody();
+    $credential = trim($body['credential'] ?? '');
+    $accessToken = trim($body['access_token'] ?? '');
+    $authCode = trim($body['code'] ?? '');
+    $redirectUri = trim($body['redirect_uri'] ?? 'https://app.mylaplog.com/app/');
+
+    $googleId = null;
+    $email = '';
+    $name = '';
+    $picture = '';
+
+    // 1. Google Identity Services (GSI) credential (JWT ID Token)
+    if ($credential) {
+        // Option A: Verify with Google TokenInfo API
+        $verifyRes = makeHttpRequest(
+            'https://oauth2.googleapis.com/tokeninfo?id_token=' . urlencode($credential),
+            'GET'
+        );
+
+        if ($verifyRes['status'] === 200 && !empty($verifyRes['body'])) {
+            $tData = json_decode($verifyRes['body'], true);
+            if (!empty($tData['sub'])) {
+                $googleId = (string)$tData['sub'];
+                $email = $tData['email'] ?? '';
+                $name = $tData['name'] ?? ($tData['given_name'] ?? '');
+                $picture = $tData['picture'] ?? '';
+            }
+        }
+
+        // Option B: Fallback decode JWT payload
+        if (!$googleId) {
+            $parts = explode('.', $credential);
+            if (count($parts) === 3) {
+                $payload = json_decode(base64_decode(str_replace(['-', '_'], ['+', '/'], $parts[1])), true);
+                if (!empty($payload['sub'])) {
+                    $googleId = (string)$payload['sub'];
+                    $email = $payload['email'] ?? '';
+                    $name = $payload['name'] ?? ($payload['given_name'] ?? '');
+                    $picture = $payload['picture'] ?? '';
+                }
+            }
+        }
+    }
+
+    // 2. Google OAuth Access Token
+    if (!$googleId && $accessToken) {
+        $userRes = makeHttpRequest(
+            'https://www.googleapis.com/oauth2/v3/userinfo',
+            'GET',
+            null,
+            ['Authorization: Bearer ' . $accessToken]
+        );
+        if ($userRes['status'] === 200 && !empty($userRes['body'])) {
+            $uData = json_decode($userRes['body'], true);
+            if (!empty($uData['sub'])) {
+                $googleId = (string)$uData['sub'];
+                $email = $uData['email'] ?? '';
+                $name = $uData['name'] ?? '';
+                $picture = $uData['picture'] ?? '';
+            }
+        }
+    }
+
+    if (!$googleId) {
+        jsonResponse(400, ['error' => 'Google 인증 정보 검증에 실패했습니다. (유효하지 않은 Google 토큰)']);
+    }
+
+    // 1. Check if user with this google_id exists
+    $stmt = $pdo->prepare('SELECT id, email, name, kara_license, driver_class, avatar, google_id, kakao_id, is_admin, created_at FROM users WHERE google_id = ?');
+    $stmt->execute([$googleId]);
+    $user = $stmt->fetch();
+
+    // 2. If not found by google_id, check if existing account matches email
+    if (!$user && $email) {
+        $stmt = $pdo->prepare('SELECT id, email, name, kara_license, driver_class, avatar, google_id, kakao_id, is_admin, created_at FROM users WHERE email = ?');
+        $stmt->execute([$email]);
+        $existing = $stmt->fetch();
+        if ($existing) {
+            $stmt = $pdo->prepare('UPDATE users SET google_id = ? WHERE id = ?');
+            $stmt->execute([$googleId, $existing['id']]);
+            $existing['google_id'] = $googleId;
+            $user = $existing;
+        }
+    }
+
+    // 3. If still no user, create a new driver account
+    if (!$user) {
+        $driverName = $name ?: 'Google Driver';
+        $avatar = mb_strtoupper(mb_substr($driverName, 0, 2));
+        $driverEmail = $email ?: ('google_' . substr($googleId, -6) . '@mylaplog.com');
+        $dummyHash = password_hash(bin2hex(random_bytes(16)), PASSWORD_DEFAULT);
+
+        // Ensure unique email
+        $stmt = $pdo->prepare('SELECT id FROM users WHERE email = ?');
+        $stmt->execute([$driverEmail]);
+        if ($stmt->fetch()) {
+            $driverEmail = 'google_' . $googleId . '@mylaplog.com';
+        }
+
+        $stmt = $pdo->prepare('INSERT INTO users (google_id, email, password_hash, name, kara_license, driver_class, avatar) VALUES (?,?,?,?,?,?,?)');
+        $stmt->execute([$googleId, $driverEmail, $dummyHash, $driverName, 'Circuit License', 'VIP', $avatar]);
+        $userId = $pdo->lastInsertId();
+
+        $user = [
+            'id' => (int)$userId,
+            'google_id' => $googleId,
+            'email' => $driverEmail,
+            'name' => $driverName,
+            'kara_license' => 'Circuit License',
+            'driver_class' => 'VIP',
+            'avatar' => $avatar
+        ];
+    }
+
+    $_SESSION['user_id'] = $user['id'];
+    jsonResponse(200, ['message' => 'Google 로그인 성공', 'user' => $user]);
+}
+
 // POST /auth/register
 if ($method === 'POST' && $uri === '/auth/register') {
     $body = getBody();
@@ -696,13 +823,13 @@ if ($method === 'POST' && $uri === '/auth/request-delete-account') {
         jsonResponse(404, ['error' => '등록되지 않은 드라이버 이메일입니다.']);
     }
 
-    $isKakaoUser = !empty($user['kakao_id']);
+    $isSocialUser = (!empty($user['kakao_id']) || !empty($user['google_id']));
     $isLoggedInAsThisUser = (!empty($_SESSION['user_id']) && (int)$_SESSION['user_id'] === (int)$user['id']);
 
-    if ($isKakaoUser) {
-        // Kakao OAuth accounts have no raw password; user MUST be authenticated in active session
+    if ($isSocialUser) {
+        // Social OAuth accounts (Kakao, Google) have no raw password; user MUST be authenticated in active session
         if (!$isLoggedInAsThisUser) {
-            jsonResponse(401, ['error' => '카카오 간편 로그인 계정은 보안을 위해 앱/웹에 로그인된 상태에서만 회원 탈퇴가 가능합니다. 먼저 카카오로 로그인 후 탈퇴를 진행해 주세요.']);
+            jsonResponse(401, ['error' => '소셜 간편 로그인 계정은 보안을 위해 앱/웹에 로그인된 상태에서만 회원 탈퇴가 가능합니다. 먼저 로그인 후 탈퇴를 진행해 주세요.']);
         }
     } else {
         // Standard email accounts: require valid password OR active matching session
