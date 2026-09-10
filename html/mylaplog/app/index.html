@@ -5477,11 +5477,11 @@
       </div>
 
       <!-- Main Action Controls -->
-      <div style="display:grid; grid-template-columns: 1.4fr 1fr; gap:0.5rem; margin-bottom:0.75rem;">
-        <button type="button" id="btn-gps-toggle" class="btn btn-primary gps-nowrap" onclick="toggleGpsTracking()" style="padding:0.75rem 0.5rem; font-size:clamp(0.85rem, 3.5vw, 0.95rem); font-weight:800; justify-content:center; box-shadow:0 4px 15px rgba(255,42,75,0.4);">
+      <div style="display:flex; flex-direction:column; gap:0.45rem; margin-bottom:0.75rem;">
+        <button type="button" id="btn-gps-toggle" class="btn btn-primary gps-nowrap" onclick="toggleGpsTracking()" style="padding:0.75rem 0.5rem; font-size:clamp(0.88rem, 3.5vw, 0.98rem); font-weight:800; justify-content:center; box-shadow:0 4px 15px rgba(255,42,75,0.4); width:100%;">
           <i data-lucide="play" id="gps-toggle-icon"></i> <span id="gps-toggle-text">GPS 주행 측정 시작</span>
         </button>
-        <button type="button" class="btn btn-secondary gps-nowrap" onclick="resetGpsSession()" style="padding:0.75rem 0.5rem; font-size:0.85rem; justify-content:center;">
+        <button type="button" class="btn btn-secondary gps-nowrap" onclick="resetGpsSession()" style="padding:0.6rem 0.5rem; font-size:0.85rem; justify-content:center; width:100%;">
           <i data-lucide="rotate-ccw"></i> 계측 초기화
         </button>
       </div>
