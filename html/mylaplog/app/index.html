@@ -6326,7 +6326,21 @@
       } else {
         stopTeamChatPolling();
       }
-      if (tabId === 'leaderboard') selectLeaderboardTrack(activeLeaderboardTrackId || 1);
+      if (tabId === 'leaderboard') {
+        // 주행 기록이 있는 서킷 확인 → 있으면 RECORDED 탭 + 첫 번째 기록 서킷 자동 선택
+        const recordedIds = [...new Set(
+          (sessions || []).filter(s => s.trackId && s.bestLapMs > 0).map(s => Number(s.trackId))
+        )];
+        if (recordedIds.length > 0) {
+          activeLeaderboardRegionTab = 'RECORDED';
+          const firstRecordedId = activeLeaderboardTrackId && recordedIds.includes(Number(activeLeaderboardTrackId))
+            ? activeLeaderboardTrackId
+            : recordedIds[0];
+          selectLeaderboardTrack(firstRecordedId);
+        } else {
+          selectLeaderboardTrack(activeLeaderboardTrackId || 1);
+        }
+      }
       if (tabId === 'guides') loadGuidesList();
       if (tabId === 'feedback') loadFeedbacks();
     }
@@ -9884,12 +9898,31 @@
         { id: 4, name: '태백 레이싱파크', region: 'KR' }
       ]);
 
+      // ── 주행 기록이 있는 서킷 ID 추출 ──────────────────────────────
+      const recordedTrackIds = new Set(
+        (sessions || [])
+          .filter(s => s.trackId && s.bestLapMs > 0)
+          .map(s => Number(s.trackId))
+      );
+      const recordedTracks = trackList.filter(t => recordedTrackIds.has(Number(t.id)));
+
+      // ── 지역별 전체 필터 ────────────────────────────────────────────
       const filteredTracks = activeLeaderboardRegionTab === 'ALL'
         ? trackList
         : trackList.filter(t => (t.region || (t.id <= 6 ? 'KR' : (t.id <= 199 ? 'ASIA' : (t.id <= 299 ? 'EU' : 'AM_OTHER')))) === activeLeaderboardRegionTab);
 
+      // ── 탭 표시 로직: 기록 서킷이 있으면 "나의 기록" 탭 활성 표시 ──
+      const showRecordedTab = activeLeaderboardRegionTab === 'RECORDED';
+      const displayTracks = showRecordedTab ? recordedTracks : filteredTracks;
+
       let html = `
+        <!-- 지역 필터 탭 바 -->
         <div style="display:flex; gap:0.35rem; width:100%; overflow-x:auto; padding-bottom:0.35rem; margin-bottom:0.4rem; border-bottom:1px solid rgba(255,255,255,0.06);">
+          ${recordedTracks.length > 0 ? `
+            <button type="button" class="btn btn-sm ${showRecordedTab ? 'btn-orange' : 'btn-secondary'}" onclick="setLeaderboardRegionTab('RECORDED')" style="font-size:0.75rem; padding:0.25rem 0.6rem; ${showRecordedTab ? '' : 'border-color:rgba(255,150,0,0.4); color:var(--accent-orange);'}">
+              📋 나의 기록 서킷 <span style="background:var(--accent-orange); color:#000; font-size:0.65rem; font-weight:800; padding:0.05rem 0.35rem; border-radius:10px; margin-left:0.2rem;">${recordedTracks.length}</span>
+            </button>
+          ` : ''}
           <button type="button" class="btn btn-sm ${activeLeaderboardRegionTab === 'ALL' ? 'btn-cyan' : 'btn-secondary'}" onclick="setLeaderboardRegionTab('ALL')" style="font-size:0.75rem; padding:0.25rem 0.6rem;">전체</button>
           <button type="button" class="btn btn-sm ${activeLeaderboardRegionTab === 'KR' ? 'btn-cyan' : 'btn-secondary'}" onclick="setLeaderboardRegionTab('KR')" style="font-size:0.75rem; padding:0.25rem 0.6rem;">🇰🇷 한국</button>
           <button type="button" class="btn btn-sm ${activeLeaderboardRegionTab === 'ASIA' ? 'btn-cyan' : 'btn-secondary'}" onclick="setLeaderboardRegionTab('ASIA')" style="font-size:0.75rem; padding:0.25rem 0.6rem;">🇯🇵 아시아</button>
@@ -9897,24 +9930,32 @@
           <button type="button" class="btn btn-sm ${activeLeaderboardRegionTab === 'AM_OTHER' ? 'btn-cyan' : 'btn-secondary'}" onclick="setLeaderboardRegionTab('AM_OTHER')" style="font-size:0.75rem; padding:0.25rem 0.6rem;">🇺🇸 미주/기타</button>
           ${nearestGpsTrackId ? `<button type="button" class="btn btn-sm" onclick="selectLeaderboardTrack(${nearestGpsTrackId})" style="font-size:0.75rem; padding:0.25rem 0.6rem; background:rgba(0,255,136,0.12); border:1px solid rgba(0,255,136,0.4); color:var(--accent-green);" title="GPS 최인접 서킷 리더보드">📍 ${nearestGpsTrackName ? nearestGpsTrackName.split(' ')[0] : '주변'}${nearestGpsDistanceKm ? ' (' + nearestGpsDistanceKm + 'km)' : ''}</button>` : ''}
         </div>
+
+        <!-- 서킷 버튼 목록 -->
         <div style="display:flex; gap:0.4rem; overflow-x:auto; width:100%; padding-bottom:0.2rem;">
       `;
 
-      filteredTracks.forEach(t => {
-        const isActive = t.id == activeLeaderboardTrackId;
-        const shortName = (t.name || '').replace(' 스피드웨이', '').replace(' 레이싱파크', '').replace(' 인터내셔널', '').replace(' 서킷', '');
-        const flag = t.country_flag || t.countryFlag || '';
-        html += `
-          <button type="button" class="btn ${isActive ? 'btn-cyan active' : 'btn-secondary'}" style="padding:0.45rem 0.85rem; font-size:0.82rem; font-weight:${isActive ? '700' : '500'}; white-space:nowrap;" onclick="selectLeaderboardTrack(${t.id})">
-            <i data-lucide="map-pin" style="width:13px; height:13px;"></i> ${flag ? flag + ' ' : ''}${shortName}
-          </button>
-        `;
-      });
+      if (showRecordedTab && recordedTracks.length === 0) {
+        html += `<p style="color:var(--text-muted); font-size:0.8rem; padding:0.4rem 0.2rem;">주행 기록이 등록된 서킷이 없습니다.</p>`;
+      } else {
+        displayTracks.forEach(t => {
+          const isActive = t.id == activeLeaderboardTrackId;
+          const hasRecord = recordedTrackIds.has(Number(t.id));
+          const shortName = (t.name || '').replace(' 스피드웨이', '').replace(' 레이싱파크', '').replace(' 인터내셔널', '').replace(' 서킷', '');
+          const flag = t.country_flag || t.countryFlag || '';
+          html += `
+            <button type="button" class="btn ${isActive ? 'btn-cyan active' : 'btn-secondary'}" style="padding:0.45rem 0.85rem; font-size:0.82rem; font-weight:${isActive ? '700' : '500'}; white-space:nowrap; position:relative;${hasRecord && !showRecordedTab ? ' border-color:rgba(255,150,0,0.5);' : ''}" onclick="selectLeaderboardTrack(${t.id})">
+              <i data-lucide="map-pin" style="width:13px; height:13px;"></i> ${flag ? flag + ' ' : ''}${shortName}${hasRecord && !showRecordedTab ? ' <span style="color:var(--accent-orange); font-size:0.65rem; vertical-align:super;">●</span>' : ''}
+            </button>
+          `;
+        });
+      }
 
       html += `</div>`;
       container.innerHTML = html;
       lucide.createIcons();
     }
+
 
     async function selectLeaderboardTrack(trackId) {
       activeLeaderboardTrackId = trackId;
