@@ -7658,11 +7658,11 @@
                 </span>
                 <span>· ${s.weather || 'DRY'}</span>
               </p>
-              <h2 style="font-family:var(--font-mono); font-size:clamp(1.8rem, 6vw, 2.6rem); color:#fff; margin: 0.3rem 0; word-break:break-all; display:flex; align-items:baseline; gap:0.6rem; flex-wrap:wrap;">
-                <span>${s.bestLap}</span> <small style="font-size:1rem; color:var(--accent-cyan); font-family:var(--font-display); font-weight:700;">Fastest Lap</small>
+              <h2 style="font-family:var(--font-mono); font-size:clamp(2.4rem, 7vw, 3.4rem); color:#fff; text-shadow:0 0 16px rgba(0,240,255,0.35); margin: 0.4rem 0; word-break:break-all; display:flex; align-items:baseline; gap:0.75rem; flex-wrap:wrap;">
+                <span style="color:var(--accent-cyan); font-weight:900;">${s.bestLap}</span> <small style="font-size:1.15rem; color:var(--text-muted); font-family:var(--font-display); font-weight:700;">Fastest Lap</small>
                 ${(s.topSpeed !== undefined && s.topSpeed !== null && s.topSpeed !== '') ? `
-                  <span style="font-size:1rem; color:#ff6b81; font-family:var(--font-mono); font-weight:800; background:rgba(255,107,129,0.12); border:1px solid rgba(255,107,129,0.3); padding:0.15rem 0.5rem; border-radius:6px; display:inline-flex; align-items:center; gap:0.25rem;">
-                    <i data-lucide="gauge" style="width:14px; height:14px;"></i> ${s.topSpeed} km/h
+                  <span style="font-size:1.45rem; color:#ff6b81; font-family:var(--font-mono); font-weight:900; background:rgba(255,107,129,0.14); border:1px solid rgba(255,107,129,0.38); padding:0.25rem 0.75rem; border-radius:8px; display:inline-flex; align-items:center; gap:0.35rem; text-shadow:0 0 12px rgba(255,107,129,0.35);">
+                    <i data-lucide="gauge" style="width:18px; height:18px;"></i> ${s.topSpeed} km/h
                   </span>
                 ` : ''}
               </h2>
