@@ -994,24 +994,38 @@
     }
 
     .session-time-display .best-lap-label {
-      font-size: 0.6rem;
+      font-size: 0.65rem;
       color: var(--text-muted);
       text-transform: uppercase;
       letter-spacing: 0.5px;
       font-family: var(--font-display);
       font-weight: 700;
       display: block;
-      margin-bottom: 1px;
+      margin-bottom: 2px;
     }
 
     .best-lap-num {
       font-family: var(--font-mono);
-      font-size: 1.22rem;
+      font-size: 1.48rem;
       font-weight: 900;
       color: var(--accent-cyan);
       text-shadow: 0 0 10px var(--accent-cyan-glow);
-      line-height: 1;
+      line-height: 1.05;
       white-space: nowrap;
+      letter-spacing: -0.3px;
+    }
+
+    .session-top-speed {
+      font-size: 0.92rem;
+      color: #ff6b81;
+      font-family: var(--font-mono);
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 0.25rem;
+      margin-top: 4px;
+      line-height: 1.1;
     }
 
     /* 4-Tire Pressure Visualizer Box */
@@ -2748,7 +2762,10 @@
         overflow: hidden !important;
       }
       .best-lap-num {
-        font-size: 1.15rem !important;
+        font-size: 1.35rem !important;
+      }
+      .session-top-speed {
+        font-size: 0.88rem !important;
       }
       .garage-grid {
         grid-template-columns: 1fr !important;
@@ -10316,8 +10333,8 @@
             <span class="best-lap-label">BEST LAP</span>
             <div class="best-lap-num">${s.bestLap}</div>
             ${(s.topSpeed !== undefined && s.topSpeed !== null && s.topSpeed !== '') ? `
-              <div style="font-size:0.75rem; color:#ff6b81; font-family:var(--font-mono); font-weight:700; display:flex; align-items:center; justify-content:flex-end; gap:0.2rem; margin-top:2px;">
-                <i data-lucide="gauge" style="width:11px; height:11px;"></i> ${s.topSpeed} km/h
+              <div class="session-top-speed">
+                <i data-lucide="gauge" style="width:13px; height:13px;"></i> ${s.topSpeed} km/h
               </div>
             ` : ''}
           </div>
