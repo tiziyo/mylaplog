@@ -1,10 +1,35 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="en">
 <head>
+  <!-- Google tag (gtag.js) - Google Analytics 4 -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-LSLPRQXX4Q"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-LSLPRQXX4Q', {
+      send_page_view: true
+    });
+  </script>
+  <script>
+    // Ensure English is default translation state on initial visit
+    (function() {
+      var saved = localStorage.getItem('mylaplog_lang');
+      if (saved !== 'ko') {
+        if (!document.cookie.includes('googtrans=')) {
+          var domainParts = window.location.hostname.split('.');
+          var rootDomain = domainParts.length >= 2 ? '.' + domainParts.slice(-2).join('.') : window.location.hostname;
+          document.cookie = 'googtrans=/ko/en; path=/; domain=' + rootDomain;
+          document.cookie = 'googtrans=/ko/en; path=/;';
+        }
+      }
+    })();
+  </script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>MyLapLog App - 트랙데이 셋업 & 텔레메트리 로깅 포털</title>
-  <meta name="description" content="레이싱 팀과 드라이버를 위한 차량 셋업, 세션별 공기압/감쇠력 로깅, 랩타임 분석 및 팀 데이터 공유 플랫폼">
+  <title>MyLapLog - Trackday Setup & Motorsport Telemetry Platform</title>
+  <meta name="description" content="Precision trackday setup, tire pressure logger, lap time telemetry analysis, and team intelligence platform for racing drivers.">
   <link rel="canonical" href="https://www.mylaplog.com/app/">
 
   <!-- PWA & Mobile Web App Meta & Icons -->
@@ -822,6 +847,7 @@
       font-weight: 800;
       color: #fff;
       margin: 0.4rem 0 0.2rem;
+      min-height: 2.3rem;
     }
 
     .stat-sub {
@@ -830,6 +856,7 @@
       display: flex;
       align-items: center;
       gap: 0.25rem;
+      min-height: 1.2rem;
     }
 
     /* Common Track Chips Selector (Dashboard, Sessions, Leaderboard) */
@@ -2746,12 +2773,14 @@
       .stat-card .stat-val {
         font-size: 1.25rem !important;
         letter-spacing: -0.5px !important;
+        min-height: 1.5rem !important;
       }
       .stat-card .stat-label {
         font-size: 0.72rem !important;
       }
       .stat-card .stat-sub {
         font-size: 0.68rem !important;
+        min-height: 0.95rem !important;
       }
 
       /* 5. Mobile Cards Grids (1 Column) */
@@ -3941,44 +3970,44 @@
         <li class="nav-item active" data-tab="dashboard">
           <a href="#dashboard" onclick="switchTab('dashboard')">
             <i data-lucide="layout-dashboard"></i>
-            <span>대시보드</span>
+            <span>Dashboard</span>
           </a>
         </li>
         <li class="nav-item" data-tab="garage">
           <a href="#garage" onclick="switchTab('garage')">
             <i data-lucide="car"></i>
-            <span>개러지</span>
+            <span>Garage</span>
           </a>
         </li>
         <li class="nav-item" data-tab="sessions">
           <a href="#sessions" onclick="switchTab('sessions')">
             <i data-lucide="clipboard-list"></i>
-            <span>세션로그</span>
+            <span>Session Logs</span>
           </a>
         </li>
         <li class="nav-item" data-tab="analytics">
           <a href="#analytics" onclick="switchTab('analytics')">
             <i data-lucide="activity"></i>
-            <span>텔레메트리</span>
+            <span>Telemetry</span>
           </a>
         </li>
         <li class="nav-item" data-tab="team">
           <a href="#team" onclick="switchTab('team')" style="position:relative;">
             <i data-lucide="users"></i>
-            <span>팀 허브</span>
+            <span>Team Hub</span>
             <span id="team-nav-badge" class="nav-badge-new" style="display:none;">N</span>
           </a>
         </li>
         <li class="nav-item" data-tab="leaderboard">
           <a href="#leaderboard" onclick="switchTab('leaderboard')">
             <i data-lucide="trophy"></i>
-            <span>리더보드</span>
+            <span>Leaderboard</span>
           </a>
         </li>
         <li class="nav-item" data-tab="guides">
           <a href="#guides" onclick="switchTab('guides')">
             <i data-lucide="book-open"></i>
-            <span>인사이트<span class="desktop-only-guide-text"> (Guides)</span></span>
+            <span>Guides & Insights</span>
           </a>
         </li>
       </ul>
@@ -3992,7 +4021,7 @@
             <p id="sidebar-user-role"><i data-lucide="award" style="width:12px; color:var(--accent-red)"></i> PRO-AM Driver</p>
           </div>
         </div>
-        <button class="btn btn-secondary" style="padding: 0.35rem 0.5rem; font-size: 0.75rem;" onclick="handleLogout()" title="로그아웃">
+        <button class="btn btn-secondary" style="padding: 0.35rem 0.5rem; font-size: 0.75rem;" onclick="handleLogout()" title="Logout">
           <i data-lucide="log-out" style="width:14px;"></i>
         </button>
       </div>
@@ -4005,58 +4034,58 @@
       <header class="topbar">
         <div class="topbar-left-cluster">
           <!-- Mobile Brand Logo (Visible on mobile/tablet screens) -->
-          <div class="mobile-brand-logo" onclick="switchTab('dashboard')" title="MYLapLOG 홈 대시보드">
-            <img src="/app/icon-192.png" alt="MYLapLOG" class="mobile-logo-img">
-            <span class="logo-brand-text">MYLapLOG</span>
+          <div class="mobile-brand-logo" onclick="switchTab('dashboard')" title="MyLapLog Home Dashboard">
+            <img src="/app/icon-192.png" alt="MyLapLog" class="mobile-logo-img">
+            <span class="logo-brand-text">MyLapLog</span>
           </div>
 
           <div class="page-title">
-            <h1 id="current-page-title"><i data-lucide="layout-dashboard"></i> 대시보드</h1>
+            <h1 id="current-page-title"><i data-lucide="layout-dashboard"></i> Dashboard</h1>
           </div>
         </div>
         <div class="topbar-actions">
           
-          <!-- Category 1: 주행 & 세션 계측 액션 (Racing & Telemetry Hub - Crimson Red) -->
-          <div class="topbar-action-group group-racing" title="실시간 주행 및 랩 계측">
-            <button class="btn topbar-btn-racing-primary" onclick="openAddSessionModal()" title="새 트랙 주행 세션 기록 작성">
-              <i data-lucide="zap"></i> <span>세션 기록</span>
+          <!-- Category 1: Racing & Telemetry Hub - Crimson Red -->
+          <div class="topbar-action-group group-racing" title="Real-time Racing & Telemetry Hub">
+            <button class="btn topbar-btn-racing-primary" onclick="openAddSessionModal()" title="Record Trackday Session">
+              <i data-lucide="zap"></i> <span>Log Session</span>
             </button>
-            <button class="btn topbar-btn-lap" onclick="openGpsLapTimerModal()" title="실시간 랩타임 & 최고속도 자동 측정">
-              <i data-lucide="crosshair"></i> <span>랩타이머</span>
+            <button class="btn topbar-btn-lap" onclick="openGpsLapTimerModal()" title="Real-time GPS Lap Timer & Speedometer">
+              <i data-lucide="crosshair"></i> <span>Lap Timer</span>
             </button>
-            <button class="btn topbar-btn-pit" onclick="openGpsPitLaneTimerModal()" title="피트레인 타이머 (스피드리밋/정차시간/릴리즈 카운트다운)">
-              <i data-lucide="traffic-cone"></i> <span>피트타이머</span>
-            </button>
-          </div>
-
-          <div class="topbar-divider"></div>
-
-          <!-- Category 2: 머신 & 팀 등록 관리 (Garage & Team Management - Emerald Green) -->
-          <div class="topbar-action-group group-manage" title="머신 및 팀 관리">
-            <button class="btn topbar-btn-manage" onclick="openAddVehicleModal()" title="내 서킷 차량 / 머신 등록">
-              <i data-lucide="plus-circle"></i> <span>머신 +</span>
-            </button>
-            <button class="btn topbar-btn-manage" onclick="openCreateTeamModal()" title="새 레이싱 팀 창단">
-              <i data-lucide="shield-plus"></i> <span>팀 +</span>
-            </button>
-            <button class="btn topbar-btn-manage" onclick="openJoinTeamModal()" title="기존 레이싱 팀 가입">
-              <i data-lucide="user-plus"></i> <span>팀 가입</span>
+            <button class="btn topbar-btn-pit" onclick="openGpsPitLaneTimerModal()" title="VBOX GPS Pit Lane Timer (Speed Limit & Countdown)">
+              <i data-lucide="traffic-cone"></i> <span>Pit Timer</span>
             </button>
           </div>
 
           <div class="topbar-divider"></div>
 
-          <!-- Category 3: 시스템 유틸리티 & 계정 (Utility & Account - Cyber Cyan) -->
-          <div class="topbar-action-group group-system" title="시스템 및 계정">
-            <button class="btn topbar-btn-system" id="btn-pwa-install" onclick="handleInstallAppClick()" title="바탕화면 / 스마트폰 홈 화면에 바로가기 아이콘 생성">
-              <i data-lucide="download-cloud"></i> <span>앱 설치</span>
+          <!-- Category 2: Machine & Team Management - Emerald Green -->
+          <div class="topbar-action-group group-manage" title="Machine & Team Management">
+            <button class="btn topbar-btn-manage" onclick="openAddVehicleModal()" title="Register Vehicle / Machine">
+              <i data-lucide="plus-circle"></i> <span>Vehicle +</span>
             </button>
-            <button type="button" class="btn topbar-btn-system" id="app-lang-toggle-btn" onclick="toggleLanguage()" title="한국어 / English 번역 전환">
+            <button class="btn topbar-btn-manage" onclick="openCreateTeamModal()" title="Create New Racing Team">
+              <i data-lucide="shield-plus"></i> <span>Team +</span>
+            </button>
+            <button class="btn topbar-btn-manage" onclick="openJoinTeamModal()" title="Join Existing Team">
+              <i data-lucide="user-plus"></i> <span>Join Team</span>
+            </button>
+          </div>
+
+          <div class="topbar-divider"></div>
+
+          <!-- Category 3: System Utilities & Account - Cyber Cyan -->
+          <div class="topbar-action-group group-system" title="System & Account">
+            <button class="btn topbar-btn-system" id="btn-pwa-install" onclick="handleInstallAppClick()" title="Install App to Desktop / Mobile Home Screen">
+              <i data-lucide="download-cloud"></i> <span>Install App</span>
+            </button>
+            <button type="button" class="btn topbar-btn-system" id="app-lang-toggle-btn" onclick="toggleLanguage()" title="Language Switcher (English / Korean)">
               <i data-lucide="globe" style="width:13px; height:13px;"></i>
-              <span class="lang-label-text"><strong>KO</strong> / EN</span>
+              <span class="lang-label-text"><strong>EN</strong> / KO</span>
             </button>
-            <button class="btn topbar-btn-auth" id="topbar-auth-btn" onclick="handleAuthButtonClick()" title="사용자 로그인 / 프로필">
-              <i data-lucide="user"></i> <span>로그인</span>
+            <button class="btn topbar-btn-auth" id="topbar-auth-btn" onclick="handleAuthButtonClick()" title="User Login / Profile">
+              <i data-lucide="user"></i> <span>Login</span>
             </button>
           </div>
 
@@ -4070,15 +4099,15 @@
         <div id="guest-mode-notice-banner" style="display:none; background: linear-gradient(90deg, rgba(255, 145, 0, 0.15), rgba(0, 240, 255, 0.12)); border: 1px solid rgba(255, 145, 0, 0.45); border-radius: 8px; padding: 0.6rem 0.85rem; margin-bottom: 0.85rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem; box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);">
           <div style="display: flex; align-items: center; gap: 0.5rem;">
             <span style="background: var(--accent-orange); color: #000; font-size: 0.7rem; font-weight: 900; padding: 0.15rem 0.45rem; border-radius: 4px; font-family: var(--font-display); letter-spacing: 0.5px; display: inline-flex; align-items: center; gap: 0.2rem;">
-              <i data-lucide="info" style="width:11px; height:11px;"></i> 체험 모드
+              <i data-lucide="info" style="width:11px; height:11px;"></i> Demo Mode
             </span>
             <span style="font-size: 0.78rem; color: #f1f5f9; line-height: 1.35;">
-              현재 체험모드입니다. 데이터 영구 보관과 팀원 공유를 위해 로그인해 주세요.
+              Guest preview mode. Sign in to save telemetry data and share with your racing team.
             </span>
           </div>
           <div style="display:flex; gap:0.4rem; align-items:center;">
             <button class="btn btn-cyan" style="padding: 0.3rem 0.7rem; font-size: 0.76rem; font-weight: 700;" onclick="openModal('auth-modal')">
-              <i data-lucide="log-in"></i> 로그인 / 가입
+              <i data-lucide="log-in"></i> Sign In / Register
             </button>
           </div>
         </div>
@@ -4089,7 +4118,7 @@
           <!-- Dashboard Circuit Selector Bar -->
           <div style="margin-bottom: 1.15rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem; background: rgba(0,0,0,0.3); padding: 0.45rem 0.85rem; border-radius: 10px; border: 1px solid var(--border-subtle);">
             <div style="display:flex; align-items:center; gap:0.4rem; font-size:0.8rem; color:var(--text-muted); font-family:var(--font-display); font-weight:700;">
-              <i data-lucide="map-pin" style="color:var(--accent-cyan); width:14px; height:14px;"></i> 서킷 선택:
+              <i data-lucide="map-pin" style="color:var(--accent-cyan); width:14px; height:14px;"></i> Circuit:
             </div>
             <div class="track-chips-bar" id="dashboard-track-chips">
               <!-- Dynamically Populated via renderDashboardTrackChips() -->
@@ -4100,38 +4129,38 @@
           <div class="stats-grid">
             <div class="stat-card">
               <div class="stat-label">
-                <span>총 세션</span>
+                <span>Total Sessions</span>
                 <i data-lucide="flag" style="color:var(--accent-red)"></i>
               </div>
               <div class="stat-val" id="stat-total-sessions">0</div>
-              <div class="stat-sub" id="stat-total-sessions-sub"><i data-lucide="calendar"></i> 최근 주행: 기록 없음</div>
+              <div class="stat-sub" id="stat-total-sessions-sub"><i data-lucide="calendar"></i> Latest: No record</div>
             </div>
 
             <div class="stat-card">
               <div class="stat-label">
-                <span id="stat-best-circuit-label">베스트 랩</span>
+                <span id="stat-best-circuit-label">Best Lap</span>
                 <i data-lucide="timer" style="color:var(--accent-cyan)"></i>
               </div>
               <div class="stat-val" id="stat-best-inje">--:--.---</div>
-              <div class="stat-sub" id="stat-best-inje-delta"><i data-lucide="arrow-down-right"></i> 기록 없음</div>
+              <div class="stat-sub" id="stat-best-inje-delta"><i data-lucide="arrow-down-right"></i> No record</div>
             </div>
 
             <div class="stat-card">
               <div class="stat-label">
-                <span>개러지 머신</span>
+                <span>Garage Vehicles</span>
                 <i data-lucide="car" style="color:var(--accent-orange)"></i>
               </div>
               <div class="stat-val" id="stat-total-cars">0</div>
-              <div class="stat-sub" id="stat-garage-ownership-sub">개인 0 · 팀 0</div>
+              <div class="stat-sub" id="stat-garage-ownership-sub">Personal 0 · Team 0</div>
             </div>
 
             <div class="stat-card">
               <div class="stat-label">
-                <span>소속 팀</span>
+                <span>Racing Team</span>
                 <i data-lucide="shield" style="color:var(--accent-green)"></i>
               </div>
-              <div class="stat-val" id="stat-team-name-card">Apex Racing</div>
-              <div class="stat-sub" id="stat-team-members-count">팀원 6명 활동 중</div>
+              <div class="stat-val" id="stat-team-name-card"></div>
+              <div class="stat-sub" id="stat-team-members-count"></div>
             </div>
           </div>
 
@@ -4144,9 +4173,9 @@
           <div class="card">
             <div class="card-header">
               <div class="card-title">
-                <i data-lucide="clock"></i> 최근 세션 기록
+                <i data-lucide="clock"></i> Recent Track Sessions
               </div>
-              <button class="btn btn-cyan" style="padding:0.35rem 0.65rem; font-size:0.78rem;" onclick="switchTab('sessions')">전체 보기</button>
+              <button class="btn btn-cyan" style="padding:0.35rem 0.65rem; font-size:0.78rem;" onclick="switchTab('sessions')">View All</button>
             </div>
             <div class="session-list-grid" id="dashboard-recent-sessions">
               <!-- Dynamically Populated -->
@@ -4686,16 +4715,16 @@
             
             <div class="footer-info">
               <div class="footer-links">
-                <a href="javascript:void(0)" onclick="switchTab('dashboard')">대시보드</a>
-                <a href="javascript:void(0)" onclick="switchTab('garage')">개러지</a>
-                <a href="javascript:void(0)" onclick="switchTab('sessions')">세션 로거</a>
-                <a href="javascript:void(0)" onclick="switchTab('analytics')">텔레메트리</a>
-                <a href="javascript:void(0)" onclick="switchTab('team')">팀허브</a>
-                <a href="javascript:void(0)" onclick="switchTab('leaderboard')">리더보드</a>
-                <a href="javascript:void(0)" onclick="switchTab('guides')">인사이트</a>
-                <a href="javascript:void(0)" onclick="switchTab('feedback')">제안/제보</a>
-                <a href="/app/privacy.html" target="_blank" style="color:var(--accent-cyan);">개인정보처리방침</a>
-                <a href="/app/delete-account.html" target="_blank">회원 탈퇴 안내</a>
+                <a href="javascript:void(0)" onclick="switchTab('dashboard')">Dashboard</a>
+                <a href="javascript:void(0)" onclick="switchTab('garage')">Garage</a>
+                <a href="javascript:void(0)" onclick="switchTab('sessions')">Session Logger</a>
+                <a href="javascript:void(0)" onclick="switchTab('analytics')">Telemetry</a>
+                <a href="javascript:void(0)" onclick="switchTab('team')">Team Hub</a>
+                <a href="javascript:void(0)" onclick="switchTab('leaderboard')">Leaderboard</a>
+                <a href="javascript:void(0)" onclick="switchTab('guides')">Guides</a>
+                <a href="javascript:void(0)" onclick="switchTab('feedback')">Feedback</a>
+                <a href="/app/privacy.html" target="_blank" style="color:var(--accent-cyan);">Privacy Policy</a>
+                <a href="/app/delete-account.html" target="_blank">Account Deletion</a>
               </div>
               <div class="footer-copy">
                 &copy; 2026 MyLapLog. All rights reserved. Designed for precision motorsport telemetry.
@@ -5845,9 +5874,14 @@
             </span>
           </div>
         </div>
-        <button type="button" class="gps-modal-close-btn" onclick="closeGpsLapTimerModal()" title="GPS 랩타이머 닫기" aria-label="닫기">
-          <i data-lucide="x" style="width:20px; height:20px;"></i>
-        </button>
+        <div style="display:flex; align-items:center; gap:0.4rem;">
+          <button type="button" class="btn btn-secondary btn-sm" onclick="copyLapTimerShareUrl()" style="font-size:0.72rem; padding:0.25rem 0.55rem; background:rgba(0,240,255,0.12); border:1px solid rgba(0,240,255,0.35); color:var(--accent-cyan); border-radius:6px; display:inline-flex; align-items:center; gap:0.25rem; font-weight:700;" title="GPS 랩타이머 바로가기 URL 복사 (팀원/크루 공유)">
+            <i data-lucide="share-2" style="width:13px; height:13px;"></i> <span class="gps-nowrap">URL 복사</span>
+          </button>
+          <button type="button" class="gps-modal-close-btn" onclick="closeGpsLapTimerModal()" title="GPS 랩타이머 닫기" aria-label="닫기">
+            <i data-lucide="x" style="width:20px; height:20px;"></i>
+          </button>
+        </div>
       </div>
 
       <!-- Top Toolbar: Circuit Selection & Start/Finish Gate Options -->
@@ -6055,9 +6089,14 @@
             </span>
           </div>
         </div>
-        <button type="button" class="gps-modal-close-btn" onclick="closeGpsPitLaneTimerModal()" title="피트타이머 닫기" aria-label="닫기">
-          <i data-lucide="x" style="width:20px; height:20px;"></i>
-        </button>
+        <div style="display:flex; align-items:center; gap:0.4rem;">
+          <button type="button" class="btn btn-secondary btn-sm" onclick="copyPitTimerShareUrl()" style="font-size:0.72rem; padding:0.25rem 0.55rem; background:rgba(255,145,0,0.12); border:1px solid rgba(255,145,0,0.35); color:var(--accent-orange); border-radius:6px; display:inline-flex; align-items:center; gap:0.25rem; font-weight:700;" title="피트레인 타이머 바로가기 URL 복사 (팀원/크루 공유)">
+            <i data-lucide="share-2" style="width:13px; height:13px;"></i> <span class="gps-nowrap">URL 복사</span>
+          </button>
+          <button type="button" class="gps-modal-close-btn" onclick="closeGpsPitLaneTimerModal()" title="피트타이머 닫기" aria-label="닫기">
+            <i data-lucide="x" style="width:20px; height:20px;"></i>
+          </button>
+        </div>
       </div>
 
       <!-- Toolbar: Circuit, Speed Limit, Target Rule & Imminent Alarm Config -->
@@ -6810,17 +6849,27 @@
       if (targetNav) targetNav.classList.add('active');
 
       const titles = {
-        dashboard: '<i data-lucide="layout-dashboard"></i> 대시보드',
-        sessions: '<i data-lucide="clipboard-list"></i> 세션로그',
-        garage: '<i data-lucide="car"></i> 개러지',
-        analytics: '<i data-lucide="activity"></i> 텔레메트리',
-        team: '<i data-lucide="users"></i> 팀 허브',
-        leaderboard: '<i data-lucide="trophy"></i> 리더보드',
-        guides: '<i data-lucide="book-open"></i> 인사이트<span class="desktop-only-guide-text"> (Guides)</span>',
-        feedback: '<i data-lucide="message-square-plus"></i> 제안/제보'
+        dashboard: '<i data-lucide="layout-dashboard"></i> Dashboard',
+        sessions: '<i data-lucide="clipboard-list"></i> Session Logs',
+        garage: '<i data-lucide="car"></i> Garage',
+        analytics: '<i data-lucide="activity"></i> Telemetry & Analysis',
+        team: '<i data-lucide="users"></i> Team Hub',
+        leaderboard: '<i data-lucide="trophy"></i> Leaderboard',
+        guides: '<i data-lucide="book-open"></i> Guides & Insights',
+        feedback: '<i data-lucide="message-square-plus"></i> Feedback'
       };
       document.getElementById('current-page-title').innerHTML = titles[tabId] || 'MyLapLog';
       lucide.createIcons();
+
+      // GA4 Virtual Pageview Tracking for SPA Tabs
+      if (typeof gtag === 'function') {
+        const rawTitle = (titles[tabId] || tabId).replace(/<[^>]*>?/gm, '').trim();
+        gtag('event', 'page_view', {
+          page_title: rawTitle + ' | MyLapLog',
+          page_location: window.location.origin + '/app/#' + tabId,
+          page_path: '/app/#' + tabId
+        });
+      }
 
       if (tabId === 'analytics') {
         initAndRenderTop3Telemetry();
@@ -7449,6 +7498,52 @@
     // =============================================
     // DASHBOARD: Dynamic Metrics & Highlight Banner
     // =============================================
+    function hasAffiliatedRacingTeam() {
+      // 1. Logged-in user: check if user is a member of any valid team
+      if (user && user.isLoggedIn) {
+        return Array.isArray(userTeams) && userTeams.length > 0 && 
+               team && team.id && team.name && 
+               team.name !== '팀 미소속' && team.name !== '소속 팀 없음';
+      }
+      // 2. Guest / Unauthenticated mode:
+      // If the user hasn't explicitly created or joined a custom team, they have NO affiliated team
+      if (Array.isArray(userTeams) && userTeams.length > 0) {
+        const customTeam = userTeams.find(t => t.id !== 1 && t.name && t.name !== '팀 미소속' && t.name !== '소속 팀 없음');
+        return Boolean(customTeam);
+      }
+      return false;
+    }
+
+    function updateDashboardTeamStat() {
+      const teamCardName = document.getElementById('stat-team-name-card');
+      const teamCardSub = document.getElementById('stat-team-members-count');
+      if (!teamCardName || !teamCardSub) return;
+
+      const hasTeam = hasAffiliatedRacingTeam();
+
+      if (hasTeam) {
+        const activeTeams = (user && user.isLoggedIn)
+          ? userTeams
+          : userTeams.filter(t => t.id !== 1);
+        const primaryTeam = (activeTeams && activeTeams.length > 0) ? activeTeams[0] : team;
+        const teamCount = (activeTeams && activeTeams.length > 0) ? activeTeams.length : 1;
+
+        teamCardName.innerText = `${primaryTeam.name}${teamCount > 1 ? ` 외 ${teamCount - 1}개 팀` : ''}`;
+
+        if (teamCount > 1) {
+          teamCardSub.innerText = `총 ${teamCount}개 팀 소속 중 (최대 10개)`;
+        } else if (primaryTeam && primaryTeam.members && primaryTeam.members.length > 0) {
+          teamCardSub.innerText = `팀원 ${primaryTeam.members.length}명 활동 중`;
+        } else {
+          teamCardSub.innerText = user.isLoggedIn ? '활동 중' : '팀 소속 활동 중';
+        }
+      } else {
+        // 소속 Racing team 이 없으면 공백으로 표시
+        teamCardName.innerText = '';
+        teamCardSub.innerText = '';
+      }
+    }
+
     function renderDashboardMetrics() {
       // 1. Total sessions & Latest session date
       document.getElementById('stat-total-sessions').innerText = sessions.length;
@@ -7558,11 +7653,8 @@
         garageSub.innerText = `개인소유(${personalCars}), 팀소유(${teamCars})`;
       }
 
-      // 4. Team Info
-      document.getElementById('stat-team-name-card').innerText = team.name || '팀 미소속';
-      document.getElementById('stat-team-members-count').innerText = (team.members && team.members.length > 0)
-        ? `팀원 ${team.members.length}명 활동 중`
-        : (user.isLoggedIn ? '팀에 가입해보세요' : '체험용 샘플 팀');
+      // 4. Team Info (소속 Racing team 없으면 공백으로 표시)
+      updateDashboardTeamStat();
       
       lucide.createIcons();
     }
@@ -8029,12 +8121,8 @@
 
       // 2. Sidebar & Dashboard Stats
       document.getElementById('sidebar-team-name').innerHTML = `<i data-lucide="shield"></i> ${team.name || '팀 미소속'}`;
-      document.getElementById('stat-team-name-card').innerText = userTeams.length > 0 
-        ? `${userTeams[0].name}${userTeams.length > 1 ? ` 외 ${userTeams.length - 1}개 팀` : ''}` 
-        : '팀 미소속';
-      document.getElementById('stat-team-members-count').innerText = (userTeams.length > 0)
-        ? `총 ${userTeams.length}개 팀 소속 중 (최대 10개)`
-        : '소속 팀 없음 (최대 10개)';
+      // Dashboard Racing Team Stat Card 업데이트 (소속 없으면 공백으로 표시)
+      updateDashboardTeamStat();
 
       // 3. Render ALL My Teams Cards Grid (Section 1)
       const allTeamsGrid = document.getElementById('my-teams-cards-container');
@@ -11752,7 +11840,100 @@
       return html;
     }
 
+    // =============================================
+    // URL ROUTING & DIRECT TOOL SHORTCUTS (Pit Timer, Lap Timer, Guides)
+    // =============================================
+    function handleDirectToolRouting() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const hash = (window.location.hash || '').replace(/^#/, '').toLowerCase();
+      const toolParam = (urlParams.get('tool') || urlParams.get('modal') || urlParams.get('mode') || urlParams.get('page') || '').toLowerCase();
+      const trackParam = urlParams.get('track');
+      const targetSecParam = urlParams.get('target') || urlParams.get('time');
+      const limitParam = urlParams.get('limit') || urlParams.get('speed');
+
+      // 1. Check Pit Lane Timer requests (e.g. /pit, /app/#pit-timer, /app/?tool=pit-timer)
+      const isPitRequested = (
+        hash === 'pit' ||
+        hash === 'pit-timer' ||
+        hash === 'pittimer' ||
+        hash === 'pitlane' ||
+        hash === 'pit-lane' ||
+        toolParam === 'pit' ||
+        toolParam === 'pit-timer' ||
+        toolParam === 'pittimer' ||
+        toolParam === 'pitlane' ||
+        toolParam === 'pit-lane'
+      );
+
+      if (isPitRequested) {
+        let trackId = null;
+        if (trackParam) {
+          const t = trackParam.toLowerCase();
+          if (t === '1' || t.includes('inje') || t.includes('인제')) trackId = 1;
+          else if (t === '2' || t.includes('kic') || t.includes('영암') || t.includes('yeongam')) trackId = 2;
+          else if (t === '3' || t.includes('ever') || t.includes('용인') || t.includes('yongin')) trackId = 3;
+          else if (t === '4' || t.includes('taebaek') || t.includes('태백')) trackId = 4;
+          else if (t === 'custom' || t.includes('사용자')) trackId = 'custom';
+        }
+        setTimeout(() => {
+          openGpsPitLaneTimerModal(trackId, targetSecParam, limitParam);
+        }, 120);
+        return true;
+      }
+
+      // 2. Check GPS Lap Timer requests (e.g. /lap, /laptimer, /gps, /app/#lap-timer, /app/?tool=lap-timer)
+      const isLapRequested = (
+        hash === 'lap' ||
+        hash === 'laps' ||
+        hash === 'lap-timer' ||
+        hash === 'laptimer' ||
+        hash === 'gps' ||
+        hash === 'gps-timer' ||
+        hash === 'gpstimer' ||
+        hash === 'gps-laptimer' ||
+        toolParam === 'lap' ||
+        toolParam === 'laps' ||
+        toolParam === 'lap-timer' ||
+        toolParam === 'laptimer' ||
+        toolParam === 'gps' ||
+        toolParam === 'gps-timer' ||
+        toolParam === 'gpstimer' ||
+        toolParam === 'gps-laptimer'
+      );
+
+      if (isLapRequested) {
+        let trackId = null;
+        if (trackParam) {
+          const t = trackParam.toLowerCase();
+          if (/^\d+$/.test(t)) {
+            trackId = parseInt(t, 10);
+          } else if (t === 'custom' || t.includes('사용자') || t.includes('user')) {
+            trackId = 'custom';
+          } else if (t.includes('inje') || t.includes('인제')) {
+            trackId = 1;
+          } else if (t.includes('kic') || t.includes('영암') || t.includes('yeongam')) {
+            trackId = 2;
+          } else if (t.includes('ever') || t.includes('용인') || t.includes('yongin')) {
+            trackId = 3;
+          } else if (t.includes('taebaek') || t.includes('태백')) {
+            trackId = 4;
+          }
+        }
+        setTimeout(() => {
+          openGpsLapTimerModal(false, trackId);
+        }, 120);
+        return true;
+      }
+
+      return false;
+    }
+
     function handleUrlHashRouting() {
+      // First check if direct modal tools were targeted
+      if (handleDirectToolRouting()) {
+        return;
+      }
+
       const hash = window.location.hash.replace(/^#/, '');
       if (!hash) return;
 
@@ -12005,11 +12186,12 @@
     }
 
     window.addEventListener('DOMContentLoaded', () => {
+      handleDirectToolRouting();
       initApp();
     });
 
     // =============================================
-    // BROWSER TRANSLATION ENGINE (Google Translate Integration)
+    // BROWSER TRANSLATION ENGINE (Google Translate Integration - Default: English)
     // =============================================
     function googleTranslateElementInit() {
       new google.translate.TranslateElement({
@@ -12019,7 +12201,7 @@
         autoDisplay: false
       }, 'google_translate_element');
 
-      const savedLang = localStorage.getItem('mylaplog_lang');
+      const savedLang = localStorage.getItem('mylaplog_lang') || 'en';
       if (savedLang === 'en') {
         setTimeout(() => {
           const select = document.querySelector('.goog-te-combo');
@@ -12027,9 +12209,9 @@
             select.value = 'en';
             select.dispatchEvent(new Event('change'));
           }
-        }, 500);
+        }, 300);
       }
-      updateLangUI(savedLang || 'ko');
+      updateLangUI(savedLang);
     }
 
     function setLanguage(lang) {
@@ -12060,20 +12242,20 @@
     }
 
     function toggleLanguage() {
-      const current = localStorage.getItem('mylaplog_lang') || (document.cookie.includes('/ko/en') ? 'en' : 'ko');
+      const current = localStorage.getItem('mylaplog_lang') || 'en';
       const next = current === 'en' ? 'ko' : 'en';
       setLanguage(next);
     }
 
     function updateLangUI(lang) {
-      const isEn = lang === 'en';
+      const isEn = (lang || 'en') === 'en';
       const labels = document.querySelectorAll('.lang-label-text');
       labels.forEach(l => {
         l.innerHTML = isEn ? '<strong>EN</strong> / KO' : '<strong>KO</strong> / EN';
       });
       const sideLabels = document.querySelectorAll('.lang-sidebar-label');
       sideLabels.forEach(sl => {
-        sl.innerText = isEn ? 'Language (EN / KO)' : '언어 (KO / EN)';
+        sl.innerText = isEn ? 'Language (EN / KO)' : 'Language (KO / EN)';
       });
       const btns = document.querySelectorAll('.btn-lang-toggle');
       btns.forEach(b => {
@@ -12082,9 +12264,12 @@
     }
 
     (function loadGoogleTranslate() {
-      const savedLang = localStorage.getItem('mylaplog_lang');
+      const savedLang = localStorage.getItem('mylaplog_lang') || 'en';
       if (savedLang === 'en' && !document.cookie.includes('/ko/en')) {
-        document.cookie = 'googtrans=/ko/en; path=/;';
+        const domainParts = window.location.hostname.split('.');
+        const rootDomain = domainParts.length >= 2 ? '.' + domainParts.slice(-2).join('.') : window.location.hostname;
+        document.cookie = `googtrans=/ko/en; path=/; domain=${rootDomain}`;
+        document.cookie = `googtrans=/ko/en; path=/;`;
       }
       const s = document.createElement('script');
       s.src = '//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit';
@@ -12293,7 +12478,7 @@
       if (nearestGpsTrackId) select.value = nearestGpsTrackId;
     }
 
-    function openGpsLapTimerModal(isFromSessionModal = false) {
+    function openGpsLapTimerModal(isFromSessionModal = false, preferredTrackId = null) {
       openSessionAfterGps = isFromSessionModal;
       populateGpsTrackSelect();
       const modal = document.getElementById('gps-timer-modal');
@@ -12302,12 +12487,16 @@
         modal.scrollTop = 0;
       }
 
-      // Sync track select with current session track if open from session modal
-      const sessTrackEl = document.getElementById('sess-track');
       const trackSel = document.getElementById('gps-track-select');
-      if (trackSel && sessTrackEl && sessTrackEl.value) {
-        if (CIRCUIT_GATES[sessTrackEl.value]) {
-          trackSel.value = sessTrackEl.value;
+      if (preferredTrackId !== null && trackSel) {
+        trackSel.value = preferredTrackId.toString();
+      } else {
+        // Sync track select with current session track if open from session modal
+        const sessTrackEl = document.getElementById('sess-track');
+        if (trackSel && sessTrackEl && sessTrackEl.value) {
+          if (CIRCUIT_GATES[sessTrackEl.value]) {
+            trackSel.value = sessTrackEl.value;
+          }
         }
       }
       onGpsTrackSelectChange();
@@ -12318,11 +12507,24 @@
       if (!isGpsTracking) {
         startGpsTracking();
       }
+
+      try {
+        const curHash = (window.location.hash || '').toLowerCase();
+        if (!curHash.includes('lap')) {
+          history.replaceState(null, null, '#lap-timer');
+        }
+      } catch (e) {}
     }
 
     function closeGpsLapTimerModal() {
       const modal = document.getElementById('gps-timer-modal');
       if (modal) modal.style.display = 'none';
+      try {
+        const curHash = (window.location.hash || '').toLowerCase();
+        if (curHash.includes('lap')) {
+          history.replaceState(null, null, window.location.pathname + (window.location.search.includes('tool=lap') ? '' : window.location.search));
+        }
+      } catch (e) {}
     }
 
     function formatGpsDistance(distMeters) {
@@ -13490,30 +13692,112 @@
       }
     }
 
-    function openGpsPitLaneTimerModal() {
+    function openGpsPitLaneTimerModal(preferredTrackId = null, preferredTargetSec = null, preferredLimitKmh = null) {
       populatePitTrackSelect();
       const modal = document.getElementById('gps-pitlane-modal');
       if (modal) {
         modal.style.display = 'flex';
         modal.scrollTop = 0;
       }
+
+      const sel = document.getElementById('pit-track-select');
+      if (preferredTrackId !== null && sel) {
+        sel.value = preferredTrackId.toString();
+      }
       onPitTrackSelectChange();
+
       const ruleSel = document.getElementById('pit-target-rule-select');
-      if (ruleSel && !ruleSel.value) {
-        ruleSel.value = '300';
+      if (ruleSel) {
+        if (preferredTargetSec !== null) {
+          ruleSel.value = preferredTargetSec.toString();
+        } else if (!ruleSel.value) {
+          ruleSel.value = '300';
+        }
       }
       onPitTargetRuleChange();
+
+      if (preferredLimitKmh !== null) {
+        const limitSel = document.getElementById('pit-limit-select');
+        if (limitSel) {
+          limitSel.value = preferredLimitKmh.toString();
+          pitSpeedLimitKmh = parseFloat(preferredLimitKmh) || 60;
+        }
+      }
+
       updatePitHudUI();
       lucide.createIcons();
 
       if (!isPitTracking) {
         startPitTracking();
       }
+
+      // Update address bar hash for clean shareable URL
+      try {
+        const curHash = (window.location.hash || '').toLowerCase();
+        if (!curHash.includes('pit')) {
+          history.replaceState(null, null, '#pit-timer');
+        }
+      } catch (e) {}
     }
 
     function closeGpsPitLaneTimerModal() {
       const modal = document.getElementById('gps-pitlane-modal');
       if (modal) modal.style.display = 'none';
+      try {
+        const curHash = (window.location.hash || '').toLowerCase();
+        if (curHash.includes('pit')) {
+          history.replaceState(null, null, window.location.pathname + (window.location.search.includes('tool=pit') ? '' : window.location.search));
+        }
+      } catch (e) {}
+    }
+
+    function copyPitTimerShareUrl() {
+      const sel = document.getElementById('pit-track-select');
+      const trackVal = sel ? sel.value : '1';
+      const shareUrl = `${window.location.origin}/pit?track=${trackVal}`;
+
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(shareUrl).then(() => {
+          showToast(`📋 피트 타이머 바로가기 URL 복사 완료!\n${shareUrl}`);
+        }).catch(() => {
+          fallbackCopyText(shareUrl);
+        });
+      } else {
+        fallbackCopyText(shareUrl);
+      }
+    }
+
+    function copyLapTimerShareUrl() {
+      const sel = document.getElementById('gps-track-select');
+      const trackVal = sel ? sel.value : '1';
+      const shareUrl = `${window.location.origin}/lap?track=${trackVal}`;
+
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(shareUrl).then(() => {
+          showToast(`📋 GPS 랩타이머 바로가기 URL 복사 완료!\n${shareUrl}`);
+        }).catch(() => {
+          fallbackCopyText(shareUrl);
+        });
+      } else {
+        fallbackCopyText(shareUrl);
+      }
+    }
+
+    function fallbackCopyText(text) {
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.focus();
+      ta.select();
+      try {
+        document.execCommand('copy');
+        showToast(`📋 바로가기 URL 복사 완료: ${text}`);
+      } catch (err) {
+        prompt('아래 URL을 복사하여 공유하세요:', text);
+      }
+      document.body.removeChild(ta);
     }
 
     function switchGpsModalToPitLane() {
