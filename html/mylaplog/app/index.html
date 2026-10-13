@@ -4160,7 +4160,7 @@
                 <i data-lucide="shield" style="color:var(--accent-green)"></i>
               </div>
               <div class="stat-val" id="stat-team-name-card"></div>
-              <div class="stat-sub" id="stat-team-members-count"></div>
+              <div class="stat-sub" id="stat-team-members-count">소속 팀 없음 (최대 10개)</div>
             </div>
           </div>
 
@@ -7538,9 +7538,9 @@
           teamCardSub.innerText = user.isLoggedIn ? '활동 중' : '팀 소속 활동 중';
         }
       } else {
-        // 소속 Racing team 이 없으면 공백으로 표시
+        // 소속 Racing team 이 없으면 팀명은 공백으로 비우고, 녹색 서브 문구는 원래대로 표시
         teamCardName.innerText = '';
-        teamCardSub.innerText = '';
+        teamCardSub.innerText = '소속 팀 없음 (최대 10개)';
       }
     }
 
