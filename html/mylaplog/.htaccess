@@ -1,8 +1,12 @@
 RewriteEngine On
 
-# 0. Redirect root (/) and /index.html to /app/ for all domains (mylaplog.com, www.mylaplog.com, app.mylaplog.com)
-RewriteRule ^$ /app/ [R=301,L]
-RewriteRule ^index\.html$ /app/ [R=301,L]
+# 0. Redirect root (/) and /index.html to /v1/ for all domains (mylaplog.com, www.mylaplog.com)
+RewriteRule ^$ /v1/ [R=301,L]
+RewriteRule ^index\.html$ /v1/ [R=301,L]
+
+# 0-1. Direct Shortcut URLs for GPS Pit Lane Timer & Lap Timer -> v1
+RewriteRule ^(pit|pitlane|pittimer|pit-timer)/?$ /v1/#pit-timer [R=302,NE,L]
+RewriteRule ^(lap|laps|laptimer|lap-timer|gps|gpstimer|gps-timer|gps-laptimer)/?$ /v1/#lap-timer [R=302,NE,L]
 
 # 1. Dynamic Sitemap: /sitemap.xml -> /sitemap.php
 RewriteRule ^sitemap\.xml$ /sitemap.php [L]
@@ -15,6 +19,11 @@ RewriteRule ^guides/?$ /guides.php [L,QSA]
 RewriteCond %{REQUEST_URI} ^/api/
 RewriteRule ^api/(.*)$ /app/api.php/$1 [L,QSA]
 
+# 3-1. v1 API routing: /v1/api/* -> /v1/api.php
+RewriteCond %{REQUEST_URI} ^/v1/api/
+RewriteRule ^v1/api/(.*)$ /v1/api.php/$1 [L,QSA]
+RewriteRule ^v1/api/?$ /v1/api.php/ [L,QSA]
+
 # 4. If the request is for an existing file or directory, serve it directly
 RewriteCond %{REQUEST_FILENAME} -f [OR]
 RewriteCond %{REQUEST_FILENAME} -d
@@ -23,6 +32,9 @@ RewriteRule ^ - [L]
 # 5. SPA Fallback for /app/ subpaths
 RewriteRule ^app(/.*)?$ /app/index.html [L]
 
-# 6. Fallback for all other non-existing subpaths -> /app/index.html
-RewriteRule ^(.*)$ /app/index.html [L]
+# 5-1. SPA Fallback for /v1/ subpaths
+RewriteRule ^v1(/.*)?$ /v1/index.html [L]
+
+# 6. Fallback for all other non-existing subpaths -> /v1/index.html
+RewriteRule ^(.*)$ /v1/index.html [L]
 

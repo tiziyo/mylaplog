@@ -1,5 +1,6 @@
 User-agent: *
 Allow: /
+Allow: /v1/
 Allow: /app/
 Allow: /guides/
 Allow: /guides
@@ -8,6 +9,8 @@ Allow: /sitemap.php
 Disallow: /db/
 Disallow: /app/api.php
 Disallow: /api/
+Disallow: /v1/api.php
+Disallow: /v1/api/
 
 User-agent: Googlebot
 Allow: /

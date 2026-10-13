@@ -1,0 +1,13 @@
+RewriteEngine On
+
+# 1. API routing: /v1/api/* -> api.php/*
+RewriteRule ^api/(.*)$ api.php/$1 [L,QSA]
+RewriteRule ^api/?$ api.php/ [L,QSA]
+
+# 2. Serve existing files/directories directly
+RewriteCond %{REQUEST_FILENAME} -f [OR]
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^ - [L]
+
+# 3. Single Page Application (SPA) Fallback to index.html
+RewriteRule ^(.*)$ index.html [L]

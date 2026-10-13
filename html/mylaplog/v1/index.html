@@ -1,0 +1,2945 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>MyLapLog v1 - Essential Motorsport Trackday Platform</title>
+  <meta name="description" content="MyLapLog v1: Precision trackday session logging, 4-wheel tire pressure setups, real-time GPS lap timer, VBOX pit lane timer, and trackday insights.">
+
+  <!-- Favicon & Touch Icons -->
+  <link rel="icon" type="image/x-icon" href="/v1/favicon.ico">
+  <link rel="apple-touch-icon" href="/v1/apple-touch-icon.png">
+
+  <!-- Google Fonts: Orbitron (Digital HUD/Timers) & Chakra Petch (Racing Headers) & Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:ital,wght@0,500;0,700;0,900;1,700&family=Orbitron:wght@600;700;900&family=Inter:wght@400;500;600;700&family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <style>
+    /* =========================================================================
+       1. CSS DESIGN SYSTEM & TOKENS (High-Contrast Motorsport Theme)
+       ========================================================================= */
+    :root {
+      --bg-main: #070a10;
+      --bg-surface: #0e131d;
+      --bg-card: rgba(18, 24, 38, 0.78);
+      --bg-card-hover: rgba(26, 34, 52, 0.9);
+      --bg-glass: rgba(14, 20, 32, 0.65);
+
+      --border-subtle: rgba(255, 255, 255, 0.08);
+      --border-bright: rgba(255, 255, 255, 0.18);
+
+      /* Motorsport Accent Colors */
+      --accent-red: #ff2a4b;         /* APEX Red */
+      --accent-cyan: #00f0ff;        /* Telemetry & GPS Cyan */
+      --accent-green: #00e676;       /* Podium Green / Lap Best / GO */
+      --accent-amber: #ffb300;       /* Pit Amber / Caution */
+      --accent-purple: #b388ff;      /* Sector 3 Purple */
+
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --text-dim: #64748b;
+
+      --font-display: 'Chakra Petch', 'Noto Sans KR', sans-serif;
+      --font-mono: 'Orbitron', monospace;
+      --font-sans: 'Inter', 'Noto Sans KR', sans-serif;
+
+      --radius-sm: 6px;
+      --radius-md: 10px;
+      --radius-lg: 16px;
+      --radius-full: 9999px;
+
+      --transition-fast: 0.15s ease;
+      --transition-normal: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background-color: var(--bg-main);
+      color: var(--text-main);
+      font-family: var(--font-sans);
+      font-size: 15px;
+      line-height: 1.5;
+      min-height: 100vh;
+      overflow-x: hidden;
+      background-image: 
+        radial-gradient(ellipse at 50% 0%, rgba(0, 240, 255, 0.06) 0%, transparent 60%),
+        radial-gradient(circle at 85% 15%, rgba(255, 42, 75, 0.05) 0%, transparent 45%);
+      background-attachment: fixed;
+    }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: var(--bg-main); }
+    ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.15); border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--accent-cyan); }
+
+    /* =========================================================================
+       2. TOPBAR & NAVIGATION
+       ========================================================================= */
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.75rem 1.25rem;
+      background: rgba(7, 10, 16, 0.85);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border-subtle);
+      gap: 1rem;
+    }
+
+    .brand-cluster {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    .brand-logo-img {
+      width: 34px;
+      height: 34px;
+      border-radius: var(--radius-sm);
+      object-fit: cover;
+      box-shadow: 0 0 14px rgba(0, 240, 255, 0.35);
+    }
+
+    .brand-text {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .brand-title {
+      font-family: var(--font-display);
+      font-size: 1.2rem;
+      font-weight: 900;
+      letter-spacing: 0.5px;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+
+    .brand-badge {
+      background: var(--accent-red);
+      color: #fff;
+      font-size: 0.65rem;
+      font-weight: 900;
+      padding: 0.1rem 0.4rem;
+      border-radius: var(--radius-full);
+      font-family: var(--font-mono);
+      letter-spacing: 0.5px;
+    }
+
+    .brand-subtitle {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      letter-spacing: 0.3px;
+    }
+
+    /* Desktop Navigation Tabs */
+    .nav-tabs-desktop {
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+      background: rgba(255, 255, 255, 0.04);
+      padding: 0.25rem;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border-subtle);
+    }
+
+    .nav-tab-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      padding: 0.45rem 0.85rem;
+      border-radius: var(--radius-sm);
+      font-family: var(--font-display);
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      transition: all var(--transition-fast);
+      white-space: nowrap;
+    }
+
+    .nav-tab-btn:hover {
+      color: #fff;
+      background: rgba(255, 255, 255, 0.06);
+    }
+
+    .nav-tab-btn.active {
+      color: #fff;
+      background: linear-gradient(135deg, rgba(0, 240, 255, 0.2), rgba(255, 42, 75, 0.2));
+      border: 1px solid var(--accent-cyan);
+      box-shadow: 0 0 16px rgba(0, 240, 255, 0.25);
+    }
+
+    .nav-tab-btn i {
+      width: 16px;
+      height: 16px;
+    }
+
+    .topbar-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.55rem;
+    }
+
+    /* Buttons */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.4rem;
+      padding: 0.5rem 0.9rem;
+      border-radius: var(--radius-sm);
+      font-family: var(--font-display);
+      font-size: 0.85rem;
+      font-weight: 700;
+      border: 1px solid transparent;
+      cursor: pointer;
+      transition: all var(--transition-fast);
+      text-decoration: none;
+      white-space: nowrap;
+    }
+
+    .btn:active {
+      transform: scale(0.97);
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent-red), #d61f3d);
+      color: #fff;
+      border-color: rgba(255, 42, 75, 0.5);
+      box-shadow: 0 4px 14px rgba(255, 42, 75, 0.35);
+    }
+
+    .btn-primary:hover {
+      background: linear-gradient(135deg, #ff4763, #ff2a4b);
+      box-shadow: 0 6px 20px rgba(255, 42, 75, 0.5);
+    }
+
+    .btn-cyan {
+      background: linear-gradient(135deg, rgba(0, 240, 255, 0.2), rgba(0, 240, 255, 0.08));
+      color: var(--accent-cyan);
+      border-color: rgba(0, 240, 255, 0.45);
+    }
+
+    .btn-cyan:hover {
+      background: rgba(0, 240, 255, 0.25);
+      box-shadow: 0 0 16px rgba(0, 240, 255, 0.3);
+    }
+
+    .btn-outline {
+      background: rgba(255, 255, 255, 0.05);
+      color: #f1f5f9;
+      border-color: var(--border-subtle);
+    }
+
+    .btn-outline:hover {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: var(--border-bright);
+    }
+
+    .btn-sm {
+      padding: 0.35rem 0.65rem;
+      font-size: 0.78rem;
+    }
+
+    .user-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-full);
+      padding: 0.25rem 0.7rem 0.25rem 0.3rem;
+      cursor: pointer;
+      transition: all var(--transition-fast);
+    }
+
+    .user-pill:hover {
+      border-color: var(--accent-cyan);
+      background: rgba(0, 240, 255, 0.08);
+    }
+
+    .user-avatar-badge {
+      width: 26px;
+      height: 26px;
+      border-radius: var(--radius-full);
+      background: linear-gradient(135deg, var(--accent-cyan), var(--accent-red));
+      color: #fff;
+      font-family: var(--font-display);
+      font-size: 0.72rem;
+      font-weight: 900;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .user-name-text {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #fff;
+    }
+
+    /* =========================================================================
+       3. MAIN CONTAINER & VIEWS
+       ========================================================================= */
+    .app-container {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 1.25rem;
+      padding-bottom: 5.5rem; /* Space for mobile nav */
+    }
+
+    .tab-view {
+      display: none;
+      animation: fadeIn 0.2s ease;
+    }
+
+    .tab-view.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Section Headers */
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.25rem;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+    }
+
+    .section-title {
+      font-family: var(--font-display);
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      letter-spacing: 0.4px;
+    }
+
+    .section-subtitle {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      margin-top: 0.15rem;
+    }
+
+    /* =========================================================================
+       4. SESSION LOGS TAB COMPONENTS
+       ========================================================================= */
+    .filter-chips-cluster {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      overflow-x: auto;
+      padding-bottom: 0.4rem;
+      margin-bottom: 1rem;
+      scrollbar-width: none;
+    }
+
+    .filter-chips-cluster::-webkit-scrollbar { display: none; }
+
+    .filter-chip {
+      padding: 0.35rem 0.8rem;
+      border-radius: var(--radius-full);
+      font-size: 0.8rem;
+      font-weight: 600;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-muted);
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all var(--transition-fast);
+    }
+
+    .filter-chip:hover {
+      color: #fff;
+      background: rgba(255, 255, 255, 0.09);
+    }
+
+    .filter-chip.active {
+      background: rgba(0, 240, 255, 0.18);
+      color: var(--accent-cyan);
+      border-color: var(--accent-cyan);
+      box-shadow: 0 0 10px rgba(0, 240, 255, 0.2);
+    }
+
+    /* Session Card Grid */
+    .sessions-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+      gap: 1rem;
+    }
+
+    .session-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 1.1rem;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      transition: all var(--transition-normal);
+      display: flex;
+      flex-direction: column;
+      gap: 0.85rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .session-card:hover {
+      border-color: rgba(0, 240, 255, 0.4);
+      background: var(--bg-card-hover);
+      transform: translateY(-2px);
+      box-shadow: 0 10px 28px rgba(0, 0, 0, 0.5), 0 0 20px rgba(0, 240, 255, 0.1);
+    }
+
+    .session-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 4px;
+      height: 100%;
+      background: linear-gradient(180deg, var(--accent-red), var(--accent-cyan));
+    }
+
+    .session-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 0.5rem;
+    }
+
+    .session-track-name {
+      font-family: var(--font-display);
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+
+    .session-date-badge {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      background: rgba(255, 255, 255, 0.05);
+      padding: 0.15rem 0.5rem;
+      border-radius: var(--radius-sm);
+      font-family: var(--font-mono);
+    }
+
+    .session-vehicle-line {
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+      font-size: 0.82rem;
+      color: var(--text-muted);
+    }
+
+    .session-vehicle-line i {
+      width: 14px;
+      height: 14px;
+      color: var(--accent-cyan);
+    }
+
+    .session-best-lap-box {
+      background: rgba(0, 0, 0, 0.35);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: var(--radius-sm);
+      padding: 0.75rem 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .best-lap-label {
+      font-size: 0.72rem;
+      font-family: var(--font-display);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text-dim);
+    }
+
+    .best-lap-time {
+      font-family: var(--font-mono);
+      font-size: 1.45rem;
+      font-weight: 900;
+      color: var(--accent-green);
+      text-shadow: 0 0 16px rgba(0, 230, 118, 0.35);
+      letter-spacing: 0.5px;
+    }
+
+    /* 4-Wheel Mini PSI Pill Grid */
+    .tire-psi-mini-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.4rem;
+      background: rgba(0, 0, 0, 0.2);
+      padding: 0.55rem;
+      border-radius: var(--radius-sm);
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+    }
+
+    .tire-psi-cell {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.25rem 0.4rem;
+      background: rgba(255, 255, 255, 0.03);
+      border-radius: 4px;
+    }
+
+    .tire-wheel-tag {
+      color: var(--text-dim);
+      font-weight: 700;
+      font-size: 0.68rem;
+    }
+
+    .tire-psi-val {
+      color: #fff;
+      font-weight: 700;
+    }
+
+    .tire-psi-val span.hot {
+      color: var(--accent-amber);
+    }
+
+    .session-actions-bar {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-top: auto;
+      padding-top: 0.5rem;
+      border-top: 1px solid var(--border-subtle);
+    }
+
+    /* Empty state */
+    .empty-state-box {
+      text-align: center;
+      padding: 3.5rem 1.5rem;
+      background: var(--bg-card);
+      border: 1px dashed var(--border-bright);
+      border-radius: var(--radius-lg);
+      margin: 1rem 0;
+    }
+
+    .empty-state-box i {
+      width: 48px;
+      height: 48px;
+      color: var(--text-dim);
+      margin-bottom: 0.75rem;
+    }
+
+    /* =========================================================================
+       5. GPS LAP TIMER TAB (HUD DISPLAY)
+       ========================================================================= */
+    .timer-hud-container {
+      background: linear-gradient(180deg, rgba(14, 20, 32, 0.95), rgba(7, 10, 16, 0.98));
+      border: 1px solid rgba(0, 240, 255, 0.3);
+      border-radius: var(--radius-lg);
+      padding: 1.5rem;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6), 0 0 30px rgba(0, 240, 255, 0.12);
+      max-width: 880px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    .hud-header-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+    }
+
+    .hud-circuit-select-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      flex: 1;
+      min-width: 260px;
+    }
+
+    .hud-select {
+      background: rgba(0, 0, 0, 0.5);
+      border: 1px solid rgba(0, 240, 255, 0.35);
+      color: #fff;
+      font-family: var(--font-display);
+      font-size: 0.9rem;
+      font-weight: 700;
+      padding: 0.5rem 0.85rem;
+      border-radius: var(--radius-sm);
+      outline: none;
+      width: 100%;
+      cursor: pointer;
+    }
+
+    .hud-status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.35rem 0.75rem;
+      border-radius: var(--radius-full);
+      font-size: 0.75rem;
+      font-family: var(--font-mono);
+      font-weight: 700;
+      background: rgba(255, 42, 75, 0.15);
+      border: 1px solid rgba(255, 42, 75, 0.4);
+      color: var(--accent-red);
+    }
+
+    .hud-status-badge.active {
+      background: rgba(0, 230, 118, 0.15);
+      border-color: rgba(0, 230, 118, 0.5);
+      color: var(--accent-green);
+    }
+
+    .hud-status-badge.sim {
+      background: rgba(255, 179, 0, 0.15);
+      border-color: rgba(255, 179, 0, 0.5);
+      color: var(--accent-amber);
+    }
+
+    /* Big Digital Lap Time Gauge */
+    .hud-laptime-gauge {
+      text-align: center;
+      padding: 1.75rem 1rem;
+      background: radial-gradient(circle at 50% 50%, rgba(0, 240, 255, 0.08), transparent 75%);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: var(--radius-md);
+      position: relative;
+    }
+
+    .hud-lap-number-pill {
+      display: inline-block;
+      font-family: var(--font-display);
+      font-size: 0.85rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--accent-cyan);
+      margin-bottom: 0.5rem;
+    }
+
+    .hud-big-lap-time {
+      font-family: var(--font-mono);
+      font-size: clamp(3rem, 11vw, 5.2rem);
+      font-weight: 900;
+      color: #fff;
+      text-shadow: 0 0 32px rgba(0, 240, 255, 0.5);
+      line-height: 1;
+      letter-spacing: 2px;
+    }
+
+    .hud-delta-display {
+      font-family: var(--font-mono);
+      font-size: 1.15rem;
+      font-weight: 700;
+      margin-top: 0.65rem;
+      letter-spacing: 1px;
+    }
+
+    .hud-delta-display.faster { color: var(--accent-green); }
+    .hud-delta-display.slower { color: var(--accent-red); }
+    .hud-delta-display.even { color: var(--text-dim); }
+
+    /* HUD Stats Grid (Speed, Best Lap, Last Lap) */
+    .hud-stats-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.75rem;
+    }
+
+    .hud-stat-tile {
+      background: rgba(0, 0, 0, 0.4);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      padding: 0.85rem 0.6rem;
+      text-align: center;
+    }
+
+    .hud-stat-label {
+      font-size: 0.7rem;
+      font-family: var(--font-display);
+      text-transform: uppercase;
+      color: var(--text-dim);
+      letter-spacing: 0.5px;
+    }
+
+    .hud-stat-val {
+      font-family: var(--font-mono);
+      font-size: 1.45rem;
+      font-weight: 900;
+      color: #fff;
+      margin-top: 0.25rem;
+    }
+
+    /* GPS Telemetry Diagnostics Strip */
+    .hud-diag-strip {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+      background: rgba(0, 0, 0, 0.35);
+      padding: 0.45rem 0.85rem;
+      border-radius: var(--radius-sm);
+    }
+
+    /* Timer Controls */
+    .hud-controls-cluster {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+      flex-wrap: wrap;
+    }
+
+    .hud-btn-main {
+      flex: 2;
+      min-width: 140px;
+      padding: 0.85rem;
+      font-size: 1.05rem;
+    }
+
+    /* =========================================================================
+       6. PIT LANE TIMER TAB
+       ========================================================================= */
+    .pit-hud-container {
+      background: linear-gradient(180deg, rgba(14, 20, 32, 0.95), rgba(7, 10, 16, 0.98));
+      border: 1px solid rgba(255, 179, 0, 0.35);
+      border-radius: var(--radius-lg);
+      padding: 1.5rem;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6), 0 0 30px rgba(255, 179, 0, 0.12);
+      max-width: 880px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    .pit-gauge-box {
+      text-align: center;
+      padding: 2rem 1rem;
+      background: radial-gradient(circle at 50% 50%, rgba(255, 179, 0, 0.08), transparent 75%);
+      border: 1px solid rgba(255, 179, 0, 0.15);
+      border-radius: var(--radius-md);
+      position: relative;
+    }
+
+    .pit-big-countdown {
+      font-family: var(--font-mono);
+      font-size: clamp(3rem, 12vw, 5.5rem);
+      font-weight: 900;
+      color: var(--accent-amber);
+      text-shadow: 0 0 32px rgba(255, 179, 0, 0.5);
+      line-height: 1;
+    }
+
+    .pit-status-alert {
+      font-family: var(--font-display);
+      font-size: 1.25rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-top: 0.75rem;
+      color: #fff;
+    }
+
+    .pit-release-flash {
+      background: rgba(0, 230, 118, 0.25) !important;
+      border-color: var(--accent-green) !important;
+    }
+
+    .pit-release-flash .pit-big-countdown {
+      color: var(--accent-green) !important;
+      text-shadow: 0 0 36px rgba(0, 230, 118, 0.8) !important;
+    }
+
+    .pit-overspeed-flash {
+      background: rgba(255, 42, 75, 0.35) !important;
+      border-color: var(--accent-red) !important;
+      animation: blinkRed 0.4s infinite alternate;
+    }
+
+    @keyframes blinkRed {
+      from { background: rgba(255, 42, 75, 0.15); }
+      to { background: rgba(255, 42, 75, 0.45); }
+    }
+
+    /* Pit Gates Sequence Indicator */
+    .pit-gates-flow {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(0, 0, 0, 0.35);
+      padding: 0.85rem 1.2rem;
+      border-radius: var(--radius-sm);
+      gap: 0.5rem;
+    }
+
+    .pit-gate-node {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.25rem;
+      font-family: var(--font-display);
+      font-size: 0.75rem;
+      color: var(--text-dim);
+    }
+
+    .pit-gate-node.active {
+      color: var(--accent-cyan);
+    }
+
+    .pit-gate-node.passed {
+      color: var(--accent-green);
+    }
+
+    .pit-gate-icon-circle {
+      width: 32px;
+      height: 32px;
+      border-radius: var(--radius-full);
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .pit-gate-node.active .pit-gate-icon-circle {
+      background: rgba(0, 240, 255, 0.2);
+      border-color: var(--accent-cyan);
+      box-shadow: 0 0 12px rgba(0, 240, 255, 0.4);
+    }
+
+    .pit-gate-node.passed .pit-gate-icon-circle {
+      background: rgba(0, 230, 118, 0.2);
+      border-color: var(--accent-green);
+    }
+
+    .pit-flow-arrow {
+      color: var(--text-dim);
+      font-size: 0.9rem;
+    }
+
+    /* =========================================================================
+       7. GUIDES & INSIGHTS TAB
+       ========================================================================= */
+    .guides-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 1.1rem;
+    }
+
+    .guide-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      cursor: pointer;
+      transition: all var(--transition-normal);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .guide-card:hover {
+      border-color: var(--accent-cyan);
+      transform: translateY(-3px);
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5), 0 0 20px rgba(0, 240, 255, 0.15);
+    }
+
+    .guide-cover-wrap {
+      width: 100%;
+      height: 160px;
+      background: #0f172a;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .guide-cover-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.4s ease;
+    }
+
+    .guide-card:hover .guide-cover-img {
+      transform: scale(1.05);
+    }
+
+    .guide-category-badge {
+      position: absolute;
+      top: 0.65rem;
+      left: 0.65rem;
+      background: rgba(0, 0, 0, 0.75);
+      border: 1px solid var(--border-bright);
+      color: var(--accent-cyan);
+      font-family: var(--font-display);
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 0.2rem 0.55rem;
+      border-radius: var(--radius-sm);
+      backdrop-filter: blur(8px);
+    }
+
+    .guide-body {
+      padding: 1.1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      flex: 1;
+    }
+
+    .guide-title {
+      font-family: var(--font-display);
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #fff;
+      line-height: 1.35;
+    }
+
+    .guide-excerpt {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      line-height: 1.45;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .guide-meta-row {
+      margin-top: auto;
+      padding-top: 0.65rem;
+      border-top: 1px solid var(--border-subtle);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.72rem;
+      color: var(--text-dim);
+    }
+
+    /* =========================================================================
+       8. MODALS & FORMS
+       ========================================================================= */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 999;
+      background: rgba(0, 0, 0, 0.82);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+    }
+
+    .modal-overlay.active {
+      display: flex;
+      animation: modalFadeIn 0.2s ease;
+    }
+
+    @keyframes modalFadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .modal-card {
+      background: #0d121c;
+      border: 1px solid var(--border-bright);
+      border-radius: var(--radius-lg);
+      width: 100%;
+      max-width: 580px;
+      max-height: 90vh;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8), 0 0 40px rgba(0, 240, 255, 0.1);
+      overflow: hidden;
+    }
+
+    .modal-header {
+      padding: 1rem 1.25rem;
+      border-bottom: 1px solid var(--border-subtle);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    .modal-title {
+      font-family: var(--font-display);
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+    }
+
+    .modal-close-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      padding: 0.25rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 4px;
+      transition: color var(--transition-fast);
+    }
+
+    .modal-close-btn:hover {
+      color: #fff;
+    }
+
+    .modal-body {
+      padding: 1.25rem;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .modal-footer {
+      padding: 0.85rem 1.25rem;
+      border-top: 1px solid var(--border-subtle);
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      gap: 0.5rem;
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    /* Form Inputs */
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+    }
+
+    .form-label {
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      font-family: var(--font-display);
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+
+    .form-input, .form-select, .form-textarea {
+      width: 100%;
+      background: rgba(0, 0, 0, 0.4);
+      border: 1px solid var(--border-bright);
+      color: #fff;
+      font-family: var(--font-sans);
+      font-size: 0.9rem;
+      padding: 0.55rem 0.75rem;
+      border-radius: var(--radius-sm);
+      outline: none;
+      transition: border-color var(--transition-fast);
+    }
+
+    .form-input:focus, .form-select:focus, .form-textarea:focus {
+      border-color: var(--accent-cyan);
+      box-shadow: 0 0 10px rgba(0, 240, 255, 0.25);
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.75rem;
+    }
+
+    /* 2x2 Wheel Layout in Modal */
+    .car-2x2-setup-box {
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 0.85rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.65rem;
+    }
+
+    .car-2x2-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.65rem;
+    }
+
+    .wheel-card-input {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: var(--radius-sm);
+      padding: 0.65rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+    }
+
+    .wheel-card-title {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      font-weight: 900;
+      color: var(--accent-cyan);
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .wheel-psi-pair {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.35rem;
+    }
+
+    .wheel-psi-pair input {
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      text-align: center;
+      padding: 0.35rem;
+      background: rgba(0, 0, 0, 0.5);
+      border: 1px solid var(--border-subtle);
+      color: #fff;
+      border-radius: 4px;
+    }
+
+    .wheel-psi-pair input::placeholder {
+      font-size: 0.7rem;
+      color: var(--text-dim);
+    }
+
+    /* Markdown Reader Modal Body */
+    .markdown-rendered-body {
+      color: #e2e8f0;
+      font-size: 0.95rem;
+      line-height: 1.7;
+    }
+
+    .markdown-rendered-body h1,
+    .markdown-rendered-body h2,
+    .markdown-rendered-body h3 {
+      font-family: var(--font-display);
+      color: #fff;
+      margin: 1.25rem 0 0.5rem 0;
+      letter-spacing: 0.3px;
+    }
+
+    .markdown-rendered-body h2 {
+      border-bottom: 1px solid var(--border-subtle);
+      padding-bottom: 0.35rem;
+      color: var(--accent-cyan);
+    }
+
+    .markdown-rendered-body p {
+      margin-bottom: 0.75rem;
+    }
+
+    .markdown-rendered-body ul, 
+    .markdown-rendered-body ol {
+      padding-left: 1.4rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .markdown-rendered-body li {
+      margin-bottom: 0.3rem;
+    }
+
+    .markdown-rendered-body blockquote {
+      border-left: 3px solid var(--accent-cyan);
+      background: rgba(0, 240, 255, 0.05);
+      padding: 0.6rem 1rem;
+      margin: 0.85rem 0;
+      border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+      font-style: italic;
+    }
+
+    /* =========================================================================
+       9. MOBILE BOTTOM NAVIGATION
+       ========================================================================= */
+    .mobile-bottom-nav {
+      display: none;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      background: rgba(7, 10, 16, 0.92);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-top: 1px solid var(--border-subtle);
+      padding: 0.4rem 0.5rem calc(0.4rem + env(safe-area-inset-bottom));
+      justify-content: space-around;
+      align-items: center;
+      box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.7);
+    }
+
+    .mob-nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+      color: var(--text-muted);
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      font-family: var(--font-display);
+      font-size: 0.68rem;
+      font-weight: 700;
+      padding: 0.3rem 0.5rem;
+      border-radius: var(--radius-sm);
+      transition: color var(--transition-fast);
+      flex: 1;
+    }
+
+    .mob-nav-item:hover, .mob-nav-item.active {
+      color: var(--accent-cyan);
+    }
+
+    .mob-nav-item i {
+      width: 20px;
+      height: 20px;
+    }
+
+    .mob-nav-center-action {
+      background: linear-gradient(135deg, var(--accent-red), #d61f3d);
+      color: #fff !important;
+      border-radius: var(--radius-full);
+      width: 48px;
+      height: 48px;
+      margin-top: -18px;
+      box-shadow: 0 4px 18px rgba(255, 42, 75, 0.6);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      border: 2px solid #070a10;
+      flex: 0 0 48px;
+    }
+
+    .mob-nav-center-action i {
+      width: 22px;
+      height: 22px;
+    }
+
+    /* Toast Notification */
+    .toast-box {
+      position: fixed;
+      bottom: 5.5rem;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: rgba(14, 20, 32, 0.95);
+      border: 1px solid var(--accent-cyan);
+      color: #fff;
+      padding: 0.6rem 1.2rem;
+      border-radius: var(--radius-full);
+      font-family: var(--font-display);
+      font-size: 0.85rem;
+      font-weight: 700;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6), 0 0 20px rgba(0, 240, 255, 0.3);
+      z-index: 1000;
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .toast-box.show {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+      .nav-tabs-desktop { display: none; }
+      .mobile-bottom-nav { display: flex; }
+      .topbar { padding: 0.6rem 0.9rem; }
+      .hud-big-lap-time { font-size: 3.4rem; }
+      .hud-stats-grid { grid-template-columns: 1fr 1fr; }
+      .hud-stats-grid .hud-stat-tile:last-child { grid-column: span 2; }
+      .sessions-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- =========================================================================
+       TOPBAR HEADER
+       ========================================================================= -->
+  <header class="topbar">
+    <div class="brand-cluster" onclick="switchTab('sessions')" title="MyLapLog v1">
+      <img src="/v1/icon-192.png" alt="MyLapLog Logo" class="brand-logo-img">
+      <div class="brand-text">
+        <span class="brand-title">MyLapLog <span class="brand-badge">v1</span></span>
+        <span class="brand-subtitle">Trackday Intelligence & Timers</span>
+      </div>
+    </div>
+
+    <!-- Desktop Navigation Tabs -->
+    <nav class="nav-tabs-desktop">
+      <button class="nav-tab-btn active" data-tab="sessions" onclick="switchTab('sessions')">
+        <i data-lucide="clipboard-list"></i> <span>Session Logs</span>
+      </button>
+      <button class="nav-tab-btn" data-tab="lap-timer" onclick="switchTab('lap-timer')">
+        <i data-lucide="crosshair"></i> <span>Lap Timer</span>
+      </button>
+      <button class="nav-tab-btn" data-tab="pit-timer" onclick="switchTab('pit-timer')">
+        <i data-lucide="traffic-cone"></i> <span>Pit Timer</span>
+      </button>
+      <button class="nav-tab-btn" data-tab="guides" onclick="switchTab('guides')">
+        <i data-lucide="book-open"></i> <span>Guides & Insights</span>
+      </button>
+    </nav>
+
+    <!-- Topbar Actions -->
+    <div class="topbar-actions">
+      <button class="btn btn-primary" onclick="openAddSessionModal()" title="Record Trackday Session">
+        <i data-lucide="zap"></i> <span>Log Session</span>
+      </button>
+
+      <div class="user-pill" id="user-profile-pill" onclick="handleUserPillClick()" title="Driver Profile">
+        <div class="user-avatar-badge" id="user-avatar-badge">DR</div>
+        <span class="user-name-text" id="user-name-text">Guest Driver</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- =========================================================================
+       MAIN CONTENT CONTAINER
+       ========================================================================= -->
+  <main class="app-container">
+
+    <!-- =======================================================================
+         VIEW 1: SESSION LOGS
+         ======================================================================= -->
+    <section class="tab-view active" id="view-sessions">
+      <div class="section-header">
+        <div>
+          <h1 class="section-title"><i data-lucide="clipboard-list" style="color:var(--accent-cyan)"></i> Session Logs</h1>
+          <p class="section-subtitle">서킷 트랙데이 주행 기록, 4륜 냉/열간 공기압 및 머신 셋업 목록</p>
+        </div>
+        <div style="display:flex; gap:0.4rem; align-items:center;">
+          <button class="btn btn-outline btn-sm" onclick="loadSessions()" title="새로고침">
+            <i data-lucide="rotate-cw"></i> <span>Refresh</span>
+          </button>
+          <button class="btn btn-primary btn-sm" onclick="openAddSessionModal()">
+            <i data-lucide="plus"></i> <span>새 세션 기록</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Circuit Filter Chips -->
+      <div class="filter-chips-cluster" id="sessions-filter-chips">
+        <button class="filter-chip active" data-track="ALL" onclick="filterSessionsByTrack('ALL')">전체 서킷 (ALL)</button>
+        <button class="filter-chip" data-track="1" onclick="filterSessionsByTrack(1)">🇰🇷 인제 스피디움</button>
+        <button class="filter-chip" data-track="2" onclick="filterSessionsByTrack(2)">🇰🇷 영암 KIC</button>
+        <button class="filter-chip" data-track="3" onclick="filterSessionsByTrack(3)">🇰🇷 용인 스피드웨이</button>
+        <button class="filter-chip" data-track="4" onclick="filterSessionsByTrack(4)">🇰🇷 태백 레이싱파크</button>
+      </div>
+
+      <!-- Sessions Grid -->
+      <div class="sessions-grid" id="sessions-list-container">
+        <!-- Rendered dynamically via JS -->
+      </div>
+    </section>
+
+    <!-- =======================================================================
+         VIEW 2: GPS LAP TIMER (FULL HUD VIEW)
+         ======================================================================= -->
+    <section class="tab-view" id="view-lap-timer">
+      <div class="timer-hud-container">
+        
+        <!-- Header Bar: Circuit Select & Status -->
+        <div class="hud-header-bar">
+          <div class="hud-circuit-select-wrapper">
+            <select id="lap-track-select" class="hud-select" onchange="onLapTimerTrackChange()">
+              <!-- Populated via JS -->
+            </select>
+            <button class="btn btn-cyan btn-sm" onclick="autoDetectNearestCircuitForTimer()" title="내 위치 기준 최인접 서킷 자동 감지">
+              <i data-lucide="navigation"></i> <span>주변 감지</span>
+            </button>
+          </div>
+          
+          <div class="hud-status-badge" id="lap-gps-status-badge">
+            <i data-lucide="radio"></i> <span id="lap-gps-status-text">GPS 대기 중</span>
+          </div>
+        </div>
+
+        <!-- Big Digital Lap Time Display -->
+        <div class="hud-laptime-gauge">
+          <div class="hud-lap-number-pill" id="lap-current-num-pill">LAP 1</div>
+          <div class="hud-big-lap-time" id="lap-display-time">00:00.000</div>
+          <div class="hud-delta-display even" id="lap-delta-display">BEST DELTA: --.---s</div>
+        </div>
+
+        <!-- Lap Stats Grid: Current Speed, Best Lap, Last Lap -->
+        <div class="hud-stats-grid">
+          <div class="hud-stat-tile">
+            <div class="hud-stat-label">SPEED</div>
+            <div class="hud-stat-val" style="color:var(--accent-cyan);" id="lap-hud-speed">0 <small style="font-size:0.75rem; color:var(--text-dim)">km/h</small></div>
+          </div>
+          <div class="hud-stat-tile">
+            <div class="hud-stat-label">BEST LAP</div>
+            <div class="hud-stat-val" style="color:var(--accent-green);" id="lap-hud-best">--:--.---</div>
+          </div>
+          <div class="hud-stat-tile">
+            <div class="hud-stat-label">LAST LAP</div>
+            <div class="hud-stat-val" style="color:#f1f5f9;" id="lap-hud-last">--:--.---</div>
+          </div>
+        </div>
+
+        <!-- Real-time GPS Diagnostics -->
+        <div class="hud-diag-strip">
+          <span><i data-lucide="compass" style="width:12px; height:12px; vertical-align:middle;"></i> <span id="lap-diag-heading">방위각: 0° (N)</span></span>
+          <span>WGS84: <span id="lap-diag-coords">38.01518, 128.30467</span></span>
+          <span>오차: <span id="lap-diag-acc">±2.5m</span></span>
+          <span>게이트 거리: <span id="lap-diag-gate-dist">-- m</span></span>
+        </div>
+
+        <!-- Control Buttons -->
+        <div class="hud-controls-cluster">
+          <button class="btn btn-primary hud-btn-main" id="btn-lap-start-toggle" onclick="toggleLapTimer()">
+            <i data-lucide="play"></i> <span>타이머 시작</span>
+          </button>
+          <button class="btn btn-outline" onclick="resetLapTimer()" title="타이머 리셋">
+            <i data-lucide="rotate-ccw"></i> <span>리셋</span>
+          </button>
+          <button class="btn btn-cyan" id="btn-lap-sim-toggle" onclick="toggleLapTimerSimulation()" title="실내 가상 주행 시뮬레이션">
+            <i data-lucide="gamepad-2"></i> <span>시뮬레이션</span>
+          </button>
+          <button class="btn btn-primary" style="background:linear-gradient(135deg, var(--accent-green), #00b359); border-color:#00e676;" onclick="saveTimerLapsToSession()" title="측정된 랩타임을 세션으로 저장">
+            <i data-lucide="save"></i> <span>세션으로 저장</span>
+          </button>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- =======================================================================
+         VIEW 3: GPS PIT LANE TIMER
+         ======================================================================= -->
+    <section class="tab-view" id="view-pit-timer">
+      <div class="pit-hud-container" id="pit-hud-container">
+        
+        <!-- Header Bar -->
+        <div class="hud-header-bar">
+          <div class="hud-circuit-select-wrapper">
+            <select id="pit-track-select" class="hud-select" onchange="onPitTimerTrackChange()">
+              <!-- Populated via JS -->
+            </select>
+          </div>
+          <div class="hud-status-badge" id="pit-gps-status-badge">
+            <i data-lucide="traffic-cone"></i> <span id="pit-gps-status-text">피트 대기 중</span>
+          </div>
+        </div>
+
+        <!-- 3-Step Pit Gates Flow -->
+        <div class="pit-gates-flow">
+          <div class="pit-gate-node" id="node-pit-entry">
+            <div class="pit-gate-icon-circle"><i data-lucide="log-in" style="width:16px;"></i></div>
+            <span>1. PIT ENTRY</span>
+          </div>
+          <div class="pit-flow-arrow">&rarr;</div>
+          <div class="pit-gate-node" id="node-pit-box">
+            <div class="pit-gate-icon-circle"><i data-lucide="stop-circle" style="width:16px;"></i></div>
+            <span>2. BOX STOP</span>
+          </div>
+          <div class="pit-flow-arrow">&rarr;</div>
+          <div class="pit-gate-node" id="node-pit-exit">
+            <div class="pit-gate-icon-circle"><i data-lucide="log-out" style="width:16px;"></i></div>
+            <span>3. PIT EXIT</span>
+          </div>
+        </div>
+
+        <!-- Main Countdown & Status Gauge -->
+        <div class="pit-gauge-box" id="pit-gauge-box">
+          <div style="font-family:var(--font-display); font-size:0.85rem; color:var(--text-dim); text-transform:uppercase; letter-spacing:1px;" id="pit-countdown-label">
+            TARGET COUNTDOWN
+          </div>
+          <div class="pit-big-countdown" id="pit-countdown-display">60.0</div>
+          <div class="pit-status-alert" id="pit-alert-text">APPROACHING PIT LANE</div>
+        </div>
+
+        <!-- Pit Telemetry Stats -->
+        <div class="hud-stats-grid">
+          <div class="hud-stat-tile">
+            <div class="hud-stat-label">PIT SPEED</div>
+            <div class="hud-stat-val" id="pit-speed-display" style="color:var(--accent-amber);">0 <small style="font-size:0.75rem; color:var(--text-dim)">km/h</small></div>
+          </div>
+          <div class="hud-stat-tile">
+            <div class="hud-stat-label">SPEED LIMIT</div>
+            <div class="hud-stat-val" id="pit-limit-display" style="color:var(--accent-red);">60 <small style="font-size:0.75rem; color:var(--text-dim)">km/h</small></div>
+          </div>
+          <div class="hud-stat-tile">
+            <div class="hud-stat-label">TOTAL PIT TIME</div>
+            <div class="hud-stat-val" id="pit-total-time-display">00.0s</div>
+          </div>
+        </div>
+
+        <!-- Pit Controls -->
+        <div class="hud-controls-cluster">
+          <button class="btn btn-primary hud-btn-main" id="btn-pit-start-toggle" onclick="togglePitTimer()">
+            <i data-lucide="play"></i> <span>피트 타이머 시작</span>
+          </button>
+          <button class="btn btn-outline" onclick="resetPitTimer()">
+            <i data-lucide="rotate-ccw"></i> <span>리셋</span>
+          </button>
+          <button class="btn btn-cyan" id="btn-pit-sim-toggle" onclick="togglePitTimerSimulation()">
+            <i data-lucide="gamepad-2"></i> <span>피트인 시뮬레이션</span>
+          </button>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- =======================================================================
+         VIEW 4: GUIDES & INSIGHTS
+         ======================================================================= -->
+    <section class="tab-view" id="view-guides">
+      <div class="section-header">
+        <div>
+          <h1 class="section-title"><i data-lucide="book-open" style="color:var(--accent-cyan)"></i> Guides & Insights</h1>
+          <p class="section-subtitle">서킷 공략, 타이어 열간 공기압 셋업, 하체 지오메트리 튜닝 가이드</p>
+        </div>
+        <div>
+          <input type="text" id="guides-search-input" class="form-input" style="min-width:220px;" placeholder="가이드 검색 (키워드/서킷명)..." oninput="filterGuides()">
+        </div>
+      </div>
+
+      <!-- Category Filter Chips -->
+      <div class="filter-chips-cluster" id="guides-filter-chips">
+        <button class="filter-chip active" data-cat="ALL" onclick="filterGuidesByCategory('ALL')">전체 가이드</button>
+        <button class="filter-chip" data-cat="CIRCUIT" onclick="filterGuidesByCategory('서킷 공략')">서킷 공략</button>
+        <button class="filter-chip" data-cat="SETUP" onclick="filterGuidesByCategory('셋업 노하우')">셋업 & 타이어</button>
+        <button class="filter-chip" data-cat="RACING" onclick="filterGuidesByCategory('레이싱 철학')">레이싱 테크닉</button>
+      </div>
+
+      <!-- Guides Card Grid -->
+      <div class="guides-grid" id="guides-list-container">
+        <!-- Rendered via JS -->
+      </div>
+    </section>
+
+  </main>
+
+  <!-- =========================================================================
+       MODAL 1: LOG SESSION (4-WHEEL PSI & SETUP RECORDER)
+       ========================================================================= -->
+  <div class="modal-overlay" id="modal-log-session">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div class="modal-title"><i data-lucide="zap" style="color:var(--accent-red)"></i> <span id="session-modal-title">새 세션 기록하기</span></div>
+        <button class="modal-close-btn" onclick="closeModal('modal-log-session')"><i data-lucide="x"></i></button>
+      </div>
+      <div class="modal-body">
+        <form id="session-form" onsubmit="handleSessionFormSubmit(event)">
+          <input type="hidden" id="edit-session-id" value="">
+
+          <!-- Track & Vehicle -->
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">서킷 (Track)</label>
+              <select id="form-track-id" class="form-select" required>
+                <!-- Populated via JS -->
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">차종 (Vehicle / Machine)</label>
+              <input type="text" id="form-vehicle-name" class="form-input" placeholder="예: 현대 아반떼 N, GR86" required>
+            </div>
+          </div>
+
+          <!-- Date & Session Number -->
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">주행 일자</label>
+              <input type="date" id="form-session-date" class="form-input" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">세션 번호</label>
+              <select id="form-session-number" class="form-select">
+                <option value="1">세션 1 (Session 1)</option>
+                <option value="2">세션 2 (Session 2)</option>
+                <option value="3">세션 3 (Session 3)</option>
+                <option value="4">세션 4 (Session 4)</option>
+                <option value="5">세션 5 (Session 5)</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Weather & Temperatures -->
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">노면 상태 (Condition)</label>
+              <select id="form-weather" class="form-select">
+                <option value="DRY">DRY (맑음 / 건조 노면)</option>
+                <option value="DAMP">DAMP (약간 젖음)</option>
+                <option value="WET">WET (우천 / 젖은 노면)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">기온 / 노면온도 (°C)</label>
+              <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.4rem;">
+                <input type="number" step="0.5" id="form-air-temp" class="form-input" placeholder="기온 24">
+                <input type="number" step="0.5" id="form-track-temp" class="form-input" placeholder="노면 38">
+              </div>
+            </div>
+          </div>
+
+          <!-- 4-Wheel Tire Pressure (2x2 Layout) -->
+          <div class="car-2x2-setup-box">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <span class="form-label" style="color:var(--accent-cyan);"><i data-lucide="disc" style="width:13px; height:13px; vertical-align:middle;"></i> 4륜 공기압 (Cold PSI &rarr; Hot PSI)</span>
+              <small style="font-size:0.7rem; color:var(--text-dim)">피트인 직후 열간 측정</small>
+            </div>
+            
+            <div class="car-2x2-grid">
+              <!-- Front Left -->
+              <div class="wheel-card-input">
+                <div class="wheel-card-title"><span>FL (전륜 좌)</span></div>
+                <div class="wheel-psi-pair">
+                  <input type="number" step="0.5" id="psi-cold-fl" placeholder="냉간 (30)">
+                  <input type="number" step="0.5" id="psi-hot-fl" placeholder="열간 (33)">
+                </div>
+              </div>
+              <!-- Front Right -->
+              <div class="wheel-card-input">
+                <div class="wheel-card-title"><span>FR (전륜 우)</span></div>
+                <div class="wheel-psi-pair">
+                  <input type="number" step="0.5" id="psi-cold-fr" placeholder="냉간 (30)">
+                  <input type="number" step="0.5" id="psi-hot-fr" placeholder="열간 (33)">
+                </div>
+              </div>
+              <!-- Rear Left -->
+              <div class="wheel-card-input">
+                <div class="wheel-card-title"><span>RL (후륜 좌)</span></div>
+                <div class="wheel-psi-pair">
+                  <input type="number" step="0.5" id="psi-cold-rl" placeholder="냉간 (29)">
+                  <input type="number" step="0.5" id="psi-hot-rl" placeholder="열간 (31.5)">
+                </div>
+              </div>
+              <!-- Rear Right -->
+              <div class="wheel-card-input">
+                <div class="wheel-card-title"><span>RR (후륜 우)</span></div>
+                <div class="wheel-psi-pair">
+                  <input type="number" step="0.5" id="psi-cold-rr" placeholder="냉간 (29)">
+                  <input type="number" step="0.5" id="psi-hot-rr" placeholder="열간 (31.5)">
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Best Lap Time & Top Speed -->
+          <div class="form-row" style="margin-top:0.35rem;">
+            <div class="form-group">
+              <label class="form-label">베스트 랩타임 (Best Lap)</label>
+              <input type="text" id="form-best-lap" class="form-input" style="font-family:var(--font-mono); font-weight:700; color:var(--accent-green);" placeholder="예: 1:52.450 또는 112.45" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">최고속도 (Top Speed km/h)</label>
+              <input type="number" step="0.1" id="form-top-speed" class="form-input" placeholder="예: 215.4">
+            </div>
+          </div>
+
+          <!-- Damper Clicks & Driver Notes -->
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">댐퍼 감쇠력 (F / R Clicks)</label>
+              <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.4rem;">
+                <input type="number" id="form-damper-f" class="form-input" placeholder="전륜 8클릭">
+                <input type="number" id="form-damper-r" class="form-input" placeholder="후륜 6클릭">
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">드라이버 피드백 & 메모</label>
+              <textarea id="form-driver-notes" class="form-textarea" rows="2" placeholder="연석 충격 및 언더/오버스티어 체감 기록..."></textarea>
+            </div>
+          </div>
+
+          <div class="modal-footer" style="padding:0; padding-top:0.75rem;">
+            <button type="button" class="btn btn-outline" onclick="closeModal('modal-log-session')">취소</button>
+            <button type="submit" class="btn btn-primary"><i data-lucide="check"></i> <span>저장하기</span></button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       MODAL 2: SESSION DETAIL MODAL (FULL SETUP & LAPS INSPECTION)
+       ========================================================================= -->
+  <div class="modal-overlay" id="modal-session-detail">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div class="modal-title"><i data-lucide="file-text" style="color:var(--accent-cyan)"></i> <span>세션 상세 분석</span></div>
+        <button class="modal-close-btn" onclick="closeModal('modal-session-detail')"><i data-lucide="x"></i></button>
+      </div>
+      <div class="modal-body" id="session-detail-content">
+        <!-- Rendered via JS -->
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline" onclick="closeModal('modal-session-detail')">닫기</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       MODAL 3: GUIDE READER MODAL (FULL MARKDOWN ARTICLE)
+       ========================================================================= -->
+  <div class="modal-overlay" id="modal-guide-reader">
+    <div class="modal-card" style="max-width:760px;">
+      <div class="modal-header">
+        <div class="modal-title"><i data-lucide="book-open" style="color:var(--accent-cyan)"></i> <span id="guide-modal-title">가이드 읽기</span></div>
+        <button class="modal-close-btn" onclick="closeModal('modal-guide-reader')"><i data-lucide="x"></i></button>
+      </div>
+      <div class="modal-body">
+        <div id="guide-rendered-content" class="markdown-rendered-body">
+          <!-- Rendered via JS -->
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-cyan btn-sm" onclick="copyCurrentGuideUrl()"><i data-lucide="share-2"></i> <span>링크 복사</span></button>
+        <button type="button" class="btn btn-outline btn-sm" onclick="closeModal('modal-guide-reader')">닫기</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       MODAL 4: AUTH MODAL (LOGIN & SIGNUP)
+       ========================================================================= -->
+  <div class="modal-overlay" id="modal-auth">
+    <div class="modal-card" style="max-width:420px;">
+      <div class="modal-header">
+        <div class="modal-title"><i data-lucide="user-check" style="color:var(--accent-cyan)"></i> <span id="auth-modal-title">드라이버 로그인</span></div>
+        <button class="modal-close-btn" onclick="closeModal('modal-auth')"><i data-lucide="x"></i></button>
+      </div>
+      <div class="modal-body">
+        
+        <!-- Toggle Tabs: Login / Register -->
+        <div style="display:flex; gap:0.35rem; background:rgba(255,255,255,0.05); padding:0.25rem; border-radius:var(--radius-sm); margin-bottom:0.75rem;">
+          <button type="button" class="btn btn-sm" id="auth-tab-login" style="flex:1; background:var(--accent-cyan); color:#000;" onclick="switchAuthMode('login')">로그인</button>
+          <button type="button" class="btn btn-sm" id="auth-tab-register" style="flex:1; background:transparent; color:#fff;" onclick="switchAuthMode('register')">회원가입</button>
+        </div>
+
+        <form id="auth-form" onsubmit="handleAuthSubmit(event)">
+          <div class="form-group" id="auth-name-group" style="display:none;">
+            <label class="form-label">드라이버 닉네임 / 성명</label>
+            <input type="text" id="auth-name" class="form-input" placeholder="예: 김레이서">
+          </div>
+          <div class="form-group">
+            <label class="form-label">이메일 주소</label>
+            <input type="email" id="auth-email" class="form-input" placeholder="driver@mylaplog.com" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">비밀번호</label>
+            <input type="password" id="auth-password" class="form-input" placeholder="6자리 이상 비밀번호" required>
+          </div>
+          <button type="submit" class="btn btn-primary" style="width:100%; margin-top:0.75rem;" id="auth-submit-btn">
+            로그인
+          </button>
+        </form>
+
+        <div style="text-align:center; font-size:0.78rem; color:var(--text-muted); margin-top:0.75rem;">
+          로그인하지 않아도 게스트 모드로 모든 세션 및 타이머 기능을 정상 이용하실 수 있습니다.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       MOBILE BOTTOM FLOATING NAVIGATION BAR
+       ========================================================================= -->
+  <nav class="mobile-bottom-nav">
+    <button class="mob-nav-item active" data-tab="sessions" onclick="switchTab('sessions')">
+      <i data-lucide="clipboard-list"></i>
+      <span>세션로그</span>
+    </button>
+    <button class="mob-nav-item" data-tab="lap-timer" onclick="switchTab('lap-timer')">
+      <i data-lucide="crosshair"></i>
+      <span>랩타이머</span>
+    </button>
+    <button class="mob-nav-center-action" onclick="openAddSessionModal()" title="새 세션 기록하기">
+      <i data-lucide="plus"></i>
+    </button>
+    <button class="mob-nav-item" data-tab="pit-timer" onclick="switchTab('pit-timer')">
+      <i data-lucide="traffic-cone"></i>
+      <span>피트타이머</span>
+    </button>
+    <button class="mob-nav-item" data-tab="guides" onclick="switchTab('guides')">
+      <i data-lucide="book-open"></i>
+      <span>가이드</span>
+    </button>
+  </nav>
+
+  <!-- Toast Notification Box -->
+  <div class="toast-box" id="app-toast">메시지</div>
+
+  <!-- =========================================================================
+       JAVASCRIPT APPLICATION CORE (MyLapLog v1)
+       ========================================================================= -->
+  <script>
+    // --- Global Configuration ---
+    const API_BASE = '/v1/api';
+    let currentUser = null;
+    let allTracks = [];
+    let allSessions = [];
+    let allGuides = [];
+    let currentFilterTrack = 'ALL';
+    let currentGuideCategory = 'ALL';
+
+    // Global Circuit GPS Gates for Timers (High Precision)
+    const GLOBAL_CIRCUITS = {
+      1: { id: 1, name: "인제 스피디움", nameEn: "Inje Speedium", countryFlag: "🇰🇷", lat: 38.01518, lon: 128.30467, heading: 42.7, width: 25.0, minLapSec: 40, pitLimit: 60, pitTarget: 60 },
+      2: { id: 2, name: "영암 KIC", nameEn: "Korea International Circuit", countryFlag: "🇰🇷", lat: 34.73510, lon: 126.69505, heading: 34.1, width: 25.0, minLapSec: 50, pitLimit: 60, pitTarget: 60 },
+      3: { id: 3, name: "용인 에버랜드 스피드웨이", nameEn: "Everland Speedway", countryFlag: "🇰🇷", lat: 37.29375, lon: 127.20140, heading: 34.9, width: 25.0, minLapSec: 45, pitLimit: 60, pitTarget: 60 },
+      4: { id: 4, name: "태백 레이싱파크", nameEn: "Taebaek Racing Park", countryFlag: "🇰🇷", lat: 37.18880, lon: 128.93170, heading: 43.3, width: 25.0, minLapSec: 30, pitLimit: 60, pitTarget: 60 },
+      101: { id: 101, name: "스즈카 서킷 (Suzuka)", nameEn: "Suzuka Circuit", countryFlag: "🇯🇵", lat: 34.84380, lon: 136.54010, heading: 38.0, width: 25.0, minLapSec: 50, pitLimit: 60, pitTarget: 60 },
+      102: { id: 102, name: "후지 스피드웨이 (Fuji)", nameEn: "Fuji Speedway", countryFlag: "🇯🇵", lat: 35.37180, lon: 138.92850, heading: 52.0, width: 25.0, minLapSec: 45, pitLimit: 60, pitTarget: 60 },
+      201: { id: 201, name: "뉘르부르크링 GP (Nürburgring)", nameEn: "Nürburgring GP", countryFlag: "🇩🇪", lat: 50.33420, lon: 6.94280, heading: 45.0, width: 25.0, minLapSec: 45, pitLimit: 60, pitTarget: 60 },
+      202: { id: 202, name: "스파-프랑코샹 (Spa)", nameEn: "Circuit de Spa", countryFlag: "🇧🇪", lat: 50.43720, lon: 5.97140, heading: 150.0, width: 26.0, minLapSec: 60, pitLimit: 60, pitTarget: 60 }
+    };
+
+    // --- Web Audio Procedural Chimes ---
+    let audioCtx = null;
+    function getAudioContext() {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+      return audioCtx;
+    }
+
+    function playBeep(freq = 880, duration = 0.12, type = 'sine') {
+      try {
+        const ctx = getAudioContext();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, ctx.currentTime);
+        gain.gain.setValueAtTime(0.2, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start();
+        osc.stop(ctx.currentTime + duration);
+      } catch (e) {}
+    }
+
+    function playReleaseChime() {
+      try {
+        const ctx = getAudioContext();
+        [523.25, 659.25, 783.99, 1046.50].forEach((freq, i) => {
+          setTimeout(() => playBeep(freq, 0.2, 'triangle'), i * 80);
+        });
+      } catch (e) {}
+    }
+
+    function playOverspeedAlarm() {
+      try {
+        playBeep(980, 0.18, 'sawtooth');
+      } catch (e) {}
+    }
+
+    // --- Toast Notification ---
+    function showToast(msg) {
+      const toast = document.getElementById('app-toast');
+      toast.innerText = msg;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 2600);
+    }
+
+    // --- Modal Management ---
+    function openModal(id) {
+      const m = document.getElementById(id);
+      if (m) m.classList.add('active');
+      lucide.createIcons();
+    }
+
+    function closeModal(id) {
+      const m = document.getElementById(id);
+      if (m) m.classList.remove('active');
+    }
+
+    // Close on backdrop click
+    document.querySelectorAll('.modal-overlay').forEach(overlay => {
+      overlay.addEventListener('click', (e) => {
+        if (e.target === overlay) {
+          overlay.classList.remove('active');
+        }
+      });
+    });
+
+    // =========================================================================
+    // TAB NAVIGATION
+    // =========================================================================
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-view').forEach(v => v.classList.remove('active'));
+      document.querySelectorAll('.nav-tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.mob-nav-item').forEach(b => b.classList.remove('active'));
+
+      const targetView = document.getElementById(`view-${tabId}`);
+      if (targetView) targetView.classList.add('active');
+
+      const desktopBtn = document.querySelector(`.nav-tab-btn[data-tab="${tabId}"]`);
+      if (desktopBtn) desktopBtn.classList.add('active');
+
+      const mobileBtn = document.querySelector(`.mob-nav-item[data-tab="${tabId}"]`);
+      if (mobileBtn) mobileBtn.classList.add('active');
+
+      // Update URL hash
+      window.location.hash = tabId;
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      lucide.createIcons();
+    }
+
+    // =========================================================================
+    // API INITIALIZATION & DATA FETCHING
+    // =========================================================================
+    async function initApp() {
+      await fetchCurrentUser();
+      await loadTracks();
+      await loadSessions();
+      await loadGuides();
+
+      // Handle direct hash navigation
+      const hash = window.location.hash.replace('#', '');
+      if (['sessions', 'lap-timer', 'pit-timer', 'guides'].includes(hash)) {
+        switchTab(hash);
+      } else {
+        switchTab('sessions');
+      }
+
+      // Prepopulate timer circuit selects
+      populateTimerCircuitSelects();
+    }
+
+    async function fetchCurrentUser() {
+      try {
+        const res = await fetch(`${API_BASE}/auth/me`);
+        const data = await res.json();
+        currentUser = data.user;
+        updateUserUI();
+      } catch (err) {
+        currentUser = null;
+        updateUserUI();
+      }
+    }
+
+    function updateUserUI() {
+      const pill = document.getElementById('user-profile-pill');
+      const avatarEl = document.getElementById('user-avatar-badge');
+      const nameEl = document.getElementById('user-name-text');
+
+      if (currentUser) {
+        avatarEl.innerText = currentUser.avatar || 'DR';
+        nameEl.innerText = currentUser.name || 'Driver';
+      } else {
+        avatarEl.innerText = 'AK';
+        nameEl.innerText = 'Guest Driver';
+      }
+    }
+
+    function handleUserPillClick() {
+      if (currentUser) {
+        if (confirm(`${currentUser.name} 님, 로그아웃 하시겠습니까?`)) {
+          fetch(`${API_BASE}/auth/logout`, { method: 'POST' }).then(() => {
+            currentUser = null;
+            updateUserUI();
+            showToast('로그아웃 되었습니다.');
+            loadSessions();
+          });
+        }
+      } else {
+        openModal('modal-auth');
+      }
+    }
+
+    // =========================================================================
+    // TRACKS
+    // =========================================================================
+    async function loadTracks() {
+      try {
+        const res = await fetch(`${API_BASE}/tracks`);
+        const data = await res.json();
+        allTracks = data.tracks || [];
+      } catch (e) {
+        allTracks = Object.values(GLOBAL_CIRCUITS);
+      }
+      populateTrackSelects();
+    }
+
+    function populateTrackSelects() {
+      const formSelect = document.getElementById('form-track-id');
+      if (formSelect) {
+        formSelect.innerHTML = allTracks.map(t => 
+          `<option value="${t.id}">${t.name} (${t.layout_name || 'Standard'})</option>`
+        ).join('');
+      }
+    }
+
+    function populateTimerCircuitSelects() {
+      const lapSelect = document.getElementById('lap-track-select');
+      const pitSelect = document.getElementById('pit-track-select');
+      const optionsHtml = Object.values(GLOBAL_CIRCUITS).map(c => 
+        `<option value="${c.id}">${c.countryFlag} ${c.name}</option>`
+      ).join('');
+
+      if (lapSelect) lapSelect.innerHTML = optionsHtml;
+      if (pitSelect) pitSelect.innerHTML = optionsHtml;
+    }
+
+    // =========================================================================
+    // FEATURE 1 & 4: SESSION LOGS & LOG SESSION
+    // =========================================================================
+    async function loadSessions() {
+      try {
+        const res = await fetch(`${API_BASE}/sessions`);
+        const data = await res.json();
+        allSessions = data.sessions || [];
+      } catch (e) {
+        // Fallback demo sessions
+        allSessions = getSampleGuestSessions();
+      }
+      renderSessions();
+    }
+
+    function getSampleGuestSessions() {
+      return [
+        {
+          id: 101,
+          track_name: "인제 스피디움",
+          track_layout: "풀 코스 (3.908km)",
+          vehicle_name: "현대 아반떼 N (CN7)",
+          vehicle_tire: "금호 V730 (245/40R18)",
+          session_date: "2026-09-08",
+          session_number: 1,
+          best_lap_ms: 112450, // 1:52.450
+          weather_condition: "DRY",
+          air_temp: 24.5,
+          track_temp: 39.2,
+          cold_psi_fl: 29.5, cold_psi_fr: 29.5, cold_psi_rl: 28.5, cold_psi_rr: 28.5,
+          hot_psi_fl: 33.2, hot_psi_fr: 33.0, hot_psi_rl: 31.5, hot_psi_rr: 31.2,
+          damper_front_clicks: 8, damper_rear_clicks: 6,
+          driver_notes: "헤어핀 진입 트랙션 우수. 3랩차 열간 공기압 33psi 안정적 도달."
+        },
+        {
+          id: 102,
+          track_name: "영암 KIC",
+          track_layout: "상설 서킷 (3.045km)",
+          vehicle_name: "토요타 GR86 (ZN8)",
+          vehicle_tire: "브리지스톤 RE-71RS",
+          session_date: "2026-08-22",
+          session_number: 2,
+          best_lap_ms: 88120, // 1:28.120
+          weather_condition: "DRY",
+          air_temp: 28.0,
+          track_temp: 42.5,
+          cold_psi_fl: 28.0, cold_psi_fr: 28.0, cold_psi_rl: 28.0, cold_psi_rr: 28.0,
+          hot_psi_fl: 32.5, hot_psi_fr: 32.8, hot_psi_rl: 31.0, hot_psi_rr: 31.2,
+          damper_front_clicks: 10, damper_rear_clicks: 8,
+          driver_notes: "후륜 리바운드 2클릭 조임 후 리어 추종성 비약적 상승."
+        }
+      ];
+    }
+
+    function formatLapTime(ms) {
+      if (!ms || ms <= 0) return "--:--.---";
+      const totalSec = ms / 1000;
+      const min = Math.floor(totalSec / 60);
+      const sec = (totalSec % 60).toFixed(3);
+      const secStr = sec < 10 ? `0${sec}` : sec;
+      return `${min}:${secStr}`;
+    }
+
+    function renderSessions() {
+      const container = document.getElementById('sessions-list-container');
+      if (!container) return;
+
+      let filtered = allSessions;
+      if (currentFilterTrack !== 'ALL') {
+        const numId = Number(currentFilterTrack);
+        filtered = allSessions.filter(s => s.track_id === numId || s.track_name.includes(getTrackNameById(numId)));
+      }
+
+      if (filtered.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state-box" style="grid-column: 1 / -1;">
+            <i data-lucide="clipboard-x"></i>
+            <h3 style="font-family:var(--font-display); font-size:1.15rem; color:#fff; margin-bottom:0.4rem;">등록된 주행 세션이 없습니다</h3>
+            <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:1.2rem;">첫 번째 트랙데이 셋업과 4륜 공기압을 지금 바로 기록해 보세요.</p>
+            <button class="btn btn-primary" onclick="openAddSessionModal()"><i data-lucide="zap"></i> 새 세션 기록하기</button>
+          </div>
+        `;
+        lucide.createIcons();
+        return;
+      }
+
+      container.innerHTML = filtered.map(s => {
+        const bestFormatted = formatLapTime(s.best_lap_ms);
+        return `
+          <div class="session-card">
+            <div class="session-card-header">
+              <div>
+                <div class="session-track-name">
+                  <i data-lucide="map-pin" style="width:16px; height:16px; color:var(--accent-cyan)"></i>
+                  ${s.track_name || 'Circuit'}
+                </div>
+                <div class="session-vehicle-line">
+                  <i data-lucide="car"></i> ${s.vehicle_name || 'Machine'}
+                </div>
+              </div>
+              <span class="session-date-badge">${s.session_date || 'Date'} #${s.session_number || 1}</span>
+            </div>
+
+            <!-- Best Lap -->
+            <div class="session-best-lap-box">
+              <span class="best-lap-label">Best Lap Time</span>
+              <span class="best-lap-time">${bestFormatted}</span>
+            </div>
+
+            <!-- 4-Wheel PSI Mini Grid -->
+            <div class="tire-psi-mini-grid">
+              <div class="tire-psi-cell">
+                <span class="tire-wheel-tag">FL</span>
+                <span class="tire-psi-val">${s.cold_psi_fl || '--'} &rarr; <span class="hot">${s.hot_psi_fl || '--'}</span></span>
+              </div>
+              <div class="tire-psi-cell">
+                <span class="tire-wheel-tag">FR</span>
+                <span class="tire-psi-val">${s.cold_psi_fr || '--'} &rarr; <span class="hot">${s.hot_psi_fr || '--'}</span></span>
+              </div>
+              <div class="tire-psi-cell">
+                <span class="tire-wheel-tag">RL</span>
+                <span class="tire-psi-val">${s.cold_psi_rl || '--'} &rarr; <span class="hot">${s.hot_psi_rl || '--'}</span></span>
+              </div>
+              <div class="tire-psi-cell">
+                <span class="tire-wheel-tag">RR</span>
+                <span class="tire-psi-val">${s.cold_psi_rr || '--'} &rarr; <span class="hot">${s.hot_psi_rr || '--'}</span></span>
+              </div>
+            </div>
+
+            <!-- Action buttons -->
+            <div class="session-actions-bar">
+              <button class="btn btn-outline btn-sm" style="flex:1;" onclick="viewSessionDetail(${s.id})">
+                <i data-lucide="eye"></i> <span>상세 보기</span>
+              </button>
+              <button class="btn btn-cyan btn-sm" onclick="editSession(${s.id})" title="셋업 수정">
+                <i data-lucide="edit-3"></i> <span>수정</span>
+              </button>
+              <button class="btn btn-outline btn-sm" style="color:var(--accent-red); border-color:rgba(255,42,75,0.3);" onclick="deleteSession(${s.id})" title="삭제">
+                <i data-lucide="trash-2"></i>
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      lucide.createIcons();
+    }
+
+    function getTrackNameById(id) {
+      const match = allTracks.find(t => t.id === id) || GLOBAL_CIRCUITS[id];
+      return match ? match.name : '';
+    }
+
+    function filterSessionsByTrack(trackId) {
+      currentFilterTrack = trackId;
+      document.querySelectorAll('#sessions-filter-chips .filter-chip').forEach(c => {
+        c.classList.toggle('active', c.getAttribute('data-track') == trackId);
+      });
+      renderSessions();
+    }
+
+    // Add / Edit Session Modal
+    function openAddSessionModal() {
+      document.getElementById('session-modal-title').innerText = '새 세션 기록하기';
+      document.getElementById('edit-session-id').value = '';
+      document.getElementById('session-form').reset();
+      document.getElementById('form-session-date').value = new Date().toISOString().split('T')[0];
+      openModal('modal-log-session');
+    }
+
+    function editSession(id) {
+      const s = allSessions.find(item => item.id == id);
+      if (!s) return;
+
+      document.getElementById('session-modal-title').innerText = '세션 셋업 수정';
+      document.getElementById('edit-session-id').value = s.id;
+      document.getElementById('form-track-id').value = s.track_id || 1;
+      document.getElementById('form-vehicle-name').value = s.vehicle_name || '';
+      document.getElementById('form-session-date').value = s.session_date || '';
+      document.getElementById('form-session-number').value = s.session_number || 1;
+      document.getElementById('form-weather').value = s.weather_condition || 'DRY';
+      document.getElementById('form-air-temp').value = s.air_temp || '';
+      document.getElementById('form-track-temp').value = s.track_temp || '';
+      document.getElementById('form-best-lap').value = s.best_lap_ms ? formatLapTime(s.best_lap_ms) : '';
+      document.getElementById('form-top-speed').value = s.top_speed_kmh || '';
+
+      // PSI
+      document.getElementById('psi-cold-fl').value = s.cold_psi_fl || '';
+      document.getElementById('psi-hot-fl').value = s.hot_psi_fl || '';
+      document.getElementById('psi-cold-fr').value = s.cold_psi_fr || '';
+      document.getElementById('psi-hot-fr').value = s.hot_psi_fr || '';
+      document.getElementById('psi-cold-rl').value = s.cold_psi_rl || '';
+      document.getElementById('psi-hot-rl').value = s.hot_psi_rl || '';
+      document.getElementById('psi-cold-rr').value = s.cold_psi_rr || '';
+      document.getElementById('psi-hot-rr').value = s.hot_psi_rr || '';
+
+      document.getElementById('form-damper-f').value = s.damper_front_clicks || '';
+      document.getElementById('form-damper-r').value = s.damper_rear_clicks || '';
+      document.getElementById('form-driver-notes').value = s.driver_notes || '';
+
+      openModal('modal-log-session');
+    }
+
+    async function handleSessionFormSubmit(e) {
+      e.preventDefault();
+      const editId = document.getElementById('edit-session-id').value;
+      const trackId = Number(document.getElementById('form-track-id').value) || 1;
+      const vehicleName = document.getElementById('form-vehicle-name').value.trim();
+      const rawBestLap = document.getElementById('form-best-lap').value.trim();
+
+      // Parse best lap to ms
+      let bestLapMs = 0;
+      if (rawBestLap.includes(':')) {
+        const [min, sec] = rawBestLap.split(':');
+        bestLapMs = Math.round((parseFloat(min) * 60 + parseFloat(sec)) * 1000);
+      } else if (!isNaN(parseFloat(rawBestLap))) {
+        bestLapMs = Math.round(parseFloat(rawBestLap) * 1000);
+      }
+
+      const payload = {
+        track_id: trackId,
+        vehicle_name: vehicleName,
+        session_date: document.getElementById('form-session-date').value,
+        session_number: Number(document.getElementById('form-session-number').value),
+        weather_condition: document.getElementById('form-weather').value,
+        air_temp: document.getElementById('form-air-temp').value ? parseFloat(document.getElementById('form-air-temp').value) : null,
+        track_temp: document.getElementById('form-track-temp').value ? parseFloat(document.getElementById('form-track-temp').value) : null,
+        best_lap_ms: bestLapMs,
+        top_speed_kmh: document.getElementById('form-top-speed').value ? parseFloat(document.getElementById('form-top-speed').value) : null,
+        setup: {
+          cold_psi_fl: parseFloat(document.getElementById('psi-cold-fl').value) || null,
+          hot_psi_fl: parseFloat(document.getElementById('psi-hot-fl').value) || null,
+          cold_psi_fr: parseFloat(document.getElementById('psi-cold-fr').value) || null,
+          hot_psi_fr: parseFloat(document.getElementById('psi-hot-fr').value) || null,
+          cold_psi_rl: parseFloat(document.getElementById('psi-cold-rl').value) || null,
+          hot_psi_rl: parseFloat(document.getElementById('psi-hot-rl').value) || null,
+          cold_psi_rr: parseFloat(document.getElementById('psi-cold-rr').value) || null,
+          hot_psi_rr: parseFloat(document.getElementById('psi-hot-rr').value) || null,
+          damper_front_clicks: parseInt(document.getElementById('form-damper-f').value) || null,
+          damper_rear_clicks: parseInt(document.getElementById('form-damper-r').value) || null,
+          driver_notes: document.getElementById('form-driver-notes').value.trim()
+        }
+      };
+
+      try {
+        const method = editId ? 'PUT' : 'POST';
+        const url = editId ? `${API_BASE}/sessions/${editId}` : `${API_BASE}/sessions`;
+
+        const res = await fetch(url, {
+          method: method,
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        if (res.ok) {
+          showToast(editId ? '세션 수정 완료! 🏎️' : '세션 저장 완료! 🏎️');
+          closeModal('modal-log-session');
+          await loadSessions();
+        } else {
+          // If guest and backend rejected, save to memory
+          saveSessionToLocalMemory(payload, editId);
+          closeModal('modal-log-session');
+          showToast('세션이 저장되었습니다! (게스트 로컬)');
+          renderSessions();
+        }
+      } catch (err) {
+        saveSessionToLocalMemory(payload, editId);
+        closeModal('modal-log-session');
+        showToast('세션이 저장되었습니다! (로컬 모드)');
+        renderSessions();
+      }
+    }
+
+    function saveSessionToLocalMemory(payload, editId) {
+      if (editId) {
+        const idx = allSessions.findIndex(s => s.id == editId);
+        if (idx !== -1) {
+          allSessions[idx] = {
+            ...allSessions[idx],
+            ...payload,
+            track_name: getTrackNameById(payload.track_id),
+            ...payload.setup
+          };
+        }
+      } else {
+        const newSession = {
+          id: Date.now(),
+          track_name: getTrackNameById(payload.track_id),
+          track_layout: 'Standard',
+          ...payload,
+          ...payload.setup
+        };
+        allSessions.unshift(newSession);
+      }
+    }
+
+    async function deleteSession(id) {
+      if (!confirm('정말로 이 세션 기록을 삭제하시겠습니까?')) return;
+      try {
+        await fetch(`${API_BASE}/sessions/${id}`, { method: 'DELETE' });
+      } catch (e) {}
+      allSessions = allSessions.filter(s => s.id != id);
+      showToast('세션이 삭제되었습니다.');
+      renderSessions();
+    }
+
+    function viewSessionDetail(id) {
+      const s = allSessions.find(item => item.id == id);
+      if (!s) return;
+
+      const content = document.getElementById('session-detail-content');
+      content.innerHTML = `
+        <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border-subtle); padding-bottom:0.75rem;">
+          <div>
+            <h3 style="font-family:var(--font-display); font-size:1.2rem; color:#fff;">${s.track_name}</h3>
+            <p style="font-size:0.8rem; color:var(--text-muted);">${s.vehicle_name} | ${s.session_date} (Session ${s.session_number})</p>
+          </div>
+          <div style="text-align:right;">
+            <div style="font-size:0.7rem; color:var(--text-dim); text-transform:uppercase;">Best Lap</div>
+            <div style="font-family:var(--font-mono); font-size:1.4rem; font-weight:900; color:var(--accent-green);">${formatLapTime(s.best_lap_ms)}</div>
+          </div>
+        </div>
+
+        <!-- 4-Wheel Detailed PSI Box -->
+        <div class="car-2x2-setup-box" style="margin-top:0.75rem;">
+          <h4 style="font-family:var(--font-display); font-size:0.85rem; color:var(--accent-cyan); margin-bottom:0.4rem;">4륜 공기압 및 델타 실측치</h4>
+          <div class="car-2x2-grid">
+            <div class="wheel-card-input">
+              <div class="wheel-card-title"><span>FL (전륜 좌)</span></div>
+              <div style="font-family:var(--font-mono); font-size:0.85rem;">
+                냉간: <strong>${s.cold_psi_fl || '--'} PSI</strong> &rarr; 열간: <strong style="color:var(--accent-amber);">${s.hot_psi_fl || '--'} PSI</strong>
+              </div>
+            </div>
+            <div class="wheel-card-input">
+              <div class="wheel-card-title"><span>FR (전륜 우)</span></div>
+              <div style="font-family:var(--font-mono); font-size:0.85rem;">
+                냉간: <strong>${s.cold_psi_fr || '--'} PSI</strong> &rarr; 열간: <strong style="color:var(--accent-amber);">${s.hot_psi_fr || '--'} PSI</strong>
+              </div>
+            </div>
+            <div class="wheel-card-input">
+              <div class="wheel-card-title"><span>RL (후륜 좌)</span></div>
+              <div style="font-family:var(--font-mono); font-size:0.85rem;">
+                냉간: <strong>${s.cold_psi_rl || '--'} PSI</strong> &rarr; 열간: <strong style="color:var(--accent-amber);">${s.hot_psi_rl || '--'} PSI</strong>
+              </div>
+            </div>
+            <div class="wheel-card-input">
+              <div class="wheel-card-title"><span>RR (후륜 우)</span></div>
+              <div style="font-family:var(--font-mono); font-size:0.85rem;">
+                냉간: <strong>${s.cold_psi_rr || '--'} PSI</strong> &rarr; 열간: <strong style="color:var(--accent-amber);">${s.hot_psi_rr || '--'} PSI</strong>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Setup Specs & Notes -->
+        <div style="background:rgba(0,0,0,0.3); padding:0.85rem; border-radius:var(--radius-sm); border:1px solid var(--border-subtle); display:flex; flex-direction:column; gap:0.45rem; font-size:0.85rem;">
+          <div><span style="color:var(--text-dim);">기온/노면:</span> ${s.air_temp || '--'}°C / ${s.track_temp || '--'}°C (${s.weather_condition || 'DRY'})</div>
+          <div><span style="color:var(--text-dim);">댐퍼 감쇠력:</span> F: ${s.damper_front_clicks ?? '--'} Clicks / R: ${s.damper_rear_clicks ?? '--'} Clicks</div>
+          <div><span style="color:var(--text-dim);">드라이버 피드백:</span></div>
+          <div style="background:rgba(255,255,255,0.03); padding:0.5rem; border-radius:4px; color:#f1f5f9; line-height:1.45;">
+            ${s.driver_notes || '작성된 메모가 없습니다.'}
+          </div>
+        </div>
+      `;
+
+      openModal('modal-session-detail');
+      lucide.createIcons();
+    }
+
+    // =========================================================================
+    // FEATURE 2: GPS LAP TIMER ENGINE
+    // =========================================================================
+    let lapTimerActive = false;
+    let lapTimerSimActive = false;
+    let lapTimerInterval = null;
+    let lapCurrentTrackId = 1;
+    let lapStartTime = 0;
+    let lapElapsedMs = 0;
+    let lapCurrentNumber = 1;
+    let lapBestMs = 0;
+    let lapRecordedList = [];
+
+    function onLapTimerTrackChange() {
+      lapCurrentTrackId = Number(document.getElementById('lap-track-select').value) || 1;
+      resetLapTimer();
+    }
+
+    function toggleLapTimer() {
+      if (lapTimerActive) {
+        stopLapTimer();
+      } else {
+        startLapTimer(false);
+      }
+    }
+
+    function toggleLapTimerSimulation() {
+      if (lapTimerSimActive) {
+        stopLapTimer();
+      } else {
+        startLapTimer(true);
+      }
+    }
+
+    function startLapTimer(isSim = false) {
+      getAudioContext();
+      lapTimerActive = true;
+      lapTimerSimActive = isSim;
+      lapStartTime = Date.now() - lapElapsedMs;
+
+      const btnMain = document.getElementById('btn-lap-start-toggle');
+      btnMain.innerHTML = `<i data-lucide="pause"></i> <span>타이머 정지</span>`;
+      btnMain.style.background = 'var(--accent-red)';
+
+      const statusBadge = document.getElementById('lap-gps-status-badge');
+      const statusText = document.getElementById('lap-gps-status-text');
+
+      if (isSim) {
+        statusBadge.className = 'hud-status-badge sim';
+        statusText.innerText = '가상 주행 시뮬레이션 중';
+      } else {
+        statusBadge.className = 'hud-status-badge active';
+        statusText.innerText = '실시간 GPS 계측 중';
+        initRealGeolocation();
+      }
+
+      playBeep(440, 0.2);
+
+      lapTimerInterval = setInterval(() => {
+        lapElapsedMs = Date.now() - lapStartTime;
+        document.getElementById('lap-display-time').innerText = formatTimerDisplay(lapElapsedMs);
+
+        // Simulation auto lap crossing trigger
+        if (isSim) {
+          runLapSimulationStep(lapElapsedMs);
+        }
+      }, 40);
+
+      lucide.createIcons();
+    }
+
+    function stopLapTimer() {
+      lapTimerActive = false;
+      lapTimerSimActive = false;
+      clearInterval(lapTimerInterval);
+
+      const btnMain = document.getElementById('btn-lap-start-toggle');
+      btnMain.innerHTML = `<i data-lucide="play"></i> <span>타이머 시작</span>`;
+      btnMain.style.background = '';
+
+      const statusBadge = document.getElementById('lap-gps-status-badge');
+      const statusText = document.getElementById('lap-gps-status-text');
+      statusBadge.className = 'hud-status-badge';
+      statusText.innerText = 'GPS 대기 중';
+
+      lucide.createIcons();
+    }
+
+    function resetLapTimer() {
+      stopLapTimer();
+      lapElapsedMs = 0;
+      lapCurrentNumber = 1;
+      lapBestMs = 0;
+      lapRecordedList = [];
+
+      document.getElementById('lap-display-time').innerText = "00:00.000";
+      document.getElementById('lap-current-num-pill').innerText = "LAP 1";
+      document.getElementById('lap-hud-best').innerText = "--:--.---";
+      document.getElementById('lap-hud-last').innerText = "--:--.---";
+      document.getElementById('lap-hud-speed').innerHTML = `0 <small style="font-size:0.75rem; color:var(--text-dim)">km/h</small>`;
+      document.getElementById('lap-delta-display').innerText = "BEST DELTA: --.---s";
+      document.getElementById('lap-delta-display').className = "hud-delta-display even";
+    }
+
+    function formatTimerDisplay(ms) {
+      const totalSec = ms / 1000;
+      const min = Math.floor(totalSec / 60);
+      const sec = Math.floor(totalSec % 60);
+      const msec = Math.floor(ms % 1000);
+      const minStr = min < 10 ? `0${min}` : min;
+      const secStr = sec < 10 ? `0${sec}` : sec;
+      const msStr = msec < 100 ? (msec < 10 ? `00${msec}` : `0${msec}`) : msec;
+      return `${minStr}:${secStr}.${msStr}`;
+    }
+
+    function runLapSimulationStep(elapsed) {
+      // Fluctuate speed smoothly (70km/h ~ 215km/h)
+      const speed = Math.round(140 + Math.sin(elapsed / 1800) * 65 + Math.cos(elapsed / 800) * 15);
+      document.getElementById('lap-hud-speed').innerHTML = `${speed} <small style="font-size:0.75rem; color:var(--text-dim)">km/h</small>`;
+
+      // Fake a lap finish every 45 seconds for testing
+      const simLapSec = GLOBAL_CIRCUITS[lapCurrentTrackId]?.minLapSec || 40;
+      if (elapsed >= (simLapSec * 1000)) {
+        triggerLapFinish(elapsed);
+        lapStartTime = Date.now();
+      }
+    }
+
+    function triggerLapFinish(lapTimeMs) {
+      playBeep(880, 0.25);
+      document.getElementById('lap-hud-last').innerText = formatLapTime(lapTimeMs);
+
+      if (lapBestMs === 0 || lapTimeMs < lapBestMs) {
+        lapBestMs = lapTimeMs;
+        document.getElementById('lap-hud-best').innerText = formatLapTime(lapBestMs);
+        document.getElementById('lap-delta-display').innerText = `BEST LAP ACHIEVED! 🎉`;
+        document.getElementById('lap-delta-display').className = "hud-delta-display faster";
+        playReleaseChime();
+      }
+
+      lapRecordedList.push({
+        lap_number: lapCurrentNumber,
+        lap_time_ms: lapTimeMs
+      });
+
+      lapCurrentNumber++;
+      document.getElementById('lap-current-num-pill').innerText = `LAP ${lapCurrentNumber}`;
+    }
+
+    function initRealGeolocation() {
+      if (!navigator.geolocation) {
+        showToast('브라우저가 Geolocation을 지원하지 않습니다.');
+        return;
+      }
+      navigator.geolocation.watchPosition((pos) => {
+        const { latitude, longitude, speed, heading, accuracy } = pos.coords;
+        document.getElementById('lap-diag-coords').innerText = `${latitude.toFixed(5)}, ${longitude.toFixed(5)}`;
+        document.getElementById('lap-diag-acc').innerText = `±${accuracy ? accuracy.toFixed(1) : 3.0}m`;
+        document.getElementById('lap-diag-heading').innerText = `방위각: ${heading ? Math.round(heading) : 0}°`;
+        if (speed !== null) {
+          const kmh = Math.round(speed * 3.6);
+          document.getElementById('lap-hud-speed').innerHTML = `${kmh} <small style="font-size:0.75rem; color:var(--text-dim)">km/h</small>`;
+        }
+      }, (err) => {
+        console.warn('GPS Watch warning:', err);
+      }, { enableHighAccuracy: true, maximumAge: 0 });
+    }
+
+    function autoDetectNearestCircuitForTimer() {
+      if (!navigator.geolocation) {
+        showToast('위치 서비스를 사용할 수 없습니다.');
+        return;
+      }
+      showToast('주변 서킷 GPS 탐색 중...');
+      navigator.geolocation.getCurrentPosition((pos) => {
+        const { latitude, longitude } = pos.coords;
+        let nearestId = 1;
+        let minDistance = Infinity;
+
+        Object.values(GLOBAL_CIRCUITS).forEach(c => {
+          const d = Math.hypot(c.lat - latitude, c.lon - longitude);
+          if (d < minDistance) {
+            minDistance = d;
+            nearestId = c.id;
+          }
+        });
+
+        document.getElementById('lap-track-select').value = nearestId;
+        onLapTimerTrackChange();
+        showToast(`최인접 서킷 [${GLOBAL_CIRCUITS[nearestId].name}] 자동 설정!`);
+      }, () => {
+        showToast('GPS 위치 수신 실패 (인제 스피디움 기본 설정)');
+      });
+    }
+
+    function saveTimerLapsToSession() {
+      if (lapRecordedList.length === 0 && lapElapsedMs <= 0) {
+        showToast('측정된 랩타임 데이터가 없습니다.');
+        return;
+      }
+
+      openAddSessionModal();
+      document.getElementById('form-track-id').value = lapCurrentTrackId;
+      const best = lapBestMs > 0 ? lapBestMs : lapElapsedMs;
+      document.getElementById('form-best-lap').value = formatLapTime(best);
+      showToast('랩타이머 기록이 세션 폼에 입력되었습니다! 🏎️');
+    }
+
+    // =========================================================================
+    // FEATURE 3: VBOX GPS PIT LANE TIMER ENGINE
+    // =========================================================================
+    let pitTimerActive = false;
+    let pitSimActive = false;
+    let pitTimerInterval = null;
+    let pitStartTime = 0;
+    let pitElapsedSec = 0;
+    let pitTargetSec = 60;
+    let pitCurrentTrackId = 1;
+    let pitSpeedKmh = 0;
+
+    function onPitTimerTrackChange() {
+      pitCurrentTrackId = Number(document.getElementById('pit-track-select').value) || 1;
+      resetPitTimer();
+    }
+
+    function togglePitTimer() {
+      if (pitTimerActive) {
+        stopPitTimer();
+      } else {
+        startPitTimer(false);
+      }
+    }
+
+    function togglePitTimerSimulation() {
+      if (pitSimActive) {
+        stopPitTimer();
+      } else {
+        startPitTimer(true);
+      }
+    }
+
+    function startPitTimer(isSim = false) {
+      getAudioContext();
+      pitTimerActive = true;
+      pitSimActive = isSim;
+      pitStartTime = Date.now();
+      pitElapsedSec = 0;
+
+      const btn = document.getElementById('btn-pit-start-toggle');
+      btn.innerHTML = `<i data-lucide="pause"></i> <span>피트 타이머 정지</span>`;
+      btn.style.background = 'var(--accent-red)';
+
+      const statusBadge = document.getElementById('pit-gps-status-badge');
+      const statusText = document.getElementById('pit-gps-status-text');
+      statusBadge.className = 'hud-status-badge active';
+      statusText.innerText = isSim ? '피트 시뮬레이션 중' : '피트 실시간 감시 중';
+
+      playBeep(660, 0.2);
+
+      // Reset node highlights
+      document.getElementById('node-pit-entry').className = 'pit-gate-node active';
+      document.getElementById('node-pit-box').className = 'pit-gate-node';
+      document.getElementById('node-pit-exit').className = 'pit-gate-node';
+      document.getElementById('pit-gauge-box').className = 'pit-gauge-box';
+
+      pitTimerInterval = setInterval(() => {
+        pitElapsedSec = (Date.now() - pitStartTime) / 1000;
+        const remain = Math.max(0, pitTargetSec - pitElapsedSec);
+        document.getElementById('pit-countdown-display').innerText = remain.toFixed(1);
+        document.getElementById('pit-total-time-display').innerText = `${pitElapsedSec.toFixed(1)}s`;
+
+        if (isSim) {
+          runPitSimulationStep(pitElapsedSec, remain);
+        }
+      }, 50);
+
+      lucide.createIcons();
+    }
+
+    function stopPitTimer() {
+      pitTimerActive = false;
+      pitSimActive = false;
+      clearInterval(pitTimerInterval);
+
+      const btn = document.getElementById('btn-pit-start-toggle');
+      btn.innerHTML = `<i data-lucide="play"></i> <span>피트 타이머 시작</span>`;
+      btn.style.background = '';
+
+      const statusBadge = document.getElementById('pit-gps-status-badge');
+      statusBadge.className = 'hud-status-badge';
+      document.getElementById('pit-gps-status-text').innerText = '피트 대기 중';
+      lucide.createIcons();
+    }
+
+    function resetPitTimer() {
+      stopPitTimer();
+      document.getElementById('pit-countdown-display').innerText = "60.0";
+      document.getElementById('pit-total-time-display').innerText = "00.0s";
+      document.getElementById('pit-speed-display').innerHTML = `0 <small style="font-size:0.75rem; color:var(--text-dim)">km/h</small>`;
+      document.getElementById('pit-alert-text').innerText = "APPROACHING PIT LANE";
+      document.getElementById('pit-gauge-box').className = 'pit-gauge-box';
+      document.getElementById('node-pit-entry').className = 'pit-gate-node';
+      document.getElementById('node-pit-box').className = 'pit-gate-node';
+      document.getElementById('node-pit-exit').className = 'pit-gate-node';
+    }
+
+    function runPitSimulationStep(elapsed, remain) {
+      const gaugeBox = document.getElementById('pit-gauge-box');
+      const alertText = document.getElementById('pit-alert-text');
+
+      if (elapsed < 6) {
+        // Step 1: Entering pit lane
+        pitSpeedKmh = Math.round(58 + Math.sin(elapsed) * 4);
+        alertText.innerText = "PIT ENTRY CROSSED - SPEED LIMIT 60";
+        document.getElementById('node-pit-entry').className = 'pit-gate-node passed';
+        document.getElementById('node-pit-box').className = 'pit-gate-node active';
+      } else if (elapsed >= 6 && remain > 0) {
+        // Step 2: In Pit Box Stationary Stop
+        pitSpeedKmh = 0;
+        alertText.innerText = `BOX STOP STATIONARY (REMAIN: ${remain.toFixed(1)}s)`;
+        document.getElementById('node-pit-box').className = 'pit-gate-node passed';
+
+        // 3-2-1 Audio Beep countdown
+        if (remain <= 3.2 && remain >= 2.9) playBeep(880, 0.1);
+        if (remain <= 2.2 && remain >= 1.9) playBeep(880, 0.1);
+        if (remain <= 1.2 && remain >= 0.9) playBeep(880, 0.1);
+      } else if (remain <= 0 && elapsed < 68) {
+        // Step 3: RELEASE GO!
+        pitSpeedKmh = Math.round(35 + (elapsed - 60) * 4);
+        alertText.innerText = "RELEASE GO! LAUNCH NOW! 🟢";
+        gaugeBox.className = 'pit-gauge-box pit-release-flash';
+        document.getElementById('node-pit-exit').className = 'pit-gate-node active';
+        playReleaseChime();
+      } else {
+        // Pit exit passed
+        stopPitTimer();
+        alertText.innerText = "PIT EXIT COMPLETE - SESSION RESUMED";
+        document.getElementById('node-pit-exit').className = 'pit-gate-node passed';
+      }
+
+      document.getElementById('pit-speed-display').innerHTML = `${pitSpeedKmh} <small style="font-size:0.75rem; color:var(--text-dim)">km/h</small>`;
+    }
+
+    // =========================================================================
+    // FEATURE 5: GUIDES & INSIGHTS
+    // =========================================================================
+    async function loadGuides() {
+      try {
+        const res = await fetch(`${API_BASE}/guides`);
+        const data = await res.json();
+        allGuides = data.guides || [];
+      } catch (e) {
+        allGuides = getSampleGuides();
+      }
+      renderGuides();
+    }
+
+    function getSampleGuides() {
+      return [
+        {
+          id: 1,
+          slug: "inje-speedium-attack-guide",
+          title: "인제 스피디움 1분 52초 돌파 공략 및 코너별 에이펙스 포인트",
+          category: "서킷 공략",
+          excerpt: "1번 헤어핀 제동 포인트부터 블라인드 내리막 4번 코너, 연속 S자 시케인 하중 이동 노하우를 총정리합니다.",
+          read_time: "5 min",
+          views: 1420,
+          cover_image: "/app/screenshot-dashboard.png",
+          content: `## 1. 인제 스피디움 트랙 특성과 하중 이동
+인제 스피디움은 3.908km 구간 동안 고저차가 무려 40m에 달하는 테크니컬 마운틴 서킷입니다.
+
+### [섹터 1] 1번 헤어핀 & 2-3번 내리막 고속 코너
+- **메인 스트레이트 최고속 진입**: 200km/h 이상에서 100m 브레이킹 보드 직전 풀 브레이킹
+- **트레일 브레이킹 유지**: 에이펙스까지 브레이크 압력을 30% 유지하여 전륜 접지력 극대화
+- **4륜 공기압 세팅**: 좌측 타이어 하중 집중을 감안하여 FL 냉간 공기압을 1~1.5psi 낮게 세팅 권장`
+        },
+        {
+          id: 2,
+          slug: "tire-pressure-hot-psi-guide",
+          title: "트랙데이 타이어 열간 공기압(Hot PSI) 셋업의 정석",
+          category: "셋업 노하우",
+          excerpt: "타이어 과열 방지와 코너링 그립 유지를 위한 피트인 직후 1분 골든타임 공기압 실측 매뉴얼.",
+          read_time: "6 min",
+          views: 2180,
+          cover_image: "/app/screenshot-session.png",
+          content: `## 1. 냉간(Cold)과 열간(Hot) 공기압의 물리적 상관관계
+서킷 주행 시 강력한 제동 열기와 아스팔트 노면 마찰로 타이어 내부 공기 온도는 80°C~100°C까지 치솟습니다.
+
+### 핵심 셋업 원칙
+1. **피트인 직후 1분 이내 실측**: 타이어 온도가 식기 전에 게이지로 4륜 즉시 체크
+2. **타이어 권장 열간 공기압 도달**: 하이그립 UHP 타이어 기준 32~34 PSI 유지
+3. **감압(Bleed-off)**: 35 PSI를 초과할 경우 1~2 PSI 즉시 감압`
+        },
+        {
+          id: 3,
+          slug: "damper-tuning-and-weight-transfer",
+          title: "서스펜션 댐퍼 감쇠력 튜닝과 코너링 밸런스 조율",
+          category: "셋업 노하우",
+          excerpt: "언더스티어와 오버스티어를 잡는 감쇠력 1클릭의 미학. 코일오버 전/후륜 세팅 가이드.",
+          read_time: "4 min",
+          views: 980,
+          cover_image: "/app/screenshot-timer.png",
+          content: `## 댐퍼 감쇠력 튜닝 가이드
+댐퍼의 역할은 스프링의 진동을 흡수하고 하중 이동 속도(Weight Transfer Rate)를 제어하는 것입니다.`
+        }
+      ];
+    }
+
+    function renderGuides() {
+      const container = document.getElementById('guides-list-container');
+      if (!container) return;
+
+      let filtered = allGuides;
+      if (currentGuideCategory !== 'ALL') {
+        filtered = allGuides.filter(g => g.category.includes(currentGuideCategory));
+      }
+
+      const searchKw = (document.getElementById('guides-search-input')?.value || '').trim().toLowerCase();
+      if (searchKw) {
+        filtered = filtered.filter(g => 
+          g.title.toLowerCase().includes(searchKw) || 
+          (g.excerpt && g.excerpt.toLowerCase().includes(searchKw))
+        );
+      }
+
+      container.innerHTML = filtered.map(g => `
+        <div class="guide-card" onclick="openGuideReader('${g.slug || g.id}')">
+          <div class="guide-cover-wrap">
+            <img src="${g.cover_image || '/v1/icon-512.png'}" alt="${g.title}" class="guide-cover-img" onerror="this.src='/v1/icon-512.png'">
+            <span class="guide-category-badge">${g.category || '가이드'}</span>
+          </div>
+          <div class="guide-body">
+            <h3 class="guide-title">${g.title}</h3>
+            <p class="guide-excerpt">${g.excerpt || ''}</p>
+            <div class="guide-meta-row">
+              <span><i data-lucide="clock" style="width:12px; height:12px;"></i> ${g.read_time || '5 min'}</span>
+              <span><i data-lucide="eye" style="width:12px; height:12px;"></i> ${g.views || 0} views</span>
+            </div>
+          </div>
+        </div>
+      `).join('');
+
+      lucide.createIcons();
+    }
+
+    function filterGuidesByCategory(cat) {
+      currentGuideCategory = cat;
+      document.querySelectorAll('#guides-filter-chips .filter-chip').forEach(c => {
+        c.classList.toggle('active', c.getAttribute('data-cat') == cat || (cat === 'ALL' && c.getAttribute('data-cat') === 'ALL'));
+      });
+      renderGuides();
+    }
+
+    function filterGuides() {
+      renderGuides();
+    }
+
+    async function openGuideReader(idOrSlug) {
+      let guide = allGuides.find(g => g.slug === idOrSlug || g.id == idOrSlug);
+      try {
+        const res = await fetch(`${API_BASE}/guides/${idOrSlug}`);
+        if (res.ok) {
+          const data = await res.json();
+          guide = data.guide;
+        }
+      } catch (e) {}
+
+      if (!guide) return;
+
+      document.getElementById('guide-modal-title').innerText = guide.title;
+      document.getElementById('guide-rendered-content').innerHTML = `
+        <div style="font-size:0.8rem; color:var(--accent-cyan); font-family:var(--font-display); font-weight:700; margin-bottom:0.4rem;">${guide.category} | ${guide.read_time || '5 min'} read</div>
+        <h1>${guide.title}</h1>
+        <p style="font-size:0.9rem; color:var(--text-muted); margin-bottom:1.2rem; border-left:3px solid var(--accent-cyan); padding-left:0.65rem;">${guide.excerpt || ''}</p>
+        <div>${renderSimpleMarkdown(guide.content || guide.excerpt)}</div>
+      `;
+
+      openModal('modal-guide-reader');
+      lucide.createIcons();
+    }
+
+    function renderSimpleMarkdown(md) {
+      if (!md) return '';
+      return md
+        .replace(/^### (.*$)/gim, '<h3>$1</h3>')
+        .replace(/^## (.*$)/gim, '<h2>$1</h2>')
+        .replace(/^# (.*$)/gim, '<h1>$1</h1>')
+        .replace(/\*\*(.*)\*\*/gim, '<strong>$1</strong>')
+        .replace(/\*(.*)\*/gim, '<em>$1</em>')
+        .replace(/^- (.*$)/gim, '<li>$1</li>')
+        .replace(/\n$/gim, '<br />');
+    }
+
+    function copyCurrentGuideUrl() {
+      navigator.clipboard.writeText(window.location.href);
+      showToast('가이드 링크가 클립보드에 복사되었습니다! 🔗');
+    }
+
+    // =========================================================================
+    // AUTH MODAL
+    // =========================================================================
+    let authMode = 'login';
+    function switchAuthMode(mode) {
+      authMode = mode;
+      document.getElementById('auth-modal-title').innerText = mode === 'login' ? '드라이버 로그인' : '새 드라이버 회원가입';
+      document.getElementById('auth-submit-btn').innerText = mode === 'login' ? '로그인' : '회원가입';
+      document.getElementById('auth-name-group').style.display = mode === 'register' ? 'flex' : 'none';
+
+      document.getElementById('auth-tab-login').style.background = mode === 'login' ? 'var(--accent-cyan)' : 'transparent';
+      document.getElementById('auth-tab-login').style.color = mode === 'login' ? '#000' : '#fff';
+
+      document.getElementById('auth-tab-register').style.background = mode === 'register' ? 'var(--accent-cyan)' : 'transparent';
+      document.getElementById('auth-tab-register').style.color = mode === 'register' ? '#000' : '#fff';
+    }
+
+    async function handleAuthSubmit(e) {
+      e.preventDefault();
+      const email = document.getElementById('auth-email').value.trim();
+      const password = document.getElementById('auth-password').value;
+      const name = document.getElementById('auth-name').value.trim();
+
+      const url = authMode === 'login' ? `${API_BASE}/auth/login` : `${API_BASE}/auth/register`;
+      const payload = authMode === 'login' ? { email, password } : { email, password, name };
+
+      try {
+        const res = await fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        if (res.ok) {
+          currentUser = data.user;
+          updateUserUI();
+          closeModal('modal-auth');
+          showToast(`${currentUser.name} 님, 환영합니다! 🏁`);
+          loadSessions();
+        } else {
+          alert(data.error || '인증에 실패했습니다.');
+        }
+      } catch (err) {
+        alert('네트워크 오류가 발생했습니다.');
+      }
+    }
+
+    // Initialize application on DOM ready
+    document.addEventListener('DOMContentLoaded', initApp);
+  </script>
+</body>
+</html>
