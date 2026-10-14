@@ -28,13 +28,14 @@
 [ Layout Structure ]
 ┌─────────────────┬────────────────────────────────────────────────────────┐
 │  Sidebar        │  Topbar (Page Title, Language Selector, Action Modals) │
-│  - Logo         │  [ 팀 등록 | 팀 가입 | 머신 등록 | 세션 로깅 | 로그인 ] │
-│  - Team Switch  ├────────────────────────────────────────────────────────┤
-│  - 8 Main Tabs  │  Active Tab Panel                                      │
-│  - User Profile │  [Dashboard | Sessions | Garage | Analytics |          │
-│                 │   Leaderboard | Timer | Guides | Feedback]             │
+│  - Logo         │  [ 세션 로깅 | 랩 타이머 | 피트 타이머 | 차량+ | 팀+ |   │
+│  - Team Switch  │    팀 가입 | 언어 전환 | 로그인 ]                       │
+│  - 6 Main Tabs  ├────────────────────────────────────────────────────────┤
+│  - User Profile │  Active Tab Panel                                      │
+│                 │  [Dashboard | Garage | Sessions | Team |               │
+│                 │   Leaderboard | Guides | Feedback]                     │
 │                 ├────────────────────────────────────────────────────────┤
-│                 │  Mobile Bottom Nav (Home, Log, Timer, Insights, Menu)  │
+│                 │  Mobile Bottom Nav (Home, Garage, Sessions, Team, etc.)│
 └─────────────────┴────────────────────────────────────────────────────────┘
 ```
 

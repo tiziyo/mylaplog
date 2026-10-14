@@ -1,6 +1,15 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="en">
 <head>
+  <!-- Google tag (gtag.js) - Google Analytics 4 -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-LSLPRQXX4Q"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-LSLPRQXX4Q');
+  </script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
@@ -8,8 +17,8 @@
   <meta http-equiv="Expires" content="0">
   <title>MyLapLog Admin | 통합 관리자 센터</title>
   <link rel="icon" type="image/x-icon" href="/favicon.ico">
-  <link rel="icon" type="image/png" sizes="192x192" href="/app/icon-192.png">
-  <link rel="apple-touch-icon" href="/app/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="/v1/icon-192.png">
+  <link rel="apple-touch-icon" href="/v1/apple-touch-icon.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Orbitron:wght@500;700;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
@@ -659,7 +668,7 @@
   <!-- Top Header -->
   <header class="admin-header">
     <a href="admin.html" class="brand-title">
-      <img src="/app/icon-192.png" alt="MyLapLog Logo" class="brand-logo-img">
+      <img src="/v1/icon-192.png" alt="MyLapLog Logo" class="brand-logo-img">
       <div class="brand-text">
         <h1>MyLapLog Admin <span>CONTROL CENTER</span></h1>
       </div>
@@ -672,7 +681,7 @@
       <button id="btn-admin-logout" class="btn btn-danger btn-sm" onclick="handleAdminLogout()" style="display:none;" title="관리자 세션 종료">
         <i data-lucide="log-out"></i> 로그아웃
       </button>
-      <a href="index.html" class="btn btn-cyan btn-sm" target="_blank" title="메인 서비스 열기">
+      <a href="/v1/" class="btn btn-cyan btn-sm" target="_blank" title="메인 서비스 열기">
         <i data-lucide="external-link"></i> 메인 앱 열기
       </a>
     </div>
@@ -704,7 +713,7 @@
       </form>
 
       <div style="margin-top: 1.5rem; pt-3; border-top: 1px solid var(--border-subtle);">
-        <a href="index.html" class="btn btn-secondary btn-sm" style="width:100%; justify-content:center; margin-top:1rem;">
+        <a href="/v1/" class="btn btn-secondary btn-sm" style="width:100%; justify-content:center; margin-top:1rem;">
           <i data-lucide="arrow-left"></i> 메인 대시보드로 돌아가기
         </a>
       </div>
@@ -1206,7 +1215,7 @@
                 <span>Google Search SERP Live Preview (구글 검색결과 실시간 미리보기)</span>
               </div>
               <div style="font-size: 0.78rem; color: #8ab4f8; font-family: var(--font-mono); margin-bottom: 0.3rem; display: flex; align-items: center; gap: 0.4rem;">
-                <img src="/app/favicon.ico" alt="icon" style="width: 14px; height: 14px; border-radius: 2px;">
+                <img src="/v1/favicon.ico" alt="icon" style="width: 14px; height: 14px; border-radius: 2px;">
                 <span id="serp-preview-url">https://www.mylaplog.com > guides > guide-slug?lang=en</span>
               </div>
               <div id="serp-preview-title" style="font-size: 1.05rem; font-weight: 600; color: #8ab4f8; text-decoration: underline; cursor: pointer; margin-bottom: 0.35rem; line-height: 1.35;">

@@ -198,18 +198,14 @@ $activeCategory = trim($_GET['category'] ?? '');
 
 // ============================================
 // SERVER-SIDE LANGUAGE DETECTION (i18n)
-// Priority: ?lang=en URL param > Accept-Language header
+// Priority: ?lang=ko URL param > Default: English
 // ============================================
 $reqLang = strtolower(trim($_GET['lang'] ?? ''));
-if ($reqLang === 'en') {
-    $lang = 'en';
-} elseif ($reqLang === 'ko') {
+if ($reqLang === 'ko') {
     $lang = 'ko';
 } else {
-    // Auto-detect from Accept-Language header
-    $acceptLang = strtolower($_SERVER['HTTP_ACCEPT_LANGUAGE'] ?? '');
-    $lang = (strpos($acceptLang, 'en') !== false && strpos($acceptLang, 'ko') === false) ? 'en' : 'ko';
-    if (strpos($acceptLang, 'ko') !== false) $lang = 'ko'; // KO wins if present
+    // English is the default site language
+    $lang = 'en';
 }
 $isEn = ($lang === 'en');
 
@@ -224,7 +220,7 @@ $pageDescription = $isEn
     : '모터스포츠 기술 아카이브. 레이싱 드라이빙과 엔지니어링 정보를 다룹니다. 서킷 주행 라인, 레이싱 기록, 실전 트랙 세팅 등 랩타임 단축을 위한 데이터와 메커니즘을 제공합니다.';
 
 $canonicalUrl = $baseUrl . '/guides';
-$ogImage = $baseUrl . '/app/icon-512.png';
+$ogImage = $baseUrl . '/v1/icon-512.png';
 $guide = null;
 $relatedGuides = [];
 
@@ -282,6 +278,28 @@ if ($slug !== '') {
 <!DOCTYPE html>
 <html lang="<?= $lang ?>">
 <head>
+  <!-- Google tag (gtag.js) - Google Analytics 4 -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-LSLPRQXX4Q"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-LSLPRQXX4Q');
+  </script>
+  <script>
+    (function() {
+      var saved = localStorage.getItem('mylaplog_lang');
+      if (saved !== 'ko') {
+        if (!document.cookie.includes('googtrans=')) {
+          var domainParts = window.location.hostname.split('.');
+          var rootDomain = domainParts.length >= 2 ? '.' + domainParts.slice(-2).join('.') : window.location.hostname;
+          document.cookie = 'googtrans=/ko/en; path=/; domain=' + rootDomain;
+          document.cookie = 'googtrans=/ko/en; path=/;';
+        }
+      }
+    })();
+  </script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
   
@@ -330,8 +348,7 @@ if ($slug !== '') {
 
   <!-- Favicon & PWA Icons -->
   <link rel="icon" type="image/x-icon" href="/favicon.ico">
-  <link rel="apple-touch-icon" href="/app/apple-touch-icon.png">
-  <link rel="manifest" href="/app/manifest.json">
+  <link rel="apple-touch-icon" href="/v1/apple-touch-icon.png">
   <meta name="theme-color" content="#06090e">
 
   <!-- Google Fonts: Inter & Outfit -->
@@ -369,7 +386,7 @@ if ($slug !== '') {
       "name": "MyLapLog",
       "logo": {
         "@type": "ImageObject",
-        "url": "https://www.mylaplog.com/app/icon-512.png"
+        "url": "https://www.mylaplog.com/v1/icon-512.png"
       }
     },
     "articleSection": <?= json_encode($guide['category'] ?: ($isEn ? 'Motorsport Setup' : '모터스포츠 셋업'), JSON_UNESCAPED_UNICODE) ?>,
@@ -390,7 +407,7 @@ if ($slug !== '') {
       "name": "MyLapLog",
       "logo": {
         "@type": "ImageObject",
-        "url": "https://www.mylaplog.com/app/icon-512.png"
+        "url": "https://www.mylaplog.com/v1/icon-512.png"
       }
     }
   }
@@ -1127,7 +1144,7 @@ if ($slug !== '') {
   <header class="site-header">
     <div class="header-inner">
       <a href="/" class="logo-link" aria-label="MyLapLog Home">
-        <img src="/app/icon-192.png" alt="MyLapLog Logo" onerror="this.src='/favicon.ico'">
+        <img src="/v1/icon-192.png" alt="MyLapLog Logo" onerror="this.src='/favicon.ico'">
         <div class="logo-text">MyLap<span>Log</span></div>
       </a>
       
@@ -1140,7 +1157,7 @@ if ($slug !== '') {
 
         <a href="/guides" data-i18n="nav_insights" style="font-size:0.84rem; font-weight:600; color:var(--text-main); margin:0 0.2rem;" class="nav-link-guides">인사이트</a>
         
-        <a href="/app/" class="btn-app">
+        <a href="/v1/" class="btn-app">
           <i data-lucide="gauge" style="width:14px; height:14px;"></i>
           <span data-i18n="nav_open_app">앱 바로가기</span>
         </a>
@@ -1230,7 +1247,7 @@ if ($slug !== '') {
         <div class="app-cta-banner">
           <h3 data-i18n="cta_title">나만의 서킷 셋업 & 랩타임을 MyLapLog에 기록하세요</h3>
           <p data-i18n="cta_desc">트랙데이 현장에서 4바퀴 냉간/열간 공기압 실측치와 감쇠력 클릭을 스마트하게 관리하고 랩타임을 줄여보세요.</p>
-          <a href="/app/" class="btn-app" style="font-size:0.92rem; padding:0.6rem 1.3rem;">
+          <a href="/v1/" class="btn-app" style="font-size:0.92rem; padding:0.6rem 1.3rem;">
             <i data-lucide="zap" style="width:16px; height:16px;"></i> <span data-i18n="cta_btn">MyLapLog 무료로 시작하기</span>
           </a>
         </div>
@@ -1327,8 +1344,8 @@ if ($slug !== '') {
   <footer class="site-footer">
     <div class="footer-links">
       <a href="/guides" data-i18n="footer_insights">인사이트 가이드</a>
-      <a href="/app/" data-i18n="footer_app">웹앱 접속</a>
-      <a href="/app/privacy.html" data-i18n="footer_privacy">개인정보처리방침</a>
+      <a href="/v1/" data-i18n="footer_app">웹앱 접속</a>
+      <a href="/v1/privacy.html" data-i18n="footer_privacy">개인정보처리방침</a>
       <a href="/sitemap.xml" data-i18n="footer_sitemap">XML 사이트맵</a>
     </div>
     <p>&copy; <?= date('Y') ?> MyLapLog. All rights reserved. Motorsport Intelligence Platform.</p>
@@ -1417,27 +1434,24 @@ if ($slug !== '') {
       '레이싱 철학': { ko: '레이싱 철학', en: 'Racing Mindset' }
     };
 
-    let currentLang = 'ko';
+    let currentLang = 'en';
 
     function initLanguage() {
       const urlParams = new URLSearchParams(window.location.search);
       const urlLang = urlParams.get('lang');
       const savedLang = localStorage.getItem('mylaplog_lang');
-      const hasGoogCookie = document.cookie.includes('googtrans=/ko/en') || document.cookie.includes('googtrans=%2Fko%2Fen');
 
-      if (urlLang && (urlLang === 'ko' || urlLang === 'en')) {
-        currentLang = urlLang;
-      } else if (savedLang && (savedLang === 'ko' || savedLang === 'en')) {
-        currentLang = savedLang;
-      } else if (hasGoogCookie) {
+      if (urlLang === 'ko') {
+        currentLang = 'ko';
+      } else if (urlLang === 'en') {
+        currentLang = 'en';
+      } else if (savedLang === 'ko') {
+        currentLang = 'ko';
+      } else if (savedLang === 'en') {
         currentLang = 'en';
       } else {
-        const browserLang = (navigator.language || '').toLowerCase();
-        if (browserLang.startsWith('en')) {
-          currentLang = 'en';
-        } else {
-          currentLang = 'ko';
-        }
+        // Default to English
+        currentLang = 'en';
       }
 
       applyLanguage(currentLang);
