@@ -6826,9 +6826,8 @@
      * Export current Lap Timer session telemetry as .vbo file
      */
     function exportLapTimerVboFile() {
-      // If timer is currently running in simulation, finalize active lap so all operated laps are included!
-      if (lapTimerActive && lapTimerSimActive) {
-        finalizeCurrentSimLap();
+      if (lapTimerActive) {
+        stopLapTimer();
       }
 
       let points = lapSessionTelemetry;
@@ -8459,47 +8458,9 @@
     }
 
     function stopLapTimer() {
-      if (lapTimerSimActive) {
-        finalizeCurrentSimLap();
-        return;
-      }
-
       lapTimerActive = false;
       lapTimerSimActive = false;
       clearInterval(lapTimerInterval);
-
-      // If laps were completed and live timer was stopped near finish line, add rollout
-      if (lapSessionTelemetry.length > 0 && lapRecordedList.length > 0) {
-        const track = GLOBAL_CIRCUITS[lapCurrentTrackId] || (typeof allTracks !== 'undefined' ? allTracks.find(t => t.id == lapCurrentTrackId) : null) || GLOBAL_CIRCUITS[1];
-        const lastPt = lapSessionTelemetry[lapSessionTelemetry.length - 1];
-        const headingRad = ((track.heading || 0) * Math.PI) / 180;
-        const cosLat = Math.cos((track.lat * Math.PI) / 180);
-        const distFromSF = getGpsDistanceMeters(lastPt.latitude, lastPt.longitude, track.lat, track.lon);
-
-        if (distFromSF <= 60) {
-          const rolloutCount = 15;
-          const baseTime = lastPt.timestamp || Date.now();
-          for (let i = 1; i <= rolloutCount; i++) {
-            const frac = i / rolloutCount;
-            const forwardM = 15.0 + frac * 80;
-            const northM = Math.cos(headingRad) * forwardM;
-            const eastM = Math.sin(headingRad) * forwardM;
-            lapSessionTelemetry.push({
-              timestamp: baseTime + i * 100,
-              latitude: track.lat + (northM / 111139.0),
-              longitude: track.lon + (eastM / (111139.0 * cosLat)),
-              speedKmh: Math.max(50, (lastPt.speedKmh || 140) - Math.round(frac * 70)),
-              heading: track.heading || 0,
-              altitude: track.elevation || 150,
-              vertVel: 0,
-              accuracy: 1.5,
-              sats: 18,
-              lapNumber: lapRecordedList.length + 1,
-              distanceMeters: Math.round((lastPt.distanceMeters || 0) + forwardM)
-            });
-          }
-        }
-      }
 
       if (lapSessionTelemetry.length > 0) {
         lastCompletedTelemetry = [...lapSessionTelemetry];
@@ -8604,154 +8565,6 @@
     // --- Interactive Lap Timer Simulation (Demonstrates Auto-Start & Predictive Timing) ---
     let lapSimStage = 'approach'; // 'approach' or 'racing'
     let lapSimApproachStart = 0;
-
-    /**
-     * Finalize the active simulation lap smoothly to the finish line
-     * Guarantees that ALL laps operated by the lap timer cross the S/F gate
-     * and are 100% recorded in the .VBO telemetry file.
-     */
-    function finalizeCurrentSimLap() {
-      if (!lapTimerSimActive) return;
-      const track = GLOBAL_CIRCUITS[lapCurrentTrackId] || GLOBAL_CIRCUITS[1];
-      const totalDist = (track && track.layouts && track.layouts[0]?.lengthMeters) || 3908;
-      const simLapSec = 35;
-      const simLapMs = simLapSec * 1000;
-      const headingRad = ((track.heading || 0) * Math.PI) / 180;
-      const cosLat = Math.cos((track.lat * Math.PI) / 180);
-      const scaleR = totalDist / (2 * Math.PI);
-      const baseElev = track.elevation || 150;
-
-      if (lapSimStage === 'approach') {
-        // Complete approach crossing across gate line (Gate Crossing 1: Lap 1 Start)
-        const approachPoints = 25;
-        const approachStartDist = -100;
-        const approachEndDist = 15;
-        const startTime = Date.now() - 2500;
-        for (let i = 0; i <= approachPoints; i++) {
-          const frac = i / approachPoints;
-          const forwardM = approachStartDist + frac * (approachEndDist - approachStartDist);
-          const northM = Math.cos(headingRad) * forwardM;
-          const eastM = Math.sin(headingRad) * forwardM;
-          lapSessionTelemetry.push({
-            timestamp: Math.round(startTime + frac * 2500),
-            latitude: track.lat + (northM / 111139.0),
-            longitude: track.lon + (eastM / (111139.0 * cosLat)),
-            speedKmh: 145,
-            heading: track.heading || 0,
-            altitude: baseElev,
-            vertVel: 0,
-            accuracy: 1.5,
-            sats: 18,
-            lapNumber: 1,
-            distanceMeters: Math.round(frac * 115)
-          });
-        }
-        lapSimStage = 'racing';
-        lapStartTime = Date.now() - 2500;
-        lapElapsedMs = 0;
-      }
-
-      // If racing stage, finalize the current lap to the finish line
-      const currentProgress = Math.max(0, Math.min(0.999, lapElapsedMs / simLapMs));
-      const stepsNeeded = Math.max(10, Math.round((1.0 - currentProgress) * (simLapMs / 100)));
-      const baseTime = Date.now();
-
-      for (let s = 1; s <= stepsNeeded; s++) {
-        const p = currentProgress + (s / stepsNeeded) * (1.0 - currentProgress);
-        const theta = p * Math.PI * 2;
-        const u = Math.sin(theta) + 0.28 * Math.sin(2 * theta) - 0.12 * Math.sin(3 * theta);
-        const v = (1 - Math.cos(theta)) * 0.85 + 0.18 * Math.sin(2 * theta);
-        const straightM = u * (scaleR * 0.45);
-        const lateralM = v * (scaleR * 0.45);
-        const northM = Math.cos(headingRad) * straightM - Math.sin(headingRad) * lateralM;
-        const eastM = Math.sin(headingRad) * straightM + Math.cos(headingRad) * lateralM;
-
-        const nextTheta = (p + 0.005) * Math.PI * 2;
-        const nextU = Math.sin(nextTheta) + 0.28 * Math.sin(2 * nextTheta) - 0.12 * Math.sin(3 * nextTheta);
-        const nextV = (1 - Math.cos(nextTheta)) * 0.85 + 0.18 * Math.sin(2 * nextTheta);
-        const nextStraightM = nextU * (scaleR * 0.45);
-        const nextLateralM = nextV * (scaleR * 0.45);
-        const nextNorthM = Math.cos(headingRad) * nextStraightM - Math.sin(headingRad) * nextLateralM;
-        const nextEastM = Math.sin(headingRad) * nextStraightM + Math.cos(headingRad) * nextLateralM;
-        const dEast = nextEastM - eastM;
-        const dNorth = nextNorthM - northM;
-        const hdg = (Math.atan2(dEast, dNorth) * 180 / Math.PI + 360) % 360;
-
-        const spd = Math.round(145 + Math.sin(p * Math.PI * 6) * 55 + Math.cos(p * Math.PI * 2) * 20);
-        lapSessionTelemetry.push({
-          timestamp: baseTime + s * 100,
-          latitude: track.lat + (northM / 111139.0),
-          longitude: track.lon + (eastM / (111139.0 * cosLat)),
-          speedKmh: spd,
-          heading: hdg,
-          altitude: baseElev + Math.sin(p * Math.PI * 4) * 15,
-          vertVel: 0,
-          accuracy: 1.5,
-          sats: 18,
-          lapNumber: lapCurrentNumber,
-          distanceMeters: Math.round(p * totalDist)
-        });
-      }
-
-      // Finish line crossing point (+15m past gate along track heading)
-      const finishNorth = Math.cos(headingRad) * 15.0;
-      const finishEast = Math.sin(headingRad) * 15.0;
-      lapSessionTelemetry.push({
-        timestamp: baseTime + (stepsNeeded + 1) * 100,
-        latitude: track.lat + (finishNorth / 111139.0),
-        longitude: track.lon + (finishEast / (111139.0 * cosLat)),
-        speedKmh: 145,
-        heading: track.heading || 0,
-        altitude: baseElev,
-        vertVel: 0,
-        accuracy: 1.5,
-        sats: 18,
-        lapNumber: lapCurrentNumber,
-        distanceMeters: totalDist
-      });
-
-      // Trigger lap finish to record in lapRecordedList
-      const finishedMs = Math.round(simLapMs + (lapCurrentNumber % 2 === 0 ? -300 : 250));
-      triggerLapFinish(finishedMs, true);
-
-      // Add smooth rollout deceleration (15 samples = 1.5s) past the finish line
-      const rolloutPoints = 15;
-      const rolloutDist = 90;
-      const rolloutStartTime = baseTime + (stepsNeeded + 2) * 100;
-      for (let i = 1; i <= rolloutPoints; i++) {
-        const frac = i / rolloutPoints;
-        const forwardM = 15.0 + frac * rolloutDist;
-        const rNorth = Math.cos(headingRad) * forwardM;
-        const rEast = Math.sin(headingRad) * forwardM;
-        lapSessionTelemetry.push({
-          timestamp: rolloutStartTime + i * 100,
-          latitude: track.lat + (rNorth / 111139.0),
-          longitude: track.lon + (rEast / (111139.0 * cosLat)),
-          speedKmh: Math.max(50, 140 - Math.round(frac * 80)),
-          heading: track.heading || 0,
-          altitude: baseElev,
-          vertVel: 0,
-          accuracy: 1.5,
-          sats: 18,
-          lapNumber: lapRecordedList.length + 1,
-          distanceMeters: totalDist + Math.round(forwardM)
-        });
-      }
-
-      lapTimerActive = false;
-      lapTimerSimActive = false;
-      clearInterval(lapTimerInterval);
-      lastCompletedTelemetry = [...lapSessionTelemetry];
-      updateVboSampleBadge();
-
-      const btnSim = document.getElementById('btn-lap-sim-toggle');
-      if (btnSim) {
-        btnSim.innerHTML = `<i data-lucide="gamepad-2"></i> <span>Simulation</span>`;
-        btnSim.style.background = '';
-      }
-      setLapAutoStartBanner(false);
-      lucide.createIcons();
-    }
 
     function startLapTimerSimulationFlow() {
       getAudioContext();
@@ -9047,10 +8860,8 @@
     }
 
     async function saveTimerLapsToSession() {
-      // 1. If simulation is currently active, finalize the active lap cleanly across S/F line
-      if (lapTimerActive && lapTimerSimActive) {
-        finalizeCurrentSimLap();
-      } else if (lapTimerActive) {
+      // 1. Stop active timer immediately at the current vehicle position
+      if (lapTimerActive) {
         stopLapTimer();
       }
 
@@ -9066,7 +8877,7 @@
       }
 
       if (!validBestMs || validBestMs <= 0) {
-        validBestMs = 35240;
+        validBestMs = (lapElapsedMs > 0 ? lapElapsedMs : 35240);
       }
 
       const track = GLOBAL_CIRCUITS[lapCurrentTrackId] || GLOBAL_CIRCUITS[1];
